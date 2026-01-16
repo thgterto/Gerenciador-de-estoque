@@ -3,10 +3,13 @@
   "private": true,
   "version": "1.8.0",
   "type": "module",
+  "main": "electron/main.cjs",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "electron": "electron .",
+    "electron:build": "npm run build && electron-builder"
   },
   "dependencies": {
     "@azure/msal-browser": "^3.10.0",
@@ -29,9 +32,32 @@
     "@types/react-window": "^1.8.8",
     "@vitejs/plugin-react": "^4.3.4",
     "autoprefixer": "^10.4.18",
+    "electron": "^40.0.0",
+    "electron-builder": "^26.4.0",
     "postcss": "^8.4.35",
     "tailwindcss": "^3.4.1",
     "typescript": "^5.7.2",
     "vite": "^6.0.1"
+  },
+  "build": {
+    "appId": "com.labcontrol.umv",
+    "productName": "LabControl",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/**/*",
+      "electron/**/*",
+      "package.json"
+    ],
+    "win": {
+      "target": "portable"
+    },
+    "linux": {
+      "target": "AppImage"
+    },
+    "mac": {
+      "target": "dmg"
+    }
   }
 }
