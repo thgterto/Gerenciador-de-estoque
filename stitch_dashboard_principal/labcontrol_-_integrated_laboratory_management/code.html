@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LabControl - Integrated Laboratory Management</title>
+    
+    <!-- Fonts and Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#6894a1", // Requested Primary Color
+                        "primary-hover": "#547a85",
+                        "secondary": "#903A40", // Using the maroon as secondary accent
+                        "background-light": "#E6E7E8",
+                        "background-dark": "#1D1D27",
+                        "surface-light": "#FCFCFC",
+                        "surface-dark": "#293141",
+                        "border-light": "#DCDDDC",
+                        "border-dark": "#565259",
+                        "slate": {
+                            50: "#FCFCFC",
+                            100: "#E6E7E8",
+                            200: "#DCDDDC",
+                            300: "#ADBABD",
+                            400: "#8C9EA8",
+                            500: "#6797A1",
+                            600: "#5F5B63",
+                            700: "#565259",
+                            800: "#293141",
+                            900: "#1D1D27",
+                            950: "#0F0F14",
+                        }
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"],
+                        "body": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.375rem", // rounded-md
+                        "md": "0.375rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+
+    <!-- React Dependencies -->
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/history@5/umd/history.development.js"></script>
+    <script src="https://unpkg.com/react-router@6.3.0/umd/react-router.development.js"></script>
+    <script src="https://unpkg.com/react-router-dom@6.3.0/umd/react-router-dom.development.js"></script>
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .material-symbols-outlined.filled {
+            font-variation-settings: 'FILL' 1;
+        }
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #ADBABD;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #6894a1;
+        }
+        .dark ::-webkit-scrollbar-thumb {
+            background: #475569;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-700 dark:text-slate-100 font-display transition-colors duration-200">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        // Destructuring required by instructions
+        const { useState, useEffect } = React;
+        const { createRoot } = ReactDOM;
+        const { MemoryRouter, Routes, Route, Link, useNavigate, useLocation } = ReactRouterDOM;
+
+        // --- Shared Components ---
+
+        const SidebarLink = ({ to, icon, label, active }) => (
+            <Link to={to} className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors group ${
+                active 
+                ? 'bg-primary/10 text-primary dark:text-white' 
+                : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 dark:text-slate-400 hover:text-primary'
+            }`}>
+                <span className={`material-symbols-outlined text-[20px] ${active ? 'fill-1' : ''}`}>{icon}</span>
+                <span className="text-sm font-medium leading-normal">{label}</span>
+            </Link>
+        );
+
+        // A reusable Sidebar wrapper to keep navigation consistent across pages
+        const Layout = ({ children }) => {
+            const location = useLocation();
+            const path = location.pathname;
+
+            return (
+                <div className="flex h-screen w-full overflow-hidden bg-background-light dark:bg-background-dark">
+                    <aside className="hidden w-64 flex-col border-r border-slate-200 dark:border-slate-800 bg-surface-light dark:bg-surface-dark lg:flex transition-all z-20">
+                        <div className="flex h-full flex-col justify-between p-4">
+                            <div className="flex flex-col gap-6">
+                                <div className="flex items-center gap-3 px-2 py-2">
+                                    <div className="bg-primary aspect-square rounded-lg size-10 flex items-center justify-center shadow-md">
+                                        <span className="material-symbols-outlined text-white" style={{fontSize: '28px'}}>science</span>
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <h1 className="text-slate-900 dark:text-white text-base font-bold leading-tight">LabControl</h1>
+                                        <p className="text-slate-500 dark:text-slate-400 text-xs font-normal">Manager</p>
+                                    </div>
+                                </div>
+                                <nav className="flex flex-col gap-1">
+                                    <SidebarLink to="/" icon="dashboard" label="Dashboard" active={path === '/'} />
+                                    <SidebarLink to="/inventory" icon="inventory_2" label="Estoque" active={path === '/inventory'} />
+                                    <SidebarLink to="/add-item" icon="add_circle" label="Novo Item" active={path === '/add-item'} />
+                                    <SidebarLink to="/purchases" icon="shopping_cart" label="Pedidos" active={path === '/purchases'} />
+                                    <SidebarLink to="/storage" icon="grid_on" label="Armazenamento" active={path === '/storage'} />
+                                    <SidebarLink to="/history" icon="history" label="Histórico" active={path === '/history'} />
+                                </nav>
+                            </div>
+                            <div className="px-3 py-2">
+                                <div className="flex items-center gap-3 p-2 rounded-lg bg-slate-100 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700">
+                                    <div className="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-9 border-2 border-white dark:border-slate-600 shadow-sm" style={{backgroundImage: 'url("https://lh3.googleusercontent.com/aida-public/AB6AXuBtb4JjqLiBNF-GFOxPywS94FR4nqergvcTL5bxUN41x97Oa46D_69hjlvatntVBMqsUh75387X8fPON8-Xuw4jbAXHowUjFjKtiUW4n2jRR8PFtxXnqxvTRPYypq9LLQzE_lrLmfRDs1vmWJMYwBGBRitlTHwLjod7y_dIpUidOsF9kE7paDFhMjCe3thPIdTIimggIYtLIn6cnI0SEd1T407h55TWSlfPnpXc2pteaUgNnGVvaON0tn8fIqRLiZdmRMLyLcRcdNg")'}}></div>
+                                    <div className="flex flex-col overflow-hidden">
+                                        <p className="text-sm font-medium text-slate-900 dark:text-white truncate">Dr. Sarah C.</p>
+                                        <p className="text-slate-500 dark:text-slate-400 text-xs truncate">Admin</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </aside>
+                    <main className="flex-1 flex flex-col h-full overflow-hidden relative">
+                         {children}
+                    </main>
+                </div>
+            );
+        };
+
+        // --- Screen Components ---
+
+        // Screen 1: Add/Edit Item
+        const AddItemScreen = () => {
+            const navigate = useNavigate();
+
+            return (
+                <div className="flex-1 flex flex-col h-full overflow-y-auto">
+                    <header className="flex items-center justify-between whitespace-nowrap border-b border-border-light dark:border-border-dark bg-surface-light dark:bg-surface-dark px-6 py-3 sticky top-0 z-10 shrink-0">
+                        <div className="flex items-center gap-4 text-[#1D1D27] dark:text-white lg:hidden">
+                           <button className="text-gray-500 hover:text-primary"><span className="material-symbols-outlined">menu</span></button>
+                        </div>
+                         <h2 className="text-lg font-bold leading-tight tracking-tight lg:hidden">LabControl</h2>
+                         <div className="flex flex-1 justify-end gap-6 items-center">
+                            <button className="relative p-2 text-[#565259] hover:bg-background-light dark:text-gray-400 dark:hover:bg-background-dark rounded-full transition-colors">
+                                <span className="material-symbols-outlined">notifications</span>
+                            </button>
+                         </div>
+                    </header>
+                    <div className="flex-1 px-6 py-8 md:px-10 lg:px-16 max-w-7xl mx-auto w-full">
+                        <nav aria-label="Breadcrumb" className="flex mb-6">
+                            <ol className="inline-flex items-center space-x-1 md:space-x-3">
+                                <li className="inline-flex items-center">
+                                    <Link to="/" className="inline-flex items-center text-sm font-medium text-[#565259] hover:text-primary dark:text-gray-400 dark:hover:text-white">
+                                        <span className="material-symbols-outlined text-[18px] mr-2">home</span>Home
+                                    </Link>
+                                </li>
+                                <li>
+                                    <div className="flex items-center">
+                                        <span className="material-symbols-outlined text-[#565259] text-[18px]">chevron_right</span>
+                                        <Link to="/inventory" className="ml-1 text-sm font-medium text-[#565259] hover:text-primary dark:text-gray-400 dark:hover:text-white md:ml-2">Estoque</Link>
+                                    </div>
+                                </li>
+                                <li aria-current="page">
+                                    <div className="flex items-center">
+                                        <span className="material-symbols-outlined text-[#565259] text-[18px]">chevron_right</span>
+                                        <span className="ml-1 text-sm font-medium text-[#1D1D27] dark:text-white md:ml-2">Adicionar Item</span>
+                                    </div>
+                                </li>
+                            </ol>
+                        </nav>
+                        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+                            <div>
+                                <h1 className="text-3xl font-black tracking-tight text-[#1D1D27] dark:text-white">Adicionar/Editar Item</h1>
+                                <p className="mt-2 text-base text-[#565259] dark:text-gray-400">Preencha os dados abaixo ou escaneie um produto.</p>
+                            </div>
+                            <div className="flex gap-3">
+                                <button onClick={() => navigate('/inventory')} className="px-4 py-2 text-sm font-medium text-[#565259] bg-white border border-border-light rounded-lg hover:bg-gray-50 dark:bg-surface-dark dark:text-gray-300 dark:border-border-dark dark:hover:bg-gray-800 transition-colors">Cancelar</button>
+                                <button className="px-4 py-2 text-sm font-medium text-white bg-primary rounded-lg hover:bg-primary-hover shadow-sm transition-colors flex items-center gap-2">
+                                    <span className="material-symbols-outlined text-[20px]">save</span>Salvar Item
+                                </button>
+                            </div>
+                        </div>
+                        {/* Form Content - simplified for prototype */}
+                         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                            <div className="lg:col-span-2 space-y-6">
+                                <div className="bg-primary/5 dark:bg-primary/10 rounded-xl border border-primary/20 p-6 flex flex-col md:flex-row items-center gap-6">
+                                    <div className="rounded-full bg-surface-light dark:bg-surface-dark p-3 text-primary shadow-sm border border-border-light dark:border-border-dark hidden md:block">
+                                        <span className="material-symbols-outlined text-[32px]">qr_code_scanner</span>
+                                    </div>
+                                    <div className="flex-1 w-full">
+                                        <label className="block text-sm font-bold text-[#1D1D27] dark:text-white mb-2">Leitura Rápida</label>
+                                        <div className="relative flex items-center">
+                                            <input className="w-full rounded-lg border-border-light bg-white dark:bg-background-dark dark:border-border-dark dark:text-white focus:border-primary focus:ring-primary pl-4 pr-12 py-3 shadow-sm placeholder-[#ADBABD]" placeholder="Escaneie código de barras..." type="text"/>
+                                            <button className="absolute right-2 p-2 text-primary hover:bg-primary/10 rounded-lg"><span className="material-symbols-outlined">photo_camera</span></button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="bg-surface-light dark:bg-surface-dark rounded-xl shadow-sm border border-border-light dark:border-border-dark p-6 space-y-4">
+                                    <h3 className="text-lg font-bold dark:text-white flex items-center gap-2"><span className="material-symbols-outlined text-primary">label</span>Identificação</h3>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div className="md:col-span-2">
+                                            <label className="block text-sm font-medium text-slate-700 dark:text-gray-300 mb-1">Nome</label>
+                                            <input type="text" className="w-full rounded-md border-border-light dark:bg-slate-800 dark:border-slate-700 dark:text-white" placeholder="Ex: Ácido Sulfúrico" />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium text-slate-700 dark:text-gray-300 mb-1">Categoria</label>
+                                            <select className="w-full rounded-md border-border-light dark:bg-slate-800 dark:border-slate-700 dark:text-white">
+                                                <option>Reagentes</option>
+                                                <option>Vidrarias</option>
+                                            </select>
+                                        </div>
+                                         <div>
+                                            <label className="block text-sm font-medium text-slate-700 dark:text-gray-300 mb-1">SKU</label>
+                                            <input type="text" className="w-full rounded-md border-border-light dark:bg-slate-800 dark:border-slate-700 dark:text-white" placeholder="SKU-123" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="space-y-6">
+                                <div className="bg-surface-light dark:bg-surface-dark rounded-xl shadow-sm border border-border-light dark:border-border-dark p-6">
+                                     <h3 className="text-lg font-bold mb-4 dark:text-white">Estoque Inicial</h3>
+                                     <div className="flex items-center border border-border-light dark:border-slate-700 rounded-lg overflow-hidden mb-4">
+                                        <button className="px-3 py-2 bg-gray-50 dark:bg-slate-800 dark:text-white border-r border-border-light dark:border-slate-700">-</button>
+                                        <input type="number" className="w-full text-center border-none dark:bg-slate-900 dark:text-white" defaultValue="0" />
+                                        <button className="px-3 py-2 bg-gray-50 dark:bg-slate-800 dark:text-white border-l border-border-light dark:border-slate-700">+</button>
+                                     </div>
+                                     <div className="mt-4 border-2 border-dashed border-gray-300 dark:border-slate-700 rounded-lg p-6 text-center text-gray-500 hover:border-primary cursor-pointer transition-colors">
+                                        <span className="material-symbols-outlined text-4xl mb-2">image</span>
+                                        <p className="text-sm">Upload Imagem</p>
+                                     </div>
+                                </div>
+                            </div>
+                         </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // Screen 2: Dashboard (Home)
+        const DashboardScreen = () => {
+            return (
+                <div className="flex-1 flex flex-col h-full overflow-hidden">
+                    <header className="h-16 flex items-center justify-between px-8 bg-surface-light dark:bg-surface-dark border-b border-slate-200 dark:border-slate-800 shrink-0 z-10">
+                        <h2 className="text-xl font-bold text-slate-800 dark:text-white tracking-tight">Overview</h2>
+                        <div className="flex items-center gap-6">
+                            <div className="relative hidden md:block">
+                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"><span className="material-symbols-outlined !text-[20px]">search</span></span>
+                                <input className="h-10 pl-10 pr-4 w-64 rounded-lg bg-slate-100 dark:bg-slate-800 border-none text-sm text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-primary focus:bg-white transition-all" placeholder="Search..." type="text"/>
+                            </div>
+                            <div className="flex items-center gap-3">
+                                <button className="size-10 flex items-center justify-center rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 relative">
+                                    <span className="material-symbols-outlined text-slate-600 dark:text-slate-400">notifications</span>
+                                    <span className="absolute top-2.5 right-2.5 size-2 bg-red-500 rounded-full border border-white"></span>
+                                </button>
+                                <Link to="/add-item" className="h-10 px-4 bg-primary hover:bg-primary-hover text-white text-sm font-medium rounded-lg transition-colors flex items-center gap-2 shadow-sm">
+                                    <span className="material-symbols-outlined !text-[18px]">add</span><span>Add Item</span>
+                                </Link>
+                            </div>
+                        </div>
+                    </header>
+                    <div className="flex-1 overflow-y-auto p-8">
+                        <div className="max-w-[1280px] mx-auto flex flex-col gap-8">
+                             {/* Stats Grid */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                                <Link to="/inventory" className="bg-surface-light dark:bg-surface-dark p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between h-32 relative overflow-hidden group hover:border-primary transition-colors">
+                                    <div className="absolute right-0 top-0 p-4 opacity-10 -rotate-12"><span className="material-symbols-outlined text-8xl text-primary">science</span></div>
+                                    <div className="flex items-center justify-between z-10"><p className="text-slate-500 font-medium text-sm">Total Items</p><div className="bg-primary/10 text-primary rounded-md p-1.5 flex"><span className="material-symbols-outlined !text-[20px]">science</span></div></div>
+                                    <div className="z-10"><h3 className="text-2xl font-bold text-slate-800 dark:text-white">1,240</h3><p className="text-xs text-green-600 flex items-center gap-1 mt-1 font-medium">+2.5% this month</p></div>
+                                </Link>
+                                <div className="bg-surface-light dark:bg-surface-dark p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between h-32 relative overflow-hidden">
+                                     <div className="absolute right-0 top-0 p-4 opacity-10 -rotate-12"><span className="material-symbols-outlined text-8xl text-amber-500">warning</span></div>
+                                     <div className="flex items-center justify-between z-10"><p className="text-slate-500 font-medium text-sm">Low Stock</p><div className="bg-amber-50 dark:bg-amber-900/20 text-amber-600 rounded-md p-1.5 flex"><span className="material-symbols-outlined !text-[20px]">warning</span></div></div>
+                                     <div className="z-10"><h3 className="text-2xl font-bold text-slate-800 dark:text-white">12</h3><p className="text-xs text-amber-600 font-medium mt-1">Action needed</p></div>
+                                </div>
+                                <div className="bg-surface-light dark:bg-surface-dark p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between h-32 relative overflow-hidden">
+                                    <div className="absolute right-0 top-0 p-4 opacity-10 -rotate-12"><span className="material-symbols-outlined text-8xl text-red-500">event_busy</span></div>
+                                    <div className="flex items-center justify-between z-10"><p className="text-slate-500 font-medium text-sm">Expiring Soon</p><div className="bg-red-50 dark:bg-red-900/20 text-red-600 rounded-md p-1.5 flex"><span className="material-symbols-outlined !text-[20px]">event_busy</span></div></div>
+                                    <div className="z-10"><h3 className="text-2xl font-bold text-slate-800 dark:text-white">5</h3><p className="text-xs text-red-600 font-medium mt-1">Within 7 days</p></div>
+                                </div>
+                                <div className="bg-surface-light dark:bg-surface-dark p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between h-32 relative overflow-hidden">
+                                    <div className="absolute right-0 top-0 p-4 opacity-10 -rotate-12"><span className="material-symbols-outlined text-8xl text-green-500">payments</span></div>
+                                    <div className="flex items-center justify-between z-10"><p className="text-slate-500 font-medium text-sm">Total Value</p><div className="bg-green-50 dark:bg-green-900/20 text-green-600 rounded-md p-1.5 flex"><span className="material-symbols-outlined !text-[20px]">payments</span></div></div>
+                                    <div className="z-10"><h3 className="text-2xl font-bold text-slate-800 dark:text-white">$45,000</h3><p className="text-xs text-slate-500 mt-1">Pending Audit</p></div>
+                                </div>
+                            </div>
+                            
+                            {/* Main Chart Area (Mock) */}
+                            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                                <div className="lg:col-span-2 bg-surface-light dark:bg-surface-dark rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm p-6">
+                                    <div className="flex items-center justify-between mb-6">
+                                        <div><h3 className="text-lg font-bold text-slate-800 dark:text-white">Stock Movement</h3><p className="text-sm text-slate-500">Monthly usage</p></div>
+                                    </div>
+                                    <div className="relative h-[200px] w-full bg-slate-50 dark:bg-slate-800/50 rounded flex items-center justify-center text-slate-400 text-sm">
+                                        [Interactive Chart Placeholder]
+                                    </div>
+                                </div>
+                                <div className="bg-surface-light dark:bg-surface-dark rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm p-6 flex flex-col gap-4">
+                                     <h3 className="text-lg font-bold text-slate-800 dark:text-white">Action Required</h3>
+                                     <div className="flex items-start gap-3 p-3 rounded-lg bg-red-50 dark:bg-red-900/10 border border-red-100 dark:border-red-900/30">
+                                        <span className="material-symbols-outlined text-red-500">priority_high</span>
+                                        <div><p className="text-sm font-semibold dark:text-white">Methanol</p><p className="text-xs text-slate-500">Reorder suggested.</p></div>
+                                     </div>
+                                     <div className="flex items-start gap-3 p-3 rounded-lg bg-amber-50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-900/30">
+                                        <span className="material-symbols-outlined text-amber-500">history</span>
+                                        <div><p className="text-sm font-semibold dark:text-white">Agar Plates</p><p className="text-xs text-slate-500">Expires in 3 days.</p></div>
+                                     </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // Screen 3: Inventory List
+        const InventoryScreen = () => {
+            return (
+                 <div className="flex-1 overflow-y-auto p-4 md:p-8">
+                    <div className="mx-auto max-w-7xl flex flex-col gap-6">
+                        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+                            <div className="flex flex-col gap-1">
+                                <h1 className="text-3xl md:text-4xl font-black tracking-tight text-slate-900 dark:text-white">Lista de Inventário</h1>
+                                <p className="text-slate-500 dark:text-slate-400 text-base">Gerencie todos os itens do laboratório.</p>
+                            </div>
+                            <div className="flex gap-3">
+                                <button className="flex items-center justify-center gap-2 rounded-lg border border-slate-300 dark:border-slate-600 px-4 py-2.5 text-sm font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"><span className="material-symbols-outlined text-[20px]">file_download</span>Exportar</button>
+                                <Link to="/add-item" className="flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-bold text-white shadow-sm hover:bg-primary-hover transition-colors">
+                                    <span className="material-symbols-outlined text-[20px]">add</span>Adicionar Item
+                                </Link>
+                            </div>
+                        </div>
+                        
+                        {/* Filters */}
+                        <div className="flex flex-col gap-4 rounded-xl bg-surface-light dark:bg-surface-dark p-4 border border-slate-200 dark:border-slate-800 shadow-sm">
+                            <div className="flex flex-col md:flex-row gap-4">
+                                <div className="relative flex-1">
+                                    <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500"><span className="material-symbols-outlined">search</span></span>
+                                    <input className="block w-full pl-10 pr-3 py-2.5 border border-slate-300 dark:border-slate-600 rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-1 focus:ring-primary" placeholder="Buscar por nome, SKU..." type="text"/>
+                                </div>
+                                <select className="relative w-full md:w-64 border border-slate-300 dark:border-slate-600 rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white p-2.5"><option>Localização</option></select>
+                            </div>
+                        </div>
+
+                        {/* Table */}
+                        <div className="flex flex-col rounded-xl border border-slate-200 dark:border-slate-800 bg-surface-light dark:bg-surface-dark shadow-sm overflow-hidden">
+                            <div className="overflow-x-auto">
+                                <table className="w-full text-left text-sm text-slate-700 dark:text-slate-400">
+                                    <thead className="bg-slate-100 dark:bg-slate-800/50 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-slate-700">
+                                        <tr>
+                                            <th className="p-4 w-4"><input type="checkbox" className="rounded text-primary focus:ring-primary bg-slate-100 dark:bg-slate-700 border-slate-300 dark:border-slate-600"/></th>
+                                            <th className="px-6 py-4">Item / SKU</th>
+                                            <th className="px-6 py-4">Categoria</th>
+                                            <th className="px-6 py-4">Status</th>
+                                            <th className="px-6 py-4 text-right">Ações</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
+                                        <tr className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                                            <td className="p-4 w-4"><input type="checkbox" className="rounded text-primary focus:ring-primary bg-slate-100 dark:bg-slate-700 border-slate-300 dark:border-slate-600"/></td>
+                                            <td className="px-6 py-4 font-medium text-slate-900 dark:text-white">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="h-10 w-10 rounded bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-slate-500"><span className="material-symbols-outlined">science</span></div>
+                                                    <div><div className="text-base font-semibold">Ácido Sulfúrico 98%</div><div className="text-xs text-slate-500">SKU: CH-SU-98</div></div>
+                                                </div>
+                                            </td>
+                                            <td className="px-6 py-4">Reagentes</td>
+                                            <td className="px-6 py-4"><span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 dark:bg-emerald-900/30 px-2.5 py-0.5 text-xs font-semibold text-emerald-700 dark:text-emerald-400">Em Estoque</span></td>
+                                            <td className="px-6 py-4 text-right">
+                                                <button className="text-slate-500 hover:text-primary mr-2"><span className="material-symbols-outlined">edit</span></button>
+                                            </td>
+                                        </tr>
+                                         <tr className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                                            <td className="p-4 w-4"><input type="checkbox" className="rounded text-primary focus:ring-primary bg-slate-100 dark:bg-slate-700 border-slate-300 dark:border-slate-600"/></td>
+                                            <td className="px-6 py-4 font-medium text-slate-900 dark:text-white">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="h-10 w-10 rounded bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-slate-500"><span className="material-symbols-outlined">biotech</span></div>
+                                                    <div><div className="text-base font-semibold">Placa de Petri</div><div className="text-xs text-slate-500">SKU: GL-PET-90</div></div>
+                                                </div>
+                                            </td>
+                                            <td className="px-6 py-4">Vidraria</td>
+                                            <td className="px-6 py-4"><span className="inline-flex items-center gap-1 rounded-full bg-amber-50 dark:bg-amber-900/30 px-2.5 py-0.5 text-xs font-semibold text-amber-700 dark:text-amber-400">Baixo Estoque</span></td>
+                                            <td className="px-6 py-4 text-right">
+                                                <button className="text-slate-500 hover:text-primary mr-2"><span className="material-symbols-outlined">edit</span></button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                 </div>
+            );
+        };
+
+        // Screen 4: History
+        const HistoryScreen = () => {
+            return (
+                <div className="flex-1 overflow-y-auto bg-background-light dark:bg-background-dark px-4 pb-6 md:px-6 lg:px-8 py-8">
+                    <div className="max-w-[1200px] mx-auto w-full flex flex-col gap-6">
+                        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+                            <div className="flex flex-col gap-2">
+                                <h1 className="text-text-main-light dark:text-white text-3xl md:text-4xl font-black leading-tight tracking-tight">Histórico de Movimentações</h1>
+                                <p className="text-text-secondary-light dark:text-gray-400 text-base">Visualize entradas e saídas.</p>
+                            </div>
+                            <button className="flex items-center gap-2 bg-white dark:bg-surface-dark border border-border-light dark:border-slate-600 py-2.5 px-4 rounded-lg shadow-sm"><span className="material-symbols-outlined">download</span>Exportar</button>
+                        </div>
+
+                        <div className="bg-surface-light dark:bg-surface-dark rounded-xl border border-border-light dark:border-slate-700 shadow-sm overflow-hidden flex flex-col">
+                            <div className="overflow-x-auto">
+                                <table className="min-w-full divide-y divide-border-light dark:divide-slate-700">
+                                    <thead className="bg-slate-50 dark:bg-slate-800/50">
+                                        <tr>
+                                            <th className="px-6 py-4 text-left text-xs font-semibold uppercase text-slate-500">Tipo</th>
+                                            <th className="px-6 py-4 text-left text-xs font-semibold uppercase text-slate-500">Item</th>
+                                            <th className="px-6 py-4 text-left text-xs font-semibold uppercase text-slate-500">Quantidade</th>
+                                            <th className="px-6 py-4 text-left text-xs font-semibold uppercase text-slate-500">Data</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-border-light dark:divide-slate-700 bg-surface-light dark:bg-surface-dark">
+                                        <tr className="hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+                                            <td className="px-6 py-4"><span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">Entrada</span></td>
+                                            <td className="px-6 py-4"><div className="flex flex-col"><span className="text-sm font-medium dark:text-white">Acetona P.A.</span><span className="text-xs text-slate-500">Lote: AC-089</span></div></td>
+                                            <td className="px-6 py-4"><span className="text-sm font-semibold text-green-600">+500 ml</span></td>
+                                            <td className="px-6 py-4 text-sm text-slate-500">14 Out 2023</td>
+                                        </tr>
+                                        <tr className="hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+                                            <td className="px-6 py-4"><span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400">Saída</span></td>
+                                            <td className="px-6 py-4"><div className="flex flex-col"><span className="text-sm font-medium dark:text-white">Tubos de Ensaio</span><span className="text-xs text-slate-500">Lote: TE-001</span></div></td>
+                                            <td className="px-6 py-4"><span className="text-sm font-semibold text-red-600">-20 un</span></td>
+                                            <td className="px-6 py-4 text-sm text-slate-500">14 Out 2023</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // Screen 5: Purchases
+        const PurchasesScreen = () => {
+            return (
+                <div className="flex-1 w-full max-w-[1200px] mx-auto px-6 py-8 flex flex-col gap-8">
+                     <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-2 border-b border-border-light dark:border-slate-700">
+                        <div className="flex flex-col gap-2">
+                            <h1 className="text-3xl font-black tracking-tight text-slate-900 dark:text-white">Planejamento de Compras</h1>
+                            <p className="text-slate-500 dark:text-slate-400">Gerencie reposições e pedidos.</p>
+                        </div>
+                        <div className="flex gap-3">
+                            <button className="flex items-center justify-center gap-2 h-10 px-5 rounded-lg bg-primary text-white text-sm font-bold shadow-md hover:bg-primary-hover transition-all">
+                                <span className="material-symbols-outlined text-[20px]">ios_share</span>Exportar Pedido
+                            </button>
+                        </div>
+                     </div>
+                     
+                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div className="rounded-xl p-5 bg-surface-light dark:bg-surface-dark border border-slate-200 dark:border-slate-700 shadow-sm border-l-4 border-l-red-500">
+                             <div className="flex justify-between items-start mb-2">
+                                <h3 className="text-lg font-bold text-slate-900 dark:text-white">Ácido Clorídrico</h3>
+                                <span className="text-xs font-bold text-red-600 bg-red-50 px-2 py-1 rounded">Crítico</span>
+                             </div>
+                             <p className="text-sm text-slate-500 mb-4">Estoque Atual: <span className="font-bold text-slate-900 dark:text-white">100ml</span></p>
+                             <button className="text-primary font-bold text-sm hover:underline flex items-center gap-1"><span className="material-symbols-outlined text-[18px]">add_circle</span> Adicionar</button>
+                        </div>
+                         <div className="rounded-xl p-5 bg-surface-light dark:bg-surface-dark border border-slate-200 dark:border-slate-700 shadow-sm border-l-4 border-l-orange-500">
+                             <div className="flex justify-between items-start mb-2">
+                                <h3 className="text-lg font-bold text-slate-900 dark:text-white">Luvas Látex M</h3>
+                                <span className="text-xs font-bold text-orange-600 bg-orange-50 px-2 py-1 rounded">Vence: 5d</span>
+                             </div>
+                             <p className="text-sm text-slate-500 mb-4">Estoque Atual: <span className="font-bold text-slate-900 dark:text-white">12 cx</span></p>
+                             <button className="text-primary font-bold text-sm hover:underline flex items-center gap-1"><span className="material-symbols-outlined text-[18px]">add_circle</span> Adicionar</button>
+                        </div>
+                     </div>
+
+                     <div className="flex flex-col gap-4">
+                        <div className="flex items-center gap-2 mb-2"><span className="material-symbols-outlined text-secondary">list_alt</span><h2 className="text-xl font-bold dark:text-white">Lista de Pedidos</h2></div>
+                        <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-surface-dark shadow-sm overflow-hidden">
+                             <table className="w-full text-left text-sm text-slate-600 dark:text-slate-400">
+                                <thead className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-700">
+                                    <tr>
+                                        <th className="px-6 py-4 w-12"><input type="checkbox" className="rounded text-primary focus:ring-primary"/></th>
+                                        <th className="px-6 py-4">Item</th>
+                                        <th className="px-6 py-4 w-32">Qtd. Compra</th>
+                                        <th className="px-6 py-4 text-right">Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
+                                    <tr>
+                                        <td className="px-6 py-4"><input type="checkbox" checked className="rounded text-primary focus:ring-primary"/></td>
+                                        <td className="px-6 py-4"><span className="font-semibold dark:text-white">Ácido Clorídrico PA</span><br/><span className="text-xs">Merck | Frasco 1L</span></td>
+                                        <td className="px-6 py-4">
+                                            <div className="flex items-center border rounded-lg overflow-hidden h-8 w-24 dark:border-slate-600">
+                                                <button className="w-8 h-full bg-slate-50 dark:bg-slate-700">-</button>
+                                                <input className="w-full h-full text-center border-none p-0 text-sm dark:bg-slate-800 dark:text-white" defaultValue="5"/>
+                                                <button className="w-8 h-full bg-slate-50 dark:bg-slate-700">+</button>
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4 text-right"><button className="text-slate-400 hover:text-red-500"><span className="material-symbols-outlined">delete</span></button></td>
+                                    </tr>
+                                </tbody>
+                             </table>
+                        </div>
+                     </div>
+                </div>
+            );
+        };
+
+        // Screen 6: Storage Matrix
+        const StorageScreen = () => {
+            const [selectedCell, setSelectedCell] = useState('A3');
+
+            // Mock grid interaction
+            const handleCellClick = (cellId) => {
+                setSelectedCell(cellId);
+            };
+
+            return (
+                <div className="flex flex-col h-full bg-background-light dark:bg-background-dark">
+                    <div className="px-8 py-5 bg-surface-light/50 dark:bg-surface-dark/50 backdrop-blur-sm border-b border-slate-200 dark:border-slate-700">
+                         <div className="flex justify-between items-end">
+                            <div>
+                                <h1 className="text-2xl font-bold dark:text-white flex items-center gap-3">Matriz de Armazenamento <span className="bg-green-100 text-green-700 text-xs px-2 py-1 rounded border border-green-200">Online</span></h1>
+                                <p className="text-sm text-slate-500">Visualização de Geladeira 01 - Gaveta 3</p>
+                            </div>
+                            <div className="flex gap-2">
+                                <button className="bg-primary hover:bg-primary-hover text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2"><span className="material-symbols-outlined">add</span> Adicionar</button>
+                            </div>
+                         </div>
+                    </div>
+                    <div className="flex-1 overflow-hidden p-8 flex flex-col lg:flex-row gap-6">
+                        <div className="flex-1 bg-surface-light dark:bg-surface-dark border border-slate-200 dark:border-slate-700 rounded-xl shadow-sm p-6 overflow-hidden flex flex-col">
+                            {/* Grid Header */}
+                            <div className="flex mb-2 ml-8">
+                                {[1,2,3,4,5,6,7,8].map(n => <div key={n} className="flex-1 text-center text-xs font-bold text-slate-400">{n}</div>)}
+                            </div>
+                            <div className="flex flex-1 relative">
+                                <div className="flex flex-col justify-around mr-2 w-6">
+                                    {['A','B','C','D','E','F'].map(l => <div key={l} className="text-center text-xs font-bold text-slate-400">{l}</div>)}
+                                </div>
+                                <div className="flex-1 grid grid-cols-8 grid-rows-6 gap-2 h-[500px]">
+                                    {/* Mock Cells */}
+                                    <div onClick={() => handleCellClick('A1')} className={`cursor-pointer rounded border p-1 flex flex-col justify-between hover:shadow-md transition-all ${selectedCell === 'A1' ? 'ring-2 ring-primary' : 'bg-indigo-50 dark:bg-indigo-900/20 border-indigo-200 dark:border-indigo-800'}`}>
+                                        <div className="flex justify-between"><span className="text-[10px] font-bold text-indigo-600">A1</span><div className="size-2 rounded-full bg-green-500"></div></div>
+                                        <div className="text-[10px] truncate dark:text-slate-300">SMP-902</div>
+                                    </div>
+                                    <div onClick={() => handleCellClick('A2')} className="cursor-pointer bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded p-1 flex flex-col justify-between">
+                                         <div className="flex justify-between"><span className="text-[10px] font-bold text-amber-600">A2</span><div className="size-2 rounded-full bg-amber-500 animate-pulse"></div></div>
+                                         <div className="text-[10px] truncate dark:text-slate-300">SMP-881</div>
+                                    </div>
+                                    <div onClick={() => handleCellClick('A3')} className={`cursor-pointer bg-primary/10 border-2 border-primary rounded p-1 flex flex-col justify-between relative shadow-sm ${selectedCell === 'A3' ? 'ring-2 ring-offset-1 ring-primary' : ''}`}>
+                                        <div className="absolute -top-1 -right-1 size-3 bg-primary rounded-full flex items-center justify-center"><span className="material-symbols-outlined text-white text-[8px]">check</span></div>
+                                        <div className="flex justify-between"><span className="text-[10px] font-bold text-primary">A3</span><div className="size-2 rounded-full bg-blue-500"></div></div>
+                                        <div className="text-[10px] font-bold truncate dark:text-white">SMP-104</div>
+                                    </div>
+                                    {/* Empty cells filler */}
+                                    {[...Array(45)].map((_, i) => (
+                                        <div key={i} className="border border-dashed border-slate-200 dark:border-slate-700 rounded bg-slate-50/50 dark:bg-slate-800/30 flex items-center justify-center text-slate-300 hover:border-slate-400 cursor-pointer">
+                                            <span className="material-symbols-outlined text-lg">add</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Detail Sidebar */}
+                        <aside className="w-full lg:w-80 flex-shrink-0 flex flex-col gap-6">
+                            <div className="bg-surface-light dark:bg-surface-dark border border-slate-200 dark:border-slate-700 rounded-xl shadow-sm p-5">
+                                <div className="flex justify-between items-start mb-4">
+                                    <h3 className="font-bold text-slate-800 dark:text-white">Detalhes da Amostra</h3>
+                                    <div className="bg-primary/10 text-primary text-xs font-bold px-2 py-1 rounded uppercase">{selectedCell}</div>
+                                </div>
+                                <div className="space-y-4">
+                                    <div className="flex flex-col gap-1">
+                                        <label className="text-xs text-slate-500 font-medium">ID da Amostra</label>
+                                        <input className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-sm px-3 py-2 dark:text-white" value={selectedCell === 'A3' ? 'SMP-104' : selectedCell === 'A1' ? 'SMP-902' : ''} readOnly />
+                                    </div>
+                                    <div className="flex flex-col gap-1">
+                                        <label className="text-xs text-slate-500 font-medium">Tipo</label>
+                                        <select className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-sm p-2 dark:text-white">
+                                            <option>Soro</option>
+                                            <option>Tecido</option>
+                                        </select>
+                                    </div>
+                                    <button className="w-full bg-primary text-white text-sm font-medium py-2 rounded hover:bg-opacity-90">Salvar Alterações</button>
+                                </div>
+                            </div>
+                        </aside>
+                    </div>
+                </div>
+            );
+        };
+
+        // --- App Component with Routing ---
+
+        const App = () => {
+            return (
+                <MemoryRouter>
+                    <Layout>
+                        <Routes>
+                            <Route path="/" element={<DashboardScreen />} />
+                            <Route path="/inventory" element={<InventoryScreen />} />
+                            <Route path="/add-item" element={<AddItemScreen />} />
+                            <Route path="/history" element={<HistoryScreen />} />
+                            <Route path="/purchases" element={<PurchasesScreen />} />
+                            <Route path="/storage" element={<StorageScreen />} />
+                        </Routes>
+                    </Layout>
+                </MemoryRouter>
+            );
+        };
+
+        const root = createRoot(document.getElementById("root"));
+        root.render(<App />);
+    </script>
+</body>
+</html>

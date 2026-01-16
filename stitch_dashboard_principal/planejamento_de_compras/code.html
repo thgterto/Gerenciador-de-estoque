@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html class="light" lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>LabManager - Planejamento de Compras</title>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary": "#903A40",
+              "primary-hover": "#7a2f34",
+              "secondary": "#6797A1",
+              "background-light": "#FCFCFC",
+              "background-dark": "#1D1D27",
+              "surface-light": "#E6E7E8",
+              "surface-dark": "#293141",
+              "card-light": "#FFFFFF",
+              "card-dark": "#293141",
+              "text-primary": "#1D1D27",
+              "text-secondary": "#565259",
+              "text-light": "#DCDDDC",
+              "border-light": "#DCDDDC",
+              "border-dark": "#565259",
+              "accent-teal": "#ADBABD",
+            },
+            fontFamily: {
+              "display": ["Inter", "sans-serif"],
+              "body": ["Inter", "sans-serif"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #ADBABD;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #6797A1;
+        }
+        .dark ::-webkit-scrollbar-thumb {
+            background: #565259;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark min-h-screen flex flex-col font-display text-text-primary dark:text-text-light transition-colors duration-200">
+<header class="sticky top-0 z-50 w-full border-b border-border-light dark:border-border-dark bg-white/90 dark:bg-card-dark/90 backdrop-blur-sm">
+<div class="flex h-16 items-center justify-between px-6 lg:px-12 max-w-[1440px] mx-auto w-full">
+<div class="flex items-center gap-8">
+<div class="flex items-center gap-3">
+<div class="flex items-center justify-center size-8 rounded bg-primary/10 text-primary">
+<span class="material-symbols-outlined text-2xl">science</span>
+</div>
+<h2 class="text-lg font-bold tracking-tight text-text-primary dark:text-white">LabManager</h2>
+</div>
+<label class="hidden md:flex flex-col w-64 h-10">
+<div class="flex w-full h-full items-center rounded-lg bg-surface-light dark:bg-surface-dark border border-transparent focus-within:border-primary focus-within:ring-1 focus-within:ring-primary transition-all">
+<div class="pl-3 text-text-secondary dark:text-accent-teal flex items-center justify-center">
+<span class="material-symbols-outlined text-[20px]">search</span>
+</div>
+<input class="w-full bg-transparent border-none text-sm text-text-primary dark:text-white placeholder:text-text-secondary dark:placeholder:text-accent-teal focus:ring-0 px-3" placeholder="Buscar..."/>
+</div>
+</label>
+</div>
+<div class="flex items-center gap-6">
+<nav class="hidden lg:flex items-center gap-6">
+<a class="text-sm font-medium text-text-secondary hover:text-primary dark:text-accent-teal dark:hover:text-primary transition-colors" href="#">Dashboard</a>
+<a class="text-sm font-medium text-text-secondary hover:text-primary dark:text-accent-teal dark:hover:text-primary transition-colors" href="#">Estoque</a>
+<a class="text-sm font-medium text-primary border-b-2 border-primary py-4" href="#">Compras</a>
+<a class="text-sm font-medium text-text-secondary hover:text-primary dark:text-accent-teal dark:hover:text-primary transition-colors" href="#">Relatórios</a>
+</nav>
+<div class="flex items-center gap-4">
+<button class="relative p-2 text-text-secondary hover:text-primary dark:text-accent-teal transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-2 right-2 size-2 bg-primary rounded-full border border-white dark:border-card-dark"></span>
+</button>
+<div class="h-9 w-9 rounded-full bg-cover bg-center ring-2 ring-surface-light dark:ring-surface-dark" data-alt="User profile avatar showing a smiling person" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAPI6nH6rjDfwgWaPc8SK7UbZRcxb78BbDXhBaMLls_Kw7Gzz-uCCEf2CFmb3TwQBmsF2lDKDjNXTKkkxIpwN_jd3fL8tALY1lMKTqFCkepCd9N8xJu7Zsb38TRBSw51eQFD7R7GjVTnzXCzmHcX6wKFouGKq-oKj7PT1DJzBSfr-Vpwc9a9BLUm7v_grHLvjmBEZT96b17k6YfpoRT_45FXzeHYTalVVUWeEu5XI3AZrj7NuQ1L53JQKFOhUxLZT-o62cVMn3en2I");'>
+</div>
+</div>
+</div>
+</div>
+</header>
+<main class="flex-1 w-full max-w-[1200px] mx-auto px-6 lg:px-12 py-8 flex flex-col gap-8">
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-2 border-b border-border-light dark:border-border-dark">
+<div class="flex flex-col gap-2">
+<h1 class="text-3xl md:text-4xl font-black tracking-tight text-text-primary dark:text-white">Planejamento de Compras</h1>
+<p class="text-text-secondary dark:text-accent-teal text-base">Gerencie necessidades de reposição e gere pedidos de compra.</p>
+</div>
+<div class="flex gap-3">
+<button class="flex items-center justify-center gap-2 h-10 px-4 rounded-lg bg-white dark:bg-card-dark border border-border-light dark:border-border-dark text-text-secondary dark:text-text-light text-sm font-bold hover:bg-surface-light dark:hover:bg-surface-dark/50 transition-colors">
+<span class="material-symbols-outlined text-[20px]">save</span>
+<span class="hidden sm:inline">Salvar Rascunho</span>
+</button>
+<button class="flex items-center justify-center gap-2 h-10 px-5 rounded-lg bg-primary text-white text-sm font-bold hover:bg-primary-hover shadow-md shadow-primary/20 transition-all">
+<span class="material-symbols-outlined text-[20px]">ios_share</span>
+                Exportar Pedido
+            </button>
+</div>
+</div>
+<section>
+<div class="flex items-center gap-2 mb-4">
+<span class="material-symbols-outlined text-primary">warning</span>
+<h2 class="text-xl font-bold text-text-primary dark:text-white">Alertas Críticos</h2>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+<div class="group relative flex flex-col gap-3 rounded-xl p-5 bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark shadow-sm hover:shadow-md hover:border-primary/50 transition-all">
+<div class="flex justify-between items-start">
+<div>
+<p class="text-sm font-medium text-text-secondary dark:text-accent-teal">SAP: 1022</p>
+<h3 class="text-lg font-bold text-text-primary dark:text-white mt-1">Ácido Clorídrico</h3>
+</div>
+<span class="inline-flex items-center px-2 py-1 rounded bg-red-50 dark:bg-primary/20 text-xs font-bold text-primary dark:text-red-200 border border-red-100 dark:border-primary/30">
+                            Crítico
+                        </span>
+</div>
+<div class="flex items-end justify-between mt-auto pt-2">
+<div>
+<p class="text-sm text-text-secondary dark:text-accent-teal">Estoque Atual</p>
+<p class="text-2xl font-bold text-text-primary dark:text-white tracking-tight">100ml</p>
+</div>
+<button class="flex items-center gap-1 text-primary font-bold text-sm hover:underline hover:text-primary-hover">
+<span class="material-symbols-outlined text-[18px]">add_circle</span>
+                        Adicionar
+                    </button>
+</div>
+</div>
+<div class="group relative flex flex-col gap-3 rounded-xl p-5 bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark shadow-sm hover:shadow-md hover:border-secondary/50 transition-all">
+<div class="flex justify-between items-start">
+<div>
+<p class="text-sm font-medium text-text-secondary dark:text-accent-teal">SAP: 5001</p>
+<h3 class="text-lg font-bold text-text-primary dark:text-white mt-1">Luvas Látex M</h3>
+</div>
+<span class="inline-flex items-center px-2 py-1 rounded bg-orange-50 dark:bg-orange-900/20 text-xs font-bold text-orange-700 dark:text-orange-400 border border-orange-100 dark:border-orange-800/30">
+                            Vence: 5 dias
+                        </span>
+</div>
+<div class="flex items-end justify-between mt-auto pt-2">
+<div>
+<p class="text-sm text-text-secondary dark:text-accent-teal">Estoque Atual</p>
+<p class="text-2xl font-bold text-text-primary dark:text-white tracking-tight">12 cx</p>
+</div>
+<button class="flex items-center gap-1 text-primary font-bold text-sm hover:underline hover:text-primary-hover">
+<span class="material-symbols-outlined text-[18px]">add_circle</span>
+                        Adicionar
+                    </button>
+</div>
+</div>
+<div class="group relative flex flex-col gap-3 rounded-xl p-5 bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark shadow-sm hover:shadow-md hover:border-primary/50 transition-all">
+<div class="flex justify-between items-start">
+<div>
+<p class="text-sm font-medium text-text-secondary dark:text-accent-teal">SAP: 3004</p>
+<h3 class="text-lg font-bold text-text-primary dark:text-white mt-1">Etanol 70%</h3>
+</div>
+<span class="inline-flex items-center px-2 py-1 rounded bg-surface-light dark:bg-surface-dark text-xs font-bold text-text-secondary dark:text-accent-teal border border-border-light dark:border-border-dark">
+                            Esgotado
+                        </span>
+</div>
+<div class="flex items-end justify-between mt-auto pt-2">
+<div>
+<p class="text-sm text-text-secondary dark:text-accent-teal">Estoque Atual</p>
+<p class="text-2xl font-bold text-text-primary dark:text-white tracking-tight">0L</p>
+</div>
+<button class="flex items-center gap-1 text-primary font-bold text-sm hover:underline hover:text-primary-hover">
+<span class="material-symbols-outlined text-[18px]">add_circle</span>
+                        Adicionar
+                    </button>
+</div>
+</div>
+</div>
+</section>
+<section class="flex flex-col gap-4 flex-1">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mt-4">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary">list_alt</span>
+<h2 class="text-xl font-bold text-text-primary dark:text-white">Lista de Pedidos</h2>
+</div>
+<div class="flex items-center gap-2 w-full sm:w-auto">
+<div class="relative flex-1 sm:w-64">
+<div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+<span class="material-symbols-outlined text-text-secondary dark:text-accent-teal text-[20px]">search</span>
+</div>
+<input class="block w-full pl-10 pr-3 py-2 border border-border-light dark:border-border-dark rounded-lg bg-white dark:bg-card-dark text-sm placeholder:text-text-secondary focus:ring-primary focus:border-primary transition-colors text-text-primary dark:text-white" placeholder="Buscar item ou código SAP..." type="text"/>
+</div>
+<input class="w-20 py-2 px-2 border border-border-light dark:border-border-dark rounded-lg bg-white dark:bg-card-dark text-sm text-center focus:ring-primary focus:border-primary text-text-primary dark:text-white" placeholder="Qtd" type="number" value="1"/>
+<button class="flex items-center justify-center size-9 shrink-0 rounded-lg bg-primary text-white hover:bg-primary-hover transition-colors" title="Adicionar item">
+<span class="material-symbols-outlined">add</span>
+</button>
+</div>
+</div>
+<div class="relative overflow-hidden rounded-xl border border-border-light dark:border-border-dark bg-white dark:bg-card-dark shadow-sm">
+<div class="overflow-x-auto min-h-[300px]">
+<table class="w-full text-left text-sm text-text-secondary dark:text-text-light">
+<thead class="bg-surface-light dark:bg-surface-dark text-xs uppercase font-semibold text-text-secondary dark:text-accent-teal border-b border-border-light dark:border-border-dark">
+<tr>
+<th class="px-6 py-4 w-12" scope="col">
+<input class="rounded border-border-light text-primary focus:ring-primary dark:bg-card-dark dark:border-border-dark" type="checkbox"/>
+</th>
+<th class="px-6 py-4" scope="col">Item Details</th>
+<th class="px-6 py-4" scope="col">SAP Code</th>
+<th class="px-6 py-4 text-center" scope="col">Estoque</th>
+<th class="px-6 py-4 w-32" scope="col">Qtd. Compra</th>
+<th class="px-6 py-4 text-right" scope="col">Ações</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-border-light dark:divide-border-dark">
+<tr class="hover:bg-surface-light dark:hover:bg-surface-dark/50 transition-colors group">
+<td class="px-6 py-4">
+<input checked="" class="rounded border-border-light text-primary focus:ring-primary dark:bg-card-dark dark:border-border-dark" type="checkbox"/>
+</td>
+<td class="px-6 py-4">
+<div class="flex flex-col">
+<span class="font-semibold text-text-primary dark:text-white">Ácido Clorídrico PA</span>
+<span class="text-xs text-text-secondary dark:text-accent-teal">Merck | Frasco 1L</span>
+</div>
+</td>
+<td class="px-6 py-4 font-mono text-xs text-text-secondary dark:text-text-light">1022</td>
+<td class="px-6 py-4 text-center">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-primary dark:bg-primary/20 dark:text-red-200">
+                                        0.1 L
+                                    </span>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center rounded-lg border border-border-light dark:border-border-dark bg-white dark:bg-surface-dark overflow-hidden h-8 w-24">
+<button class="w-8 h-full flex items-center justify-center text-text-secondary hover:bg-surface-light dark:hover:bg-card-dark hover:text-text-primary dark:hover:text-white">-</button>
+<input class="w-full h-full border-none p-0 text-center text-sm focus:ring-0 bg-transparent text-text-primary dark:text-white" type="text" value="5"/>
+<button class="w-8 h-full flex items-center justify-center text-text-secondary hover:bg-surface-light dark:hover:bg-card-dark hover:text-text-primary dark:hover:text-white">+</button>
+</div>
+</td>
+<td class="px-6 py-4 text-right">
+<button class="text-text-secondary hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[20px]">delete</span>
+</button>
+</td>
+</tr>
+<tr class="hover:bg-surface-light dark:hover:bg-surface-dark/50 transition-colors group">
+<td class="px-6 py-4">
+<input checked="" class="rounded border-border-light text-primary focus:ring-primary dark:bg-card-dark dark:border-border-dark" type="checkbox"/>
+</td>
+<td class="px-6 py-4">
+<div class="flex flex-col">
+<span class="font-semibold text-text-primary dark:text-white">Luvas de Nitrilo (Tam. P)</span>
+<span class="text-xs text-text-secondary dark:text-accent-teal">Ansell | Caixa 100un</span>
+</div>
+</td>
+<td class="px-6 py-4 font-mono text-xs text-text-secondary dark:text-text-light">5010</td>
+<td class="px-6 py-4 text-center">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-orange-100 text-orange-800 dark:bg-orange-900/40 dark:text-orange-300">
+                                        2 cx
+                                    </span>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center rounded-lg border border-border-light dark:border-border-dark bg-white dark:bg-surface-dark overflow-hidden h-8 w-24">
+<button class="w-8 h-full flex items-center justify-center text-text-secondary hover:bg-surface-light dark:hover:bg-card-dark hover:text-text-primary dark:hover:text-white">-</button>
+<input class="w-full h-full border-none p-0 text-center text-sm focus:ring-0 bg-transparent text-text-primary dark:text-white" type="text" value="20"/>
+<button class="w-8 h-full flex items-center justify-center text-text-secondary hover:bg-surface-light dark:hover:bg-card-dark hover:text-text-primary dark:hover:text-white">+</button>
+</div>
+</td>
+<td class="px-6 py-4 text-right">
+<button class="text-text-secondary hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[20px]">delete</span>
+</button>
+</td>
+</tr>
+<tr class="hover:bg-surface-light dark:hover:bg-surface-dark/50 transition-colors group">
+<td class="px-6 py-4">
+<input checked="" class="rounded border-border-light text-primary focus:ring-primary dark:bg-card-dark dark:border-border-dark" type="checkbox"/>
+</td>
+<td class="px-6 py-4">
+<div class="flex flex-col">
+<span class="font-semibold text-text-primary dark:text-white">Pipeta Pasteur Descartável</span>
+<span class="text-xs text-text-secondary dark:text-accent-teal">Kasvi | Pacote 500un</span>
+</div>
+</td>
+<td class="px-6 py-4 font-mono text-xs text-text-secondary dark:text-text-light">2045</td>
+<td class="px-6 py-4 text-center">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800 dark:bg-secondary/20 dark:text-secondary">
+                                        OK
+                                    </span>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center rounded-lg border border-border-light dark:border-border-dark bg-white dark:bg-surface-dark overflow-hidden h-8 w-24">
+<button class="w-8 h-full flex items-center justify-center text-text-secondary hover:bg-surface-light dark:hover:bg-card-dark hover:text-text-primary dark:hover:text-white">-</button>
+<input class="w-full h-full border-none p-0 text-center text-sm focus:ring-0 bg-transparent text-text-primary dark:text-white" type="text" value="2"/>
+<button class="w-8 h-full flex items-center justify-center text-text-secondary hover:bg-surface-light dark:hover:bg-card-dark hover:text-text-primary dark:hover:text-white">+</button>
+</div>
+</td>
+<td class="px-6 py-4 text-right">
+<button class="text-text-secondary hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[20px]">delete</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="bg-surface-light dark:bg-surface-dark px-6 py-4 border-t border-border-light dark:border-border-dark flex flex-col sm:flex-row justify-between items-center gap-4">
+<div class="text-sm text-text-secondary dark:text-accent-teal">
+                    Mostrando <span class="font-bold text-text-primary dark:text-white">3</span> de 3 itens selecionados
+                </div>
+<div class="flex gap-4 items-center">
+<div class="text-right">
+<span class="block text-xs text-text-secondary dark:text-accent-teal">Total Estimado</span>
+<span class="block text-lg font-bold text-text-primary dark:text-white">R$ 485,50</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+
+</body></html>

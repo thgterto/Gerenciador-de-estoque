@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Matriz de Armazenamento - Paleta Atualizada</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#903A40",
+                        "background-light": "#E6E7E8",
+                        "background-dark": "#1D1D27",
+                        "surface-light": "#FCFCFC",
+                        "surface-dark": "#293141",
+                        "border-light": "#DCDDDC",
+                        "border-dark": "#565259",
+                        // Mapping provided palette to slate scale for widespread adaptation
+                        slate: {
+                            50: '#FCFCFC',
+                            100: '#E6E7E8',
+                            200: '#DCDDDC',
+                            300: '#ADBABD',
+                            400: '#8c9fa1', // Interpolated between 300 and 500
+                            500: '#6797A1', // Teal provided - good for muted text/accents
+                            600: '#565259', // Dark Grey provided - good for body text
+                            700: '#464650', // Interpolated
+                            800: '#293141', // Surface Dark provided
+                            900: '#1D1D27', // Bg Dark provided
+                        }
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+<style>::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #ADBABD;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #6797A1;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.fill {
+            font-variation-settings: 'FILL' 1;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 font-display flex flex-col min-h-screen overflow-hidden">
+<header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-border-light dark:border-border-dark bg-surface-light dark:bg-surface-dark px-6 py-3 z-20">
+<div class="flex items-center gap-8">
+<div class="flex items-center gap-3 text-slate-900 dark:text-white">
+<div class="size-8 bg-primary rounded-lg flex items-center justify-center text-white">
+<span class="material-symbols-outlined text-xl">science</span>
+</div>
+<h2 class="text-lg font-bold leading-tight tracking-tight">LabInventory Pro</h2>
+</div>
+<label class="hidden md:flex flex-col min-w-40 !h-10 max-w-64">
+<div class="flex w-full flex-1 items-stretch rounded-lg h-full">
+<div class="text-slate-400 dark:text-slate-500 flex border-none bg-background-light dark:bg-background-dark items-center justify-center pl-4 rounded-l-lg border-r-0">
+<span class="material-symbols-outlined text-xl">search</span>
+</div>
+<input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-slate-900 dark:text-white focus:outline-0 focus:ring-0 border-none bg-background-light dark:bg-background-dark focus:border-none h-full placeholder:text-slate-400 px-4 rounded-l-none border-l-0 pl-2 text-sm font-normal leading-normal" placeholder="Buscar amostra, ID..." value=""/>
+</div>
+</label>
+</div>
+<div class="flex flex-1 justify-end gap-6">
+<div class="hidden lg:flex items-center gap-6">
+<a class="text-slate-600 dark:text-slate-300 hover:text-primary text-sm font-medium leading-normal transition-colors" href="#">Dashboard</a>
+<a class="text-primary font-bold text-sm leading-normal" href="#">Inventário</a>
+<a class="text-slate-600 dark:text-slate-300 hover:text-primary text-sm font-medium leading-normal transition-colors" href="#">Pedidos</a>
+<a class="text-slate-600 dark:text-slate-300 hover:text-primary text-sm font-medium leading-normal transition-colors" href="#">Relatórios</a>
+</div>
+<div class="flex gap-2">
+<button class="flex items-center justify-center overflow-hidden rounded-full size-10 hover:bg-background-light dark:hover:bg-background-dark transition-colors text-slate-600 dark:text-slate-300">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="flex items-center justify-center overflow-hidden rounded-full size-10 hover:bg-background-light dark:hover:bg-background-dark transition-colors text-slate-600 dark:text-slate-300">
+<span class="material-symbols-outlined">settings</span>
+</button>
+<div class="bg-center bg-no-repeat bg-cover rounded-full size-10 border-2 border-white dark:border-slate-700 shadow-sm ml-2" data-alt="Portrait of a scientist" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuD4af2H-ok-UVgCRnH_tQhHEdPKsJ1y9ffMf7JUnbfYq4AD1fzCmZy0vZifmllIIt5wwWvwB7HtPnJUUv62J_flHujW1_cLWEHT-_KwH3OjrL__uByvlYc7ShqBFsXWPf-4NpVqZnsOEC9kjogDFX6YgD83CTFHRfu1YeKEu939e-nf44flUiMzn7-bIHqklB0DN0UGDCiuypytTw5PVFrabKVVQ2objzCe1qENTixGoe5Imand_b8yMO4iGcWhu_rC4CMk00zjKC4");'></div>
+</div>
+</div>
+</header>
+<div class="flex flex-1 overflow-hidden">
+<aside class="w-64 bg-surface-light dark:bg-surface-dark border-r border-border-light dark:border-border-dark flex flex-col flex-shrink-0 hidden md:flex">
+<div class="p-4 border-b border-border-light dark:border-border-dark">
+<div class="flex items-center justify-between mb-4">
+<h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Locais</h3>
+<button class="text-primary hover:bg-primary/10 rounded p-1">
+<span class="material-symbols-outlined text-sm">add</span>
+</button>
+</div>
+<nav class="flex flex-col gap-1">
+<div class="group">
+<button class="flex items-center w-full gap-2 px-2 py-1.5 text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-background-light dark:hover:bg-background-dark rounded-lg">
+<span class="material-symbols-outlined text-slate-400 text-lg">expand_more</span>
+<span class="material-symbols-outlined text-slate-500 text-lg">domain</span>
+                            Laboratório Central
+                        </button>
+<div class="pl-7 flex flex-col gap-1 mt-1 border-l border-border-light dark:border-slate-700 ml-4">
+<div class="group">
+<button class="flex items-center w-full gap-2 px-2 py-1.5 text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-background-light dark:hover:bg-background-dark rounded-lg">
+<span class="material-symbols-outlined text-slate-400 text-lg">expand_more</span>
+<span class="material-symbols-outlined text-blue-400 text-lg">ac_unit</span>
+                                    Geladeira 01
+                                </button>
+<div class="pl-7 flex flex-col gap-1 mt-1 border-l border-border-light dark:border-slate-700 ml-4">
+<button class="flex items-center w-full gap-2 px-2 py-1.5 text-sm text-slate-600 dark:text-slate-400 hover:bg-background-light dark:hover:bg-background-dark rounded-lg">
+<span class="material-symbols-outlined text-slate-400 text-lg">grid_on</span>
+                                        Prateleira 1
+                                    </button>
+<button class="flex items-center w-full gap-2 px-2 py-1.5 text-sm text-primary font-bold bg-primary/10 rounded-lg">
+<span class="material-symbols-outlined text-primary text-lg fill">grid_on</span>
+                                        Gaveta 3
+                                    </button>
+<button class="flex items-center w-full gap-2 px-2 py-1.5 text-sm text-slate-600 dark:text-slate-400 hover:bg-background-light dark:hover:bg-background-dark rounded-lg">
+<span class="material-symbols-outlined text-slate-400 text-lg">grid_on</span>
+                                        Gaveta 4
+                                    </button>
+</div>
+</div>
+<button class="flex items-center w-full gap-2 px-2 py-1.5 text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-background-light dark:hover:bg-background-dark rounded-lg">
+<span class="material-symbols-outlined text-slate-400 text-lg">chevron_right</span>
+<span class="material-symbols-outlined text-cyan-400 text-lg">ac_unit</span>
+                                Freezer -80°C
+                            </button>
+</div>
+</div>
+<div class="group mt-2">
+<button class="flex items-center w-full gap-2 px-2 py-1.5 text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-background-light dark:hover:bg-background-dark rounded-lg">
+<span class="material-symbols-outlined text-slate-400 text-lg">chevron_right</span>
+<span class="material-symbols-outlined text-slate-500 text-lg">warehouse</span>
+                            Almoxarifado B
+                        </button>
+</div>
+</nav>
+</div>
+<div class="mt-auto p-4 border-t border-border-light dark:border-border-dark">
+<div class="bg-primary/5 rounded-xl p-3">
+<div class="flex items-center gap-3 mb-2">
+<div class="bg-surface-light dark:bg-slate-800 p-1.5 rounded-lg shadow-sm">
+<span class="material-symbols-outlined text-primary">pie_chart</span>
+</div>
+<span class="text-sm font-bold text-slate-800 dark:text-white">Capacidade Total</span>
+</div>
+<div class="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2 mb-1">
+<div class="bg-primary h-2 rounded-full" style="width: 78%"></div>
+</div>
+<div class="flex justify-between text-xs text-slate-500">
+<span>78% ocupado</span>
+<span>245/312 slots</span>
+</div>
+</div>
+</div>
+</aside>
+<main class="flex-1 flex flex-col h-full overflow-hidden bg-background-light dark:bg-background-dark relative">
+<div class="flex-shrink-0 px-8 py-5 bg-surface-light/50 dark:bg-surface-dark/50 backdrop-blur-sm sticky top-0 z-10 border-b border-border-light dark:border-border-dark">
+<div class="flex flex-col gap-4 max-w-[1400px] mx-auto w-full">
+<div class="flex items-center gap-2 text-sm">
+<a class="text-slate-500 hover:text-primary transition-colors" href="#">Laboratório Central</a>
+<span class="material-symbols-outlined text-slate-400 text-xs">chevron_right</span>
+<a class="text-slate-500 hover:text-primary transition-colors" href="#">Geladeira 01</a>
+<span class="material-symbols-outlined text-slate-400 text-xs">chevron_right</span>
+<span class="text-slate-900 dark:text-white font-medium bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded">Gaveta 3</span>
+</div>
+<div class="flex flex-wrap justify-between items-end gap-4">
+<div class="flex flex-col gap-1">
+<h1 class="text-slate-900 dark:text-white text-2xl font-bold leading-tight flex items-center gap-3">
+                                Matriz de Armazenamento
+                                <span class="px-2 py-1 rounded-md bg-green-100 text-green-700 text-xs font-bold border border-green-200">Online</span>
+</h1>
+<p class="text-slate-500 text-sm">Visualize e gerencie a disposição das amostras nesta unidade (8x6 Grid).</p>
+</div>
+<div class="flex items-center gap-3">
+<div class="bg-surface-light dark:bg-slate-800 border border-border-light dark:border-border-dark rounded-lg flex p-1 shadow-sm">
+<button class="p-1.5 rounded hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition-colors" title="Print Labels">
+<span class="material-symbols-outlined text-xl">print</span>
+</button>
+<div class="w-px h-6 bg-slate-200 dark:bg-slate-700 mx-1 self-center"></div>
+<button class="p-1.5 rounded hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition-colors" title="Export CSV">
+<span class="material-symbols-outlined text-xl">download</span>
+</button>
+<button class="p-1.5 rounded bg-primary/10 text-primary transition-colors" title="Grid View">
+<span class="material-symbols-outlined text-xl">grid_on</span>
+</button>
+<button class="p-1.5 rounded hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition-colors" title="List View">
+<span class="material-symbols-outlined text-xl">table_rows</span>
+</button>
+</div>
+<button class="flex items-center justify-center gap-2 bg-primary hover:bg-opacity-90 text-white font-medium text-sm px-4 h-10 rounded-lg shadow-sm shadow-primary/30 transition-all">
+<span class="material-symbols-outlined text-lg">add</span>
+<span>Adicionar Amostra</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<div class="flex-1 overflow-auto p-8 relative">
+<div class="max-w-[1400px] mx-auto w-full h-full flex flex-col lg:flex-row gap-6">
+<div class="flex-1 bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl shadow-sm p-6 overflow-hidden flex flex-col">
+<div class="flex mb-2 ml-8">
+<div class="flex-1 text-center text-xs font-bold text-slate-400">1</div>
+<div class="flex-1 text-center text-xs font-bold text-slate-400">2</div>
+<div class="flex-1 text-center text-xs font-bold text-slate-400">3</div>
+<div class="flex-1 text-center text-xs font-bold text-slate-400">4</div>
+<div class="flex-1 text-center text-xs font-bold text-slate-400">5</div>
+<div class="flex-1 text-center text-xs font-bold text-slate-400">6</div>
+<div class="flex-1 text-center text-xs font-bold text-slate-400">7</div>
+<div class="flex-1 text-center text-xs font-bold text-slate-400">8</div>
+</div>
+<div class="flex flex-1 relative">
+<div class="flex flex-col justify-around mr-2 w-6">
+<div class="text-center text-xs font-bold text-slate-400">A</div>
+<div class="text-center text-xs font-bold text-slate-400">B</div>
+<div class="text-center text-xs font-bold text-slate-400">C</div>
+<div class="text-center text-xs font-bold text-slate-400">D</div>
+<div class="text-center text-xs font-bold text-slate-400">E</div>
+<div class="text-center text-xs font-bold text-slate-400">F</div>
+</div>
+<div class="flex-1 grid grid-cols-8 grid-rows-6 gap-2 h-[500px]">
+<div class="group relative bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-800 rounded-md p-2 flex flex-col justify-between cursor-pointer hover:border-primary hover:shadow-md transition-all">
+<div class="flex justify-between items-start">
+<span class="text-[10px] font-bold text-indigo-600 dark:text-indigo-300">A1</span>
+<div class="size-2 rounded-full bg-green-500"></div>
+</div>
+<div class="text-xs font-medium text-slate-800 dark:text-slate-200 truncate">SMP-902</div>
+<div class="text-[10px] text-slate-500 truncate">Soro</div>
+</div>
+<div class="group relative bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-md p-2 flex flex-col justify-between cursor-pointer hover:border-amber-500 hover:shadow-md transition-all">
+<div class="flex justify-between items-start">
+<span class="text-[10px] font-bold text-amber-600 dark:text-amber-400">A2</span>
+<div class="size-2 rounded-full bg-amber-500 animate-pulse"></div>
+</div>
+<div class="text-xs font-medium text-slate-800 dark:text-slate-200 truncate">SMP-881</div>
+<div class="text-[10px] text-slate-500 truncate">Plasma</div>
+</div>
+<div class="relative bg-primary/10 border-2 border-primary rounded-md p-2 flex flex-col justify-between cursor-pointer shadow-sm z-10">
+<div class="absolute -top-1 -right-1 size-4 bg-primary rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined text-white text-[10px] font-bold">check</span>
+</div>
+<div class="flex justify-between items-start">
+<span class="text-[10px] font-bold text-primary">A3</span>
+<div class="size-2 rounded-full bg-blue-500"></div>
+</div>
+<div class="text-xs font-bold text-slate-900 dark:text-white truncate">SMP-104</div>
+<div class="text-[10px] text-slate-600 dark:text-slate-400 truncate">Tecido</div>
+</div>
+<button class="group border border-dashed border-slate-300 dark:border-slate-600 rounded-md flex items-center justify-center hover:bg-slate-50 dark:hover:bg-slate-800 hover:border-slate-400 transition-colors">
+<span class="material-symbols-outlined text-slate-300 group-hover:text-slate-500 text-2xl">add</span>
+</button>
+<button class="group border border-dashed border-slate-300 dark:border-slate-600 rounded-md flex items-center justify-center hover:bg-slate-50 dark:hover:bg-slate-800 hover:border-slate-400 transition-colors">
+<span class="material-symbols-outlined text-slate-300 group-hover:text-slate-500 text-2xl">add</span>
+</button>
+<div class="group relative bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-800 rounded-md p-2 flex flex-col justify-between cursor-pointer hover:border-primary transition-all">
+<div class="flex justify-between items-start">
+<span class="text-[10px] font-bold text-indigo-600 dark:text-indigo-300">A6</span>
+<div class="size-2 rounded-full bg-purple-500"></div>
+</div>
+<div class="text-xs font-medium text-slate-800 dark:text-slate-200 truncate">DNA-X2</div>
+<div class="text-[10px] text-slate-500 truncate">Saliva</div>
+</div>
+<button class="group border border-dashed border-slate-300 dark:border-slate-600 rounded-md flex items-center justify-center hover:bg-slate-50 dark:hover:bg-slate-800 hover:border-slate-400 transition-colors">
+<span class="material-symbols-outlined text-slate-300 group-hover:text-slate-500 text-2xl">add</span>
+</button>
+<button class="group border border-dashed border-slate-300 dark:border-slate-600 rounded-md flex items-center justify-center hover:bg-slate-50 dark:hover:bg-slate-800 hover:border-slate-400 transition-colors">
+<span class="material-symbols-outlined text-slate-300 group-hover:text-slate-500 text-2xl">add</span>
+</button>
+<button class="group border border-dashed border-slate-300 dark:border-slate-600 rounded-md flex items-center justify-center hover:bg-slate-50 dark:hover:bg-slate-800 hover:border-slate-400 transition-colors">
+<span class="material-symbols-outlined text-slate-300 group-hover:text-slate-500 text-2xl">add</span>
+</button>
+<div class="group relative bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md p-2 flex flex-col justify-between cursor-pointer hover:border-red-500 transition-all opacity-75 grayscale">
+<div class="flex justify-between items-start">
+<span class="text-[10px] font-bold text-red-600 dark:text-red-400">B2</span>
+<span class="material-symbols-outlined text-[10px] text-red-500">block</span>
+</div>
+<div class="text-xs font-medium text-slate-500 truncate">Reservado</div>
+<div class="text-[10px] text-slate-400 truncate">Manut.</div>
+</div>
+<button class="group border border-dashed border-slate-300 dark:border-slate-600 rounded-md flex items-center justify-center hover:bg-slate-50 dark:hover:bg-slate-800 hover:border-slate-400 transition-colors">
+<span class="material-symbols-outlined text-slate-300 group-hover:text-slate-500 text-2xl">add</span>
+</button>
+<div class="group relative bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-800 rounded-md p-2 flex flex-col justify-between cursor-pointer hover:border-primary hover:shadow-md transition-all">
+<div class="flex justify-between items-start">
+<span class="text-[10px] font-bold text-indigo-600 dark:text-indigo-300">B4</span>
+<div class="size-2 rounded-full bg-green-500"></div>
+</div>
+<div class="text-xs font-medium text-slate-800 dark:text-slate-200 truncate">SMP-999</div>
+<div class="text-[10px] text-slate-500 truncate">Soro</div>
+</div>
+<button class="group border border-dashed border-slate-300 dark:border-slate-600 rounded-md flex items-center justify-center hover:bg-slate-50 dark:hover:bg-slate-800 hover:border-slate-400 transition-colors">
+<span class="material-symbols-outlined text-slate-300 group-hover:text-slate-500 text-2xl">add</span>
+</button>
+<button class="group border border-dashed border-slate-300 dark:border-slate-600 rounded-md flex items-center justify-center hover:bg-slate-50 dark:hover:bg-slate-800 hover:border-slate-400 transition-colors">
+<span class="material-symbols-outlined text-slate-300 group-hover:text-slate-500 text-2xl">add</span>
+</button>
+<button class="group border border-dashed border-slate-300 dark:border-slate-600 rounded-md flex items-center justify-center hover:bg-slate-50 dark:hover:bg-slate-800 hover:border-slate-400 transition-colors">
+<span class="material-symbols-outlined text-slate-300 group-hover:text-slate-500 text-2xl">add</span>
+</button>
+<button class="group border border-dashed border-slate-300 dark:border-slate-600 rounded-md flex items-center justify-center hover:bg-slate-50 dark:hover:bg-slate-800 hover:border-slate-400 transition-colors">
+<span class="material-symbols-outlined text-slate-300 group-hover:text-slate-500 text-2xl">add</span>
+</button>
+<div class="col-span-8 row-span-4 grid grid-cols-8 grid-rows-4 gap-2">
+<div class="border border-dashed border-slate-200 dark:border-slate-700 rounded-md bg-slate-50/50 dark:bg-slate-800/30"></div>
+<div class="border border-dashed border-slate-200 dark:border-slate-700 rounded-md bg-slate-50/50 dark:bg-slate-800/30"></div>
+<div class="border border-dashed border-slate-200 dark:border-slate-700 rounded-md bg-slate-50/50 dark:bg-slate-800/30"></div>
+<div class="border border-dashed border-slate-200 dark:border-slate-700 rounded-md bg-slate-50/50 dark:bg-slate-800/30"></div>
+<div class="border border-dashed border-slate-200 dark:border-slate-700 rounded-md bg-slate-50/50 dark:bg-slate-800/30"></div>
+<div class="border border-dashed border-slate-200 dark:border-slate-700 rounded-md bg-slate-50/50 dark:bg-slate-800/30"></div>
+<div class="border border-dashed border-slate-200 dark:border-slate-700 rounded-md bg-slate-50/50 dark:bg-slate-800/30"></div>
+<div class="border border-dashed border-slate-200 dark:border-slate-700 rounded-md bg-slate-50/50 dark:bg-slate-800/30"></div>
+<div class="border border-dashed border-slate-200 dark:border-slate-700 rounded-md bg-slate-50/50 dark:bg-slate-800/30"></div>
+<div class="bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-800 rounded-md p-2 flex flex-col justify-between"><div class="text-[10px] font-bold text-indigo-600">D2</div><div class="text-xs text-slate-800">SMP-55</div></div>
+<div class="bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-800 rounded-md p-2 flex flex-col justify-between"><div class="text-[10px] font-bold text-indigo-600">D3</div><div class="text-xs text-slate-800">SMP-56</div></div>
+<div class="bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-800 rounded-md p-2 flex flex-col justify-between"><div class="text-[10px] font-bold text-indigo-600">D4</div><div class="text-xs text-slate-800">SMP-57</div></div>
+<div class="border border-dashed border-slate-200 dark:border-slate-700 rounded-md bg-slate-50/50 dark:bg-slate-800/30"></div>
+<div class="border border-dashed border-slate-200 dark:border-slate-700 rounded-md bg-slate-50/50 dark:bg-slate-800/30"></div>
+<div class="border border-dashed border-slate-200 dark:border-slate-700 rounded-md bg-slate-50/50 dark:bg-slate-800/30"></div>
+<div class="border border-dashed border-slate-200 dark:border-slate-700 rounded-md bg-slate-50/50 dark:bg-slate-800/30"></div>
+<div class="col-span-8 row-span-2 bg-slate-50 dark:bg-slate-900/50 rounded-lg border border-dashed border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-400 text-sm italic">
+                                        Espaço Disponível (16 slots)
+                                    </div>
+</div>
+</div>
+</div>
+</div>
+<aside class="w-full lg:w-80 flex-shrink-0 flex flex-col gap-6">
+<div class="bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl shadow-sm p-5">
+<div class="flex justify-between items-start mb-4">
+<h3 class="font-bold text-slate-800 dark:text-white">Detalhes da Amostra</h3>
+<div class="bg-primary/10 text-primary text-xs font-bold px-2 py-1 rounded uppercase">A3</div>
+</div>
+<div class="space-y-4">
+<div class="flex flex-col gap-1">
+<label class="text-xs text-slate-500 font-medium">ID da Amostra</label>
+<div class="flex items-center gap-2">
+<input class="flex-1 bg-background-light dark:bg-background-dark border-border-light dark:border-slate-700 rounded-md text-sm px-3 py-2 text-slate-800 dark:text-white focus:ring-primary focus:border-primary" type="text" value="SMP-104"/>
+<button class="text-slate-400 hover:text-primary"><span class="material-symbols-outlined">content_copy</span></button>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div class="flex flex-col gap-1">
+<label class="text-xs text-slate-500 font-medium">Tipo</label>
+<select class="bg-background-light dark:bg-background-dark border-border-light dark:border-slate-700 rounded-md text-sm px-2 py-2 text-slate-800 dark:text-white">
+<option>Tecido</option>
+<option>Soro</option>
+<option>Plasma</option>
+</select>
+</div>
+<div class="flex flex-col gap-1">
+<label class="text-xs text-slate-500 font-medium">Data Entrada</label>
+<div class="text-sm font-medium text-slate-800 dark:text-white mt-2">12/08/2023</div>
+</div>
+</div>
+<div class="flex flex-col gap-1">
+<label class="text-xs text-slate-500 font-medium">Responsável</label>
+<div class="flex items-center gap-2 mt-1">
+<div class="size-6 bg-purple-500 rounded-full text-white text-[10px] flex items-center justify-center font-bold">JD</div>
+<span class="text-sm text-slate-700 dark:text-slate-300">Dr. John Doe</span>
+</div>
+</div>
+<div class="flex flex-col gap-1">
+<label class="text-xs text-slate-500 font-medium">Notas</label>
+<textarea class="w-full bg-background-light dark:bg-background-dark border-border-light dark:border-slate-700 rounded-md text-sm px-3 py-2 text-slate-800 dark:text-white resize-none" rows="3">Amostra sensível a temperatura. Prioridade alta.</textarea>
+</div>
+</div>
+<div class="mt-5 flex gap-2">
+<button class="flex-1 bg-primary text-white text-sm font-medium py-2 rounded-lg hover:bg-opacity-90 transition-colors">Salvar</button>
+<button class="flex-1 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-white text-sm font-medium py-2 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors">Mover</button>
+</div>
+</div>
+<div class="bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl shadow-sm p-5">
+<h3 class="font-bold text-slate-800 dark:text-white mb-4 text-sm">Legenda</h3>
+<div class="space-y-3">
+<div class="flex items-center gap-3">
+<div class="size-3 rounded-full bg-green-500"></div>
+<span class="text-sm text-slate-600 dark:text-slate-300">Soro (Normal)</span>
+</div>
+<div class="flex items-center gap-3">
+<div class="size-3 rounded-full bg-blue-500"></div>
+<span class="text-sm text-slate-600 dark:text-slate-300">Tecido (Congelado)</span>
+</div>
+<div class="flex items-center gap-3">
+<div class="size-3 rounded-full bg-amber-500"></div>
+<span class="text-sm text-slate-600 dark:text-slate-300">Atenção / Vencendo</span>
+</div>
+<div class="flex items-center gap-3">
+<div class="flex items-center justify-center size-4">
+<span class="material-symbols-outlined text-sm text-red-500">block</span>
+</div>
+<span class="text-sm text-slate-600 dark:text-slate-300">Bloqueado / Manutenção</span>
+</div>
+</div>
+</div>
+</aside>
+</div>
+</div>
+</main>
+</div>
+</body></html>

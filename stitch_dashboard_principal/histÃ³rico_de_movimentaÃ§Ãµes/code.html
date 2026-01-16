@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html class="light" lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Histórico de Movimentações - LabStock</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#903A40",
+                        "secondary": "#6797A1",
+                        "accent": "#293141",
+                        "background-light": "#FCFCFC",
+                        "background-dark": "#1D1D27",
+                        "surface-light": "#FFFFFF",
+                        "surface-dark": "#293141",
+                        "text-main-light": "#1D1D27",
+                        "text-main-dark": "#E6E7E8",
+                        "text-secondary-light": "#565259",
+                        "text-secondary-dark": "#ADBABD",
+                        "border-light": "#DCDDDC",
+                        "border-dark": "#565259",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark min-h-screen flex overflow-hidden text-text-main-light dark:text-text-main-dark">
+<aside class="w-64 bg-surface-light dark:bg-surface-dark border-r border-border-light dark:border-gray-700 flex-shrink-0 hidden md:flex flex-col h-full">
+<div class="p-6">
+<div class="flex flex-col">
+<h1 class="text-text-main-light dark:text-white text-xl font-bold leading-normal flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">science</span>
+                    LabStock
+                </h1>
+<p class="text-text-secondary-light dark:text-text-secondary-dark text-xs font-normal leading-normal mt-1">Gestão Laboratorial</p>
+</div>
+</div>
+<nav class="flex-1 overflow-y-auto px-4 space-y-2">
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-text-main-light dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors group" href="#">
+<span class="material-symbols-outlined text-text-secondary-dark group-hover:text-primary transition-colors">pie_chart</span>
+<span class="text-sm font-medium leading-normal">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-text-main-light dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors group" href="#">
+<span class="material-symbols-outlined text-text-secondary-dark group-hover:text-primary transition-colors">inventory_2</span>
+<span class="text-sm font-medium leading-normal">Inventário</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg bg-primary/10 text-primary dark:text-white transition-colors border border-primary/20" href="#">
+<span class="material-symbols-outlined filled font-variation-settings-'FILL'-1">history</span>
+<span class="text-sm font-bold leading-normal">Histórico</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-text-main-light dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors group" href="#">
+<span class="material-symbols-outlined text-text-secondary-dark group-hover:text-primary transition-colors">group</span>
+<span class="text-sm font-medium leading-normal">Usuários</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-text-main-light dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors group" href="#">
+<span class="material-symbols-outlined text-text-secondary-dark group-hover:text-primary transition-colors">settings</span>
+<span class="text-sm font-medium leading-normal">Configurações</span>
+</a>
+</nav>
+<div class="p-4 border-t border-border-light dark:border-gray-700">
+<div class="flex items-center gap-3 px-3 py-2">
+<div class="h-8 w-8 rounded-full bg-secondary flex items-center justify-center text-white font-bold text-xs">
+                    JD
+                </div>
+<div class="flex flex-col">
+<p class="text-text-main-light dark:text-white text-sm font-medium leading-tight">João D.</p>
+<p class="text-text-secondary-light dark:text-text-secondary-dark text-xs leading-tight">Admin</p>
+</div>
+</div>
+</div>
+</aside>
+<main class="flex-1 flex flex-col h-screen overflow-hidden relative">
+<header class="bg-background-light dark:bg-background-dark border-b border-border-light dark:border-gray-700 md:border-none flex-shrink-0">
+<div class="max-w-[1200px] mx-auto w-full p-4 md:p-6 lg:px-8 flex flex-col gap-6">
+<div class="flex items-center gap-2 text-sm">
+<a class="text-text-secondary-light dark:text-text-secondary-dark font-medium hover:text-primary transition-colors" href="#">Estoque</a>
+<span class="text-text-secondary-light dark:text-gray-500 font-medium">/</span>
+<span class="text-text-main-light dark:text-white font-medium">Histórico de Movimentações</span>
+</div>
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+<div class="flex flex-col gap-2 max-w-2xl">
+<h1 class="text-text-main-light dark:text-white text-3xl md:text-4xl font-black leading-tight tracking-tight">
+                            Histórico de Movimentações
+                        </h1>
+<p class="text-text-secondary-light dark:text-text-secondary-dark text-base font-normal leading-relaxed">
+                            Visualize e audite todas as entradas e saídas de materiais do laboratório em tempo real.
+                        </p>
+</div>
+<button class="flex items-center gap-2 bg-white dark:bg-surface-dark hover:bg-gray-50 dark:hover:bg-gray-700 text-text-main-light dark:text-white border border-border-light dark:border-gray-600 font-medium py-2.5 px-4 rounded-lg transition-colors shadow-sm">
+<span class="material-symbols-outlined text-lg">download</span>
+<span>Exportar Relatório</span>
+</button>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+<div class="bg-surface-light dark:bg-surface-dark p-5 rounded-xl border border-border-light dark:border-gray-700 shadow-sm flex flex-col gap-1">
+<div class="flex justify-between items-start">
+<p class="text-text-secondary-light dark:text-text-secondary-dark text-sm font-medium">Movimentações Hoje</p>
+<span class="material-symbols-outlined text-primary bg-primary/10 p-1 rounded-md text-lg">trending_up</span>
+</div>
+<div class="flex items-end gap-2 mt-2">
+<p class="text-text-main-light dark:text-white text-2xl font-bold leading-none">34</p>
+<span class="text-green-600 dark:text-green-400 text-xs font-medium flex items-center bg-green-50 dark:bg-green-900/20 px-1.5 py-0.5 rounded">
+                                +5% <span class="material-symbols-outlined text-[10px] ml-0.5">arrow_upward</span>
+</span>
+</div>
+</div>
+<div class="bg-surface-light dark:bg-surface-dark p-5 rounded-xl border border-border-light dark:border-gray-700 shadow-sm flex flex-col gap-1">
+<div class="flex justify-between items-start">
+<p class="text-text-secondary-light dark:text-text-secondary-dark text-sm font-medium">Total Entradas</p>
+<span class="material-symbols-outlined text-green-600 bg-green-50 dark:bg-green-900/20 p-1 rounded-md text-lg">login</span>
+</div>
+<div class="flex items-end gap-2 mt-2">
+<p class="text-text-main-light dark:text-white text-2xl font-bold leading-none">12</p>
+<span class="text-green-600 dark:text-green-400 text-xs font-medium flex items-center bg-green-50 dark:bg-green-900/20 px-1.5 py-0.5 rounded">
+                                +2% <span class="material-symbols-outlined text-[10px] ml-0.5">arrow_upward</span>
+</span>
+</div>
+</div>
+<div class="bg-surface-light dark:bg-surface-dark p-5 rounded-xl border border-border-light dark:border-gray-700 shadow-sm flex flex-col gap-1">
+<div class="flex justify-between items-start">
+<p class="text-text-secondary-light dark:text-text-secondary-dark text-sm font-medium">Total Saídas</p>
+<span class="material-symbols-outlined text-red-600 bg-red-50 dark:bg-red-900/20 p-1 rounded-md text-lg">logout</span>
+</div>
+<div class="flex items-end gap-2 mt-2">
+<p class="text-text-main-light dark:text-white text-2xl font-bold leading-none">22</p>
+<span class="text-red-500 dark:text-red-400 text-xs font-medium flex items-center bg-red-50 dark:bg-red-900/20 px-1.5 py-0.5 rounded">
+                                -3% <span class="material-symbols-outlined text-[10px] ml-0.5">arrow_downward</span>
+</span>
+</div>
+</div>
+</div>
+</div>
+</header>
+<div class="flex-1 overflow-y-auto bg-background-light dark:bg-background-dark px-4 pb-6 md:px-6 lg:px-8">
+<div class="max-w-[1200px] mx-auto w-full flex flex-col gap-4">
+<div class="bg-surface-light dark:bg-surface-dark rounded-xl border border-border-light dark:border-gray-700 shadow-sm p-4">
+<div class="flex flex-col lg:flex-row gap-4">
+<div class="flex-1 relative">
+<div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+<span class="material-symbols-outlined text-gray-400">search</span>
+</div>
+<input class="block w-full pl-10 pr-3 py-2.5 border border-border-light dark:border-gray-600 rounded-lg leading-5 bg-gray-50 dark:bg-gray-800 text-text-main-light dark:text-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary sm:text-sm" placeholder="Buscar por item, lote ou usuário..." type="text"/>
+</div>
+<div class="flex flex-wrap gap-4">
+<div class="relative min-w-[160px]">
+<select class="block w-full pl-3 pr-10 py-2.5 text-base border-border-light dark:border-gray-600 bg-gray-50 dark:bg-gray-800 text-text-main-light dark:text-white focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-lg appearance-none cursor-pointer">
+<option>Todos os tipos</option>
+<option>Entradas</option>
+<option>Saídas</option>
+<option>Ajustes</option>
+</select>
+<div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
+<span class="material-symbols-outlined text-sm">expand_more</span>
+</div>
+</div>
+<div class="relative min-w-[160px]">
+<select class="block w-full pl-3 pr-10 py-2.5 text-base border-border-light dark:border-gray-600 bg-gray-50 dark:bg-gray-800 text-text-main-light dark:text-white focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-lg appearance-none cursor-pointer">
+<option>Últimos 30 dias</option>
+<option>Hoje</option>
+<option>Esta semana</option>
+<option>Este mês</option>
+<option>Personalizado</option>
+</select>
+<div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
+<span class="material-symbols-outlined text-sm">calendar_month</span>
+</div>
+</div>
+<button class="flex items-center justify-center w-10 h-10 rounded-lg bg-gray-50 dark:bg-gray-800 border border-border-light dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400 transition-colors">
+<span class="material-symbols-outlined">tune</span>
+</button>
+</div>
+</div>
+</div>
+<div class="bg-surface-light dark:bg-surface-dark rounded-xl border border-border-light dark:border-gray-700 shadow-sm overflow-hidden flex flex-col">
+<div class="overflow-x-auto">
+<table class="min-w-full divide-y divide-border-light dark:divide-gray-700">
+<thead class="bg-gray-50 dark:bg-gray-800/50">
+<tr>
+<th class="px-6 py-4 text-left text-xs font-semibold text-text-secondary-light dark:text-text-secondary-dark uppercase tracking-wider" scope="col">Tipo</th>
+<th class="px-6 py-4 text-left text-xs font-semibold text-text-secondary-light dark:text-text-secondary-dark uppercase tracking-wider" scope="col">Item / Lote</th>
+<th class="px-6 py-4 text-left text-xs font-semibold text-text-secondary-light dark:text-text-secondary-dark uppercase tracking-wider" scope="col">Quantidade</th>
+<th class="px-6 py-4 text-left text-xs font-semibold text-text-secondary-light dark:text-text-secondary-dark uppercase tracking-wider" scope="col">Responsável</th>
+<th class="px-6 py-4 text-left text-xs font-semibold text-text-secondary-light dark:text-text-secondary-dark uppercase tracking-wider" scope="col">Data e Hora</th>
+<th class="relative px-6 py-4" scope="col">
+<span class="sr-only">Ações</span>
+</th>
+</tr>
+</thead>
+<tbody class="bg-surface-light dark:bg-surface-dark divide-y divide-border-light dark:divide-gray-700">
+<tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+<td class="px-6 py-4 whitespace-nowrap">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">
+<span class="material-symbols-outlined text-sm">arrow_circle_up</span>
+                                            Entrada
+                                        </span>
+</td>
+<td class="px-6 py-4">
+<div class="flex flex-col">
+<span class="text-sm font-medium text-text-main-light dark:text-white">Acetona P.A.</span>
+<span class="text-xs text-text-secondary-light dark:text-gray-400">Lote: AC-2023-089</span>
+</div>
+</td>
+<td class="px-6 py-4 whitespace-nowrap">
+<span class="text-sm font-semibold text-green-600 dark:text-green-400">+500 ml</span>
+</td>
+<td class="px-6 py-4 whitespace-nowrap">
+<div class="flex items-center">
+<div class="h-8 w-8 rounded-full bg-purple-100 dark:bg-purple-900/50 flex items-center justify-center text-purple-700 dark:text-purple-300 text-xs font-bold mr-3">
+                                                AS
+                                            </div>
+<div class="text-sm font-medium text-text-main-light dark:text-white">Ana Silva</div>
+</div>
+</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm text-text-secondary-light dark:text-text-secondary-dark">
+                                        14 Out 2023, 09:30
+                                    </td>
+<td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+<button class="text-gray-400 hover:text-gray-600 dark:hover:text-white transition-colors">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</td>
+</tr>
+<tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+<td class="px-6 py-4 whitespace-nowrap">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400">
+<span class="material-symbols-outlined text-sm">arrow_circle_down</span>
+                                            Saída
+                                        </span>
+</td>
+<td class="px-6 py-4">
+<div class="flex flex-col">
+<span class="text-sm font-medium text-text-main-light dark:text-white">Tubos de Ensaio 15mm</span>
+<span class="text-xs text-text-secondary-light dark:text-gray-400">Lote: TE-2023-001</span>
+</div>
+</td>
+<td class="px-6 py-4 whitespace-nowrap">
+<span class="text-sm font-semibold text-red-600 dark:text-red-400">-20 un</span>
+</td>
+<td class="px-6 py-4 whitespace-nowrap">
+<div class="flex items-center">
+<div class="h-8 w-8 rounded-full bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center text-blue-700 dark:text-blue-300 text-xs font-bold mr-3">
+                                                CM
+                                            </div>
+<div class="text-sm font-medium text-text-main-light dark:text-white">Carlos M.</div>
+</div>
+</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm text-text-secondary-light dark:text-text-secondary-dark">
+                                        14 Out 2023, 10:15
+                                    </td>
+<td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+<button class="text-gray-400 hover:text-gray-600 dark:hover:text-white transition-colors">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</td>
+</tr>
+<tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+<td class="px-6 py-4 whitespace-nowrap">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400">
+<span class="material-symbols-outlined text-sm">tune</span>
+                                            Ajuste
+                                        </span>
+</td>
+<td class="px-6 py-4">
+<div class="flex flex-col">
+<span class="text-sm font-medium text-text-main-light dark:text-white">Etanol 70%</span>
+<span class="text-xs text-text-secondary-light dark:text-gray-400">Lote: ET-2023-112</span>
+</div>
+</td>
+<td class="px-6 py-4 whitespace-nowrap">
+<span class="text-sm font-semibold text-text-main-light dark:text-white">-50 ml</span>
+<span class="text-xs text-text-secondary-light dark:text-gray-400 ml-1">(Quebra)</span>
+</td>
+<td class="px-6 py-4 whitespace-nowrap">
+<div class="flex items-center">
+<div class="h-8 w-8 rounded-full bg-purple-100 dark:bg-purple-900/50 flex items-center justify-center text-purple-700 dark:text-purple-300 text-xs font-bold mr-3">
+                                                AS
+                                            </div>
+<div class="text-sm font-medium text-text-main-light dark:text-white">Ana Silva</div>
+</div>
+</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm text-text-secondary-light dark:text-text-secondary-dark">
+                                        13 Out 2023, 16:00
+                                    </td>
+<td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+<button class="text-gray-400 hover:text-gray-600 dark:hover:text-white transition-colors">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</td>
+</tr>
+<tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+<td class="px-6 py-4 whitespace-nowrap">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400">
+<span class="material-symbols-outlined text-sm">arrow_circle_down</span>
+                                            Saída
+                                        </span>
+</td>
+<td class="px-6 py-4">
+<div class="flex flex-col">
+<span class="text-sm font-medium text-text-main-light dark:text-white">Luvas Nitrílicas M</span>
+<span class="text-xs text-text-secondary-light dark:text-gray-400">Lote: LN-2023-550</span>
+</div>
+</td>
+<td class="px-6 py-4 whitespace-nowrap">
+<span class="text-sm font-semibold text-red-600 dark:text-red-400">-1 cx</span>
+</td>
+<td class="px-6 py-4 whitespace-nowrap">
+<div class="flex items-center">
+<div class="h-8 w-8 rounded-full bg-orange-100 dark:bg-orange-900/50 flex items-center justify-center text-orange-700 dark:text-orange-300 text-xs font-bold mr-3">
+                                                RD
+                                            </div>
+<div class="text-sm font-medium text-text-main-light dark:text-white">Roberto Dias</div>
+</div>
+</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm text-text-secondary-light dark:text-text-secondary-dark">
+                                        13 Out 2023, 14:20
+                                    </td>
+<td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+<button class="text-gray-400 hover:text-gray-600 dark:hover:text-white transition-colors">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</td>
+</tr>
+<tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+<td class="px-6 py-4 whitespace-nowrap">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">
+<span class="material-symbols-outlined text-sm">arrow_circle_up</span>
+                                            Entrada
+                                        </span>
+</td>
+<td class="px-6 py-4">
+<div class="flex flex-col">
+<span class="text-sm font-medium text-text-main-light dark:text-white">Ácido Clorídrico</span>
+<span class="text-xs text-text-secondary-light dark:text-gray-400">Lote: AC-2023-991</span>
+</div>
+</td>
+<td class="px-6 py-4 whitespace-nowrap">
+<span class="text-sm font-semibold text-green-600 dark:text-green-400">+2 L</span>
+</td>
+<td class="px-6 py-4 whitespace-nowrap">
+<div class="flex items-center">
+<div class="h-8 w-8 rounded-full bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center text-blue-700 dark:text-blue-300 text-xs font-bold mr-3">
+                                                CM
+                                            </div>
+<div class="text-sm font-medium text-text-main-light dark:text-white">Carlos M.</div>
+</div>
+</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm text-text-secondary-light dark:text-text-secondary-dark">
+                                        13 Out 2023, 11:00
+                                    </td>
+<td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+<button class="text-gray-400 hover:text-gray-600 dark:hover:text-white transition-colors">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="bg-gray-50 dark:bg-gray-800/50 px-6 py-4 flex items-center justify-between border-t border-border-light dark:border-gray-700">
+<div class="flex-1 flex justify-between sm:hidden">
+<a class="relative inline-flex items-center px-4 py-2 border border-border-light dark:border-gray-600 text-sm font-medium rounded-md text-text-main-light dark:text-gray-200 bg-white dark:bg-gray-700 hover:bg-gray-50" href="#">Anterior</a>
+<a class="ml-3 relative inline-flex items-center px-4 py-2 border border-border-light dark:border-gray-600 text-sm font-medium rounded-md text-text-main-light dark:text-gray-200 bg-white dark:bg-gray-700 hover:bg-gray-50" href="#">Próximo</a>
+</div>
+<div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+<div>
+<p class="text-sm text-text-secondary-light dark:text-text-secondary-dark">
+                                    Mostrando <span class="font-medium">1</span> a <span class="font-medium">5</span> de <span class="font-medium">97</span> resultados
+                                </p>
+</div>
+<div>
+<nav aria-label="Pagination" class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
+<a class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-border-light dark:border-gray-600 bg-white dark:bg-gray-800 text-sm font-medium text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-700" href="#">
+<span class="sr-only">Anterior</span>
+<span class="material-symbols-outlined text-sm">chevron_left</span>
+</a>
+<a aria-current="page" class="z-10 bg-primary/10 border-primary text-primary relative inline-flex items-center px-4 py-2 border text-sm font-bold" href="#">1</a>
+<a class="bg-white dark:bg-gray-800 border-border-light dark:border-gray-600 text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-700 relative inline-flex items-center px-4 py-2 border text-sm font-medium" href="#">2</a>
+<a class="bg-white dark:bg-gray-800 border-border-light dark:border-gray-600 text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-700 hidden md:inline-flex relative items-center px-4 py-2 border text-sm font-medium" href="#">3</a>
+<span class="relative inline-flex items-center px-4 py-2 border border-border-light dark:border-gray-600 bg-white dark:bg-gray-800 text-sm font-medium text-text-main-light dark:text-gray-300">...</span>
+<a class="bg-white dark:bg-gray-800 border-border-light dark:border-gray-600 text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-700 hidden md:inline-flex relative items-center px-4 py-2 border text-sm font-medium" href="#">8</a>
+<a class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-border-light dark:border-gray-600 bg-white dark:bg-gray-800 text-sm font-medium text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-700" href="#">
+<span class="sr-only">Próximo</span>
+<span class="material-symbols-outlined text-sm">chevron_right</span>
+</a>
+</nav>
+</div>
+</div>
+</div>
+</div>
+<div class="text-center md:text-right pb-4">
+<p class="text-xs text-text-secondary-dark">Última atualização: Hoje às 10:45</p>
+</div>
+</div>
+</div>
+</main>
+
+</body></html>

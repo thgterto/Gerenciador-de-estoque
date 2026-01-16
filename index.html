@@ -1,0 +1,250 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="color-scheme" content="light dark">
+    <title>LabControl - Estoque UMV</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    
+    <!-- ECharts JS Dependency -->
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+
+    <!-- Tailwind CDN (Fallback/Rapid Prototyping) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind = {
+        config: {
+          darkMode: "class",
+          theme: {
+            extend: {
+              colors: {
+                primary: {
+                    DEFAULT: '#903A40',
+                    hover: '#732e33',
+                    light: '#FDF2F3',
+                },
+                secondary: {
+                    DEFAULT: '#6797A1',
+                    hover: '#547D85',
+                    light: '#F0F7F8',
+                },
+                background: {
+                   light: '#E6E7E8', 
+                   dark: '#1D1D27'
+                },
+                surface: {
+                   light: '#FCFCFC', 
+                   dark: '#293141'
+                },
+                sidebar: '#293141',
+                border: {
+                   light: '#DCDDDC', 
+                   DEFAULT: '#ADBABD', 
+                   dark: '#565259'
+                },
+                text: {
+                   main: '#1D1D27',      
+                   secondary: '#565259', 
+                   light: '#ADBABD'
+                },
+                slate: {
+                    50: '#FCFCFC',
+                    100: '#E6E7E8',
+                    200: '#DCDDDC',
+                    300: '#ADBABD',
+                    400: '#8c9fa1',
+                    500: '#6797A1',
+                    600: '#565259',
+                    700: '#464650',
+                    800: '#293141',
+                    900: '#1D1D27',
+                },
+                success: {
+                    DEFAULT: '#10B981',
+                    bg: '#ECFDF5',
+                    text: '#047857'
+                },
+                warning: {
+                    DEFAULT: '#F59E0B',
+                    bg: '#FFFBEB',
+                    text: '#B45309'
+                },
+                danger: {
+                    DEFAULT: '#EF4444',
+                    bg: '#FEF2F2',
+                    text: '#B91C1C'
+                },
+                info: {
+                    DEFAULT: '#3B82F6',
+                    bg: '#EFF6FF',
+                    text: '#1D4ED8'
+                }
+              },
+              fontFamily: { 
+                sans: ['Inter', 'sans-serif'], 
+                mono: ['JetBrains Mono', 'monospace'],
+                display: ['Inter', 'sans-serif']
+              },
+              boxShadow: { 
+                'soft': '0 2px 10px rgba(0, 0, 0, 0.03)',
+                'card': '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1)',
+                'floating': '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1)'
+              },
+              animation: {
+                'fade-in': 'fadeIn 0.3s ease-out forwards',
+                'slide-up': 'slideUp 0.4s ease-out forwards',
+                'slide-left': 'slideLeft 0.3s ease-out forwards',
+                'scale-in': 'scaleIn 0.2s ease-out forwards',
+                'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+              },
+              keyframes: {
+                fadeIn: {
+                  '0%': { opacity: '0' },
+                  '100%': { opacity: '1' },
+                },
+                slideUp: {
+                  '0%': { opacity: '0', transform: 'translateY(15px)' },
+                  '100%': { opacity: '1', transform: 'translateY(0)' },
+                },
+                slideLeft: {
+                  '0%': { opacity: '0', transform: 'translateX(20px)' },
+                  '100%': { opacity: '1', transform: 'translateX(0)' },
+                },
+                scaleIn: {
+                  '0%': { opacity: '0', transform: 'scale(0.95)' },
+                  '100%': { opacity: '1', transform: 'scale(1)' },
+                }
+              }
+            }
+          }
+        }
+      }
+    </script>
+
+    <style>
+      :root {
+        color-scheme: light;
+      }
+      :root.dark {
+        color-scheme: dark;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html, body {
+        height: 100%;
+        width: 100%;
+        margin: 0;
+        padding: 0;
+        overflow: hidden; /* App Shell: No scroll on body */
+        overscroll-behavior-y: none; /* Prevents rubber-banding/pull-to-refresh globally */
+        background-color: #E6E7E8; 
+        color: #1D1D27;
+        font-family: 'Inter', sans-serif; 
+        -webkit-tap-highlight-color: transparent; 
+      }
+
+      #root {
+        height: 100%;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden; /* Ensure root container doesn't overflow */
+      }
+      
+      .dark body {
+        background-color: #1D1D27; 
+        color: #FCFCFC; 
+      }
+
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        vertical-align: middle;
+        font-size: 20px; 
+      }
+      .material-symbols-outlined.fill {
+        font-variation-settings: 'FILL' 1;
+      }
+      
+      /* Otimização de Scroll para Elementos Internos */
+      /* Isola o scroll para que não propague para o body, evitando o "scroll lock" */
+      .custom-scrollbar, .overflow-auto, .overflow-y-auto, [role="rowgroup"] { 
+        -webkit-overflow-scrolling: touch; /* Smooth scroll iOS */
+        overscroll-behavior: contain; /* CRUCIAL: Impede encadeamento de scroll */
+        touch-action: pan-y; /* Melhora a resposta ao toque vertical */
+        transform: translateZ(0); /* Força aceleração de hardware para scroll mais fluido */
+      }
+
+      /* Custom Scrollbar Styling */
+      ::-webkit-scrollbar { width: 8px; height: 8px; }
+      ::-webkit-scrollbar-thumb { background: #ADBABD; border-radius: 4px; }
+      ::-webkit-scrollbar-thumb:hover { background: #6797A1; }
+      ::-webkit-scrollbar-track { background: transparent; }
+      
+      .dark ::-webkit-scrollbar-thumb { background: #565259; }
+      .dark ::-webkit-scrollbar-thumb:hover { background: #6797A1; }
+
+      .input-base {
+        background-color: #FCFCFC;
+        border: 1px solid #DCDDDC;
+        border-radius: 0.5rem;
+        transition: all 0.2s;
+        font-size: 0.875rem;
+        color: #1D1D27;
+      }
+      .dark .input-base {
+        background-color: #293141;
+        border-color: #565259;
+        color: #FCFCFC;
+      }
+      
+      .input-base:focus {
+        border-color: #903A40;
+        box-shadow: 0 0 0 2px rgba(144, 58, 64, 0.1);
+        outline: none;
+      }
+      .dark .input-base {
+         box-shadow: 0 0 0 2px rgba(144, 58, 64, 0.3);
+      }
+      
+      .delay-100 { animation-delay: 100ms; }
+      .delay-200 { animation-delay: 200ms; }
+      .delay-300 { animation-delay: 300ms; }
+    </style>
+<script type="importmap">
+{
+  "imports": {
+    "react": "https://esm.sh/react@19.0.0",
+    "react/jsx-runtime": "https://esm.sh/react@19.0.0/jsx-runtime",
+    "react-dom": "https://esm.sh/react-dom@19.0.0",
+    "react-dom/client": "https://esm.sh/react-dom@19.0.0/client",
+    "dexie": "https://esm.sh/dexie@4.0.1",
+    "react-router-dom": "https://esm.sh/react-router-dom@6.28.0?deps=react@19.0.0,react-dom@19.0.0",
+    "react-window": "https://esm.sh/react-window@1.8.10?deps=react@19.0.0,react-dom@19.0.0",
+    "react-virtualized-auto-sizer": "https://esm.sh/react-virtualized-auto-sizer@1.0.24?deps=react@19.0.0,react-dom@19.0.0",
+    "react-qr-code": "https://esm.sh/react-qr-code@2.0.15?deps=react@19.0.0,react-dom@19.0.0",
+    "html5-qrcode": "https://esm.sh/html5-qrcode@2.3.8",
+    "xlsx": "https://esm.sh/xlsx@0.18.5",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
+    "react/": "https://esm.sh/react@^19.2.3/",
+    "vite": "https://esm.sh/vite@^7.3.0",
+    "@vitejs/plugin-react": "https://esm.sh/@vitejs/plugin-react@^5.1.2",
+    "@azure/msal-browser": "https://esm.sh/@azure/msal-browser@^4.27.0",
+    "@microsoft/microsoft-graph-client": "https://esm.sh/@microsoft/microsoft-graph-client@^3.0.7"
+  }
+}
+</script>
+</head>
+<body>
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+</body>
+</html>
+    

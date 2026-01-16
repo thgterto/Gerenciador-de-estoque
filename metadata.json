@@ -1,0 +1,7 @@
+{
+  "name": "LabControl - Estoque UMV",
+  "description": "Sistema de gestão de estoque laboratorial e rastreabilidade de lotes.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
