@@ -28,11 +28,14 @@ function doPost(e) {
       
       // --- READ OPERATIONS ---
       case 'read_full_db':
+        const catalog = getCatalog();
+        const batches = getBatches();
+        const balances = getBalances();
         result.data = {
-            view: getDenormalizedInventory(), 
-            catalog: getCatalog(),            
-            batches: getBatches(),            
-            balances: getBalances()           
+            view: getDenormalizedInventory(catalog, batches, balances),
+            catalog: catalog,
+            batches: batches,
+            balances: balances
         };
         break;
 
@@ -319,10 +322,10 @@ function deleteItem(itemId) {
   rowsToDelete.reverse().forEach(rowIdx => sheet.deleteRow(rowIdx));
 }
 
-function getDenormalizedInventory() {
-  const catalog = getCatalog();
-  const batches = getBatches();
-  const balances = getBalances();
+function getDenormalizedInventory(catalog, batches, balances) {
+  catalog = catalog || getCatalog();
+  batches = batches || getBatches();
+  balances = balances || getBalances();
 
   const catMap = new Map(catalog.map(c => [c.id, c]));
   const batchMap = new Map(batches.map(b => [b.id, b]));
