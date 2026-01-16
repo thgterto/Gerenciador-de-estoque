@@ -248,7 +248,7 @@ export const Purchases: React.FC<PurchasesProps> = ({
                             </div>
                         </div>
                     )}
-                </Card>
+                </div>
             </section>
         </PageContainer>
     );
