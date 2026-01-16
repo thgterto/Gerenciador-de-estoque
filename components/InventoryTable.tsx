@@ -11,7 +11,7 @@ import { PageHeader } from './ui/PageHeader';
 import { PageContainer } from './ui/PageContainer';
 import { useAuth } from '../context/AuthContext';
 import { useStockOperations } from '../hooks/useStockOperations';
-import { useInventoryFilters } from '../hooks/useInventoryFilters';
+import { useInventoryFilters, FlatListItem, InventoryGroup } from '../hooks/useInventoryFilters';
 import { 
     InventoryChildRow, 
     InventoryGroupRow, 
@@ -38,6 +38,103 @@ interface Props {
   };
   onAddNew?: () => void;
 }
+
+interface RowData {
+    flatList: FlatListItem[];
+    isMobile: boolean;
+    selectedIds: Set<string>;
+    hasRole: (role: string) => boolean;
+    onActions: Props['onActions'];
+    toggleGroupExpand: (groupKey: string) => void;
+    handleSelectGroup: (groupIds: string[], checked: boolean) => void;
+    handleSelectRow: (id: string) => void;
+    getCategoryIcon: (cat: string) => string;
+    copyToClipboard: (text: string, label: string) => void;
+}
+
+const InventoryRow = React.memo(({ index, style, data }: { index: number, style: React.CSSProperties, data: RowData }) => {
+    const {
+        flatList,
+        isMobile,
+        selectedIds,
+        hasRole,
+        onActions,
+        toggleGroupExpand,
+        handleSelectGroup,
+        handleSelectRow,
+        getCategoryIcon,
+        copyToClipboard
+    } = data;
+
+    const rowItem = flatList[index];
+    if (!rowItem) return null;
+
+    if (rowItem.type === 'GROUP') {
+        if (isMobile) {
+            return (
+            <InventoryMobileGroupRow
+                group={rowItem.data}
+                style={style}
+                isExpanded={rowItem.expanded}
+                toggleExpand={() => toggleGroupExpand(rowItem.data.groupKey)}
+                selectedChildIds={selectedIds}
+                onSelectGroup={handleSelectGroup}
+                getCategoryIcon={getCategoryIcon}
+                copyToClipboard={copyToClipboard}
+            />
+            );
+        }
+        return (
+            <InventoryGroupRow
+                style={style}
+                group={rowItem.data}
+                isExpanded={rowItem.expanded}
+                toggleExpand={() => toggleGroupExpand(rowItem.data.groupKey)}
+                selectedChildIds={selectedIds}
+                onSelectGroup={handleSelectGroup}
+                getCategoryIcon={getCategoryIcon}
+                copyToClipboard={copyToClipboard}
+            />
+        );
+    } else {
+        const isSelected = selectedIds.has(rowItem.data.id);
+
+        if (isMobile) {
+            return (
+            <InventoryMobileChildRow
+                item={rowItem.data}
+                style={style}
+                isSelected={isSelected}
+                isAdmin={hasRole('ADMIN')}
+                onSelect={handleSelectRow}
+                onActions={onActions}
+                copyToClipboard={copyToClipboard}
+                isLast={rowItem.isLast}
+            />
+            );
+        }
+        return (
+            <InventoryChildRow
+                style={style}
+                item={rowItem.data}
+                isSelected={isSelected}
+                isAdmin={hasRole('ADMIN')}
+                onSelect={handleSelectRow}
+                onActions={onActions}
+                copyToClipboard={copyToClipboard}
+                isLast={rowItem.isLast}
+            />
+        );
+    }
+}, (prevProps, nextProps) => {
+    // Custom comparison to verify stability.
+    // If indices or style (position) change, re-render is needed.
+    // If data changes, check if relevant parts changed?
+    // Data is large object. Shallow compare is usually enough if useMemo is used correctly in parent.
+    return prevProps.index === nextProps.index &&
+           prevProps.style === nextProps.style &&
+           prevProps.data === nextProps.data;
+});
 
 const GRID_TEMPLATE = "40px minmax(240px, 3fr) 120px minmax(180px, 1.5fr) 100px 100px 130px 110px";
 
@@ -127,68 +224,6 @@ export const InventoryTable: React.FC<Props> = ({ items, onActions, onAddNew }) 
       navigator.clipboard.writeText(text);
   }, []);
 
-  const Row = useCallback(({ index, style }: { index: number, style: React.CSSProperties }) => {
-      const rowItem = flatList[index];
-      
-      if (rowItem.type === 'GROUP') {
-          if (isMobile) {
-              return (
-                <InventoryMobileGroupRow 
-                    group={rowItem.data}
-                    style={style}
-                    isExpanded={rowItem.expanded}
-                    toggleExpand={() => toggleGroupExpand(rowItem.data.groupKey)}
-                    selectedChildIds={selectedIds}
-                    onSelectGroup={handleSelectGroup}
-                    getCategoryIcon={getCategoryIcon}
-                    copyToClipboard={copyToClipboard}
-                />
-              );
-          }
-          return (
-              <InventoryGroupRow 
-                  style={style}
-                  group={rowItem.data}
-                  isExpanded={rowItem.expanded}
-                  toggleExpand={() => toggleGroupExpand(rowItem.data.groupKey)}
-                  selectedChildIds={selectedIds}
-                  onSelectGroup={handleSelectGroup}
-                  getCategoryIcon={getCategoryIcon}
-                  copyToClipboard={copyToClipboard}
-              />
-          );
-      } else {
-          const isSelected = selectedIds.has(rowItem.data.id);
-          
-          if (isMobile) {
-              return (
-                <InventoryMobileChildRow 
-                    item={rowItem.data}
-                    style={style}
-                    isSelected={isSelected}
-                    isAdmin={hasRole('ADMIN')}
-                    onSelect={handleSelectRow}
-                    onActions={onActions}
-                    copyToClipboard={copyToClipboard}
-                    isLast={rowItem.isLast}
-                />
-              );
-          }
-          return (
-              <InventoryChildRow 
-                  style={style}
-                  item={rowItem.data}
-                  isSelected={isSelected}
-                  isAdmin={hasRole('ADMIN')}
-                  onSelect={handleSelectRow}
-                  onActions={onActions}
-                  copyToClipboard={copyToClipboard}
-                  isLast={rowItem.isLast}
-              />
-          );
-      }
-  }, [flatList, isMobile, selectedIds, expandedGroups, hasRole, handleSelectRow, handleSelectGroup, onActions, toggleGroupExpand, copyToClipboard, getCategoryIcon]);
-
   const getItemSize = useCallback((index: number) => {
       const item = flatList[index];
       if (isMobile) {
@@ -199,6 +234,19 @@ export const InventoryTable: React.FC<Props> = ({ items, onActions, onAddNew }) 
   }, [flatList, isMobile]);
 
   const itemKey = useCallback((index: number) => flatList[index]?.id || index, [flatList]);
+
+  const itemData = React.useMemo(() => ({
+    flatList,
+    isMobile,
+    selectedIds,
+    hasRole,
+    onActions,
+    toggleGroupExpand,
+    handleSelectGroup,
+    handleSelectRow,
+    getCategoryIcon,
+    copyToClipboard
+  }), [flatList, isMobile, selectedIds, hasRole, onActions, toggleGroupExpand, handleSelectGroup, handleSelectRow, getCategoryIcon, copyToClipboard]);
 
   return (
     <PageContainer>
@@ -371,9 +419,10 @@ export const InventoryTable: React.FC<Props> = ({ items, onActions, onAddNew }) 
                                 itemSize={getItemSize}
                                 itemKey={itemKey}
                                 width={width}
+                                itemData={itemData}
                                 className="custom-scrollbar"
                             >
-                                {Row}
+                                {InventoryRow}
                             </List>
                         )}
                     </AutoSizer>
