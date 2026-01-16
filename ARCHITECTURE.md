@@ -69,11 +69,14 @@ Wrapper sobre o Dexie.js que intercepta chamadas de leitura/escrita.
 *   **L3 Storage (IndexedDB):** Persistência durável.
 *   **Optimistic UI:** Ao salvar, o L1 é atualizado antes da Promise do IDB resolver. Se o IDB falhar, o L1 sofre rollback silencioso e o usuário é notificado.
 
-### 3.3 Recuperação de Legado (Ghost Items)
-Ao importar históricos antigos onde o produto original já foi excluído:
-1.  O sistema detecta a falha de integridade referencial.
-2.  Gera um `Ghost Item` (Item Fantasma) com flag `isGhost: true`.
-3.  Isso permite visualizar o histórico antigo sem poluir o catálogo de produtos ativos.
+### 3.3 Estratégia de Normalização de Importação
+Para suportar cargas massivas via Excel (que são inerentemente "planas"), o sistema utiliza uma estratégia de **Lazy Normalization** no `ImportEngine`:
+1.  O usuário carrega uma planilha plana (Nome, Lote, Qtd).
+2.  O sistema gera Hashes determinísticos para `CatalogID` (baseado no nome/SAP) e `BatchID` (baseado no lote).
+3.  Durante a transação de salvamento, o sistema verifica se esses IDs já existem no Ledger V2.
+    *   Se não existirem, cria os registros de Catálogo e Lote.
+    *   Se existirem, atualiza apenas o Saldo (`balances`).
+4.  Isso permite que o usuário gerencie o estoque via planilhas simples sem perder a integridade relacional do banco de dados.
 
 ---
 

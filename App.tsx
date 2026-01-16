@@ -258,7 +258,7 @@ const LabControlContent = () => {
 
 export default function App() {
     return (
-        <Router>
+        <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
             <ThemeProvider>
                 <AlertProvider>
                     <AuthProvider>

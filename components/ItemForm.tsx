@@ -19,7 +19,6 @@ interface ItemFormProps {
     onCancel: () => void;
     submitLabel?: string;
     onViewBatchHistory?: (batchId: string) => void;
-    // Novas props para integração com Modals
     onScan?: (field: keyof CreateItemDTO) => void;
     onGenerateQR?: (itemData: Partial<InventoryItem>) => void;
 }
@@ -87,7 +86,6 @@ export const ItemForm: React.FC<ItemFormProps> = ({
 
     useEffect(() => {
         if (initialData) {
-            // Merge cuidadoso para não sobrescrever state local se o pai re-renderizar sem mudanças reais
             setFormData(prev => ({ ...prev, ...initialData }));
             
             if (initialData.name && !searchTerm) setSearchTerm(initialData.name); 
@@ -232,7 +230,6 @@ export const ItemForm: React.FC<ItemFormProps> = ({
         
         setIsSubmitting(true);
         try {
-            // Garantia final de lote
             let finalLotNumber = formData.lotNumber;
             if (!finalLotNumber || finalLotNumber.trim() === '') {
                 if (itemType !== 'EQUIPMENT') {
@@ -256,7 +253,6 @@ export const ItemForm: React.FC<ItemFormProps> = ({
 
     return (
         <form onSubmit={handleSubmit} className="flex flex-col gap-6 w-full relative" autoComplete="off">
-            {/* TYPE TABS */}
             <div className="flex flex-wrap gap-2 w-full pb-2 mb-2 overflow-x-auto no-scrollbar">
                 {(Object.entries(TYPE_CONFIG) as [ItemType, typeof TYPE_CONFIG[ItemType]][]).map(([key, config]) => (
                     <button
@@ -280,7 +276,6 @@ export const ItemForm: React.FC<ItemFormProps> = ({
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 w-full">
                 {/* ESQUERDA */}
                 <div className="flex flex-col gap-6">
-                    {/* CARD: DEFINIÇÃO DO PRODUTO */}
                     <Card noBorder className="shadow-sm border border-border-light dark:border-border-dark" padding="p-5">
                         <div className="flex items-center gap-2 mb-4 border-b border-border-light dark:border-border-dark pb-2">
                             <span className="material-symbols-outlined text-text-secondary text-[20px]">inventory_2</span> 
@@ -336,30 +331,27 @@ export const ItemForm: React.FC<ItemFormProps> = ({
                                 />
                             </div>
 
-                            <div className="flex gap-2 items-end">
-                                <Input 
-                                    containerClassName="flex-1"
-                                    label="Código SAP / SKU"
-                                    value={formData.sapCode || ''} 
-                                    onChange={e => handleChange('sapCode', e.target.value)}
-                                    placeholder="Opcional"
-                                />
-                                {onScan && (
-                                    <Button 
-                                        type="button" 
-                                        onClick={() => onScan('sapCode')} 
-                                        variant="ghost" 
-                                        className="mb-0.5 text-text-secondary hover:text-primary border border-border-light dark:border-border-dark"
-                                        title="Escanear Código de Barras"
-                                    >
-                                        <span className="material-symbols-outlined text-[20px]">qr_code_scanner</span>
-                                    </Button>
-                                )}
-                            </div>
+                            <Input 
+                                label="Código SAP / SKU"
+                                value={formData.sapCode || ''} 
+                                onChange={e => handleChange('sapCode', e.target.value)}
+                                placeholder="Opcional"
+                                rightElement={
+                                    onScan && (
+                                        <button 
+                                            type="button" 
+                                            onClick={() => onScan('sapCode')} 
+                                            className="text-text-secondary hover:text-primary transition-colors p-1"
+                                            title="Escanear"
+                                        >
+                                            <span className="material-symbols-outlined text-[20px]">qr_code_scanner</span>
+                                        </button>
+                                    )
+                                }
+                            />
                         </div>
                     </Card>
 
-                    {/* CARD: DADOS QUÍMICOS (Conditional) */}
                     {itemType === 'REAGENT' && (
                         <Card noBorder className="shadow-sm border border-red-200 dark:border-red-900 bg-red-50/30 dark:bg-red-900/10" padding="p-5">
                             <div className="flex items-center gap-2 mb-4 border-b border-red-200 dark:border-red-800 pb-2">
@@ -368,19 +360,24 @@ export const ItemForm: React.FC<ItemFormProps> = ({
                             </div>
 
                             <div className="space-y-4">
-                                <div className="flex gap-2 items-end">
-                                    <Input 
-                                        containerClassName="flex-1"
-                                        label="CAS Number"
-                                        value={formData.casNumber || ''} 
-                                        onChange={e => handleChange('casNumber', e.target.value)}
-                                        placeholder="Ex: 67-64-1"
-                                        isLoading={isCasLoading}
-                                    />
-                                    <Button type="button" onClick={handleCasSearch} disabled={isCasLoading} variant="secondary" className="mb-0.5 bg-red-100 text-red-700 hover:bg-red-200 border-none">
-                                        <span className="material-symbols-outlined">search</span>
-                                    </Button>
-                                </div>
+                                <Input 
+                                    label="CAS Number"
+                                    value={formData.casNumber || ''} 
+                                    onChange={e => handleChange('casNumber', e.target.value)}
+                                    placeholder="Ex: 67-64-1"
+                                    isLoading={isCasLoading}
+                                    rightElement={
+                                        <button 
+                                            type="button" 
+                                            onClick={handleCasSearch} 
+                                            disabled={isCasLoading} 
+                                            className="text-text-secondary hover:text-primary transition-colors p-1"
+                                            title="Buscar na API CAS"
+                                        >
+                                            <span className="material-symbols-outlined">search</span>
+                                        </button>
+                                    }
+                                />
 
                                 {casResult && (
                                     <div className="p-3 bg-white dark:bg-slate-800 border border-red-100 rounded-lg flex gap-3 items-center shadow-sm">
@@ -440,37 +437,36 @@ export const ItemForm: React.FC<ItemFormProps> = ({
 
                         <div className="space-y-4">
                             <div className="grid grid-cols-2 gap-4">
-                                <div className="flex items-end gap-2">
-                                    <Input 
-                                        containerClassName="flex-1"
-                                        label={itemType === 'EQUIPMENT' ? "Patrimônio/Série" : "Lote / Série"}
-                                        value={formData.lotNumber || ''} 
-                                        onChange={e => handleChange('lotNumber', e.target.value)}
-                                        error={errors.lotNumber}
-                                        placeholder={itemType === 'EQUIPMENT' ? "Ex: PAT-001" : "Vazio p/ auto"}
-                                        className="border-blue-200 focus:border-blue-500 focus:ring-blue-200"
-                                    />
-                                    <Tooltip content="Gerar Lote Interno">
-                                        <button 
-                                            type="button"
-                                            onClick={generateInternalBatch}
-                                            className="mb-0.5 p-2 rounded bg-blue-100 text-blue-700 hover:bg-blue-200 transition-colors"
-                                        >
-                                            <span className="material-symbols-outlined text-[20px]">autorenew</span>
-                                        </button>
-                                    </Tooltip>
-                                    {onScan && (
-                                        <Tooltip content="Escanear Lote">
-                                            <button 
+                                <Input 
+                                    label={itemType === 'EQUIPMENT' ? "Patrimônio/Série" : "Lote / Série"}
+                                    value={formData.lotNumber || ''} 
+                                    onChange={e => handleChange('lotNumber', e.target.value)}
+                                    error={errors.lotNumber}
+                                    placeholder={itemType === 'EQUIPMENT' ? "Ex: PAT-001" : "Vazio p/ auto"}
+                                    className="border-blue-200 focus:border-blue-500 focus:ring-blue-200 pr-16"
+                                    rightElement={
+                                        <div className="flex items-center gap-1">
+                                             <button 
                                                 type="button" 
-                                                onClick={() => onScan('lotNumber')} 
-                                                className="mb-0.5 p-2 rounded bg-white border border-blue-200 text-blue-700 hover:bg-blue-50 transition-colors"
-                                            >
-                                                <span className="material-symbols-outlined text-[20px]">qr_code_scanner</span>
-                                            </button>
-                                        </Tooltip>
-                                    )}
-                                </div>
+                                                onClick={generateInternalBatch} 
+                                                className="text-text-secondary hover:text-blue-600 transition-colors p-1"
+                                                title="Gerar Lote Interno"
+                                             >
+                                                <span className="material-symbols-outlined">autorenew</span>
+                                             </button>
+                                             {onScan && (
+                                                 <button 
+                                                    type="button" 
+                                                    onClick={() => onScan('lotNumber')} 
+                                                    className="text-text-secondary hover:text-primary transition-colors p-1"
+                                                    title="Escanear"
+                                                 >
+                                                    <span className="material-symbols-outlined">qr_code_scanner</span>
+                                                 </button>
+                                             )}
+                                        </div>
+                                    }
+                                />
 
                                 {itemType !== 'EQUIPMENT' && (
                                     <Input 

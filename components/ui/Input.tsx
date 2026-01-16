@@ -1,4 +1,3 @@
-
 import React, { InputHTMLAttributes } from 'react';
 
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
@@ -46,7 +45,8 @@ export const Input: React.FC<InputProps> = ({
                         focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary
                         bg-white dark:bg-slate-900 text-slate-900 dark:text-white
                         h-10 
-                        ${icon ? 'pl-10' : 'pl-3'} ${rightElement || isLoading ? 'pr-10' : 'pr-3'}
+                        ${icon ? 'pl-10' : 'pl-3'} 
+                        ${!className.includes('pr-') ? (rightElement || isLoading ? 'pr-10' : 'pr-3') : ''}
                         ${error 
                             ? 'border-red-500 focus:border-red-500 focus:ring-red-500/20' 
                             : 'border-slate-300 dark:border-slate-600 hover:border-slate-400 dark:hover:border-slate-500'
@@ -56,7 +56,7 @@ export const Input: React.FC<InputProps> = ({
                     {...props}
                 />
                 {(isLoading || rightElement) && (
-                    <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                    <div className={`absolute inset-y-0 right-0 pr-3 flex items-center gap-1 ${isLoading ? 'pointer-events-none' : ''}`}>
                         {isLoading ? (
                             <span className="material-symbols-outlined animate-spin text-primary text-[20px]">progress_activity</span>
                         ) : (

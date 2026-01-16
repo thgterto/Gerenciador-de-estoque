@@ -3,6 +3,30 @@
 
 Todas as mudanças notáveis neste projeto serão documentadas neste arquivo.
 
+## [1.8.1] - 2025-05-26 (Hotfix & Technical Debt)
+
+### Corrigido
+- **React Router v7 Warnings:** Ativadas as flags `v7_startTransition` e `v7_relativeSplatPath` para eliminar avisos de depreciação no console.
+- **ErrorBoundary (TypeScript):** Correção na herança da classe `ErrorBoundary` importando `Component` explicitamente do React para resolver erros de tipagem estrita (`props` e `setState`).
+
+## [1.8.0] - 2025-05-25 (Import & UX Polish)
+
+### Adicionado
+- **Import Wizard Inteligente:** Detecção automática de estruturas de tabela em arquivos Excel, com mapeamento de colunas baseado em Regex e heurística de similaridade.
+- **Normalização V2 no Import:** A função `importBulk` agora converte dados planos (V1) em estruturas relacionais (Catalog, Batches, Balances) automaticamente, mantendo a integridade do Ledger.
+- **Ações em Inputs:** Campos de formulário agora suportam botões de ação internos (ex: Scanner em SKU, Busca em CAS, Gerador de Lote), melhorando a densidade da UI.
+
+### Alterado
+- **Tipagem Estrita:** Refinamento de tipos em `InventoryService` para conformidade com React 19.
+- **Feedback Visual:** Melhores indicadores de carregamento e validação nos formulários de item.
+- **Auditoria de Ledger:** Aprimoramento na lógica de `runLedgerAudit` para detectar e corrigir divergências decimais em saldos.
+
+### Corrigido
+- Erro de tipo `unknown` ao acessar tabelas do Dexie em transações complexas.
+- Comportamento de ponteiro do mouse em inputs com ícones de carregamento.
+
+---
+
 ## [1.7.0] - 2025-05-20 (Arquitetura V2)
 
 ### Adicionado

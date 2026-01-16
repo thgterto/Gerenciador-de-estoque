@@ -4,9 +4,9 @@
 Este documento rastrea o progresso do desenvolvimento do LabControl rumo à arquitetura V2 completa e funcionalidades avançadas de Gestão.
 
 ## 📊 Status Geral
-*   **Versão Atual:** 1.7.0
-*   **Fase Atual:** Milestone 2 (UX & Auditoria Visual)
-*   **Próxima Release:** 1.8.0 (Previsão: Q3 2025)
+*   **Versão Atual:** 1.8.1
+*   **Fase Atual:** Milestone 2 (UX & Refinamento)
+*   **Próxima Release:** 1.9.0 (Previsão: Q4 2025)
 
 ---
 
@@ -20,13 +20,14 @@ Este documento rastrea o progresso do desenvolvimento do LabControl rumo à arqu
 *   [x] Ferramenta de Auditoria de Ledger (`runLedgerAudit`).
 *   [x] Suporte a "Ghost Items" para importação de legado.
 
-### 🚧 Milestone 2: Refinamento de UX & Visualização V2 (EM ANDAMENTO)
-*Objetivo: Expor a riqueza de dados do V2 para o usuário final na interface.*
-*   [ ] **Issue #101 - Árvore de Lotes:** Atualizar o modal de "Editar Item" para mostrar não apenas o saldo total, mas a lista de lotes (V2 `batches`) que compõem aquele saldo, com suas respectivas validades.
-*   [ ] **Issue #102 - Rastreabilidade:** Criar uma view dedicada em "Histórico" que permita filtrar por `Batch ID`, mostrando todo o ciclo de vida de um frasco específico (Entrada -> Consumo -> Descarte).
-*   [ ] **Issue #103 - Gestão de Localização:** Permitir mover estoques entre locais (tabela `balances`) via Drag-and-Drop na Matriz de Armazenamento.
+### ✅ Milestone 2: Motor de Importação & Refinamento (CONCLUÍDO)
+*Objetivo: Facilitar a migração de dados e melhorar a usabilidade diária.*
+*   [x] **Import Wizard:** Detecção inteligente de tabelas e mapeamento de colunas.
+*   [x] **Smart Merge:** Normalização automática de dados planos para relacionais durante importação.
+*   [x] **Quick Actions:** Botões de ação (Scan, CAS, Lote) integrados aos inputs de formulário.
+*   [x] **Tipagem Estrita:** Refinamento de tipos TypeScript em componentes críticos e correções para React 19 (ErrorBoundary).
 
-### 📅 Milestone 3: Mobile & Operação em Campo (PLANEJADO)
+### 🚧 Milestone 3: Mobile & Operação em Campo (EM PLANEJAMENTO)
 *Objetivo: Facilitar o uso em tablets e celulares dentro do laboratório.*
 *   [ ] **Issue #201 - Scanner Nativo:** Melhorar a performance do leitor de QR Code para uso contínuo (modo "Inventário Rápido").
 *   [ ] **Issue #202 - Modo Offline Robusto:** Garantir que transações sejam enfileiradas (`SyncQueue`) se a conexão cair (embora seja local, útil para PWA sync futuro).
