@@ -3,6 +3,7 @@ import { RiskFlags, CasDataDTO } from '../types';
 
 const API_KEY = 'ktiATzuN8A4E4YAtTLWsca6LrgT9JLNKaCgYF6RR';
 const BASE_URL = 'https://commonchemistry.cas.org/api';
+const CACHE_PREFIX = 'LC_CAS_CACHE_';
 
 export const CasApiService = {
     /**
@@ -50,6 +51,31 @@ export const CasApiService = {
     },
 
     /**
+     * Recupera dados do cache de sessão se disponível
+     */
+    getCachedData(casNumber: string): CasDataDTO | null {
+        if (typeof sessionStorage === 'undefined') return null;
+        try {
+            const cached = sessionStorage.getItem(`${CACHE_PREFIX}${casNumber}`);
+            return cached ? JSON.parse(cached) : null;
+        } catch (e) {
+            return null;
+        }
+    },
+
+    /**
+     * Salva dados no cache de sessão
+     */
+    setCachedData(casNumber: string, data: CasDataDTO) {
+        if (typeof sessionStorage === 'undefined') return;
+        try {
+            sessionStorage.setItem(`${CACHE_PREFIX}${casNumber}`, JSON.stringify(data));
+        } catch (e) {
+            // Ignora erros de quota exaurida
+        }
+    },
+
+    /**
      * Busca dados do composto na API (Common Chemistry).
      * Inclui validação de checksum antes da requisição.
      */
@@ -58,6 +84,12 @@ export const CasApiService = {
         if (!this.isValidCas(casNumber)) {
             console.warn(`CAS Inválido (Checksum falhou): ${casNumber}`);
             return null;
+        }
+
+        // Cache Hit
+        const cached = this.getCachedData(casNumber);
+        if (cached) {
+            return cached;
         }
 
         const cleanCas = this.normalizeCas(casNumber);
@@ -80,11 +112,16 @@ export const CasApiService = {
             const data = await response.json();
             
             // Injeta a URL de imagem do PubChem caso a do CAS falhe ou como alternativa
-            return {
+            const enrichedData = {
                 ...data,
                 // Opcional: Você pode preferir a imagem do PubChem se a do CAS tiver token expirado
                 pubChemImage: this.getPubChemImageUrl(casNumber) 
             } as CasDataDTO;
+
+            // Save to Cache
+            this.setCachedData(casNumber, enrichedData);
+
+            return enrichedData;
             
         } catch (error) {
             // Silencia erros de rede/CORS para não quebrar a UX
@@ -103,12 +140,17 @@ export const CasApiService = {
 
         for (const cas of uniqueCas) {
             try {
-                // Rate Limiting: 600ms delay entre chamadas
-                await new Promise(resolve => setTimeout(resolve, 600));
-                
-                const data = await this.fetchChemicalData(cas);
-                if (data) {
-                    results[cas] = data;
+                // Tenta cache primeiro para evitar delay
+                const cached = this.getCachedData(cas);
+                if (cached) {
+                    results[cas] = cached;
+                } else {
+                    // Rate Limiting: 600ms delay apenas se for à rede
+                    await new Promise(resolve => setTimeout(resolve, 600));
+                    const data = await this.fetchChemicalData(cas);
+                    if (data) {
+                        results[cas] = data;
+                    }
                 }
             } catch (e) {
                 results[cas] = null;
