@@ -201,6 +201,10 @@ export const DataMapper = {
                 const batchId = `BAT-${deterministicId}`;
                 const catalogId = `CAT-${generateInventoryId(sap, prodName, '')}`;
 
+                // Pre-calculate Location ID to match deriveNormalizedData logic
+                const locStr = 'Geral';
+                const locationId = `LOC-${generateHash(normalizeStr(locStr))}`;
+
                 itemsToInsert.push({
                     id: deterministicId, 
                     sapCode: sap, 
@@ -221,6 +225,7 @@ export const DataMapper = {
                     unitCost: 0, 
                     currency: 'BRL',
                     location: { warehouse: 'Geral', cabinet: '', shelf: '', position: '' },
+                    locationId,
                     risks: { O: false, T: false, T_PLUS: false, C: false, E: false, N: false, Xn: false, Xi: false, F: false, F_PLUS: false },
                     batchId,
                     catalogId
@@ -276,6 +281,7 @@ export const DataMapper = {
                              minStockLevel: 0, supplier: 'Legado', expiryDate: '', dateAcquired: m.data_mov || new Date().toISOString(),
                              lastUpdated: new Date().toISOString(), itemStatus: 'Obsoleto', type: 'ROH', materialGroup: 'Legacy',
                              isControlled: false, unitCost: 0, currency: 'BRL', location: { warehouse: 'Arquivo', cabinet: '', shelf: '', position: '' },
+                             locationId: `LOC-${generateHash(normalizeStr('Arquivo'))}`,
                              risks: { O: false, T: false, T_PLUS: false, C: false, E: false, N: false, Xn: false, Xi: false, F: false, F_PLUS: false },
                              isGhost: true, 
                              batchId: `BAT-${ghostId}`,

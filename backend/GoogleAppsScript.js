@@ -264,8 +264,25 @@ function bulkLogMovements(records) {
 
 function legacyUpsertItem(item) {
   if (!item) return;
+
+  // Attempt to derive a Catalog ID (Product Level) that is consistent across lots
+  // If catalogId is missing, try to strip the Lot suffix from Item ID
+  let derivedCatalogId = item.catalogId;
+  if (!derivedCatalogId && item.id) {
+     const parts = item.id.split('-');
+     if (parts.length > 1) {
+         // Heuristic: Last part is usually the Lot Number or Random suffix
+         // e.g. SAP123-LOT456 -> SAP123
+         // e.g. NOSAP-HASH-LOT -> NOSAP-HASH
+         const baseId = parts.slice(0, parts.length - 1).join('-');
+         derivedCatalogId = `CAT-${baseId}`;
+     } else {
+         derivedCatalogId = `CAT-${item.id}`;
+     }
+  }
+
   const catalog = {
-    id: item.catalogId || `CAT-${item.id}`, 
+    id: derivedCatalogId || `CAT-${item.id}`,
     name: item.name,
     sapCode: item.sapCode,
     casNumber: item.casNumber,

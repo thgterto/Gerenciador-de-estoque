@@ -41,6 +41,14 @@ export const InventoryService = {
               return;
           }
 
+          // Check for pending offline changes to prevent overwrite
+          const pendingCount = await SyncQueueService.getQueueSize();
+          if (pendingCount > 0) {
+              console.warn(`[Sync] Aborted: ${pendingCount} offline changes pending. Triggering push first.`);
+              SyncQueueService.triggerProcess();
+              return;
+          }
+
           console.log("Iniciando sincronização V2 (Smart Merge)...");
           const { view, catalog, batches, balances } = await GoogleSheetsService.fetchFullDatabase();
           

@@ -48,9 +48,15 @@ export const seedDatabase = async (force: boolean = false, customData?: any) => 
               const module = await import('../limsData');
               sourceData = (window as any).LIMS_DATA || module.LIMS_DATA;
           } catch (e) {
-              console.warn('Falha ao carregar limsData padrão, tentando fallback...', e);
-              sourceData = { metadata: { status: 'EMPTY' }, dml: { produtos: [], lotes: [], movimentacoes: [] } };
+              console.warn('Falha ao carregar limsData padrão. O sistema iniciará vazio.', e);
+              sourceData = { metadata: { status: 'EMPTY' }, dados: { produtos: [], lotes: [], movimentacoes: [] } };
           }
+      }
+
+      // Validate sourceData structure
+      if (!sourceData) {
+          console.error("Critical: sourceData is null/undefined after loading attempt.");
+          sourceData = { metadata: { status: 'ERROR' }, dados: { produtos: [], lotes: [], movimentacoes: [] } };
       }
 
       const { flatItems, historyItems } = await processLimsData(sourceData);
