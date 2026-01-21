@@ -20,10 +20,10 @@ export const PageContainer: React.FC<PageContainerProps> = ({
     return (
         <div 
             className={`
-                flex flex-col w-full mx-auto px-6 max-w-[1600px]
+                flex flex-col w-full mx-auto px-4 md:px-6 max-w-[1600px]
                 ${scrollable 
-                    ? 'h-full overflow-y-auto custom-scrollbar py-6' // Scroll na página com padding vertical
-                    : 'h-full min-h-0 overflow-hidden py-4'          // Altura travada, padding menor para maximizar área útil
+                    ? 'h-full overflow-y-auto custom-scrollbar py-6' // Scroll na página
+                    : 'h-full min-h-0 overflow-hidden py-4'          // Altura travada
                 } 
                 ${className}
             `}

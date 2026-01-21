@@ -87,9 +87,7 @@ export const ItemForm: React.FC<ItemFormProps> = ({
     useEffect(() => {
         if (initialData) {
             setFormData(prev => ({ ...prev, ...initialData }));
-            
             if (initialData.name && !searchTerm) setSearchTerm(initialData.name); 
-            
             if (initialData.itemType) setItemType(initialData.itemType);
             else if (initialData.molecularFormula || initialData.casNumber) setItemType('REAGENT');
             
@@ -231,13 +229,14 @@ export const ItemForm: React.FC<ItemFormProps> = ({
         setIsSubmitting(true);
         try {
             let finalLotNumber = formData.lotNumber;
+            // Gera um ID único se o lote estiver vazio (para equipamentos sem série ou consumíveis)
             if (!finalLotNumber || finalLotNumber.trim() === '') {
-                if (itemType !== 'EQUIPMENT') {
-                    const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
-                    const randomSuffix = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
-                    finalLotNumber = `INT-${dateStr}-${randomSuffix}`;
+                const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+                const randomSuffix = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+                if (itemType === 'EQUIPMENT') {
+                    finalLotNumber = `EQ-${dateStr}-${randomSuffix}`;
                 } else {
-                    finalLotNumber = 'S/N';
+                    finalLotNumber = `INT-${dateStr}-${randomSuffix}`;
                 }
             }
 
@@ -252,8 +251,10 @@ export const ItemForm: React.FC<ItemFormProps> = ({
     };
 
     return (
-        <form onSubmit={handleSubmit} className="flex flex-col gap-6 w-full relative" autoComplete="off">
-            <div className="flex flex-wrap gap-2 w-full pb-2 mb-2 overflow-x-auto no-scrollbar">
+        <form onSubmit={handleSubmit} className="flex flex-col min-h-full relative" autoComplete="off">
+            
+            {/* TABS DE TIPO */}
+            <div className="flex flex-wrap gap-2 w-full pb-4 shrink-0">
                 {(Object.entries(TYPE_CONFIG) as [ItemType, typeof TYPE_CONFIG[ItemType]][]).map(([key, config]) => (
                     <button
                         key={key}
@@ -273,8 +274,10 @@ export const ItemForm: React.FC<ItemFormProps> = ({
                 ))}
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 w-full">
-                {/* ESQUERDA */}
+            {/* CONTEÚDO PRINCIPAL (Scrollable se necessário, mas o modal pai já tem scroll) */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 w-full pb-20"> {/* pb-20 para não cobrir com o footer fixo */}
+                
+                {/* COLUNA ESQUERDA: DADOS BÁSICOS */}
                 <div className="flex flex-col gap-6">
                     <Card noBorder className="shadow-sm border border-border-light dark:border-border-dark" padding="p-5">
                         <div className="flex items-center gap-2 mb-4 border-b border-border-light dark:border-border-dark pb-2">
@@ -401,25 +404,21 @@ export const ItemForm: React.FC<ItemFormProps> = ({
                                             const isChecked = formData.risks?.[ghs.key] || false;
                                             return (
                                                 <Tooltip key={ghs.key} content={ghs.label} position="top">
-                                                    <button
-                                                        type="button"
-                                                        role="checkbox"
-                                                        aria-checked={isChecked}
-                                                        aria-label={`Risco: ${ghs.label}`}
+                                                    <div 
                                                         onClick={() => {
                                                             setFormData(p => ({
                                                                 ...p,
                                                                 risks: { ...p.risks, [ghs.key]: !isChecked } as RiskFlags
                                                             }));
                                                         }}
-                                                        className={`cursor-pointer border rounded-lg size-8 flex items-center justify-center transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-red-500 ${
+                                                        className={`cursor-pointer border rounded-lg size-8 flex items-center justify-center transition-all ${
                                                             isChecked 
                                                             ? 'bg-white border-red-500 shadow ring-1 ring-red-500' 
                                                             : 'bg-white/50 border-transparent hover:bg-white'
                                                         }`}
                                                     >
                                                         <span className={`material-symbols-outlined text-[18px] ${isChecked ? ghs.textColor : 'text-slate-300'}`}>{ghs.icon}</span>
-                                                    </button>
+                                                    </div>
                                                 </Tooltip>
                                             );
                                         })}
@@ -430,9 +429,8 @@ export const ItemForm: React.FC<ItemFormProps> = ({
                     )}
                 </div>
 
-                {/* DIREITA */}
+                {/* COLUNA DIREITA: LOGÍSTICA & ESTOQUE */}
                 <div className="flex flex-col gap-6 w-full">
-                    {/* CARD: LOTE & VALIDADE */}
                     <Card noBorder className="shadow-sm border-2 border-blue-200 dark:border-blue-800 bg-blue-50/20 dark:bg-blue-900/5 relative" padding="p-5">
                          <div className="flex items-center gap-2 mb-4 border-b border-blue-200 dark:border-blue-800 pb-2">
                             <span className="material-symbols-outlined text-blue-600 dark:text-blue-400 text-[20px]">layers</span> 
@@ -446,7 +444,7 @@ export const ItemForm: React.FC<ItemFormProps> = ({
                                     value={formData.lotNumber || ''} 
                                     onChange={e => handleChange('lotNumber', e.target.value)}
                                     error={errors.lotNumber}
-                                    placeholder={itemType === 'EQUIPMENT' ? "Ex: PAT-001" : "Vazio p/ auto"}
+                                    placeholder={itemType === 'EQUIPMENT' ? "Ex: PAT-001 (Vazio p/ auto)" : "Vazio p/ auto"}
                                     className="border-blue-200 focus:border-blue-500 focus:ring-blue-200 pr-16"
                                     rightElement={
                                         <div className="flex items-center gap-1">
@@ -558,19 +556,23 @@ export const ItemForm: React.FC<ItemFormProps> = ({
                 </div>
             </div>
 
+            {/* BATCH HISTORY (EDIT MODE ONLY) */}
             {isEditMode && initialData?.id && (
-                <div className="mt-4 animate-fade-in w-full border-t border-border-light dark:border-border-dark pt-6">
-                    <div className="flex items-center gap-2 mb-4">
-                         <span className="material-symbols-outlined text-primary text-[20px]">history</span>
-                         <h3 className="text-base font-bold text-text-main dark:text-white">
-                             Histórico de Lotes deste Produto
-                         </h3>
-                    </div>
-                    <BatchList itemId={initialData.id!} onViewHistory={onViewBatchHistory} />
+                <div className="mb-20">
+                    <Card noBorder className="animate-fade-in w-full shadow-sm border border-border-light dark:border-border-dark" padding="p-5">
+                        <div className="flex items-center gap-2 mb-4">
+                             <span className="material-symbols-outlined text-primary text-[20px]">history</span>
+                             <h3 className="text-base font-bold text-text-main dark:text-white">
+                                 Histórico de Lotes deste Produto
+                             </h3>
+                        </div>
+                        <BatchList itemId={initialData.id!} onViewHistory={onViewBatchHistory} />
+                    </Card>
                 </div>
             )}
 
-            <div className="sticky bottom-0 z-10 bg-surface-light dark:bg-surface-dark border-t border-border-light dark:border-border-dark py-4 -mx-1 px-1 flex justify-between gap-3 mt-auto">
+            {/* RODAPÉ FIXO (Sticky) */}
+            <div className="sticky bottom-[-24px] z-20 -mx-6 px-6 py-4 bg-white/90 dark:bg-surface-dark/95 backdrop-blur border-t border-border-light dark:border-border-dark flex justify-between gap-3 mt-auto shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
                 <div className="flex gap-2">
                     {onGenerateQR && isEditMode && (
                         <Button 
@@ -578,12 +580,13 @@ export const ItemForm: React.FC<ItemFormProps> = ({
                             variant="white" 
                             icon="qr_code_2"
                             onClick={() => onGenerateQR(formData)}
+                            className="hidden sm:flex"
                         >
                             Etiqueta
                         </Button>
                     )}
                 </div>
-                <div className="flex gap-2">
+                <div className="flex gap-2 w-full sm:w-auto justify-end">
                     <Button variant="ghost" onClick={onCancel} type="button" disabled={isSubmitting}>Cancelar</Button>
                     <Button type="submit" variant="primary" icon="save" isLoading={isSubmitting} className="shadow-md">
                         {submitLabel}

@@ -1,4 +1,5 @@
 
+
 import { InventoryItem, RiskFlags } from '../types';
 
 // --- CONFIGURAÇÃO DE RISCOS (GHS) ---
@@ -38,8 +39,9 @@ export type ItemStatusResult = {
     icon: string;
 };
 
-export const getItemStatus = (item: InventoryItem): ItemStatusResult => {
-    const isExpired = !!item.expiryDate && new Date(item.expiryDate) < new Date();
+// Optimization: Accept 'now' Date object to prevent recreation in loops
+export const getItemStatus = (item: InventoryItem, now: Date = new Date()): ItemStatusResult => {
+    const isExpired = !!item.expiryDate && new Date(item.expiryDate) < now;
     const isLowStock = item.quantity <= item.minStockLevel && item.minStockLevel > 0;
 
     if (isExpired) {
@@ -79,12 +81,13 @@ export const analyzeLocation = (locItems: InventoryItem[]) => {
     let conflictMessage: string | null = null;
     let expiredCount = 0;
     let lowStockCount = 0;
+    const now = new Date(); // Created once for loop optimization
 
     locItems.forEach(item => {
         (Object.keys(item.risks) as Array<keyof RiskFlags>).forEach(riskKey => {
             if (item.risks[riskKey]) activeRisks.add(riskKey);
         });
-        const status = getItemStatus(item);
+        const status = getItemStatus(item, now); // Use cached date
         if (status.isExpired) expiredCount++;
         if (status.isLowStock) lowStockCount++;
     });

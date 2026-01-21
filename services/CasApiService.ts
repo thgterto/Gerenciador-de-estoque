@@ -1,7 +1,18 @@
-
 import { RiskFlags, CasDataDTO } from '../types';
 
-const API_KEY = 'ktiATzuN8A4E4YAtTLWsca6LrgT9JLNKaCgYF6RR';
+// API Key movida para variável de ambiente
+// SECURITY FIX: Safe access pattern for import.meta.env to prevent runtime crashes if env is undefined
+const getEnv = (): any => {
+    try {
+        // @ts-ignore
+        return import.meta.env || {};
+    } catch {
+        return {};
+    }
+};
+
+const env = getEnv();
+const API_KEY = env.VITE_CAS_API_KEY || '';
 const BASE_URL = 'https://commonchemistry.cas.org/api';
 
 export const CasApiService = {
@@ -57,6 +68,12 @@ export const CasApiService = {
         // Validação Prévia: Evita chamadas de API para números matematicamente inválidos
         if (!this.isValidCas(casNumber)) {
             console.warn(`CAS Inválido (Checksum falhou): ${casNumber}`);
+            return null;
+        }
+
+        // SECURITY CHECK: Ensure API Key is present
+        if (!API_KEY) {
+            console.warn("CAS API Key not configured in environment. Skipping fetch.");
             return null;
         }
 

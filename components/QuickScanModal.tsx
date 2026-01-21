@@ -1,8 +1,7 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Modal } from './ui/Modal';
 import { Button } from './ui/Button';
-import { Input } from './ui/Input';
 import { InventoryService } from '../services/InventoryService';
 import { InventoryItem } from '../types';
 import { useAlert } from '../context/AlertContext';
@@ -14,51 +13,78 @@ interface Props {
   onClose: () => void;
 }
 
-/**
- * Modal de escaneamento rápido (Fullscreen mobile-first).
- * Permite entrada e saída rápida de itens diretamente pela câmera.
- */
 export const QuickScanModal: React.FC<Props> = ({ isOpen, onClose }) => {
   const { addToast } = useAlert();
   const [scannedItem, setScannedItem] = useState<InventoryItem | null>(null);
   const [quantity, setQuantity] = useState<string>('1');
   const [isLoading, setIsLoading] = useState(false);
-  const [isPaused, setIsPaused] = useState(false);
-  // Histórico local de escaneamento para feedback imediato
+  const [continuousMode, setContinuousMode] = useState(false);
+  
+  // Controle de "CoolDown" para evitar leituras duplas do mesmo código
+  const lastScanRef = useRef<{code: string, time: number} | null>(null);
   const [scanHistory, setScanHistory] = useState<{name: string, time: string, type: 'IN'|'OUT'}[]>([]);
 
   const handleScan = async (decodedText: string) => {
-      // Se já estiver processando ou pausado (ex: item modal aberto), ignora
-      if (isPaused || isLoading) return;
-
-      setIsPaused(true); // Pausa a lógica de scan enquanto processa
-
-      let codeToSearch = decodedText;
-      try {
-          const data = JSON.parse(decodedText);
-          if (data.i) codeToSearch = data.i; 
-          else if (data.s) codeToSearch = data.s; 
-      } catch (e) {
-          // Não é JSON, assume código bruto
+      // Debounce lógico: Ignora o mesmo código se lido em menos de 2 segundos
+      const now = Date.now();
+      if (lastScanRef.current && 
+          lastScanRef.current.code === decodedText && 
+          (now - lastScanRef.current.time < 2000)) {
+          return;
       }
+      lastScanRef.current = { code: decodedText, time: now };
 
-      const item = await InventoryService.findItemByCode(codeToSearch);
-      
-      if (item) {
-          setScannedItem(item);
-          // O scanner continua "ligado" no background, mas a UI cobre ou ignoramos inputs
-      } else {
-          addToast('Não Encontrado', 'warning', `Item não localizado: ${decodedText}`);
-          setTimeout(() => setIsPaused(false), 1500); // Resume após delay curto
+      setIsLoading(true);
+      try {
+          // 1. Tentar encontrar o item
+          const item = await InventoryService.findItemByCode(decodedText);
+          
+          if (item) {
+              setScannedItem(item);
+              
+              if (continuousMode) {
+                  // Modo Contínuo: Registra saída imediata de 1 unidade
+                  await InventoryService.registerMovement(
+                      item, 
+                      'SAIDA', 
+                      1, 
+                      new Date().toISOString(), 
+                      'Scan Rápido (Contínuo)'
+                  );
+                  
+                  addToast(`Saída Registrada: ${item.name}`, 'success', '-1 UN', 2000);
+                  
+                  setScanHistory(prev => [
+                      { name: item.name, time: new Date().toLocaleTimeString(), type: 'OUT' },
+                      ...prev.slice(0, 4) // Mantém apenas os últimos 5
+                  ]);
+                  
+                  // Reset para próxima leitura
+                  setTimeout(() => setScannedItem(null), 1500);
+              } else {
+                  // Modo Normal: Mostra detalhes para ação manual
+                  // (Neste caso, não limpamos scannedItem)
+              }
+          } else {
+              addToast('Não encontrado', 'error', `Código: ${decodedText}`);
+              if (continuousMode) {
+                   setTimeout(() => setScannedItem(null), 1000);
+              }
+          }
+      } catch (e) {
+          console.error(e);
+          addToast('Erro', 'error', 'Falha ao processar código.');
+      } finally {
+          setIsLoading(false);
       }
   };
 
   const { elementId, startScanner, stopScanner, error, isScanning } = useScanner({
       onScan: handleScan,
-      aspectRatio: 1.777 // Formato mais vertical para mobile
+      onError: (msg) => console.debug("Scan error:", msg),
+      aspectRatio: 1.0
   });
 
-  // Controle de ciclo de vida do scanner baseado na visibilidade do modal
   useEffect(() => {
       if (isOpen) {
           const timer = setTimeout(() => startScanner(), 100);
@@ -66,187 +92,152 @@ export const QuickScanModal: React.FC<Props> = ({ isOpen, onClose }) => {
       } else {
           stopScanner();
           setScannedItem(null);
-          setQuantity('1');
-          setIsPaused(false);
+          setScanHistory([]);
       }
   }, [isOpen, startScanner, stopScanner]);
 
-  const resumeScanning = () => {
-      setScannedItem(null);
-      setQuantity('1');
-      setIsPaused(false);
-  };
-
-  const handleTransaction = async (type: 'ENTRADA' | 'SAIDA') => {
+  const handleManualAction = async (type: 'ENTRADA' | 'SAIDA') => {
       if (!scannedItem) return;
+      const qty = parseFloat(quantity) || 1;
       
-      const qty = parseFloat(quantity);
-      if (isNaN(qty) || qty <= 0) {
-          addToast('Quantidade Inválida', 'error');
-          return;
-      }
-
-      setIsLoading(true);
-      try {
-          await InventoryService.registerMovement(
-              scannedItem, 
-              type, 
-              qty, 
-              new Date().toISOString(), 
-              'Inventário Rápido (Scanner)'
-          );
-          
-          setScanHistory(prev => [{
-              name: scannedItem.name,
-              time: new Date().toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'}),
-              type: (type === 'ENTRADA' ? 'IN' : 'OUT') as 'IN' | 'OUT'
-          }, ...prev].slice(0, 5));
-
-          addToast(type === 'ENTRADA' ? 'Adicionado' : 'Removido', 'success');
-          resumeScanning();
-      } catch (e) {
-          addToast('Erro', 'error', (e as Error).message);
-      } finally {
-          setIsLoading(false);
-      }
+      await InventoryService.registerMovement(
+          scannedItem, 
+          type, 
+          qty, 
+          new Date().toISOString(), 
+          'Scan Manual'
+      );
+      
+      addToast(`${type === 'ENTRADA' ? 'Entrada' : 'Saída'} Registrada`, 'success');
+      setScannedItem(null);
+      if (!continuousMode) onClose();
   };
 
   return (
-    <Modal 
-        isOpen={isOpen} 
-        onClose={onClose} 
-        title="Inventário Rápido" 
-        className="max-w-md h-[95vh] flex flex-col" 
-        hideHeader
-        noPadding={true}
-    >
-        <div className="flex flex-col h-full bg-black text-white relative">
-            
-            {/* Header Overlay Transparente */}
-            <div className="absolute top-0 left-0 right-0 p-4 z-20 flex justify-between items-start bg-gradient-to-b from-black/80 to-transparent">
-                <div>
-                    <h2 className="text-lg font-bold flex items-center gap-2">
-                        <span className="material-symbols-outlined text-primary">qr_code_scanner</span>
-                        Scanner
-                    </h2>
-                    <p className="text-xs text-gray-300">Aponte para código de barras ou QR</p>
+    <Modal isOpen={isOpen} onClose={onClose} hideHeader noPadding className="max-w-md bg-black border-none">
+        <div className="flex flex-col h-full bg-surface-light dark:bg-surface-dark relative min-h-[500px]">
+            {/* Header com Toggle */}
+            <div className="absolute top-0 left-0 right-0 z-20 p-4 flex justify-between items-start bg-gradient-to-b from-black/80 to-transparent">
+                <div className="flex flex-col">
+                    <h3 className="text-white font-bold text-lg drop-shadow-md">Scanner</h3>
+                    <p className="text-white/80 text-xs">{continuousMode ? 'Modo Contínuo (Saída Automática -1)' : 'Modo Manual (Detalhes)'}</p>
                 </div>
-                <button onClick={onClose} className="bg-white/10 p-2 rounded-full hover:bg-white/20 transition-colors">
-                    <span className="material-symbols-outlined text-white">close</span>
+                <button onClick={onClose} className="text-white bg-white/20 p-2 rounded-full backdrop-blur-sm hover:bg-white/30">
+                    <span className="material-symbols-outlined">close</span>
                 </button>
             </div>
 
-            {/* Área da Câmera */}
-            <div className="flex-1 bg-black relative overflow-hidden flex flex-col justify-center">
+            {/* Viewport da Câmera */}
+            <div className="w-full h-[350px] bg-black relative overflow-hidden flex flex-col justify-center">
                 {error ? (
-                    <div className="flex flex-col items-center justify-center p-6 text-center z-10 relative">
-                        <span className="material-symbols-outlined text-4xl text-red-500 mb-2">videocam_off</span>
-                        <p className="text-red-400 font-bold">{error}</p>
-                        <p className="text-gray-400 text-sm mt-2">Verifique as permissões do navegador.</p>
-                        <Button variant="white" size="sm" className="mt-4" onClick={() => window.location.reload()}>Recarregar</Button>
+                    <div className="text-center text-white p-6">
+                        <span className="material-symbols-outlined text-4xl mb-2 text-red-500">videocam_off</span>
+                        <p>{error}</p>
                     </div>
                 ) : (
-                    <div id={elementId} className="w-full h-full object-cover"></div>
+                    <>
+                        <div id={elementId} className="w-full h-full object-cover"></div>
+                        {isScanning && (
+                             <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
+                                 <div className="w-64 h-64 border-2 border-primary/80 rounded-lg relative animate-pulse shadow-[0_0_0_9999px_rgba(0,0,0,0.5)]">
+                                     <div className="absolute top-1/2 left-0 right-0 h-0.5 bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.8)]"></div>
+                                 </div>
+                             </div>
+                        )}
+                    </>
                 )}
-                
-                {/* Mira Visual */}
-                {!error && !scannedItem && isScanning && (
-                    <div className="absolute inset-0 pointer-events-none flex items-center justify-center z-10">
-                        <div className="w-64 h-64 border-2 border-white/30 rounded-lg relative animate-pulse">
-                            <div className="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-primary"></div>
-                            <div className="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 border-primary"></div>
-                            <div className="absolute bottom-0 left-0 w-4 h-4 border-b-2 border-l-2 border-primary"></div>
-                            <div className="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-primary"></div>
-                        </div>
-                    </div>
-                )}
+            </div>
+            
+            {/* Botão de Toggle de Modo */}
+            <div className="absolute top-[320px] right-4 z-20">
+                <button 
+                    onClick={() => setContinuousMode(!continuousMode)}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold shadow-lg backdrop-blur-md transition-all ${
+                        continuousMode 
+                        ? 'bg-green-500 text-white animate-pulse' 
+                        : 'bg-white/20 text-white border border-white/30'
+                    }`}
+                >
+                    <span className="material-symbols-outlined text-base">
+                        {continuousMode ? 'bolt' : 'touch_app'}
+                    </span>
+                    {continuousMode ? 'AUTO' : 'MANUAL'}
+                </button>
+            </div>
 
-                {(isPaused || isLoading) && !scannedItem && !error && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-black/50 z-20">
-                        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+            {/* Painel de Ação (Slide Up) */}
+            <div className="flex-1 bg-surface-light dark:bg-surface-dark p-4 rounded-t-2xl -mt-4 relative z-10 flex flex-col gap-4">
+                {scannedItem ? (
+                    <div className="animate-slide-up">
+                        <div className="flex justify-between items-start mb-3">
+                            <div>
+                                <Badge variant={continuousMode ? 'success' : 'primary'}>{continuousMode ? 'REGISTRADO' : 'DETECTADO'}</Badge>
+                                <h4 className="font-bold text-lg text-text-main dark:text-white mt-1 leading-tight">{scannedItem.name}</h4>
+                                <p className="text-xs text-text-secondary font-mono">{scannedItem.sapCode} • Lote: {scannedItem.lotNumber}</p>
+                            </div>
+                            <div className="text-right">
+                                <span className="block text-xs uppercase text-text-secondary font-bold">Atual</span>
+                                <span className="text-xl font-bold text-text-main dark:text-white">{scannedItem.quantity} <span className="text-sm">{scannedItem.baseUnit}</span></span>
+                            </div>
+                        </div>
+
+                        {!continuousMode && (
+                            <div className="flex flex-col gap-3">
+                                <div className="flex items-center gap-3">
+                                    <button 
+                                        className="size-10 rounded-lg bg-gray-100 dark:bg-slate-700 flex items-center justify-center text-xl font-bold"
+                                        onClick={() => setQuantity(String(Math.max(1, parseFloat(quantity) - 1)))}
+                                    >-</button>
+                                    <div className="flex-1">
+                                         <input 
+                                            type="number" 
+                                            value={quantity}
+                                            onChange={(e) => setQuantity(e.target.value)}
+                                            className="w-full text-center font-bold text-xl bg-transparent border-b border-border-light dark:border-border-dark py-1 focus:outline-none focus:border-primary"
+                                         />
+                                    </div>
+                                    <button 
+                                        className="size-10 rounded-lg bg-gray-100 dark:bg-slate-700 flex items-center justify-center text-xl font-bold"
+                                        onClick={() => setQuantity(String(parseFloat(quantity) + 1))}
+                                    >+</button>
+                                </div>
+                                <div className="grid grid-cols-2 gap-3">
+                                    <Button variant="danger" onClick={() => handleManualAction('SAIDA')}>
+                                        Registrar Saída
+                                    </Button>
+                                    <Button variant="success" onClick={() => handleManualAction('ENTRADA')}>
+                                        Registrar Entrada
+                                    </Button>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                ) : (
+                    <div className="flex-1 flex flex-col items-center justify-start pt-2">
+                        {scanHistory.length > 0 ? (
+                            <div className="w-full">
+                                <h5 className="text-xs font-bold text-text-secondary uppercase mb-2">Histórico Recente</h5>
+                                <div className="space-y-2">
+                                    {scanHistory.map((h, i) => (
+                                        <div key={i} className="flex justify-between items-center text-sm p-2 bg-background-light dark:bg-slate-800 rounded-lg animate-fade-in">
+                                            <span className="truncate flex-1">{h.name}</span>
+                                            <span className="text-xs text-text-secondary ml-2">{h.time}</span>
+                                            <span className={`text-xs font-bold ml-2 ${h.type === 'OUT' ? 'text-red-500' : 'text-green-500'}`}>
+                                                {h.type === 'OUT' ? '-1' : '+1'}
+                                            </span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="text-center text-text-secondary opacity-60 mt-4">
+                                <span className="material-symbols-outlined text-4xl mb-2">qr_code_scanner</span>
+                                <p className="text-sm">Aguardando leitura...</p>
+                            </div>
+                        )}
                     </div>
                 )}
             </div>
-
-            {/* Bottom Sheet / Painel de Ação (Aparece ao escanear) */}
-            <div className={`
-                bg-surface-light dark:bg-surface-dark rounded-t-2xl p-5 transition-transform duration-300 ease-in-out z-30 shadow-[0_-5px_20px_rgba(0,0,0,0.3)]
-                ${scannedItem ? 'translate-y-0' : 'translate-y-full absolute bottom-0 w-full'}
-            `}>
-                {scannedItem && (
-                    <div className="flex flex-col gap-4">
-                        <div className="flex justify-between items-start border-b border-border-light dark:border-border-dark pb-3">
-                            <div className="min-w-0 pr-2">
-                                <h3 className="font-bold text-lg text-text-main dark:text-white truncate leading-tight">
-                                    {scannedItem.name}
-                                </h3>
-                                <div className="flex items-center gap-2 mt-1">
-                                    <Badge variant="neutral" className="font-mono text-xs">{scannedItem.lotNumber}</Badge>
-                                    <span className="text-xs text-text-secondary dark:text-gray-400">
-                                        Saldo: <strong className="text-text-main dark:text-white">{scannedItem.quantity} {scannedItem.baseUnit}</strong>
-                                    </span>
-                                </div>
-                            </div>
-                            <button onClick={resumeScanning} className="text-text-secondary hover:text-text-main dark:text-gray-400 p-1">
-                                <span className="material-symbols-outlined">close</span>
-                            </button>
-                        </div>
-
-                        <div className="flex items-center gap-3">
-                            <div className="w-24">
-                                <label className="text-[10px] font-bold text-text-secondary uppercase mb-1 block">Qtd</label>
-                                <Input 
-                                    type="number" 
-                                    value={quantity} 
-                                    onChange={e => setQuantity(e.target.value)} 
-                                    className="text-center font-bold text-lg h-12"
-                                    autoFocus
-                                />
-                            </div>
-                            <div className="flex-1 grid grid-cols-2 gap-2">
-                                <Button 
-                                    variant="danger" 
-                                    onClick={() => handleTransaction('SAIDA')} 
-                                    isLoading={isLoading}
-                                    className="h-12 flex-col gap-0 leading-none"
-                                >
-                                    <span className="material-symbols-outlined mb-0.5">remove</span>
-                                    Saída
-                                </Button>
-                                <Button 
-                                    variant="success" 
-                                    onClick={() => handleTransaction('ENTRADA')} 
-                                    isLoading={isLoading}
-                                    className="h-12 flex-col gap-0 leading-none"
-                                >
-                                    <span className="material-symbols-outlined mb-0.5">add</span>
-                                    Entrada
-                                </Button>
-                            </div>
-                        </div>
-                    </div>
-                )}
-            </div>
-
-            {/* Histórico Recente (Overlay) - Aparece apenas se nenhum item estiver selecionado */}
-            {!scannedItem && scanHistory.length > 0 && !error && (
-                <div className="absolute bottom-6 left-4 right-4 z-20">
-                     <div className="bg-black/60 backdrop-blur-md rounded-xl p-3 border border-white/10">
-                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2 px-1">Últimas Ações</p>
-                        <div className="space-y-1">
-                            {scanHistory.map((h, i) => (
-                                <div key={i} className="flex justify-between items-center text-xs text-white/90 p-1.5 rounded hover:bg-white/5">
-                                    <span className="truncate flex-1 pr-2">{h.name}</span>
-                                    <span className={`flex items-center gap-1 font-bold ${h.type === 'IN' ? 'text-green-400' : 'text-red-400'}`}>
-                                        {h.type === 'IN' ? 'ENT' : 'SAÍ'} 
-                                        <span className="text-[10px] opacity-60 font-normal text-gray-400">{h.time}</span>
-                                    </span>
-                                </div>
-                            ))}
-                        </div>
-                     </div>
-                </div>
-            )}
         </div>
     </Modal>
   );

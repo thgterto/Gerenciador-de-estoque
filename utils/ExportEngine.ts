@@ -1,11 +1,23 @@
 
 import * as XLSX from 'xlsx';
 import { InventoryItem, MovementRecord } from '../types';
+import { db } from '../db';
 
 interface ExportDataOptions {
     fileName?: string;
     sheetName?: string;
 }
+
+// SECURITY: Sanitize cells to prevent CSV Injection (Formula Injection)
+const sanitizeCell = (value: any): any => {
+    if (typeof value === 'string') {
+        // If the cell starts with a formula trigger character, prepend a quote to force text mode
+        if (/^[=+\-@]/.test(value)) {
+            return `'${value}`;
+        }
+    }
+    return value;
+};
 
 export const ExportEngine = {
     /**
@@ -24,6 +36,46 @@ export const ExportEngine = {
     },
 
     /**
+     * Gera um arquivo .ts (TypeScript) contendo os dados atuais do banco no formato
+     * compatível com o 'limsData.ts' original. Isso permite ao desenvolvedor substituir
+     * o arquivo fonte para tornar os dados atuais permanentes no código.
+     */
+    generateLimsSeedFile: async () => {
+        const items = await db.items.toArray();
+        const history = await db.history.toArray();
+        
+        // Converte o formato interno para o formato esperado pelo Seed
+        const exportData = {
+            metadata: {
+                gerado_em: new Date().toISOString(),
+                status: "GENERATED FROM BROWSER DB",
+                version: "1.8.0"
+            },
+            data: {
+                items: items,
+                history: history
+            }
+        };
+
+        const fileContent = `
+// ARQUIVO GERADO AUTOMATICAMENTE PELO LABCONTROL
+// Substitua o conteúdo de 'limsData.ts' por este arquivo para tornar os dados permanentes.
+
+export const LIMS_DATA: any = ${JSON.stringify(exportData, null, 2)};
+`;
+
+        const blob = new Blob([fileContent], { type: 'text/typescript' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'limsData.ts';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    },
+
+    /**
      * Prepara os dados de inventário para o formato tabular de exportação.
      */
     prepareInventoryData: (items: InventoryItem[]) => {
@@ -33,7 +85,7 @@ export const ExportEngine = {
                 .map(([key]) => key)
                 .join(', ');
     
-            return {
+            const row = {
                 "ID Sistema": i.id,
                 "Produto": i.name,
                 "Código SAP": i.sapCode,
@@ -54,6 +106,13 @@ export const ExportEngine = {
                 "Riscos": risks,
                 "Atualizado em": new Date(i.lastUpdated).toLocaleDateString()
             };
+
+            // Apply Security Sanitization
+            Object.keys(row).forEach(k => {
+                (row as any)[k] = sanitizeCell((row as any)[k]);
+            });
+
+            return row;
         });
     },
 
@@ -61,17 +120,26 @@ export const ExportEngine = {
      * Prepara os dados de histórico para exportação.
      */
     prepareHistoryData: (history: MovementRecord[]) => {
-        return history.map(h => ({
-            "Data": new Date(h.date).toLocaleString(),
-            "Tipo": h.type,
-            "Produto": h.productName,
-            "Código SAP": h.sapCode,
-            "Lote": h.lot,
-            "Quantidade": h.quantity,
-            "Unidade": h.unit,
-            "Observação": h.observation || '',
-            "Usuário": h.userId || 'Sistema',
-            "ID Item": h.itemId || 'N/A'
-        }));
+        return history.map(h => {
+            const row = {
+                "Data": new Date(h.date).toLocaleString(),
+                "Tipo": h.type,
+                "Produto": h.productName,
+                "Código SAP": h.sapCode,
+                "Lote": h.lot,
+                "Quantidade": h.quantity,
+                "Unidade": h.unit,
+                "Observação": h.observation || '',
+                "Usuário": h.userId || 'Sistema',
+                "ID Item": h.itemId || 'N/A'
+            };
+
+            // Apply Security Sanitization
+            Object.keys(row).forEach(k => {
+                (row as any)[k] = sanitizeCell((row as any)[k]);
+            });
+
+            return row;
+        });
     }
 };

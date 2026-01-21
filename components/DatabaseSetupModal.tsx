@@ -54,12 +54,12 @@ export const DatabaseSetupModal: React.FC<Props> = ({ isOpen, onSelect }) => {
                 <div className="size-12 rounded-full bg-white dark:bg-slate-800 text-primary flex items-center justify-center mb-3 shadow-sm">
                     <span className="material-symbols-outlined text-2xl">dataset</span>
                 </div>
-                <h3 className="font-bold text-lg text-text-main dark:text-white mb-1">Dados de Exemplo</h3>
+                <h3 className="font-bold text-lg text-text-main dark:text-white mb-1">Dados LIMS (Real)</h3>
                 <p className="text-sm text-text-secondary dark:text-gray-400 leading-relaxed">
-                    Carregue dados fictícios (Sistema Legado) para testar as funcionalidades, relatórios e dashboards.
+                    Carregue a base de dados consolidada do sistema legado (LIMS) com produtos, lotes e histórico.
                 </p>
                 <span className="mt-4 px-4 py-2 rounded-lg bg-primary text-white text-sm font-bold shadow-md shadow-primary/20 group-hover:scale-105 transition-all">
-                    Carregar Demo
+                    Carregar Dados
                 </span>
             </button>
         </div>

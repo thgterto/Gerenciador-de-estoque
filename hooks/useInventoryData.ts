@@ -9,8 +9,12 @@ import { useAlert } from '../context/AlertContext';
 
 const SESSION_KEYS = {
     SETUP_COMPLETED: 'LC_SETUP_COMPLETED',
-    SKIP_SEED: 'LC_SKIP_AUTO_SEED'
+    SKIP_SEED: 'LC_SKIP_AUTO_SEED',
+    DATA_VERSION: 'LC_DATA_VERSION'
 };
+
+// Versão atual dos dados.
+const CURRENT_DATA_VERSION = '2025-12-23-REAL-V2';
 
 export const useInventoryData = () => {
     const [items, setItems] = useState<InventoryItem[]>([]);
@@ -36,7 +40,7 @@ export const useInventoryData = () => {
             }
 
             if (checkAlerts && fetchedMetrics.alertsCount > 0) {
-                addToast('Atenção Necessária', 'warning', `Existem ${fetchedMetrics.alertsCount} itens com estoque baixo ou vencidos.`);
+                // Opcional: Feedback visual discreto
             }
 
             setLoadingHistory(true);
@@ -59,21 +63,25 @@ export const useInventoryData = () => {
         
         const init = async () => {
             try {
-                // Tenta autenticar e sincronizar com SharePoint
+                const dbCount = await db.rawDb.items.count();
+                const setupDone = localStorage.getItem(SESSION_KEYS.SETUP_COMPLETED) === 'true';
+                
+                // CRITICAL FIX: Não limpar dados existentes automaticamente.
+                // Apenas se o banco estiver vazio e nunca tiver sido configurado, oferecemos o setup.
+                if (dbCount === 0 && !setupDone) {
+                     setShowDbSetup(true);
+                } else {
+                    // Se já existem dados, apenas atualizamos a flag de versão para evitar prompts futuros
+                    localStorage.setItem(SESSION_KEYS.DATA_VERSION, CURRENT_DATA_VERSION);
+                }
+
+                // 2. Sync Cloud (Opcional)
                 try {
                     await SharePointService.initialize();
                     await InventoryService.syncFromCloud();
                 } catch (e) {
-                    console.warn("Modo Offline: Não foi possível conectar ao SharePoint", e);
+                    // Silent fail for offline mode
                 }
-
-                const dbCount = await db.rawDb.items.count();
-                const skipSeed = localStorage.getItem(SESSION_KEYS.SKIP_SEED) === 'true';
-
-                if (dbCount === 0 && !skipSeed) {
-                    // Se não tiver nada no local nem na nuvem, oferece seed
-                    setShowDbSetup(true); 
-                } 
                 
                 await loadData(true);
             } catch (error) {
@@ -92,7 +100,7 @@ export const useInventoryData = () => {
             isMounted.current = false;
             unsubscribe();
         };
-    }, [loadData]);
+    }, [loadData, addToast]);
 
     const handleDbSetup = async (type: 'EMPTY' | 'DEMO') => {
         setLoading(true);
@@ -101,13 +109,14 @@ export const useInventoryData = () => {
         if (type === 'DEMO') {
             await seedDatabase(true); 
             localStorage.removeItem(SESSION_KEYS.SKIP_SEED);
-            addToast('Ambiente Configurado', 'success', 'Dados de demonstração carregados.');
+            addToast('Ambiente Configurado', 'success', 'Dados LIMS carregados.');
         } else {
             localStorage.setItem(SESSION_KEYS.SKIP_SEED, 'true');
             addToast('Ambiente Pronto', 'success', 'Banco de dados inicializado vazio.');
         }
 
         localStorage.setItem(SESSION_KEYS.SETUP_COMPLETED, 'true');
+        localStorage.setItem(SESSION_KEYS.DATA_VERSION, CURRENT_DATA_VERSION);
         await loadData(true);
     };
 

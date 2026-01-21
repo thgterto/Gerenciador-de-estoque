@@ -3,13 +3,14 @@ import React, { useState, useMemo } from 'react';
 import { InventoryItem, PurchaseRequestItem } from '../types';
 import { normalizeStr } from '../utils/stringUtils';
 import { PageContainer } from './ui/PageContainer';
-import { PageHeader } from './ui/PageHeader';
 import { Button } from './ui/Button';
-import { Card } from './ui/Card';
-import { Input } from './ui/Input';
-import { EmptyState } from './ui/EmptyState';
-import { Tooltip } from './Tooltip';
 import { PurchaseAlertCard } from './PurchaseAlertCard';
+import { useDebounce } from '../hooks/useDebounce';
+import { Card } from './ui/Card';
+import { EmptyState } from './ui/EmptyState';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui/Table';
+import { Badge } from './ui/Badge';
+import { PageHeader } from './ui/PageHeader';
 
 interface PurchasesProps {
   items: InventoryItem[];
@@ -29,17 +30,18 @@ export const Purchases: React.FC<PurchasesProps> = ({
     onAdd
 }) => {
     const [searchQuery, setSearchQuery] = useState('');
+    const debouncedSearchQuery = useDebounce(searchQuery, 300);
 
     const existingPurchaseIds = useMemo(() => new Set(purchaseList.map(p => p.itemId)), [purchaseList]);
 
     const searchResults = useMemo(() => {
-        if (!searchQuery) return [];
-        const term = normalizeStr(searchQuery);
+        if (!debouncedSearchQuery) return [];
+        const term = normalizeStr(debouncedSearchQuery);
         return items.filter(i => {
             if (existingPurchaseIds.has(i.id)) return false;
             return normalizeStr(i.name).includes(term) || normalizeStr(i.sapCode).includes(term);
         }).slice(0, 5); 
-    }, [items, searchQuery, existingPurchaseIds]);
+    }, [items, debouncedSearchQuery, existingPurchaseIds]);
 
     const criticalItems = useMemo(() => {
         const now = new Date().getTime();
@@ -68,26 +70,23 @@ export const Purchases: React.FC<PurchasesProps> = ({
 
     return (
         <PageContainer scrollable={true}>
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-2 border-b border-border-light dark:border-border-dark mb-8">
-                <div className="flex flex-col gap-2">
-                    <h1 className="text-3xl md:text-4xl font-black tracking-tight text-text-main dark:text-white">Planejamento de Compras</h1>
-                    <p className="text-text-secondary dark:text-slate-400 text-base">Gerencie necessidades de reposição e gere pedidos de compra.</p>
-                </div>
-                <div className="flex gap-3">
-                    <Button variant="white" icon="save">
-                        Salvar Rascunho
-                    </Button>
-                    <Button 
-                        onClick={onSubmit}
-                        disabled={purchaseList.length === 0}
-                        variant="primary"
-                        icon="ios_share"
-                        className="shadow-md shadow-primary/20"
-                    >
-                        Exportar Pedido
-                    </Button>
-                </div>
-            </div>
+            <PageHeader 
+                title="Planejamento de Compras" 
+                description="Gerencie necessidades de reposição e gere pedidos de compra."
+            >
+                <Button variant="white" icon="save">
+                    Salvar Rascunho
+                </Button>
+                <Button 
+                    onClick={onSubmit}
+                    disabled={purchaseList.length === 0}
+                    variant="primary"
+                    icon="ios_share"
+                    className="shadow-md shadow-primary/20"
+                >
+                    Exportar Pedido
+                </Button>
+            </PageHeader>
 
             {criticalItems.length > 0 && (
                 <section className="shrink-0 mb-8 animate-fade-in">
@@ -150,105 +149,101 @@ export const Purchases: React.FC<PurchasesProps> = ({
                              )}
                         </div>
                         <input className="w-20 py-2 px-2 border border-border-light dark:border-border-dark rounded-lg bg-surface-light dark:bg-surface-dark text-sm text-center focus:ring-primary focus:border-primary text-text-main dark:text-white outline-none" placeholder="Qtd" type="number" defaultValue="1"/>
-                        <button className="flex items-center justify-center size-9 shrink-0 rounded-lg bg-primary text-white hover:bg-primary-hover transition-colors" title="Adicionar item">
+                        <button className="flex items-center justify-center size-10 shrink-0 rounded-lg bg-primary text-white hover:bg-primary-hover transition-colors shadow-sm" title="Adicionar item">
                             <span className="material-symbols-outlined">add</span>
                         </button>
                     </div>
                 </div>
 
-                <div className="relative overflow-hidden rounded-xl border border-border-light dark:border-border-dark bg-surface-light dark:bg-surface-dark shadow-sm flex-1 flex flex-col">
-                    {purchaseList.length > 0 ? (
-                        <div className="overflow-x-auto min-h-[300px]">
-                            <table className="w-full text-left text-sm text-text-secondary dark:text-slate-400">
-                                <thead className="bg-background-light dark:bg-background-dark text-xs uppercase font-semibold text-text-secondary dark:text-slate-400 border-b border-border-light dark:border-border-dark">
-                                    <tr>
-                                        <th className="px-6 py-4 w-12">
-                                            <input type="checkbox" className="rounded border-border-light text-primary focus:ring-primary dark:bg-surface-dark dark:border-border-dark cursor-pointer"/>
-                                        </th>
-                                        <th className="px-6 py-4">Item Details</th>
-                                        <th className="px-6 py-4">SAP Code</th>
-                                        <th className="px-6 py-4 text-center">Estoque</th>
-                                        <th className="px-6 py-4 w-32">Qtd. Compra</th>
-                                        <th className="px-6 py-4 text-right">Ações</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="divide-y divide-border-light dark:divide-border-dark">
-                                    {purchaseList.map((item, index) => (
-                                        <tr key={item.id} className="hover:bg-background-light dark:hover:bg-slate-800/30 transition-colors group">
-                                            <td className="px-6 py-4">
-                                                <input type="checkbox" checked className="rounded border-border-light text-primary focus:ring-primary dark:bg-surface-dark dark:border-border-dark cursor-pointer"/>
-                                            </td>
-                                            <td className="px-6 py-4">
-                                                <div className="flex flex-col">
-                                                    <span className="font-semibold text-text-main dark:text-white text-sm" title={item.name}>{item.name}</span>
-                                                    <span className="text-xs text-text-secondary dark:text-gray-400 mt-0.5">Unidade: {item.unit}</span>
-                                                </div>
-                                            </td>
-                                            <td className="px-6 py-4 font-mono text-xs text-text-secondary dark:text-slate-400">{item.sapCode || '-'}</td>
-                                            <td className="px-6 py-4 text-center">
-                                                <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-bold ${item.currentStock <= 0 ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300' : 'bg-background-light text-text-main dark:bg-slate-800 dark:text-slate-300 border border-border-light dark:border-border-dark'}`}>
-                                                    {item.currentStock}
-                                                </span>
-                                            </td>
-                                            <td className="px-6 py-4">
-                                                <div className="flex items-center rounded-lg border border-border-light dark:border-border-dark bg-white dark:bg-surface-dark overflow-hidden h-8 w-24">
-                                                    <button 
-                                                        onClick={() => onUpdateQuantity(item.id, item.requestedQty - 1)}
-                                                        className="w-8 h-full flex items-center justify-center text-text-secondary hover:bg-background-light dark:hover:bg-slate-700 hover:text-primary transition-colors active:bg-slate-200"
-                                                    >
-                                                        -
-                                                    </button>
-                                                    <input 
-                                                        className="w-full h-full border-x border-border-light dark:border-border-dark p-0 text-center text-sm font-bold bg-transparent text-text-main dark:text-white focus:ring-0" 
-                                                        type="number" 
-                                                        value={item.requestedQty}
-                                                        onChange={(e) => onUpdateQuantity(item.id, Number(e.target.value))}
-                                                    />
-                                                    <button 
-                                                        onClick={() => onUpdateQuantity(item.id, item.requestedQty + 1)}
-                                                        className="w-8 h-full flex items-center justify-center text-text-secondary hover:bg-background-light dark:hover:bg-slate-700 hover:text-primary transition-colors active:bg-slate-200"
-                                                    >
-                                                        +
-                                                    </button>
-                                                </div>
-                                            </td>
-                                            <td className="px-6 py-4 text-right">
-                                                <button 
-                                                    onClick={() => onRemove(item.id)}
-                                                    className="text-text-secondary hover:text-primary transition-colors"
-                                                >
-                                                    <span className="material-symbols-outlined text-[20px]">delete</span>
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
+                {purchaseList.length > 0 ? (
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead className="w-12">
+                                    <input type="checkbox" className="rounded border-border-light text-primary focus:ring-primary dark:bg-surface-dark dark:border-border-dark cursor-pointer"/>
+                                </TableHead>
+                                <TableHead>Item Details</TableHead>
+                                <TableHead>SAP Code</TableHead>
+                                <TableHead className="text-center">Estoque</TableHead>
+                                <TableHead className="w-32">Qtd. Compra</TableHead>
+                                <TableHead className="text-right">Ações</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {purchaseList.map((item, index) => (
+                                <TableRow key={item.id}>
+                                    <TableCell>
+                                        <input type="checkbox" checked className="rounded border-border-light text-primary focus:ring-primary dark:bg-surface-dark dark:border-border-dark cursor-pointer"/>
+                                    </TableCell>
+                                    <TableCell>
+                                        <div className="flex flex-col">
+                                            <span className="font-semibold text-text-main dark:text-white text-sm" title={item.name}>{item.name}</span>
+                                            <span className="text-xs text-text-secondary dark:text-gray-400 mt-0.5">Unidade: {item.unit}</span>
+                                        </div>
+                                    </TableCell>
+                                    <TableCell className="font-mono text-xs text-text-secondary dark:text-slate-400">{item.sapCode || '-'}</TableCell>
+                                    <TableCell className="text-center">
+                                         <Badge variant={item.currentStock <= 0 ? 'danger' : 'neutral'} withDot={item.currentStock > 0}>
+                                            {item.currentStock}
+                                         </Badge>
+                                    </TableCell>
+                                    <TableCell>
+                                        <div className="flex items-center rounded-lg border border-border-light dark:border-border-dark bg-white dark:bg-surface-dark overflow-hidden h-8 w-24 shadow-sm">
+                                            <button 
+                                                onClick={() => onUpdateQuantity(item.id, item.requestedQty - 1)}
+                                                className="w-8 h-full flex items-center justify-center text-text-secondary hover:bg-background-light dark:hover:bg-slate-700 hover:text-primary transition-colors active:bg-slate-200"
+                                            >
+                                                -
+                                            </button>
+                                            <input 
+                                                className="w-full h-full border-x border-border-light dark:border-border-dark p-0 text-center text-sm font-bold bg-transparent text-text-main dark:text-white focus:ring-0" 
+                                                type="number" 
+                                                value={item.requestedQty}
+                                                onChange={(e) => onUpdateQuantity(item.id, Number(e.target.value))}
+                                            />
+                                            <button 
+                                                onClick={() => onUpdateQuantity(item.id, item.requestedQty + 1)}
+                                                className="w-8 h-full flex items-center justify-center text-text-secondary hover:bg-background-light dark:hover:bg-slate-700 hover:text-primary transition-colors active:bg-slate-200"
+                                            >
+                                                +
+                                            </button>
+                                        </div>
+                                    </TableCell>
+                                    <TableCell className="text-right">
+                                        <button 
+                                            onClick={() => onRemove(item.id)}
+                                            className="text-text-secondary hover:text-danger transition-colors p-1 rounded-md hover:bg-red-50 dark:hover:bg-red-900/20"
+                                        >
+                                            <span className="material-symbols-outlined text-[20px]">delete</span>
+                                        </button>
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                ) : (
+                    <EmptyState 
+                        title="Lista de compras vazia" 
+                        description="Adicione itens manualmente ou através dos alertas de estoque baixo."
+                        icon="shopping_basket"
+                    />
+                )}
+                
+                {purchaseList.length > 0 && (
+                    <div className="bg-surface-light dark:bg-surface-dark px-6 py-4 border border-t-0 border-border-light dark:border-border-dark rounded-b-xl flex flex-col sm:flex-row justify-between items-center gap-4 shrink-0 mt-auto shadow-sm">
+                        <div className="text-sm text-text-secondary dark:text-slate-400">
+                            Mostrando <span className="font-bold text-text-main dark:text-white">{purchaseList.length}</span> itens selecionados
                         </div>
-                    ) : (
-                        <EmptyState 
-                            title="Lista de compras vazia" 
-                            description="Adicione itens manualmente ou através dos alertas de estoque baixo."
-                            icon="shopping_basket"
-                        />
-                    )}
-                    
-                    {purchaseList.length > 0 && (
-                        <div className="bg-surface-light dark:bg-surface-dark px-6 py-4 border-t border-border-light dark:border-border-dark flex flex-col sm:flex-row justify-between items-center gap-4 shrink-0 mt-auto">
-                            <div className="text-sm text-text-secondary dark:text-slate-400">
-                                Mostrando <span className="font-bold text-text-main dark:text-white">{purchaseList.length}</span> itens selecionados
-                            </div>
-                            <div className="flex gap-4 items-center">
-                                <div className="text-right">
-                                    <span className="block text-xs text-text-secondary dark:text-slate-400 uppercase font-bold tracking-wider">Quantidade Total</span>
-                                    <span className="block text-xl font-bold text-text-main dark:text-white leading-tight">
-                                        {totalQuantity} <span className="text-sm font-medium text-text-secondary font-normal">unidades</span>
-                                    </span>
-                                </div>
+                        <div className="flex gap-4 items-center">
+                            <div className="text-right">
+                                <span className="block text-xs text-text-secondary dark:text-slate-400 uppercase font-bold tracking-wider">Quantidade Total</span>
+                                <span className="block text-xl font-bold text-text-main dark:text-white leading-tight">
+                                    {totalQuantity} <span className="text-sm font-medium text-text-secondary font-normal">unidades</span>
+                                </span>
                             </div>
                         </div>
-                    )}
-                </div>
+                    </div>
+                )}
             </section>
         </PageContainer>
     );

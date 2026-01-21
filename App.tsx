@@ -1,7 +1,8 @@
+
 import React, { useState, useEffect, useRef, useMemo, Suspense } from 'react';
 import { HashRouter as Router, Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import { Layout } from './components/Layout';
-import { AddItem } from './components/AddItem'; // Mantido estático para acesso rápido via modal/rota
+import { AddItem } from './components/AddItem'; 
 import { MovementModal, EditModal, RequestModal, QRGeneratorModal, AddItemModal } from './components/Modals'; 
 import { QuickScanModal } from './components/QuickScanModal'; 
 import { TutorialModal } from './components/TutorialModal';
@@ -13,6 +14,7 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
 import { ToastContainer } from './components/Toast';
 import { Login } from './components/Login';
+import { SyncQueueService } from './services/SyncQueueService';
 
 // Hooks Personalizados
 import { useInventoryData } from './hooks/useInventoryData';
@@ -58,6 +60,14 @@ const LabControlContent = () => {
   const [showTutorial, setShowTutorial] = useState(false);
   
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Initialize Sync Service with Cleanup
+  useEffect(() => {
+      SyncQueueService.startAutoSync();
+      return () => {
+          SyncQueueService.stopAutoSync();
+      };
+  }, []);
 
   // Tutorial Trigger
   useEffect(() => {

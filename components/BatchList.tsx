@@ -1,9 +1,11 @@
 
 import React, { useState, useEffect } from 'react';
-import { InventoryService, BatchDetailView } from '../services/InventoryService';
+import { InventoryService } from '../services/InventoryService';
+import { BatchDetailView } from '../types';
 import { formatDate } from '../utils/formatters';
 import { Badge } from './ui/Badge';
 import { Button } from './ui/Button';
+import { db } from '../db';
 
 interface BatchListProps {
     itemId: string;
@@ -14,19 +16,29 @@ export const BatchList: React.FC<BatchListProps> = ({ itemId, onViewHistory }) =
     const [batches, setBatches] = useState<BatchDetailView[]>([]);
     const [loading, setLoading] = useState(true);
 
+    const load = async () => {
+        // Don't set loading on updates to avoid flickering
+        try {
+            const data = await InventoryService.getItemBatchDetails(itemId);
+            setBatches(data);
+        } catch (e) {
+            console.error("Failed to load batch details", e);
+        } finally {
+            setLoading(false);
+        }
+    };
+
     useEffect(() => {
-        const load = async () => {
-            setLoading(true);
-            try {
-                const data = await InventoryService.getItemBatchDetails(itemId);
-                setBatches(data);
-            } catch (e) {
-                console.error("Failed to load batch details", e);
-            } finally {
-                setLoading(false);
-            }
-        };
-        if (itemId) load();
+        if (itemId) {
+            setLoading(true); // Only set loading on initial mount/id change
+            load();
+
+            // Subscribe to DB changes to update batch list in real-time
+            const unsubscribe = db.subscribe(() => {
+                load();
+            });
+            return () => unsubscribe();
+        }
     }, [itemId]);
 
     if (loading) {

@@ -1,13 +1,16 @@
 
-import React, { useEffect, useRef } from 'react';
+import React, { useMemo, useState } from 'react';
+import Chart from 'react-apexcharts';
+import { ApexOptions } from 'apexcharts';
 import { InventoryItem, MovementRecord } from '../types';
 import { Card } from './ui/Card';
 import { MetricCard } from './ui/MetricCard';
 import { PageContainer } from './ui/PageContainer';
 import { Button } from './ui/Button';
+import { PageHeader } from './ui/PageHeader'; // Importado
 import { formatDateTime, formatDate } from '../utils/formatters';
-import { useECharts } from '../hooks/useECharts';
 import { useDashboardAnalytics } from '../hooks/useDashboardAnalytics';
+import { useTheme } from '../context/ThemeContext';
 
 interface Props {
   items: InventoryItem[];
@@ -17,8 +20,8 @@ interface Props {
 }
 
 export const Dashboard: React.FC<Props> = ({ items, history, onAddToPurchase }) => {
-  const chartRef = useRef<HTMLDivElement>(null);
-  const chartInstance = useECharts(chartRef);
+  const { theme } = useTheme();
+  const [selectedItemId, setSelectedItemId] = useState<string>('');
   
   const {
       totalItems,
@@ -27,75 +30,268 @@ export const Dashboard: React.FC<Props> = ({ items, history, onAddToPurchase }) 
       categoryStats,
       recentTransactions,
       chartData,
-      movementsToday 
-  } = useDashboardAnalytics(items, history);
+      movementsToday,
+      waterfallSeries,
+      waterfallColors
+  } = useDashboardAnalytics(items, history, selectedItemId || undefined);
 
-  // --- CHART CONFIG ---
-  useEffect(() => {
-    if (!chartInstance) return;
+  // --- APEXCHARTS CONFIG ---
+  
+  // 1. Output Movement (Area Chart) - Default Global
+  const movementChartOptions: ApexOptions = {
+      chart: {
+          id: 'movement-chart',
+          type: 'area',
+          toolbar: { show: false },
+          fontFamily: 'Inter, sans-serif',
+          background: 'transparent'
+      },
+      colors: ['#903A40'],
+      fill: {
+          type: 'gradient',
+          gradient: {
+              shadeIntensity: 1,
+              opacityFrom: 0.4,
+              opacityTo: 0.05,
+              stops: [0, 100]
+          }
+      },
+      dataLabels: { enabled: false },
+      stroke: { curve: 'smooth', width: 2 },
+      xaxis: {
+          categories: chartData.xData,
+          axisBorder: { show: false },
+          axisTicks: { show: false },
+          labels: { style: { colors: '#94A3B8' } }
+      },
+      yaxis: {
+          labels: { show: false },
+          show: false
+      },
+      grid: {
+          borderColor: theme === 'dark' ? '#334155' : '#E2E8F0',
+          strokeDashArray: 4,
+          yaxis: { lines: { show: true } }
+      },
+      tooltip: {
+          theme: theme,
+          y: { formatter: (val) => `${val} unidades` }
+      }
+  };
+
+  const movementSeries = [{ name: 'Saídas', data: chartData.yData }];
+
+  // 2. Waterfall Chart (Detailed Item Analysis)
+  const waterfallOptions: ApexOptions = {
+      chart: {
+          type: 'rangeBar',
+          toolbar: { show: false },
+          fontFamily: 'Inter, sans-serif',
+          background: 'transparent',
+          animations: { enabled: true }
+      },
+      colors: waterfallColors, // Colors from hook
+      plotOptions: {
+          bar: {
+              horizontal: false,
+              borderRadius: 2,
+              columnWidth: '50%',
+              distributed: true, // Required for individual bar colors
+              rangeBarGroupRows: true
+          }
+      },
+      dataLabels: {
+          enabled: true,
+          offsetY: -20, // Push label above bar
+          style: {
+              colors: [theme === 'dark' ? '#fff' : '#334155'],
+              fontSize: '11px',
+              fontWeight: 700
+          },
+          formatter: function(val: any, opts: any) {
+              const meta = opts.w.config.series[opts.seriesIndex].data[opts.dataPointIndex].meta;
+              if (meta && meta.delta !== undefined) {
+                  // Show Delta (+10, -5)
+                  return (meta.delta > 0 ? '+' : '') + meta.delta;
+              }
+              // Show Absolute Value for Start/End bars
+              return val[1]; 
+          }
+      },
+      xaxis: {
+           type: 'category',
+           labels: { 
+               style: { colors: '#94A3B8', fontSize: '11px' }
+           },
+           axisBorder: { show: false },
+           axisTicks: { show: false }
+      },
+      yaxis: {
+          labels: { style: { colors: '#94A3B8' } },
+          title: { text: 'Saldo Acumulado', style: { color: '#94A3B8', fontSize: '11px' } }
+      },
+      grid: {
+          borderColor: theme === 'dark' ? '#334155' : '#E2E8F0',
+          strokeDashArray: 4,
+          yaxis: { lines: { show: true } }
+      },
+      tooltip: { 
+          theme: theme,
+          custom: function({ series, seriesIndex, dataPointIndex, w }) {
+              const data = w.config.series[seriesIndex].data[dataPointIndex];
+              const meta = data.meta;
+              
+              if (!meta) return '';
+
+              let headerClass = 'bg-gray-100 text-gray-700';
+              let bodyContent = '';
+
+              if (meta.delta !== undefined) {
+                  // Movement Bar
+                  const isPositive = meta.delta >= 0;
+                  headerClass = isPositive ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800';
+                  bodyContent = `
+                    <div class="font-bold text-lg ${isPositive ? 'text-emerald-600' : 'text-red-600'} text-center">
+                        ${isPositive ? '+' : ''}${meta.delta}
+                    </div>
+                    <div class="text-[10px] text-gray-500 mt-1 text-center">
+                        Saldo: ${meta.open} ➝ ${meta.close}
+                    </div>
+                  `;
+              } else {
+                  // Static Bar (Start/End)
+                   headerClass = 'bg-blue-100 text-blue-800';
+                   bodyContent = `
+                    <div class="font-bold text-lg text-blue-600 text-center">
+                        ${meta.value}
+                    </div>
+                    <div class="text-[10px] text-gray-500 mt-1 text-center">
+                        Total Absoluto
+                    </div>
+                   `;
+              }
+              
+              return `
+                <div class="overflow-hidden rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-slate-800 min-w-[120px]">
+                    <div class="px-3 py-1.5 text-xs font-bold uppercase tracking-wider ${headerClass} text-center">
+                        ${meta.label || data.x}
+                    </div>
+                    <div class="p-3">
+                        ${bodyContent}
+                    </div>
+                </div>
+              `;
+          }
+      },
+      legend: { show: false }
+  };
+
+  const paretoData = useMemo(() => {
+    let accumulated = 0;
+    const totalCount = selectedItemId ? 1 : (items.length || 1); 
     
-    const option = {
-        color: ['#903A40'],
-        tooltip: {
-            trigger: 'axis',
-            backgroundColor: 'var(--surface-light)',
-            borderColor: '#E2E8F0',
-            textStyle: { color: '#1E293B', fontFamily: 'Inter, sans-serif' },
-            padding: 12,
-            extraCssText: 'box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); border-radius: 8px;'
-        },
-        grid: { left: '2%', right: '2%', bottom: '2%', top: '15%', containLabel: true },
-        xAxis: {
-            type: 'category',
-            boundaryGap: false,
-            data: chartData.xData,
-            axisLine: { show: false },
-            axisTick: { show: false },
-            axisLabel: { color: '#94A3B8', fontSize: 11, margin: 15 }
-        },
-        yAxis: {
-            type: 'value',
-            splitLine: { 
-                lineStyle: { color: '#E2E8F0', type: 'dashed' } 
-            },
-            axisLabel: { show: false } 
-        },
-        series: [{
-            name: 'Saídas',
-            data: chartData.yData,
-            type: 'line',
-            smooth: 0.4, 
-            symbol: 'circle',
-            symbolSize: 8,
-            itemStyle: { borderWidth: 2, borderColor: '#fff' },
-            lineStyle: { width: 3 },
-            areaStyle: {
-                color: new (window as any).echarts.graphic.LinearGradient(0, 0, 0, 1, [
-                    { offset: 0, color: 'rgba(144, 58, 64, 0.2)' }, 
-                    { offset: 1, color: 'rgba(144, 58, 64, 0.0)' }
-                ])
-            }
-        }]
-    };
-    chartInstance.setOption(option);
-  }, [chartInstance, chartData]);
+    return categoryStats.map(cat => {
+        accumulated += cat.count;
+        return {
+            name: cat.name,
+            count: cat.count,
+            cumulative: Math.min(100, Math.round((accumulated / totalCount) * 100))
+        };
+    });
+  }, [categoryStats, items.length, selectedItemId]);
+
+  const paretoOptions: ApexOptions = {
+    chart: {
+      type: 'line',
+      toolbar: { show: false },
+      fontFamily: 'Inter, sans-serif',
+      background: 'transparent'
+    },
+    colors: ['#6797A1', '#F59E0B'],
+    stroke: { width: [0, 3], curve: 'smooth' },
+    plotOptions: {
+      bar: { columnWidth: '50%', borderRadius: 4 }
+    },
+    dataLabels: {
+      enabled: true,
+      enabledOnSeries: [1],
+      formatter: (val) => `${val}%`
+    },
+    labels: paretoData.map(d => d.name),
+    xaxis: {
+        labels: { 
+            style: { colors: '#94A3B8', fontSize: '10px' },
+            trim: true,
+            rotate: -45,
+            hideOverlappingLabels: false
+        }
+    },
+    yaxis: [
+      {
+        title: { text: 'Quantidade', style: { color: '#94A3B8' } },
+        labels: { style: { colors: '#94A3B8' } }
+      },
+      {
+        opposite: true,
+        title: { text: 'Acumulado (%)', style: { color: '#94A3B8' } },
+        max: 100,
+        labels: { style: { colors: '#94A3B8' } }
+      }
+    ],
+    legend: { show: false },
+    tooltip: { theme: theme }
+  };
+
+  const paretoSeries = [
+    { name: 'Quantidade', type: 'column', data: paretoData.map(d => d.count) },
+    { name: 'Acumulado', type: 'line', data: paretoData.map(d => d.cumulative) }
+  ];
+
+  // Options for Dropdown (Optimized for performance)
+  const itemOptions = useMemo(() => {
+      const sorted = [...items].sort((a,b) => a.name.localeCompare(b.name)).slice(0, 500);
+      return sorted.map(i => ({ 
+          value: i.id, 
+          label: `${i.name} ${i.sapCode ? `(${i.sapCode})` : ''} - ${i.lotNumber}` 
+      }));
+  }, [items]);
 
   return (
     <PageContainer scrollable={true}>
-       <div className="flex flex-col gap-1 mb-8">
-            <h1 className="text-3xl font-black tracking-tight text-text-main dark:text-white">Visão Geral</h1>
-            <p className="text-text-secondary dark:text-gray-400 text-sm md:text-base">Métricas estratégicas e alertas operacionais.</p>
-       </div>
+       {/* PADRONIZAÇÃO: Substituição do Header manual pelo PageHeader */}
+       <PageHeader 
+            title="Visão Geral" 
+            description="Métricas estratégicas e alertas operacionais."
+       >
+            <div className="w-full md:w-80">
+                 <div className="relative">
+                     <select
+                        className="w-full h-10 rounded-lg border border-border-light dark:border-border-dark bg-surface-light dark:bg-surface-dark text-text-main dark:text-white text-sm px-3 pr-8 focus:ring-2 focus:ring-primary focus:border-transparent outline-none cursor-pointer shadow-sm appearance-none truncate"
+                        value={selectedItemId}
+                        onChange={(e) => setSelectedItemId(e.target.value)}
+                     >
+                         <option value="">-- Visão Global (Todos) --</option>
+                         {itemOptions.map(opt => (
+                             <option key={opt.value} value={opt.value}>
+                                 {opt.label}
+                             </option>
+                         ))}
+                     </select>
+                     <div className="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none text-text-secondary">
+                        <span className="material-symbols-outlined text-[20px]">expand_more</span>
+                    </div>
+                 </div>
+            </div>
+       </PageHeader>
 
-      {/* 1. KPI Sections Grid - Grouped by Functionality */}
+      {/* KPI GRID */}
       <div id="tour-kpi" className="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-2">
-        
         <div className="flex-1 min-h-0">
             <MetricCard 
-                title="Total de Itens"
-                icon="science"
-                value={totalItems.toLocaleString('pt-BR')}
-                subValue={<span className="text-emerald-600 dark:text-emerald-400 flex items-center gap-1 text-[10px] font-bold"><span className="material-symbols-outlined text-[12px]">trending_up</span> +2.5%</span>}
+                title={selectedItemId ? "Estoque Atual" : "Total de Itens"}
+                icon={selectedItemId ? "layers" : "science"}
+                value={selectedItemId ? (items.find(i => i.id === selectedItemId)?.quantity || 0) : totalItems.toLocaleString('pt-BR')}
+                subValue={selectedItemId ? items.find(i => i.id === selectedItemId)?.baseUnit : <span className="text-emerald-600 dark:text-emerald-400 flex items-center gap-1 text-[10px] font-bold"><span className="material-symbols-outlined text-[12px]">trending_up</span> +2.5%</span>}
                 variant="primary" 
                 delay={0}
                 className="h-full"
@@ -134,18 +330,40 @@ export const Dashboard: React.FC<Props> = ({ items, history, onAddToPurchase }) 
         />
       </div>
 
-      {/* 2. Main Content Split */}
+      {/* MAIN CONTENT SPLIT */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
         
-        {/* Chart Section & Transactions */}
+        {/* CHART SECTION */}
         <div className="lg:col-span-2 flex flex-col gap-6">
-            <Card className="flex-1 flex flex-col min-h-[350px]" padding="p-0">
-                <div className="px-6 py-4 border-b border-border-light dark:border-border-dark">
-                    <h3 className="text-lg font-bold text-text-main dark:text-white">Movimentação de Saída</h3>
-                    <p className="text-xs text-text-secondary dark:text-gray-400">Consumo mensal de reagentes e materiais</p>
+            <Card className="flex-1 flex flex-col min-h-[400px]" padding="p-0">
+                <div className="px-6 py-4 border-b border-border-light dark:border-border-dark flex justify-between items-center">
+                    <div>
+                        <h3 className="text-lg font-bold text-text-main dark:text-white flex items-center gap-2">
+                            {selectedItemId ? (
+                                <>
+                                    <span className="material-symbols-outlined text-primary">waterfall_chart</span>
+                                    Evolução de Saldo (Diário)
+                                </>
+                            ) : (
+                                <>
+                                    <span className="material-symbols-outlined text-primary">area_chart</span>
+                                    Movimentação de Saída
+                                </>
+                            )}
+                        </h3>
+                        <p className="text-xs text-text-secondary dark:text-gray-400 mt-1">
+                            {selectedItemId 
+                                ? 'Fluxo líquido e saldo acumulado nos últimos 15 dias com atividade.' 
+                                : 'Consumo mensal consolidado de reagentes e materiais.'}
+                        </p>
+                    </div>
                 </div>
-                <div className="flex-1 w-full relative p-6">
-                     <div ref={chartRef} className="w-full h-full absolute inset-0 p-4"></div>
+                <div className="flex-1 w-full relative p-4 bg-gradient-to-b from-transparent to-background-light/30 dark:to-background-dark/30">
+                     {selectedItemId && waterfallSeries.length > 0 ? (
+                         <Chart options={waterfallOptions} series={waterfallSeries} type="rangeBar" height="100%" />
+                     ) : (
+                         <Chart options={movementChartOptions} series={movementSeries} type="area" height="100%" />
+                     )}
                 </div>
             </Card>
 
@@ -204,7 +422,7 @@ export const Dashboard: React.FC<Props> = ({ items, history, onAddToPurchase }) 
             </Card>
         </div>
 
-        {/* Side Panel (Optimized) */}
+        {/* SIDE PANEL */}
         <div className="flex flex-col gap-6">
             <Card className="flex flex-col" padding="p-0">
                 <div className="flex items-center justify-between px-6 py-4 border-b border-border-light dark:border-border-dark">
@@ -218,10 +436,10 @@ export const Dashboard: React.FC<Props> = ({ items, history, onAddToPurchase }) 
                     </h3>
                 </div>
                 
-                <div className="flex flex-col gap-3 flex-1 overflow-y-auto max-h-[500px] custom-scrollbar p-5">
+                <div className="flex flex-col gap-3 flex-1 overflow-y-auto max-h-[400px] custom-scrollbar p-5">
                     
                     {/* Low Stock Items */}
-                    {lowStockItems.slice(0, 4).map(item => (
+                    {lowStockItems.slice(0, 3).map(item => (
                         <div key={item.id} className="p-3 rounded-lg bg-amber-50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-900/30 transition-shadow hover:shadow-sm">
                             <div className="flex justify-between items-start mb-2">
                                 <div className="flex items-center gap-2 min-w-0">
@@ -293,38 +511,26 @@ export const Dashboard: React.FC<Props> = ({ items, history, onAddToPurchase }) 
                             </div>
                         </div>
                     ))}
-                    
-                    {lowStockItems.length === 0 && expiringItems.length === 0 && (
-                        <div className="flex flex-col items-center justify-center py-8 text-center text-text-secondary opacity-60">
-                            <span className="material-symbols-outlined text-5xl text-success mb-2">check_circle</span>
-                            <p className="text-sm font-medium">Tudo certo por aqui!</p>
-                            <p className="text-xs mt-1">Estoque saudável.</p>
-                        </div>
-                    )}
                 </div>
             </Card>
 
-            <Card padding="p-5">
-                <h3 className="text-lg font-bold text-text-main dark:text-white mb-4">Top Categorias</h3>
-                <div className="space-y-4">
-                    {categoryStats.length > 0 ? categoryStats.map((cat, idx) => (
-                        <div key={cat.name}>
-                            <div className="flex justify-between text-xs mb-1.5 font-medium">
-                                <span className="text-text-main dark:text-gray-300">{cat.name}</span>
-                                <span className="text-text-secondary">{cat.percent}%</span>
+            {/* PARETO CHART */}
+            {!selectedItemId && (
+                <Card padding="p-0" className="flex flex-col min-h-[300px]">
+                    <div className="px-6 py-4 border-b border-border-light dark:border-border-dark">
+                        <h3 className="text-lg font-bold text-text-main dark:text-white">Top Categorias (Pareto)</h3>
+                    </div>
+                    <div className="flex-1 p-4 relative">
+                        {paretoData.length > 0 ? (
+                            <Chart options={paretoOptions} series={paretoSeries} type="line" height="100%" />
+                        ) : (
+                            <div className="h-full flex items-center justify-center text-sm text-text-secondary italic">
+                                Sem dados suficientes.
                             </div>
-                            <div className="w-full bg-background-light dark:bg-slate-700 rounded-full h-2 overflow-hidden">
-                                <div 
-                                    className={`h-2 rounded-full ${idx === 0 ? 'bg-primary' : idx === 1 ? 'bg-primary/70' : 'bg-primary/40'}`} 
-                                    style={{ width: `${cat.percent}%` }}
-                                ></div>
-                            </div>
-                        </div>
-                    )) : (
-                        <p className="text-sm text-text-secondary italic text-center py-4">Sem dados suficientes.</p>
-                    )}
-                </div>
-            </Card>
+                        )}
+                    </div>
+                </Card>
+            )}
         </div>
       </div>
     </PageContainer>

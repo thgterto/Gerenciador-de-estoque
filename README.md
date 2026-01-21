@@ -1,7 +1,7 @@
 
 # LabControl - Sistema de Gestão Laboratorial
 
-![Version](https://img.shields.io/badge/version-1.8.0-blue)
+![Version](https://img.shields.io/badge/version-1.8.2-blue)
 ![Architecture](https://img.shields.io/badge/Architecture-Offline--First-success)
 ![Stack](https://img.shields.io/badge/Stack-React_19_|_TypeScript_|_Tailwind-903A40)
 ![Storage](https://img.shields.io/badge/Storage-IndexedDB_via_Dexie-293141)
@@ -10,11 +10,14 @@ O **LabControl** é uma plataforma de missão crítica para gestão de inventár
 
 ---
 
-## 🚀 Novidades da Versão 1.8 (Import Engine Update)
+## 🚀 Versão 1.8.2 (Estável)
 
-*   **Motor de Importação Inteligente:** Detecção automática de tabelas dentro de planilhas Excel desorganizadas.
+Esta versão traz melhorias significativas no motor de dados e integridade:
+
+*   **Motor de Importação Inteligente:** Detecção automática de tabelas dentro de planilhas Excel desorganizadas com suporte a colunas GHS (T, T+, O, etc).
 *   **Smart Merge (Mesclagem Não-Destrutiva):** Atualiza saldos via planilha sem apagar dados enriquecidos manualmente (como Links CAS, Fórmulas e Classificações de Risco).
-*   **Histórico Determinístico:** O sistema agora gera IDs baseados no conteúdo (Hash) para importações de histórico, prevenindo duplicação de registros se a mesma planilha for carregada duas vezes.
+*   **Identidade Determinística:** O sistema agora gera IDs baseados no conteúdo (Hash) para importações de histórico e saldos, prevenindo duplicação de registros se a mesma planilha for carregada duas vezes.
+*   **React 19 Core:** Atualização completa do core e remoção de APIs depreciadas.
 
 ---
 
@@ -44,7 +47,7 @@ Para um detalhamento completo de todas as funcionalidades, incluindo Matriz de A
 
 ## 🛠️ Stack Tecnológico
 
-*   **Core:** React 19, TypeScript 5, Vite.
+*   **Core:** React 19, TypeScript 5, Vite 6.
 *   **Dados:** Dexie.js (IndexedDB), Algoritmos de Hashing (SHA-like) para deduplicação.
 *   **UI:** Tailwind CSS, React Window (Virtualização de listas longas).
 *   **Integração:** SheetJS (Excel), CAS Common Chemistry API.

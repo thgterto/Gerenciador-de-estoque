@@ -1,12 +1,14 @@
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { InventoryItem, RiskFlags } from '../types';
 import { RISK_CONFIG, getItemStatus, analyzeLocation } from '../utils/businessRules';
 import { Card } from './ui/Card';
 import { Button } from './ui/Button';
+import { PageHeader } from './ui/PageHeader';
 import { normalizeStr } from '../utils/stringUtils';
 import { InventoryService } from '../services/InventoryService';
 import { useAlert } from '../context/AlertContext';
+import { Badge } from './ui/Badge';
 
 interface Props {
   items: InventoryItem[];
@@ -41,20 +43,16 @@ const StorageCell = React.memo(({ cellId, item, isSelected, auditMode, onSelect,
 
         if (auditMode) {
             if (status.isExpired) {
-                // Audit: Vencido
                 cellClass = "bg-danger-bg dark:bg-danger/20 border-danger/50 ring-1 ring-danger/30";
                 textClass = "text-danger-text dark:text-red-200";
             } else if (status.isLowStock) {
-                // Audit: Baixo Estoque
                 cellClass = "bg-warning-bg dark:bg-warning/20 border-warning/50 ring-1 ring-warning/30";
                 textClass = "text-warning-text dark:text-amber-200";
             } else {
-                // Audit: OK
                 cellClass = "bg-success-bg dark:bg-success/20 border-success/50";
                 textClass = "text-success-text dark:text-emerald-200";
             }
         } else {
-            // Normal Mode: Item Presente
             cellClass = "bg-white dark:bg-slate-700 border-l-4 border-l-primary border-y border-r border-border-light dark:border-slate-600";
         }
     }
@@ -64,14 +62,13 @@ const StorageCell = React.memo(({ cellId, item, isSelected, auditMode, onSelect,
         textClass = "text-white";
     }
 
-    // Drag Over Visuals
     if (isDragOver && !item) {
         cellClass = "bg-primary/10 border-primary border-dashed scale-105 transition-transform z-20";
     }
 
     const handleDragOver = (e: React.DragEvent) => {
         if (!item) {
-            e.preventDefault(); // Permitir drop apenas se vazio
+            e.preventDefault(); 
             setIsDragOver(true);
         }
     };
@@ -97,7 +94,7 @@ const StorageCell = React.memo(({ cellId, item, isSelected, auditMode, onSelect,
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
             className={`
-                rounded-lg border p-2 flex flex-col justify-between transition-all duration-200 relative overflow-hidden group
+                rounded-lg border p-2 flex flex-col justify-between transition-all duration-200 relative overflow-hidden group min-h-[70px]
                 ${cellClass}
             `}
         >
@@ -128,6 +125,19 @@ export const StorageMatrix: React.FC<Props> = ({ items }) => {
     const [selectedLocKey, setSelectedLocKey] = useState<string | null>(null);
     const [auditMode, setAuditMode] = useState(false);
     const [selectedItem, setSelectedItem] = useState<InventoryItem | null>(null);
+    const [viewMode, setViewMode] = useState<'GRID' | 'LIST'>('GRID');
+    const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+    useEffect(() => {
+        const handleResize = () => {
+            const mobile = window.innerWidth < 768;
+            setIsMobile(mobile);
+            if (mobile) setViewMode('LIST');
+        };
+        window.addEventListener('resize', handleResize);
+        handleResize(); // Initial check
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
     
     // Agrupa itens por Local > Armário
     const locations = useMemo<Record<string, InventoryItem[]>>(() => {
@@ -142,6 +152,14 @@ export const StorageMatrix: React.FC<Props> = ({ items }) => {
         return groups;
     }, [items]);
 
+    const locationStats = useMemo(() => {
+        const stats: Record<string, ReturnType<typeof analyzeLocation>> = {};
+        Object.keys(locations).forEach(key => {
+            stats[key] = analyzeLocation(locations[key]);
+        });
+        return stats;
+    }, [locations]);
+
     // Itens do local selecionado
     const selectedLocationItems = useMemo((): InventoryItem[] => {
         return selectedLocKey ? (locations[selectedLocKey] || []) : [];
@@ -155,12 +173,10 @@ export const StorageMatrix: React.FC<Props> = ({ items }) => {
         
         selectedLocationItems.forEach(item => {
             const pos = normalizeStr(item.location.position || '').toUpperCase();
-            // Tenta extrair letra e número (ex: A1, A-1)
             const match = pos.match(/([A-F])[\W_]?([1-8])/);
             
             if (match) {
-                const key = `${match[1]}${match[2]}`; // Ex: A1
-                // Prioridade para o item já existente ou lógica de sobreposição
+                const key = `${match[1]}${match[2]}`; 
                 map[key] = item;
                 revMap[item.id] = key;
             } else {
@@ -170,13 +186,11 @@ export const StorageMatrix: React.FC<Props> = ({ items }) => {
         return { gridMap: map, reverseGridMap: revMap, unassignedItems: unassigned };
     }, [selectedLocationItems]);
 
-    // Célula ativa baseada no item selecionado
     const activeCellId = useMemo(() => {
         if (!selectedItem) return null;
         return reverseGridMap[selectedItem.id] || null;
     }, [selectedItem, reverseGridMap]);
 
-    // --- DnD Handlers ---
     const handleDragStart = (e: React.DragEvent, item: InventoryItem) => {
         e.dataTransfer.setData("application/json", JSON.stringify({ itemId: item.id }));
         e.dataTransfer.effectAllowed = "move";
@@ -200,39 +214,42 @@ export const StorageMatrix: React.FC<Props> = ({ items }) => {
 
     return (
         <div className="flex flex-col h-full bg-background-light dark:bg-background-dark overflow-hidden animate-fade-in">
-            {/* Header da Página */}
-            <div className="px-6 md:px-8 py-5 bg-surface-light/80 dark:bg-surface-dark/80 backdrop-blur-sm sticky top-0 z-10 border-b border-border-light dark:border-border-dark flex flex-col md:flex-row justify-between items-start md:items-center gap-4 shadow-sm">
-                 <div>
-                    <h1 className="text-2xl font-bold text-text-main dark:text-white flex items-center gap-3">
-                        Matriz de Armazenamento
-                        {selectedLocKey && (
-                            <span className="bg-primary/10 text-primary text-xs px-2 py-1 rounded border border-primary/20 font-mono">
-                                {selectedLocKey}
-                            </span>
-                        )}
-                    </h1>
-                 </div>
-                 <div className="flex gap-3">
+            <div className="px-4 md:px-8 py-5 bg-surface-light/80 dark:bg-surface-dark/80 backdrop-blur-sm sticky top-0 z-10 border-b border-border-light dark:border-border-dark shadow-sm">
+                 <PageHeader 
+                    title={selectedLocKey ? (selectedLocKey.split(' > ')[1] || selectedLocKey) : "Locais de Armazenamento"}
+                    description={selectedLocKey ? `${selectedLocKey.split(' > ')[0]}` : "Selecione um local para gerenciar a disposição física."}
+                    className="mb-0"
+                 >
                     {selectedLocKey && (
-                        <Button variant="ghost" onClick={() => { setSelectedLocKey(null); setSelectedItem(null); }}>
-                            Voltar para Lista
-                        </Button>
+                        <>
+                            <Button variant="ghost" onClick={() => { setSelectedLocKey(null); setSelectedItem(null); }}>
+                                Voltar
+                            </Button>
+                            {/* Toggle View Mode Button */}
+                             <Button 
+                                onClick={() => setViewMode(viewMode === 'GRID' ? 'LIST' : 'GRID')}
+                                variant="white"
+                                icon={viewMode === 'GRID' ? 'list' : 'grid_view'}
+                                title="Alternar Visualização"
+                            >
+                                {viewMode === 'GRID' ? 'Lista' : 'Grid'}
+                            </Button>
+                            <Button 
+                                id="tour-audit-btn"
+                                onClick={() => setAuditMode(!auditMode)}
+                                variant={auditMode ? 'warning' : 'white'}
+                                icon={auditMode ? 'visibility' : 'visibility_off'}
+                                className={`hidden sm:flex ${auditMode ? 'ring-2 ring-warning border-transparent font-bold' : ''}`}
+                            >
+                                {auditMode ? 'Audit ON' : 'Audit'}
+                            </Button>
+                        </>
                     )}
-                    <Button 
-                        id="tour-audit-btn"
-                        onClick={() => setAuditMode(!auditMode)}
-                        variant={auditMode ? 'warning' : 'white'}
-                        icon={auditMode ? 'visibility' : 'visibility_off'}
-                        className={auditMode ? 'ring-2 ring-warning border-transparent font-bold' : ''}
-                    >
-                        {auditMode ? 'Modo Auditoria ON' : 'Modo Auditoria'}
-                    </Button>
-                 </div>
+                 </PageHeader>
             </div>
             
             <div className="flex-1 overflow-hidden p-4 md:p-8 relative">
                 {!selectedLocKey ? (
-                    /* VIEW 1: SELEÇÃO DE LOCAL (CARDS) */
                     <div className="overflow-y-auto h-full pr-2 pb-10 custom-scrollbar">
                         {Object.keys(locations).length === 0 ? (
                             <div className="flex flex-col items-center justify-center h-64 text-text-secondary opacity-60">
@@ -242,30 +259,15 @@ export const StorageMatrix: React.FC<Props> = ({ items }) => {
                         ) : (
                             <div id="tour-storage-grid" className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
                                 {Object.entries(locations).map(([key, locItems]) => {
-                                    const analysis = analyzeLocation(locItems as InventoryItem[]);
+                                    const analysis = locationStats[key];
                                     const [warehouse, cabinet] = key.split(' > ');
-                                    const hasIssues = analysis.expiredCount > 0 || analysis.conflict || analysis.lowStockCount > 0;
-                                    
-                                    let cardBorderClass = "";
-                                    let cardBgClass = "";
-                                    
-                                    if (auditMode && hasIssues) {
-                                        if (analysis.expiredCount > 0) {
-                                            cardBorderClass = "ring-2 ring-danger border-danger/50";
-                                            cardBgClass = "bg-danger-bg dark:bg-danger/10";
-                                        } else if (analysis.lowStockCount > 0) {
-                                            cardBorderClass = "ring-2 ring-warning border-warning/50";
-                                            cardBgClass = "bg-warning-bg dark:bg-warning/10";
-                                        }
-                                    }
-
                                     return (
                                         <Card 
                                             key={key}
                                             variant="interactive"
                                             padding="p-5"
                                             onClick={() => setSelectedLocKey(key)}
-                                            className={`flex flex-col gap-4 transition-all duration-200 ${cardBorderClass} ${cardBgClass}`}
+                                            className="flex flex-col gap-4 transition-all duration-200"
                                         >
                                             <div className="flex justify-between items-start">
                                                 <div className="flex items-center gap-3">
@@ -279,49 +281,11 @@ export const StorageMatrix: React.FC<Props> = ({ items }) => {
                                                         <p className="text-xs text-text-secondary dark:text-gray-400">{warehouse}</p>
                                                     </div>
                                                 </div>
-                                                
-                                                {/* Indicadores de Auditoria */}
-                                                {auditMode ? (
-                                                    <div className="flex flex-col items-end gap-1">
-                                                        {analysis.expiredCount > 0 && (
-                                                            <span className="bg-danger-bg text-danger-text text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1 border border-danger/20">
-                                                                {analysis.expiredCount} Vencidos
-                                                            </span>
-                                                        )}
-                                                        {analysis.lowStockCount > 0 && (
-                                                            <span className="bg-warning-bg text-warning-text text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1 border border-warning/20">
-                                                                {analysis.lowStockCount} Baixo
-                                                            </span>
-                                                        )}
-                                                        {analysis.conflict && (
-                                                            <span className="bg-danger text-white text-[10px] font-bold px-2 py-0.5 rounded-full" title={analysis.conflict}>
-                                                                Risco
-                                                            </span>
-                                                        )}
-                                                    </div>
-                                                ) : (
-                                                    analysis.conflict && <span className="text-danger material-symbols-outlined" title={analysis.conflict}>warning</span>
-                                                )}
                                             </div>
-
                                             <div className="flex justify-between text-[10px] text-text-secondary dark:text-gray-400 mt-0.5">
                                                 <span className="font-medium bg-surface-light dark:bg-surface-dark px-2 py-0.5 rounded border border-border-light dark:border-border-dark">
-                                                    {analysis.count} Itens Armazenados
+                                                    {analysis.count} Itens
                                                 </span>
-                                            </div>
-
-                                            <div className="flex flex-wrap gap-1 mt-auto pt-2 border-t border-border-light/50 dark:border-gray-700/50">
-                                                {analysis.activeRisks.length > 0 ? (
-                                                    analysis.activeRisks.slice(0, 5).map(r => (
-                                                        <div key={r} className={`size-5 rounded-full ${RISK_CONFIG[r].color} text-white flex items-center justify-center text-[10px] shadow-sm ring-1 ring-white/20`} title={RISK_CONFIG[r].label}>
-                                                            <span className="material-symbols-outlined text-[12px]">{RISK_CONFIG[r].icon}</span>
-                                                        </div>
-                                                    ))
-                                                ) : (
-                                                    <span className="text-[10px] text-text-light italic flex items-center gap-1">
-                                                        <span className="material-symbols-outlined text-[12px]">check</span> Seguro
-                                                    </span>
-                                                )}
                                             </div>
                                         </Card>
                                     );
@@ -330,66 +294,109 @@ export const StorageMatrix: React.FC<Props> = ({ items }) => {
                         )}
                     </div>
                 ) : (
-                    /* VIEW 2: GRID DETALHADO (8x6) */
                     <div className="max-w-[1600px] mx-auto w-full h-full flex flex-col lg:flex-row gap-6">
                         <div className="flex-1 flex flex-col gap-4 min-h-0">
-                            {/* Container do Grid */}
-                            <div className="bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl shadow-sm p-6 overflow-auto custom-scrollbar flex-1 flex flex-col justify-center relative">
-                                <div className="min-w-[600px] flex flex-col items-center">
-                                    {/* Header Colunas */}
-                                    <div className="flex mb-3 ml-8 w-full max-w-4xl gap-3">
-                                        {COLS.map(col => (
-                                            <div key={col} className="flex-1 text-center text-xs font-bold text-text-secondary dark:text-gray-500 uppercase tracking-widest">{col}</div>
-                                        ))}
-                                    </div>
-                                    <div className="flex w-full max-w-4xl relative gap-3">
-                                        {/* Header Linhas */}
-                                        <div className="flex flex-col justify-around w-6 gap-3">
-                                            {ROWS.map(row => (
-                                                <div key={row} className="h-full flex items-center justify-center text-xs font-bold text-text-secondary dark:text-gray-500 uppercase">{row}</div>
+                            {viewMode === 'GRID' ? (
+                                <div className="bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl shadow-sm p-6 overflow-auto custom-scrollbar flex-1 flex flex-col justify-center relative">
+                                    <div className="min-w-[600px] flex flex-col items-center">
+                                        <div className="flex mb-3 ml-8 w-full max-w-4xl gap-3">
+                                            {COLS.map(col => (
+                                                <div key={col} className="flex-1 text-center text-xs font-bold text-text-secondary dark:text-gray-500 uppercase tracking-widest">{col}</div>
                                             ))}
                                         </div>
-                                        {/* Células */}
-                                        <div className="flex-1 grid grid-cols-8 grid-rows-6 gap-3 h-[500px]">
-                                            {ROWS.map(row => (
-                                                COLS.map(col => {
-                                                    const cellId = `${row}${col}`;
-                                                    return (
-                                                        <StorageCell 
-                                                            key={cellId}
-                                                            cellId={cellId}
-                                                            item={gridMap[cellId]}
-                                                            isSelected={activeCellId === cellId}
-                                                            auditMode={auditMode}
-                                                            onSelect={setSelectedItem}
-                                                            onDragStart={handleDragStart}
-                                                            onDrop={handleDrop}
-                                                        />
-                                                    );
-                                                })
-                                            ))}
+                                        <div className="flex w-full max-w-4xl relative gap-3">
+                                            <div className="flex flex-col justify-around w-6 gap-3">
+                                                {ROWS.map(row => (
+                                                    <div key={row} className="h-full flex items-center justify-center text-xs font-bold text-text-secondary dark:text-gray-500 uppercase">{row}</div>
+                                                ))}
+                                            </div>
+                                            <div className="flex-1 grid grid-cols-8 grid-rows-6 gap-3 h-[500px]">
+                                                {ROWS.map(row => (
+                                                    COLS.map(col => {
+                                                        const cellId = `${row}${col}`;
+                                                        return (
+                                                            <StorageCell 
+                                                                key={cellId}
+                                                                cellId={cellId}
+                                                                item={gridMap[cellId]}
+                                                                isSelected={activeCellId === cellId}
+                                                                auditMode={auditMode}
+                                                                onSelect={setSelectedItem}
+                                                                onDragStart={handleDragStart}
+                                                                onDrop={handleDrop}
+                                                            />
+                                                        );
+                                                    })
+                                                ))}
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
+                            ) : (
+                                <div className="bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl shadow-sm overflow-hidden flex-1 flex flex-col">
+                                    <div className="overflow-y-auto p-4 custom-scrollbar space-y-2">
+                                        {selectedLocationItems.length === 0 ? (
+                                            <div className="text-center py-12 text-text-secondary">Nenhum item neste local.</div>
+                                        ) : (
+                                            selectedLocationItems.map(item => {
+                                                const status = getItemStatus(item);
+                                                const pos = reverseGridMap[item.id] || 'S/P';
+                                                
+                                                return (
+                                                    <div 
+                                                        key={item.id}
+                                                        onClick={() => setSelectedItem(item)}
+                                                        className={`
+                                                            flex items-center justify-between p-3 rounded-lg border cursor-pointer transition-colors
+                                                            ${selectedItem?.id === item.id 
+                                                                ? 'bg-primary/5 border-primary ring-1 ring-primary/20' 
+                                                                : 'bg-background-light dark:bg-slate-800 border-border-light dark:border-border-dark hover:border-primary/50'}
+                                                        `}
+                                                    >
+                                                        <div className="flex items-center gap-3 overflow-hidden">
+                                                            <span className="font-mono text-xs font-bold bg-white dark:bg-slate-900 px-2 py-1 rounded border border-border-light dark:border-slate-700 min-w-[32px] text-center">
+                                                                {pos}
+                                                            </span>
+                                                            <div className="flex flex-col min-w-0">
+                                                                <span className="font-bold text-sm text-text-main dark:text-white truncate">{item.name}</span>
+                                                                <span className="text-xs text-text-secondary truncate">Lote: {item.lotNumber}</span>
+                                                            </div>
+                                                        </div>
+                                                        <div className="flex items-center gap-2">
+                                                            {auditMode && (
+                                                                status.isExpired 
+                                                                    ? <Badge variant="danger" className="text-[10px]">Vencido</Badge>
+                                                                    : status.isLowStock 
+                                                                        ? <Badge variant="warning" className="text-[10px]">Baixo</Badge>
+                                                                        : null
+                                                            )}
+                                                            <div className="text-right">
+                                                                <span className="font-bold text-text-main dark:text-white block">{item.quantity}</span>
+                                                                <span className="text-[10px] text-text-secondary">{item.baseUnit}</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                );
+                                            })
+                                        )}
+                                    </div>
+                                </div>
+                            )}
                             
-                            {/* Legenda (Opcional, para clareza) */}
-                            <div className="flex gap-4 text-[10px] text-text-secondary justify-center">
-                                <div className="flex items-center gap-1"><div className="size-3 bg-white border-l-4 border-l-primary border border-slate-200"></div> Ocupado</div>
-                                <div className="flex items-center gap-1"><div className="size-3 bg-slate-50 border border-dashed border-slate-300"></div> Livre</div>
-                                <div className="flex items-center gap-1 opacity-60"><span className="material-symbols-outlined text-[14px]">drag_indicator</span> Arraste para mover</div>
-                                {auditMode && (
-                                    <>
-                                        <div className="flex items-center gap-1"><div className="size-3 bg-danger-bg border border-danger"></div> Vencido</div>
-                                        <div className="flex items-center gap-1"><div className="size-3 bg-warning-bg border border-warning"></div> Baixo</div>
-                                    </>
-                                )}
-                            </div>
+                            {viewMode === 'GRID' && (
+                                <div className="flex gap-4 text-[10px] text-text-secondary justify-center flex-wrap">
+                                    <div className="flex items-center gap-1"><div className="size-3 bg-white border-l-4 border-l-primary border border-slate-200"></div> Ocupado</div>
+                                    <div className="flex items-center gap-1"><div className="size-3 bg-slate-50 border border-dashed border-slate-300"></div> Livre</div>
+                                </div>
+                            )}
                         </div>
 
                         {/* Painel Lateral de Detalhes */}
-                        <aside className="w-full lg:w-80 flex-shrink-0 flex flex-col gap-4 h-full overflow-hidden">
-                            <Card padding="p-0" className="flex flex-col h-full animate-slide-left overflow-hidden bg-surface-light dark:bg-surface-dark border-border-light dark:border-border-dark">
+                        <aside className={`
+                            w-full lg:w-80 flex-shrink-0 flex flex-col gap-4 h-full overflow-hidden transition-all duration-300
+                            ${!selectedItem && isMobile ? 'hidden' : ''}
+                        `}>
+                            <Card padding="p-0" className="flex flex-col h-full overflow-hidden bg-surface-light dark:bg-surface-dark border-border-light dark:border-border-dark">
                                 {selectedItem ? (
                                     <div className="flex flex-col h-full">
                                         <div className="p-5 border-b border-border-light dark:border-border-dark bg-background-light/50 dark:bg-slate-800/50">
@@ -397,13 +404,7 @@ export const StorageMatrix: React.FC<Props> = ({ items }) => {
                                                 <div className="bg-primary/10 text-primary text-xs font-bold px-2.5 py-1 rounded-md uppercase tracking-wider border border-primary/10">
                                                     {reverseGridMap[selectedItem.id] || 'S/P'}
                                                 </div>
-                                                <div className="flex gap-1">
-                                                    {Object.keys(selectedItem.risks).filter(k => (selectedItem.risks as any)[k]).map(r => (
-                                                         <span key={r} className={`size-5 rounded-full ${RISK_CONFIG[r as keyof RiskFlags].color} text-white flex items-center justify-center text-[10px]`} title={RISK_CONFIG[r as keyof RiskFlags].label}>
-                                                             <span className="material-symbols-outlined text-[12px]">{RISK_CONFIG[r as keyof RiskFlags].icon}</span>
-                                                         </span>
-                                                    ))}
-                                                </div>
+                                                <Button size="sm" variant="ghost" className="h-6 w-6 p-0 md:hidden" onClick={() => setSelectedItem(null)} icon="close" />
                                             </div>
                                             <h3 className="font-bold text-text-main dark:text-white text-lg leading-tight" title={selectedItem.name}>{selectedItem.name}</h3>
                                             <p className="text-xs text-text-secondary font-mono mt-1">{selectedItem.sapCode || 'Sem código'}</p>
@@ -420,74 +421,12 @@ export const StorageMatrix: React.FC<Props> = ({ items }) => {
                                                     <p className="font-bold text-sm text-text-main dark:text-white truncate" title={selectedItem.lotNumber}>{selectedItem.lotNumber}</p>
                                                 </div>
                                             </div>
-                                            
-                                            <div className={`p-4 rounded-lg border flex items-center gap-3 ${getItemStatus(selectedItem).isExpired ? 'bg-danger-bg border-danger/30 text-danger-text' : 'bg-background-light dark:bg-slate-800 border-border-light dark:border-border-dark'}`}>
-                                                 <div className={`p-2 rounded-full ${getItemStatus(selectedItem).isExpired ? 'bg-danger text-white' : 'bg-surface-light dark:bg-slate-700 text-text-secondary'}`}>
-                                                    <span className="material-symbols-outlined text-lg">event</span>
-                                                 </div>
-                                                 <div>
-                                                     <p className="text-[10px] uppercase font-bold opacity-70">Validade</p>
-                                                     <p className="font-bold text-sm">
-                                                        {selectedItem.expiryDate ? new Date(selectedItem.expiryDate).toLocaleDateString() : 'N/A'}
-                                                     </p>
-                                                 </div>
-                                            </div>
-
-                                            <div className="space-y-2">
-                                                <h4 className="text-xs font-bold text-text-secondary uppercase tracking-wide border-b border-border-light dark:border-border-dark pb-1">Localização Completa</h4>
-                                                <div className="text-sm text-text-main dark:text-slate-300 space-y-1 bg-background-light dark:bg-slate-800 p-3 rounded-lg border border-border-light dark:border-border-dark">
-                                                    <p><span className="text-text-secondary text-xs">Armazém:</span> {selectedItem.location.warehouse}</p>
-                                                    <p><span className="text-text-secondary text-xs">Armário:</span> {selectedItem.location.cabinet || '-'}</p>
-                                                    <p><span className="text-text-secondary text-xs">Prateleira:</span> {selectedItem.location.shelf || '-'}</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        
-                                        <div className="p-4 border-t border-border-light dark:border-border-dark bg-background-light/30 dark:bg-slate-800/30">
-                                            <Button className="w-full" variant="outline" onClick={() => setSelectedItem(null)}>Fechar Detalhes</Button>
                                         </div>
                                     </div>
                                 ) : (
                                     <div className="flex-1 flex flex-col items-center justify-center text-center text-text-secondary dark:text-gray-500 p-6">
-                                        <div className="bg-background-light dark:bg-slate-800 p-6 rounded-full mb-4 shadow-inner border border-border-light dark:border-border-dark">
-                                            <span className="material-symbols-outlined text-5xl opacity-20">touch_app</span>
-                                        </div>
-                                        <h3 className="text-lg font-bold text-text-main dark:text-white mb-2">Nenhum item selecionado</h3>
-                                        <p className="text-sm opacity-70 max-w-[200px]">Clique em um quadrado no grid para ver os detalhes do item.</p>
-                                    </div>
-                                )}
-                                
-                                {/* Lista de Não Posicionados */}
-                                {unassignedItems.length > 0 && (
-                                    <div className="border-t border-border-light dark:border-border-dark bg-warning-bg/10 dark:bg-warning/5 flex flex-col max-h-[200px]">
-                                        <div className="px-5 py-3 border-b border-border-light/50 dark:border-border-dark/50 flex justify-between items-center">
-                                            <h4 className="text-xs font-bold uppercase text-warning-text tracking-wide flex items-center gap-2">
-                                                <span className="material-symbols-outlined text-sm">warning</span>
-                                                Sem Posição ({unassignedItems.length})
-                                            </h4>
-                                        </div>
-                                        <div className="overflow-y-auto p-3 space-y-2 custom-scrollbar">
-                                            {unassignedItems.map(item => (
-                                                <div 
-                                                    key={item.id} 
-                                                    onClick={() => setSelectedItem(item)}
-                                                    draggable
-                                                    onDragStart={(e) => handleDragStart(e, item)}
-                                                    className={`
-                                                        p-2.5 rounded-lg border text-xs shadow-sm cursor-grab group transition-all
-                                                        ${selectedItem?.id === item.id 
-                                                            ? 'bg-white dark:bg-slate-800 border-primary ring-1 ring-primary' 
-                                                            : 'bg-white dark:bg-slate-800 border-border-light dark:border-border-dark hover:border-primary'}
-                                                    `}
-                                                >
-                                                    <div className="font-bold truncate text-text-main dark:text-white group-hover:text-primary transition-colors">{item.name}</div>
-                                                    <div className="text-text-secondary dark:text-gray-400 flex justify-between mt-1">
-                                                        <span className="font-mono bg-background-light dark:bg-slate-700 px-1.5 rounded text-[10px] border border-border-light dark:border-border-dark">{item.lotNumber}</span>
-                                                        <span className="font-medium">{item.quantity} {item.baseUnit}</span>
-                                                    </div>
-                                                </div>
-                                            ))}
-                                        </div>
+                                        <span className="material-symbols-outlined text-5xl opacity-20 mb-2">touch_app</span>
+                                        <p className="text-sm opacity-70">Selecione um item para ver detalhes.</p>
                                     </div>
                                 )}
                             </Card>

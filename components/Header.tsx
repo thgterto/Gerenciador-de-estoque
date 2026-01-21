@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
 import { Icon } from './ui/Icon';
 import { Button } from './ui/Button';
 import { useTheme } from '../context/ThemeContext';
@@ -25,6 +25,20 @@ export const Header: React.FC<HeaderProps> = ({
     onMenuClick
 }) => {
     const { theme } = useTheme();
+    const searchInputRef = useRef<HTMLInputElement>(null);
+
+    // Hotkey: Ctrl + K (or Cmd + K) to focus search
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+                e.preventDefault();
+                searchInputRef.current?.focus();
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, []);
 
     return (
         <header className={`h-16 flex items-center justify-between px-6 md:px-8 bg-surface-light dark:bg-surface-dark border-b border-border-light dark:border-border-dark shrink-0 z-20 transition-colors duration-200 ${className}`}>
@@ -48,11 +62,12 @@ export const Header: React.FC<HeaderProps> = ({
             {/* Global Search (Polaris-like) */}
             <div className="flex-1 max-w-xl mr-4 hidden md:block">
                  <Input 
+                    ref={searchInputRef}
                     placeholder="Busca global (Ctrl + K)..." 
                     icon="search"
                     className="bg-background-light dark:bg-background-dark border-transparent focus:bg-surface-light dark:focus:bg-surface-dark shadow-none"
                     rightElement={
-                        <kbd className="hidden lg:inline-block px-1.5 py-0.5 text-[10px] font-bold text-text-light bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark rounded shadow-sm">⌘K</kbd>
+                        <kbd className="hidden lg:inline-block px-1.5 py-0.5 text-[10px] font-bold text-text-light bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark rounded shadow-sm opacity-60">⌘K</kbd>
                     }
                  />
             </div>

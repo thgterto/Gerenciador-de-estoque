@@ -1,7 +1,6 @@
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { MovementRecord } from '../types';
-import { Card } from './ui/Card';
 import { Badge } from './ui/Badge';
 import { Input } from './ui/Input';
 import { Select } from './ui/Select';
@@ -14,14 +13,14 @@ import { formatDateTime } from '../utils/formatters';
 import * as ReactWindow from 'react-window';
 import * as AutoSizerPkg from 'react-virtualized-auto-sizer';
 import { useHistoryFilters } from '../hooks/useHistoryFilters';
+import { Card } from './ui/Card';
 
 const FixedSizeList = (ReactWindow as any).FixedSizeList || (ReactWindow as any).default?.FixedSizeList || (ReactWindow as any).default;
 const List = FixedSizeList;
 const AutoSizer = (AutoSizerPkg as any).default || AutoSizerPkg;
 
 interface Props {
-  // history prop removida, agora o componente é autônomo na busca de dados
-  history?: MovementRecord[]; // Mantido opcional para compatibilidade reversa temporária, mas ignorado
+  history?: MovementRecord[]; 
   preselectedItemId?: string | null;
   preselectedBatchId?: string | null;
   onClearFilter?: () => void;
@@ -29,8 +28,64 @@ interface Props {
 
 const GRID_TEMPLATE = "100px minmax(280px, 3fr) 140px minmax(150px, 2fr) 160px";
 
+const getTypeBadge = (type: string) => {
+    if (type === 'ENTRADA') return <Badge variant="success" icon="arrow_circle_up">Entrada</Badge>;
+    if (type === 'SAIDA') return <Badge variant="danger" icon="arrow_circle_down">Saída</Badge>;
+    return <Badge variant="warning" icon="tune">Ajuste</Badge>;
+};
+
+const HistoryRow = ({ index, style, data }: { index: number, style: React.CSSProperties, data: { filtered: MovementRecord[] } }) => {
+    const h = data.filtered[index];
+    if (!h) return null;
+    
+    const amountColor = h.type === 'ENTRADA' ? 'text-success' : h.type === 'SAIDA' ? 'text-danger' : 'text-warning';
+
+    return (
+      <div style={style} className="w-full">
+          <div className="h-full border-b border-border-light dark:border-border-dark hover:bg-background-light dark:hover:bg-slate-800/50 transition-colors group bg-surface-light dark:bg-surface-dark">
+              <div className="grid h-full items-center px-4 text-sm" style={{ gridTemplateColumns: GRID_TEMPLATE }}>
+                  <div className="py-2">
+                      {getTypeBadge(h.type)}
+                  </div>
+                  <div className="py-2 overflow-hidden pr-4">
+                      <div className="flex flex-col gap-0.5 min-w-0">
+                          <span className="text-sm font-semibold text-text-main dark:text-white truncate" title={h.productName || 'Item Desconhecido'}>
+                              {h.productName || <span className="italic text-text-light">Item Arquivado</span>}
+                          </span>
+                          <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-text-secondary dark:text-gray-400 truncate">
+                              {h.batchId ? (
+                                  <span className="font-mono bg-primary/5 text-primary dark:text-primary-light px-1.5 py-0.5 rounded text-[10px] border border-primary/10">Batch: {h.batchId}</span>
+                              ) : null}
+                              <span className="font-mono text-text-light dark:text-slate-400">Lote: {h.lot || 'GEN'}</span>
+                          </div>
+                      </div>
+                  </div>
+                  <div className="py-2 text-right pr-8">
+                      <span className={`text-sm font-bold font-mono tracking-tight ${amountColor}`}>
+                          {h.type === 'ENTRADA' ? '+' : h.type === 'SAIDA' ? '-' : ''}{h.quantity}
+                      </span>
+                      <span className="text-[10px] font-bold text-text-secondary dark:text-slate-400 ml-1 lowercase">{h.unit || 'un'}</span>
+                  </div>
+                  <div className="py-2 text-xs text-text-secondary dark:text-gray-400 truncate pr-4" title={h.observation}>
+                      {h.observation ? (
+                          <span className="flex items-center gap-1.5">
+                              <span className="material-symbols-outlined text-[14px] opacity-60 shrink-0">sticky_note_2</span>
+                              <span className="truncate">{h.observation}</span>
+                          </span>
+                      ) : (
+                          <span className="opacity-30 italic">Sem obs.</span>
+                      )}
+                  </div>
+                  <div className="py-2 text-right text-xs text-text-secondary dark:text-gray-400 font-medium tabular-nums">
+                      {formatDateTime(h.date)}
+                  </div>
+              </div>
+          </div>
+      </div>
+    );
+};
+
 export const HistoryTable: React.FC<Props> = ({ preselectedItemId, preselectedBatchId, onClearFilter }) => {
-  // Hook agora gerencia a busca direta no DB
   const {
       term, setTerm,
       typeFilter, setTypeFilter,
@@ -40,62 +95,9 @@ export const HistoryTable: React.FC<Props> = ({ preselectedItemId, preselectedBa
       loading
   } = useHistoryFilters(preselectedItemId, preselectedBatchId);
 
-  const getTypeBadge = (type: string) => {
-      if (type === 'ENTRADA') return <Badge variant="success" icon="arrow_circle_up">Entrada</Badge>;
-      if (type === 'SAIDA') return <Badge variant="danger" icon="arrow_circle_down">Saída</Badge>;
-      return <Badge variant="warning" icon="tune">Ajuste</Badge>;
-  };
-
-  const Row = ({ index, style }: { index: number, style: React.CSSProperties }) => {
-      const h = filtered[index];
-      const amountColor = h.type === 'ENTRADA' ? 'text-success' : h.type === 'SAIDA' ? 'text-danger' : 'text-warning';
-
-      return (
-        <div style={style} className="w-full">
-            <div className="h-full border-b border-border-light dark:border-border-dark hover:bg-background-light dark:hover:bg-slate-800/50 transition-colors group bg-surface-light dark:bg-surface-dark">
-                <div className="grid h-full items-center px-4 text-sm" style={{ gridTemplateColumns: GRID_TEMPLATE }}>
-                    <div className="py-2">
-                        {getTypeBadge(h.type)}
-                    </div>
-                    <div className="py-2 overflow-hidden pr-4">
-                        <div className="flex flex-col gap-0.5 min-w-0">
-                            <span className="text-sm font-semibold text-text-main dark:text-white truncate" title={h.productName || 'Item Desconhecido'}>
-                                {h.productName || <span className="italic text-text-light">Item Arquivado</span>}
-                            </span>
-                            <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-text-secondary dark:text-gray-400 truncate">
-                                {h.batchId ? (
-                                    <span className="font-mono bg-primary/5 text-primary dark:text-primary-light px-1.5 py-0.5 rounded text-[10px] border border-primary/10">Batch: {h.batchId}</span>
-                                ) : null}
-                                <span className="font-mono text-text-light dark:text-slate-400">Lote: {h.lot || 'GEN'}</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="py-2 text-right pr-8">
-                        <span className={`text-sm font-bold font-mono tracking-tight ${amountColor}`}>
-                            {h.type === 'ENTRADA' ? '+' : h.type === 'SAIDA' ? '-' : ''}{h.quantity}
-                        </span>
-                        <span className="text-[10px] font-bold text-text-secondary dark:text-slate-400 ml-1 lowercase">{h.unit || 'un'}</span>
-                    </div>
-                    <div className="py-2 text-xs text-text-secondary dark:text-gray-400 truncate pr-4" title={h.observation}>
-                        {h.observation ? (
-                            <span className="flex items-center gap-1.5">
-                                <span className="material-symbols-outlined text-[14px] opacity-60 shrink-0">sticky_note_2</span>
-                                <span className="truncate">{h.observation}</span>
-                            </span>
-                        ) : (
-                            <span className="opacity-30 italic">Sem obs.</span>
-                        )}
-                    </div>
-                    <div className="py-2 text-right text-xs text-text-secondary dark:text-gray-400 font-medium tabular-nums">
-                        {formatDateTime(h.date)}
-                    </div>
-                </div>
-            </div>
-        </div>
-      );
-  };
-
   const sampleBatch = filtered.length > 0 ? filtered[0] : null;
+
+  const itemData = useMemo(() => ({ filtered }), [filtered]);
 
   return (
     <PageContainer>
@@ -257,8 +259,9 @@ export const HistoryTable: React.FC<Props> = ({ preselectedItemId, preselectedBa
                                 itemSize={72}
                                 width={width}
                                 className="custom-scrollbar"
+                                itemData={itemData}
                             >
-                                {Row}
+                                {HistoryRow}
                             </List>
                         )}
                     </AutoSizer>

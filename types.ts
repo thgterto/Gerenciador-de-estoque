@@ -8,8 +8,11 @@ declare global {
 }
 
 export type UUID = string;
-export type DateISOString = string; // YYYY-MM-DDTHH:mm:ss.sssZ
+export type DateISOString = string; // Format: YYYY-MM-DDTHH:mm:ss.sssZ
 
+/**
+ * Base interface for database entities tracking creation and updates.
+ */
 export interface Auditable {
   createdAt?: DateISOString;
   updatedAt?: DateISOString;
@@ -17,36 +20,42 @@ export interface Auditable {
   updatedBy?: string;
 }
 
+/**
+ * GHS (Globally Harmonized System) Risk Flags.
+ * Used for chemical safety classification.
+ */
 export interface RiskFlags {
-  O: boolean;      // Oxidante
-  T: boolean;      // Tóxico
-  T_PLUS: boolean; // Muito Tóxico
-  C: boolean;      // Corrosivo
-  E: boolean;      // Explosivo
-  N: boolean;      // Perigoso para o Meio Ambiente
-  Xn: boolean;     // Nocivo
-  Xi: boolean;     // Irritante
-  F: boolean;      // Inflamável
-  F_PLUS: boolean; // Extremamente Inflamável
+  O: boolean;      // Oxidante / Oxidizing
+  T: boolean;      // Tóxico / Toxic
+  T_PLUS: boolean; // Muito Tóxico / Very Toxic
+  C: boolean;      // Corrosivo / Corrosive
+  E: boolean;      // Explosivo / Explosive
+  N: boolean;      // Perigoso para o Meio Ambiente / Environmental Hazard
+  Xn: boolean;     // Nocivo / Harmful
+  Xi: boolean;     // Irritante / Irritant
+  F: boolean;      // Inflamável / Flammable
+  F_PLUS: boolean; // Extremamente Inflamável / Extremely Flammable
 }
 
 export type ItemType = 'REAGENT' | 'GLASSWARE' | 'EQUIPMENT' | 'CONSUMABLE' | 'SPARE_PART';
 
 // ============================================================================
 // 2. DOMAIN V2: LEDGER (NORMALIZED SOURCE OF TRUTH - 3NF)
+// The "Real" Database structure hidden behind the scenes.
 // ============================================================================
 
 /**
- * Tabela: CATALOG
- * Chave Primária: id (CAT-...)
- * Dependência Funcional: Todos os atributos dependem apenas do ID do produto.
+ * Defines "WHAT" the item is (Master Data).
+ * Shared across multiple batches.
  */
 export interface CatalogProduct extends Auditable {
-  id: string;      
-  sapCode: string; 
-  name: string;
-  categoryId: string;
-  baseUnit: string;
+  id: string;        // ID: CAT-{HASH}
+  sapCode: string;   // Corporate Code
+  name: string;      // Product Name
+  categoryId: string;// Category Group
+  baseUnit: string;  // UOM (Unit of Measure)
+  
+  // Chemical Properties
   casNumber?: string;
   molecularFormula?: string;
   molecularWeight?: string;
@@ -55,42 +64,42 @@ export interface CatalogProduct extends Auditable {
   minStockLevel: number; 
   isActive: boolean;
   
-  // Dynamic Fields
+  // Specific Attributes
   itemType?: ItemType;
-  serialNumber?: string;
-  calibrationDate?: DateISOString;
-  maintenanceDate?: DateISOString;
-  glassVolume?: string; // e.g. "500ml"
-  glassMaterial?: string; // e.g. "Borossilicato"
-  application?: string; // e.g. "Para HPLC Agilent 1200"
+  glassVolume?: string; 
+  glassMaterial?: string; 
+  application?: string; 
 }
 
 /**
- * Tabela: BATCHES
- * Chave Primária: id (BAT-...)
- * Chave Estrangeira: catalogId -> CatalogProduct
- * 3NF: Validade e Lote dependem da instância física (Batch), não do produto abstrato.
+ * Defines "WHICH" specific instance we have (Physical Lot).
  */
 export interface InventoryBatch extends Auditable {
-  id: string;         
-  catalogId: string;  
-  partnerId?: string; // FK -> Partners (Fabricante)
+  id: string;         // ID: BAT-{UUID}
+  catalogId: string;  // FK -> CatalogProduct
+  partnerId?: string; // FK -> BusinessPartner (Manufacturer/Supplier)
+  
   lotNumber: string;
   expiryDate?: DateISOString;
   manufactureDate?: DateISOString;
+  
   unitCost: number;
   currency?: string;
+  
+  // Instance Specifics (Equipment)
+  serialNumber?: string;
+  calibrationDate?: DateISOString;
+  maintenanceDate?: DateISOString;
+
   status: 'ACTIVE' | 'QUARANTINE' | 'BLOCKED' | 'DEPLETED' | 'OBSOLETE';
 }
 
 /**
- * Tabela: BALANCES
- * Chave Primária: id
- * Chave Composta Lógica: batchId + locationId
- * 3NF: A quantidade é um atributo da relação entre um lote e um local.
+ * Defines "WHERE" and "HOW MUCH" (Stock Quantities).
+ * Connects a Batch to a Physical Location.
  */
 export interface StockBalance extends Auditable {
-  id: string;         
+  id: string;         // ID: BAL-{HASH}
   batchId: string;    // FK -> InventoryBatch
   locationId: string; // FK -> StorageLocationEntity
   quantity: number;
@@ -98,20 +107,15 @@ export interface StockBalance extends Auditable {
 }
 
 /**
- * Tabela: STORAGE_LOCATIONS
- * Chave Primária: id
+ * Physical storage definitions.
  */
 export interface StorageLocationEntity extends Auditable {
   id: string;   
   name: string;
   type: 'WAREHOUSE' | 'ROOM' | 'CABINET' | 'SHELF' | 'BOX' | 'VIRTUAL';
-  pathString: string; 
+  pathString: string; // "Warehouse A > Cabinet 1 > Shelf 2"
 }
 
-/**
- * Tabela: PARTNERS
- * Chave Primária: id
- */
 export interface BusinessPartner extends Auditable {
   id: string; 
   name: string;
@@ -121,7 +125,7 @@ export interface BusinessPartner extends Auditable {
 
 // ============================================================================
 // 3. DOMAIN V1: SNAPSHOT (UI OPTIMIZED VIEW - DENORMALIZED)
-// Utilizado apenas para leitura/exibição no Frontend (Presentation Layer)
+// This is the "Flat" object used by the React UI for performance (L1 Cache).
 // ============================================================================
 
 export interface StorageAddress {
@@ -131,18 +135,22 @@ export interface StorageAddress {
   position: string;
 }
 
+/**
+ * The main UI entity.
+ * It's a join of Catalog + Batch + Balance.
+ */
 export interface InventoryItem extends Auditable {
-  readonly id: string; // Geralmente mapeia para um BatchID principal ou agrupado
+  readonly id: string; // Maps to a Balance ID or Main Batch ID
   
-  // Virtual Foreign Keys
+  // Foreign Keys (Hidden Link to V2)
   catalogId?: string;
   batchId?: string;
   locationId?: string;
 
-  // Catalog Data Snapshot
+  // --- From Catalog ---
   sapCode: string;           
   name: string;
-  itemType?: ItemType; // New Discriminator
+  itemType?: ItemType;
   casNumber?: string;        
   molecularFormula?: string; 
   molecularWeight?: string;  
@@ -166,9 +174,8 @@ export interface InventoryItem extends Auditable {
   // Spare Parts Specifics
   application?: string;
 
-  // Batch Data Snapshot
+  // --- From Batch ---
   lotNumber: string;         
-  quantity: number; 
   expiryDate: DateISOString; 
   dateAcquired: DateISOString; 
   unitCost: number;          
@@ -176,22 +183,23 @@ export interface InventoryItem extends Auditable {
   itemStatus: 'Ativo' | 'Bloqueado' | 'Quarentena' | 'Obsoleto';
   supplier: string;
 
-  // Location Snapshot
+  // --- From Balance ---
+  quantity: number; 
   location: StorageAddress;
-  
   lastUpdated: DateISOString; 
-  isGhost?: boolean; 
+  
+  // Metadata
+  isGhost?: boolean; // If true, exists in history but not in current stock
 }
 
 /**
- * Tabela: MOVEMENTS (History)
- * Registro imutável de transações.
+ * Immutable Ledger Entry (Audit Trail).
  */
 export interface MovementRecord {
   readonly id: UUID;
-  readonly itemId: string; // Link legado V1
+  readonly itemId: string; // Link to the Item Snapshot ID
   
-  // V2 Ledger Links
+  // V2 Links
   readonly batchId?: string;
   readonly fromLocationId?: string;
   readonly toLocationId?: string;
@@ -199,7 +207,7 @@ export interface MovementRecord {
   readonly date: DateISOString; 
   readonly type: 'ENTRADA' | 'SAIDA' | 'AJUSTE' | 'TRANSFERENCIA';
   
-  // Snapshot Data (Histórico deve ser imutável, então guarda cópia dos dados no momento)
+  // Snapshot Data (Redundant but necessary for immutable history)
   readonly productName: string;
   readonly sapCode: string;
   readonly lot: string;
@@ -213,11 +221,10 @@ export interface MovementRecord {
 }
 
 // ============================================================================
-// 4. OPERATIONAL DTOs
+// 4. OPERATIONAL DTOs & SERVICE TYPES
 // ============================================================================
 
 export interface CreateItemDTO {
-    // Identity (Catalog)
     name: string;
     sapCode?: string;
     category: string;
@@ -226,31 +233,25 @@ export interface CreateItemDTO {
     itemType: ItemType;
     isControlled?: boolean;
 
-    // Chemical / Specifics
     casNumber?: string;
     molecularFormula?: string;
     molecularWeight?: string;
     risks?: RiskFlags;
     
-    // Equipment Specifics
     serialNumber?: string;
     calibrationDate?: string;
     maintenanceDate?: string;
 
-    // Glassware Specifics
     glassVolume?: string;
     glassMaterial?: string;
 
-    // Spare Part Specifics
     application?: string;
 
-    // Batch (Logística)
     lotNumber: string;
     expiryDate?: string;
     supplier?: string;
     unitCost?: number;
 
-    // Balance (Inicial)
     quantity: number;
     location: StorageAddress;
 }
@@ -294,15 +295,42 @@ export interface CasDataDTO {
 }
 
 export interface QRCodeDataDTO {
-  i: string;
-  n: string;
-  s: string;
-  l: string;
-  e?: string;
-  u?: string;
+  i: string; // ID
+  n: string; // Name
+  s: string; // SAP
+  l: string; // Lot
+  e?: string;// Expiry
+  u?: string;// Unit
 }
 
-// Legado/Export Types
+// Service & View Types
+export interface BatchDetailView {
+    batchId: string;
+    lotNumber: string;
+    expiryDate: string;
+    quantity: number;
+    locationName: string;
+    status: string;
+}
+
+export interface ImportResult {
+    total: number;
+    created: number;
+    updated: number;
+    ignored: number;
+}
+
+// Offline Sync Types
+export interface SyncQueueItem {
+    id?: number;
+    timestamp: number;
+    action: string;
+    payload: any;
+    retryCount: number;
+    error?: string;
+}
+
+// Legacy/Export Types (Keep for compatibility)
 export interface LocationDTO { id: number; storageLocation: string; cabinet: string; floor: string; position: string; fullLocationCode: string; }
 export interface SupplierDTO { id: number; name: string; }
 export interface ProductBatchDTO { id: number; productName: string; sapCode: string; batch: string; expirationDate: string | null; supplierId: number; locationId: number; unitOfMeasure: string; costPerUnit?: number; [key: string]: any; }

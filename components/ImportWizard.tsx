@@ -2,8 +2,8 @@
 import React, { useState, useMemo } from 'react';
 import * as XLSX from 'xlsx';
 import { ImportEngine, ImportMode, DetectedTable } from '../utils/ImportEngine';
-import { InventoryItem, MovementRecord, RiskFlags } from '../types';
-import { InventoryService } from '../services/InventoryService';
+import { InventoryItem, MovementRecord, RiskFlags, ImportResult } from '../types';
+import { ImportService } from '../services/ImportService';
 import { generateInventoryId, generateHash } from '../utils/stringUtils'; 
 import { useAlert } from '../context/AlertContext';
 import { Modal } from './ui/Modal';
@@ -16,6 +16,9 @@ interface Props {
   onClose: () => void;
   mode: ImportMode;
 }
+
+// Estados visuais da pipeline
+type ProcessingStage = 'IDLE' | 'PARSING' | 'HASHING' | 'MERGING' | 'COMMITTING' | 'DONE';
 
 export const ImportWizard: React.FC<Props> = ({ isOpen, onClose, mode }) => {
   const { addToast } = useAlert();
@@ -34,14 +37,15 @@ export const ImportWizard: React.FC<Props> = ({ isOpen, onClose, mode }) => {
   const [mapping, setMapping] = useState<Record<string, string>>({});
   const [confidences, setConfidences] = useState<Record<string, number>>({});
   
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [progress, setProgress] = useState(0);
+  const [stage, setStage] = useState<ProcessingStage>('IDLE');
   const [detectedRowIndex, setDetectedRowIndex] = useState(0);
   
   const [showErrorsOnly, setShowErrorsOnly] = useState(false);
   const [updateStockBalance, setUpdateStockBalance] = useState(false);
   
   const [replaceMode, setReplaceMode] = useState(false);
+  
+  const [importStats, setImportStats] = useState<ImportResult | null>(null);
 
   React.useEffect(() => {
     if (isOpen) {
@@ -62,10 +66,10 @@ export const ImportWizard: React.FC<Props> = ({ isOpen, onClose, mode }) => {
       setHeaders([]);
       setMapping({});
       setConfidences({});
-      setProgress(0);
-      setIsProcessing(false);
+      setStage('IDLE');
       setDetectedRowIndex(0);
       setShowErrorsOnly(false);
+      setImportStats(null);
   };
 
   const analyzeSheet = (wb: XLSX.WorkBook, sheetName: string) => {
@@ -192,31 +196,38 @@ export const ImportWizard: React.FC<Props> = ({ isOpen, onClose, mode }) => {
       return previewData.slice(0, 100); 
   }, [previewData, showErrorsOnly]);
 
-  const handleImport = async () => {
+  const runPipeline = async () => {
       if (stats.valid === 0) {
           addToast('Importação Bloqueada', 'error', 'Não há registros válidos.');
           return;
       }
 
-      setIsProcessing(true);
-      setProgress(10);
-      
-      setTimeout(async () => {
-        try {
+      try {
+            // ETAPA 1: PARSING
+            setStage('PARSING');
+            await new Promise(r => setTimeout(r, 400)); // UI delay
             const validRows = previewData.filter(r => r.isValid).map(r => r.data);
-            setProgress(30);
-
+            
+            // ETAPA 2: HASHING & DEDUPLICAÇÃO
+            setStage('HASHING');
+            await new Promise(r => setTimeout(r, 400));
+            
             if (mode === 'MASTER') {
                 const itemsToSave: InventoryItem[] = [];
                 const initialHistoryRecords: MovementRecord[] = [];
                 const processedIds = new Set();
 
                 validRows.forEach((d) => {
+                    // USO DE ID DETERMINÍSTICO PARA PERMITIR SMART MERGE
                     const id = generateInventoryId(d.sapCode, d.name, d.lotNumber);
+                    
                     if (processedIds.has(id)) return; 
                     processedIds.add(id);
 
-                    const initialQty = Number(d.quantity) || 0;
+                    // REGRA DE NEGÓCIO: Dados mestres importados via planilha começam com Qtd 0 na definição.
+                    // A quantidade que veio na planilha (se houver) é usada para criar um registro de Histórico de Entrada.
+                    const qtyFromSheet = Number(d.quantity) || 0;
+                    
                     const finalRisks: RiskFlags = d.risks || { O: false, T: false, T_PLUS: false, C: false, E: false, N: false, Xn: false, Xi: false, F: false, F_PLUS: false };
 
                     itemsToSave.push({
@@ -224,7 +235,8 @@ export const ImportWizard: React.FC<Props> = ({ isOpen, onClose, mode }) => {
                         name: d.name || 'Produto Importado',
                         sapCode: d.sapCode || '',
                         lotNumber: d.lotNumber || 'GEN',
-                        quantity: initialQty,
+                        // FORÇA ZERO NA DEFINIÇÃO MESTRA (Solicitado)
+                        quantity: 0, 
                         baseUnit: d.baseUnit || 'UN',
                         category: d.category || 'Geral',
                         expiryDate: d.expiryDate || '',
@@ -241,12 +253,14 @@ export const ImportWizard: React.FC<Props> = ({ isOpen, onClose, mode }) => {
                         dateAcquired: new Date().toISOString(),
                         unitCost: 0,
                         currency: 'BRL',
+                        // IDs relacionais também determinísticos
                         batchId: `BAT-${id}`,
                         catalogId: `CAT-${id}`
                     });
 
-                    if (initialQty > 0) {
-                        const histHash = generateHash(`INIT-${id}-${initialQty}-${d.date || ''}`);
+                    // Se a planilha tinha quantidade, criamos o histórico de carga inicial
+                    if (qtyFromSheet > 0) {
+                        const histHash = generateHash(`INIT-${id}-${qtyFromSheet}-${d.date || ''}`);
                         initialHistoryRecords.push({
                             id: `INIT-${histHash}`,
                             itemId: id,
@@ -255,7 +269,7 @@ export const ImportWizard: React.FC<Props> = ({ isOpen, onClose, mode }) => {
                             productName: d.name,
                             sapCode: d.sapCode || '',
                             lot: d.lotNumber || 'GEN',
-                            quantity: initialQty,
+                            quantity: qtyFromSheet,
                             unit: d.baseUnit || 'UN',
                             location_warehouse: d.warehouse || 'Central',
                             supplier: d.supplier,
@@ -264,13 +278,24 @@ export const ImportWizard: React.FC<Props> = ({ isOpen, onClose, mode }) => {
                     }
                 });
 
-                await InventoryService.importBulk(itemsToSave, replaceMode);
-                
+                // ETAPA 3: MERGING & PERSISTÊNCIA
+                setStage('MERGING');
+                const result = await ImportService.importBulk(itemsToSave, replaceMode);
+                setImportStats(result);
+
                 if (initialHistoryRecords.length > 0) {
-                    await InventoryService.importHistoryBulk(initialHistoryRecords, false);
+                    await ImportService.importHistoryBulk(initialHistoryRecords, true);
+                    
+                    // Dispara auditoria rápida para alinhar o saldo V1 com o histórico V2 recém criado
+                    // ImportService não tem acesso ao InventoryService (para evitar circular), 
+                    // mas o importHistoryBulk deve cuidar da persistência V2.
+                    // Para garantir V1 correto, o ideal é que a auditoria seja chamada pelo consumidor (Settings.tsx)
+                    // ou que ImportService.importBulk já considere isso. 
+                    // Neste caso, deixaremos o hook de UI do usuário (ex: Settings) rodar a auditoria se necessário.
                 }
 
             } else {
+                setStage('MERGING');
                 const historyToSave: MovementRecord[] = validRows.map(d => {
                     const uniqueString = `${d.date}-${d.type}-${d.productName}-${d.lotNumber}-${d.quantity}`;
                     const hashId = generateHash(uniqueString);
@@ -291,24 +316,41 @@ export const ImportWizard: React.FC<Props> = ({ isOpen, onClose, mode }) => {
                     };
                 });
                 
-                await InventoryService.importHistoryBulk(historyToSave, updateStockBalance);
+                setStage('COMMITTING');
+                await ImportService.importHistoryBulk(historyToSave, updateStockBalance);
+                setImportStats({ created: historyToSave.length, updated: 0, total: historyToSave.length, ignored: 0 });
             }
-            setProgress(100);
-            setTimeout(() => {
-                addToast('Sucesso', 'success', `Importação finalizada. ${validRows.length} registros processados.`);
-                onClose();
-            }, 800);
-        } catch (e) {
+            
+            setStage('DONE');
+            
+      } catch (e) {
             console.error(e);
             addToast('Erro', 'error', 'Falha na importação.');
-            setIsProcessing(false);
-        }
-      }, 100);
+            setStage('IDLE');
+      }
   };
 
   const isSheetSelection = !!workbook && availableSheets.length > 1 && detectedTables.length === 0;
   const isTableSelection = detectedTables.length > 1;
   const isUpload = !workbook;
+
+  // --- UI Components ---
+  
+  const StageIndicator = ({ current, target, label, icon }: { current: ProcessingStage, target: ProcessingStage, label: string, icon: string }) => {
+      const isActive = current === target;
+      const isDone = ['DONE', 'COMMITTING', 'MERGING', 'HASHING', 'PARSING'].indexOf(current) > ['DONE', 'COMMITTING', 'MERGING', 'HASHING', 'PARSING'].indexOf(target);
+      
+      let colorClass = "text-gray-400 border-gray-200 bg-gray-50";
+      if (isActive) colorClass = "text-primary border-primary bg-primary/10 animate-pulse";
+      if (isDone) colorClass = "text-green-600 border-green-500 bg-green-50";
+
+      return (
+          <div className={`flex flex-col items-center gap-2 p-3 rounded-lg border-2 ${colorClass} transition-all w-32`}>
+              <span className="material-symbols-outlined text-2xl">{isDone ? 'check_circle' : icon}</span>
+              <span className="text-xs font-bold uppercase">{label}</span>
+          </div>
+      );
+  };
 
   return (
     <Modal 
@@ -339,11 +381,11 @@ export const ImportWizard: React.FC<Props> = ({ isOpen, onClose, mode }) => {
                     <span className="text-sm font-medium">Mapear</span>
                     <div className="w-12 h-1 bg-gray-200 rounded-full overflow-hidden"><div className={`h-full bg-primary transition-all duration-500 ${step > 2 ? 'w-full' : 'w-0'}`}></div></div>
                     <div className={`size-8 rounded-full flex items-center justify-center text-sm font-bold ${step >= 3 ? 'bg-primary text-white' : 'bg-gray-200 text-gray-500'}`}>3</div>
-                    <span className="text-sm font-medium">Validar</span>
+                    <span className="text-sm font-medium">Processar</span>
                  </div>
             </div>
 
-            {/* Container de Conteúdo com Scroll Próprio */}
+            {/* Container de Conteúdo */}
             <div className="flex-1 overflow-hidden flex flex-col p-6 bg-background-light dark:bg-background-dark">
                 {step === 1 && (
                     <div className="h-full flex flex-col items-center justify-center overflow-y-auto">
@@ -470,102 +512,147 @@ export const ImportWizard: React.FC<Props> = ({ isOpen, onClose, mode }) => {
                 )}
 
                 {step === 3 && (
-                    <div className="flex flex-col h-full gap-4 overflow-hidden">
-                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 shrink-0">
-                            <MetricCard title="Registros Totais" icon="table_rows" value={stats.total} className="border-l-4 border-l-primary" variant="primary" />
-                            <MetricCard title="Válidos" icon="check_circle" value={stats.valid} className="border-l-4 border-l-success" variant="success" />
-                            <MetricCard title="Erros" icon="warning" value={stats.error} className="border-l-4 border-l-danger bg-danger-bg/20" variant="danger" />
-                        </div>
-                        
-                        <div className="bg-slate-50 dark:bg-slate-800 p-4 rounded-lg border border-border-light dark:border-gray-700 flex flex-col gap-3 shrink-0">
-                            <h4 className="text-sm font-bold text-text-main dark:text-white mb-1">Configurações de Importação</h4>
-                            
-                            {mode === 'MASTER' && (
-                                <div className="flex items-start gap-3">
-                                    <input 
-                                        type="checkbox" 
-                                        id="replaceMode" 
-                                        checked={replaceMode} 
-                                        onChange={e => setReplaceMode(e.target.checked)}
-                                        className="mt-1 rounded text-danger focus:ring-danger border-gray-300 cursor-pointer"
-                                    />
-                                    <label htmlFor="replaceMode" className="cursor-pointer">
-                                        <span className="text-sm font-bold text-danger dark:text-red-400">Modo de Substituição (Wipe & Load)</span>
-                                        <p className="text-xs text-text-secondary dark:text-gray-400">
-                                            Atenção: Isso apagará TODOS os itens atuais do banco de dados e os substituirá pelos dados desta planilha.
-                                        </p>
-                                    </label>
+                    <div className="flex flex-col h-full gap-6 items-center justify-center overflow-hidden relative">
+                        {/* VISUAL PIPELINE */}
+                        {stage !== 'IDLE' && stage !== 'DONE' && (
+                            <div className="flex items-center gap-4 animate-fade-in absolute inset-0 z-50 bg-white/90 dark:bg-slate-900/90 flex-col justify-center">
+                                <h3 className="text-2xl font-bold text-primary mb-8">Processando Dados...</h3>
+                                <div className="flex gap-4">
+                                    <StageIndicator current={stage} target="PARSING" label="Lendo Arquivo" icon="file_open" />
+                                    <div className="h-1 w-8 bg-gray-200 self-center"></div>
+                                    <StageIndicator current={stage} target="HASHING" label="Gerando IDs" icon="fingerprint" />
+                                    <div className="h-1 w-8 bg-gray-200 self-center"></div>
+                                    <StageIndicator current={stage} target="MERGING" label="Smart Merge" icon="merge_type" />
+                                    <div className="h-1 w-8 bg-gray-200 self-center"></div>
+                                    <StageIndicator current={stage} target="COMMITTING" label="Salvando" icon="save" />
                                 </div>
-                            )}
-
-                            {mode === 'HISTORY' && (
-                                <div className="flex items-start gap-3">
-                                    <input 
-                                        type="checkbox" 
-                                        id="updateStock" 
-                                        checked={updateStockBalance} 
-                                        onChange={e => setUpdateStockBalance(e.target.checked)}
-                                        className="mt-1 rounded text-primary focus:ring-primary border-gray-300 cursor-pointer"
-                                    />
-                                    <label htmlFor="updateStock" className="cursor-pointer">
-                                        <span className="text-sm font-bold text-text-main dark:text-white">Atualizar Saldo de Estoque</span>
-                                        <p className="text-xs text-text-secondary dark:text-gray-400">
-                                            Recalcula o saldo dos itens baseado nas entradas/saídas deste histórico.
-                                        </p>
-                                    </label>
-                                </div>
-                            )}
-                        </div>
-
-                        <div className="flex-1 overflow-hidden border border-border-light dark:border-gray-700 rounded-lg bg-white dark:bg-slate-800 shadow-inner relative flex flex-col">
-                            {/* Toggle Errors Overlay */}
-                            <div className="absolute top-2 right-2 z-20">
-                                <button 
-                                    onClick={() => setShowErrorsOnly(!showErrorsOnly)}
-                                    className={`text-xs px-3 py-1.5 rounded-full font-bold shadow-sm transition-all ${showErrorsOnly ? 'bg-red-500 text-white' : 'bg-white text-text-secondary border'}`}
-                                >
-                                    {showErrorsOnly ? 'Mostrando Apenas Erros' : 'Mostrar Erros'}
-                                </button>
                             </div>
+                        )}
 
-                            <div className="flex-1 overflow-auto custom-scrollbar">
-                                <table className="w-full text-left text-xs whitespace-nowrap text-gray-700 dark:text-gray-300">
-                                    <thead className="bg-gray-50 dark:bg-slate-900 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-10 shadow-sm">
-                                        <tr>
-                                            <th className="px-4 py-3 font-bold w-24 bg-gray-50 dark:bg-slate-900">Status</th>
-                                            {schema.map(f => <th key={f.key} className="px-4 py-3 font-bold bg-gray-50 dark:bg-slate-900">{f.label}</th>)}
-                                        </tr>
-                                    </thead>
-                                    <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
-                                        {displayedData.map((row, i) => (
-                                            <tr key={i} className={!row.isValid ? 'bg-red-50 dark:bg-red-900/10' : ''}>
-                                                <td className="px-4 py-2">
-                                                    {row.isValid ? (
-                                                        <span className="text-green-600 font-bold flex items-center gap-1"><span className="material-symbols-outlined text-[14px]">check</span> OK</span>
-                                                    ) : (
-                                                        <div className="flex flex-col">
-                                                            <span className="text-red-600 font-bold flex items-center gap-1"><span className="material-symbols-outlined text-[14px]">error</span> Erro</span>
-                                                            <span className="text-[10px] text-red-500 truncate max-w-[100px]" title={row.errors.join(', ')}>{row.errors[0]}</span>
-                                                        </div>
-                                                    )}
-                                                </td>
-                                                {schema.map(f => (
-                                                    <td key={f.key} className="px-4 py-2 max-w-[150px] truncate" title={String(row.data[f.key])}>
-                                                        {String(row.data[f.key] || '')}
-                                                    </td>
+                        {stage === 'DONE' && importStats ? (
+                            <div className="w-full max-w-3xl flex flex-col gap-6 animate-scale-in">
+                                <div className="text-center">
+                                    <div className="inline-flex p-4 rounded-full bg-green-100 text-green-600 mb-4">
+                                        <span className="material-symbols-outlined text-4xl">check_circle</span>
+                                    </div>
+                                    <h2 className="text-2xl font-bold text-text-main dark:text-white">Importação Concluída!</h2>
+                                    <p className="text-text-secondary dark:text-gray-400">O banco de dados foi atualizado com sucesso.</p>
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-4">
+                                    <MetricCard title="Novos Itens" icon="add_circle" value={importStats.created} variant="success" className="bg-green-50" />
+                                    <MetricCard title="Atualizados (Merge)" icon="update" value={importStats.updated} variant="info" className="bg-blue-50" />
+                                </div>
+                                
+                                <div className="flex justify-center mt-4">
+                                    <Button onClick={onClose} variant="primary" size="lg">Voltar ao Inventário</Button>
+                                </div>
+                            </div>
+                        ) : (
+                            /* CONFIGURAÇÃO PRE-IMPORT */
+                            <div className="w-full h-full flex flex-col gap-4">
+                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 shrink-0">
+                                    <MetricCard title="Total Detectado" icon="table_rows" value={stats.total} className="border-l-4 border-l-primary" variant="primary" />
+                                    <MetricCard title="Registros Válidos" icon="check_circle" value={stats.valid} className="border-l-4 border-l-success" variant="success" />
+                                    <MetricCard title="Erros de Validação" icon="warning" value={stats.error} className="border-l-4 border-l-danger bg-danger-bg/20" variant="danger" />
+                                </div>
+                                
+                                <div className="bg-slate-50 dark:bg-slate-800 p-6 rounded-lg border border-border-light dark:border-gray-700 flex flex-col gap-4 shrink-0">
+                                    <h4 className="text-lg font-bold text-text-main dark:text-white mb-1">Estratégia de Importação</h4>
+                                    
+                                    {mode === 'MASTER' && (
+                                        <div className="flex flex-col gap-3">
+                                             <label className={`flex items-start gap-3 p-3 rounded-lg border-2 cursor-pointer transition-all ${!replaceMode ? 'border-primary bg-primary/5' : 'border-transparent hover:bg-gray-100 dark:hover:bg-slate-700'}`}>
+                                                <input type="radio" checked={!replaceMode} onChange={() => setReplaceMode(false)} className="mt-1 text-primary focus:ring-primary" />
+                                                <div>
+                                                    <span className="font-bold text-text-main dark:text-white block">Smart Merge (Recomendado)</span>
+                                                    <span className="text-xs text-text-secondary dark:text-gray-400">
+                                                        Atualiza o saldo de itens existentes e cria novos. Mantém dados enriquecidos manualmente (Fórmulas, Riscos) intactos.
+                                                    </span>
+                                                </div>
+                                            </label>
+
+                                            <label className={`flex items-start gap-3 p-3 rounded-lg border-2 cursor-pointer transition-all ${replaceMode ? 'border-red-500 bg-red-50 dark:bg-red-900/20' : 'border-transparent hover:bg-gray-100 dark:hover:bg-slate-700'}`}>
+                                                <input type="radio" checked={replaceMode} onChange={() => setReplaceMode(true)} className="mt-1 text-red-600 focus:ring-red-500" />
+                                                <div>
+                                                    <span className="font-bold text-red-700 dark:text-red-300 block">Substituição Total (Wipe & Load)</span>
+                                                    <span className="text-xs text-text-secondary dark:text-gray-400">
+                                                        APAGA todo o banco de dados atual antes de importar. Use apenas para recarga completa do sistema.
+                                                    </span>
+                                                </div>
+                                            </label>
+                                        </div>
+                                    )}
+
+                                    {mode === 'HISTORY' && (
+                                        <div className="flex items-start gap-3">
+                                            <input 
+                                                type="checkbox" 
+                                                id="updateStock" 
+                                                checked={updateStockBalance} 
+                                                onChange={e => setUpdateStockBalance(e.target.checked)}
+                                                className="mt-1 rounded text-primary focus:ring-primary border-gray-300 cursor-pointer"
+                                            />
+                                            <label htmlFor="updateStock" className="cursor-pointer">
+                                                <span className="text-sm font-bold text-text-main dark:text-white">Atualizar Saldo de Estoque</span>
+                                                <p className="text-xs text-text-secondary dark:text-gray-400">
+                                                    Recalcula o saldo dos itens baseado nas entradas/saídas deste histórico.
+                                                </p>
+                                            </label>
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* Preview Data Grid */}
+                                <div className="flex-1 overflow-hidden border border-border-light dark:border-gray-700 rounded-lg bg-white dark:bg-slate-800 shadow-inner relative flex flex-col">
+                                    <div className="absolute top-2 right-2 z-20">
+                                        <button 
+                                            onClick={() => setShowErrorsOnly(!showErrorsOnly)}
+                                            className={`text-xs px-3 py-1.5 rounded-full font-bold shadow-sm transition-all ${showErrorsOnly ? 'bg-red-500 text-white' : 'bg-white text-text-secondary border'}`}
+                                        >
+                                            {showErrorsOnly ? 'Mostrando Apenas Erros' : 'Mostrar Erros'}
+                                        </button>
+                                    </div>
+                                    <div className="flex-1 overflow-auto custom-scrollbar">
+                                        <table className="w-full text-left text-xs whitespace-nowrap text-gray-700 dark:text-gray-300">
+                                            <thead className="bg-gray-50 dark:bg-slate-900 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-10 shadow-sm">
+                                                <tr>
+                                                    <th className="px-4 py-3 font-bold w-24 bg-gray-50 dark:bg-slate-900">Status</th>
+                                                    {schema.map(f => <th key={f.key} className="px-4 py-3 font-bold bg-gray-50 dark:bg-slate-900">{f.label}</th>)}
+                                                </tr>
+                                            </thead>
+                                            <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
+                                                {displayedData.map((row, i) => (
+                                                    <tr key={i} className={!row.isValid ? 'bg-red-50 dark:bg-red-900/10' : ''}>
+                                                        <td className="px-4 py-2">
+                                                            {row.isValid ? (
+                                                                <span className="text-green-600 font-bold flex items-center gap-1"><span className="material-symbols-outlined text-[14px]">check</span> OK</span>
+                                                            ) : (
+                                                                <div className="flex flex-col">
+                                                                    <span className="text-red-600 font-bold flex items-center gap-1"><span className="material-symbols-outlined text-[14px]">error</span> Erro</span>
+                                                                    <span className="text-[10px] text-red-500 truncate max-w-[100px]" title={row.errors.join(', ')}>{row.errors[0]}</span>
+                                                                </div>
+                                                            )}
+                                                        </td>
+                                                        {schema.map(f => (
+                                                            <td key={f.key} className="px-4 py-2 max-w-[150px] truncate" title={String(row.data[f.key])}>
+                                                                {String(row.data[f.key] || '')}
+                                                            </td>
+                                                        ))}
+                                                    </tr>
                                                 ))}
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
+                        )}
                     </div>
                 )}
             </div>
 
             <div className="px-6 py-4 border-t border-border-light dark:border-border-dark bg-white dark:bg-surface-dark flex justify-between flex-shrink-0">
-                {step > 1 ? (
+                {step > 1 && stage === 'IDLE' ? (
                      <button onClick={() => setStep(step - 1)} className="px-4 py-2 text-text-secondary dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-700 rounded-lg font-bold text-sm transition-colors">Voltar</button>
                 ) : <div></div>}
                 
@@ -579,14 +666,15 @@ export const ImportWizard: React.FC<Props> = ({ isOpen, onClose, mode }) => {
                     </button>
                 )}
                 
-                {step === 3 && (
+                {step === 3 && stage === 'IDLE' && (
                     <div className="flex items-center gap-4">
                         <button 
-                            onClick={handleImport}
-                            disabled={isProcessing || stats.valid === 0}
+                            onClick={runPipeline}
+                            disabled={stats.valid === 0}
                             className={`px-6 py-2 text-white rounded-lg font-bold text-sm transition-colors flex items-center gap-2 shadow-md disabled:opacity-50 disabled:cursor-not-allowed ${replaceMode ? 'bg-red-600 hover:bg-red-700' : 'bg-success hover:bg-emerald-600'}`}
                         >
-                            {isProcessing ? 'Importando...' : replaceMode ? `SUBSTITUIR ${stats.valid} Itens` : `Importar ${stats.valid} Itens`}
+                            <span className="material-symbols-outlined text-[18px]">play_arrow</span>
+                            {replaceMode ? 'Iniciar Substituição' : 'Iniciar Importação'}
                         </button>
                     </div>
                 )}

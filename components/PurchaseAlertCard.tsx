@@ -10,7 +10,7 @@ interface Props {
     reason: 'LOW_STOCK' | 'EXPIRING' | 'MANUAL';
 }
 
-export const PurchaseAlertCard: React.FC<Props> = ({ item, onAdd, reason }) => {
+export const PurchaseAlertCard: React.FC<Props> = React.memo(({ item, onAdd, reason }) => {
     
     const config = useMemo(() => {
         if (item.quantity === 0) {
@@ -38,7 +38,7 @@ export const PurchaseAlertCard: React.FC<Props> = ({ item, onAdd, reason }) => {
             badge: 'Crítico',
             badgeColor: undefined // Uses default danger scheme colors from Card
         };
-    }, [item, reason]);
+    }, [item.quantity, item.expiryDate, reason]);
 
     return (
         <Card
@@ -70,4 +70,4 @@ export const PurchaseAlertCard: React.FC<Props> = ({ item, onAdd, reason }) => {
             </div>
         </Card>
     );
-};
+});

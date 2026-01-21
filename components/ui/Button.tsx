@@ -1,3 +1,4 @@
+
 import React, { ButtonHTMLAttributes } from 'react';
 
 type ButtonVariant = 'primary' | 'secondary' | 'success' | 'danger' | 'ghost' | 'outline' | 'white' | 'warning' | 'info';
@@ -22,7 +23,7 @@ export const Button: React.FC<ButtonProps> = ({
     fullWidth = false,
     ...props 
 }) => {
-    // Base Styles - Polaris/System Consistent
+    // Base Styles - Updated border radius to rounded-lg per Stitch design
     const baseStyles = `
         relative inline-flex items-center justify-center 
         font-semibold transition-all duration-200 
@@ -32,66 +33,52 @@ export const Button: React.FC<ButtonProps> = ({
         ${fullWidth ? 'w-full' : ''}
     `;
     
+    // Variantes
     const variants = {
-        // Primary: Brand Color (#903A40) - High Emphasis
         primary: `
-            bg-[#903A40] text-white border border-transparent 
-            hover:bg-[#732e33] 
-            shadow-[0_1px_0_rgba(0,0,0,0.05)] shadow-sm 
-            focus:ring-[#903A40] dark:focus:ring-offset-gray-900
+            bg-primary text-white border border-transparent 
+            hover:bg-primary-hover 
+            shadow-sm hover:shadow-md
+            focus:ring-primary dark:focus:ring-offset-gray-900
         `,
-        
-        // Secondary: Brand Accent (#6797A1)
         secondary: `
-            bg-[#6797A1] text-white border border-transparent 
-            hover:bg-[#547D85] 
-            shadow-[0_1px_0_rgba(0,0,0,0.05)] shadow-sm 
-            focus:ring-[#6797A1] dark:focus:ring-offset-gray-900
+            bg-secondary text-white border border-transparent 
+            hover:bg-secondary-hover 
+            shadow-sm 
+            focus:ring-secondary dark:focus:ring-offset-gray-900
         `,
-        
-        // Success: Green
         success: `
-            bg-emerald-600 text-white border border-transparent 
+            bg-success text-white border border-transparent 
             hover:bg-emerald-700 
             shadow-sm 
-            focus:ring-emerald-500
+            focus:ring-success
         `,
-        
-        // Danger: Red
         danger: `
-            bg-red-600 text-white border border-transparent 
+            bg-danger text-white border border-transparent 
             hover:bg-red-700 
             shadow-sm 
-            focus:ring-red-500
+            focus:ring-danger
         `,
-        
-        // Warning: Amber
         warning: `
-            bg-amber-500 text-white border border-transparent 
+            bg-warning text-white border border-transparent 
             hover:bg-amber-600 
             shadow-sm 
-            focus:ring-amber-500
+            focus:ring-warning
         `,
-
-        // Info: Blue
         info: `
-            bg-blue-600 text-white border border-transparent 
+            bg-info text-white border border-transparent 
             hover:bg-blue-700 
             shadow-sm 
-            focus:ring-blue-500
+            focus:ring-info
         `,
-        
-        // White/Surface: Standard Secondary Action (Polaris style)
         white: `
             bg-white dark:bg-surface-dark 
             text-text-main dark:text-white 
             border border-border-light dark:border-border-dark 
-            hover:bg-slate-50 dark:hover:bg-slate-700 
-            shadow-sm 
+            hover:bg-slate-50 dark:hover:bg-slate-800 
+            shadow-sm hover:shadow 
             focus:ring-slate-200 dark:focus:ring-slate-600
         `,
-        
-        // Outline: Primary colored border
         outline: `
             bg-transparent 
             text-primary 
@@ -99,8 +86,6 @@ export const Button: React.FC<ButtonProps> = ({
             hover:bg-primary/5 
             focus:ring-primary
         `,
-        
-        // Ghost: Low emphasis, no border
         ghost: `
             bg-transparent 
             text-text-secondary dark:text-slate-400 
@@ -112,9 +97,9 @@ export const Button: React.FC<ButtonProps> = ({
     };
 
     const sizes = {
-        sm: "h-7 px-3 text-xs gap-1.5", // Compact
-        md: "h-9 px-4 text-sm gap-2",   // Standard (36px)
-        lg: "h-11 px-6 text-base gap-2.5" // Large (44px)
+        sm: "h-8 px-3 text-xs gap-1.5", // Slightly taller for better touch targets
+        md: "h-10 px-4 text-sm gap-2", 
+        lg: "h-12 px-6 text-base gap-2.5"
     };
 
     return (

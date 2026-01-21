@@ -1,4 +1,3 @@
-
 import { Table } from 'dexie';
 import { InventoryItem, MovementRecord, StockBalance } from '../types';
 
@@ -28,10 +27,6 @@ class HybridTableWrapper<T, TKey> {
   invalidate() {
       this._memoryCache = null;
       this.notifyChange();
-  }
-
-  get memoryCache(): T[] | null {
-      return this._memoryCache;
   }
 
   // Otimização: Atualiza memória imediatamente para UI responsiva
@@ -92,6 +87,14 @@ class HybridTableWrapper<T, TKey> {
       return this._memoryCache.find((i: any) => i[this.primaryKeyField] === key);
     }
     return await this.dexieTable.get(key);
+  }
+
+  async bulkGet(keys: TKey[]): Promise<(T | undefined)[]> {
+    if (this._memoryCache) {
+        const map = new Map(this._memoryCache.map((i: any) => [i[this.primaryKeyField], i]));
+        return keys.map(key => map.get(key));
+    }
+    return await this.dexieTable.bulkGet(keys);
   }
 
   async toArray(): Promise<T[]> {

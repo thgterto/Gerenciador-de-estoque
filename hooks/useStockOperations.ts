@@ -1,6 +1,7 @@
 
 import { useCallback } from 'react';
 import { InventoryService } from '../services/InventoryService';
+import { ImportService } from '../services/ImportService';
 import { InventoryItem } from '../types';
 import { useAlert } from '../context/AlertContext';
 import * as XLSX from 'xlsx';
@@ -116,7 +117,7 @@ export const useStockOperations = () => {
                         };
                     });
 
-                    await InventoryService.importBulk(newItems);
+                    await ImportService.importBulk(newItems);
                     addToast('Importação Concluída', 'success', `${newItems.length} itens importados.`);
                     resolve();
                 } catch (error) {

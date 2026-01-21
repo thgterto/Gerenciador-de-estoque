@@ -1,12 +1,12 @@
 
 # Plano de Projeto & Roadmap (Agile)
 
-Este documento rastrea o progresso do desenvolvimento do LabControl rumo à arquitetura V2 completa e funcionalidades avançadas de Gestão.
+Este documento rastreia o progresso do desenvolvimento do LabControl rumo à arquitetura V2 completa e funcionalidades avançadas de Gestão.
 
 ## 📊 Status Geral
-*   **Versão Atual:** 1.8.1
-*   **Fase Atual:** Milestone 2 (UX & Refinamento)
-*   **Próxima Release:** 1.9.0 (Previsão: Q4 2025)
+*   **Versão Atual:** 1.8.2
+*   **Fase Atual:** Milestone 3 (Mobile & Field Ops)
+*   **Próxima Release Principal:** 1.9.0 (Previsão: Q3 2025)
 
 ---
 
@@ -18,26 +18,27 @@ Este documento rastrea o progresso do desenvolvimento do LabControl rumo à arqu
 *   [x] Modelar Schema V2 (`catalog`, `batches`, `balances`).
 *   [x] Migração Automática V1 -> V2 no boot.
 *   [x] Ferramenta de Auditoria de Ledger (`runLedgerAudit`).
-*   [x] Suporte a "Ghost Items" para importação de legado.
 
-### ✅ Milestone 2: Motor de Importação & Refinamento (CONCLUÍDO)
-*Objetivo: Facilitar a migração de dados e melhorar a usabilidade diária.*
-*   [x] **Import Wizard:** Detecção inteligente de tabelas e mapeamento de colunas.
-*   [x] **Smart Merge:** Normalização automática de dados planos para relacionais durante importação.
-*   [x] **Quick Actions:** Botões de ação (Scan, CAS, Lote) integrados aos inputs de formulário.
-*   [x] **Tipagem Estrita:** Refinamento de tipos TypeScript em componentes críticos e correções para React 19 (ErrorBoundary).
+### ✅ Milestone 2: Motor de Importação & Migração (CONCLUÍDO)
+*Objetivo: Facilitar a carga de dados legados e planilhas externas.*
+*   [x] **Import Wizard Inteligente:** Detecção de tabelas e mapeamento via Regex.
+*   [x] **Smart Merge:** Atualização não-destrutiva de saldos (V1) mantendo dados ricos (V2).
+*   [x] **Suporte GHS:** Mapeamento automático de colunas de risco (O, T, T+, C, E, etc.).
+*   [x] **IDs Determinísticos:** Uso de Hashing para evitar duplicação de histórico em re-importações.
 
-### 🚧 Milestone 3: Mobile & Operação em Campo (EM PLANEJAMENTO)
-*Objetivo: Facilitar o uso em tablets e celulares dentro do laboratório.*
-*   [ ] **Issue #201 - Scanner Nativo:** Melhorar a performance do leitor de QR Code para uso contínuo (modo "Inventário Rápido").
-*   [ ] **Issue #202 - Modo Offline Robusto:** Garantir que transações sejam enfileiradas (`SyncQueue`) se a conexão cair (embora seja local, útil para PWA sync futuro).
-*   [ ] **Issue #203 - UI Responsiva:** Adaptar a `InventoryTable` para cards empilhados em telas < 768px.
+### 🚧 Milestone 3: Mobile & Operação em Campo (EM ANDAMENTO)
+*Objetivo: Otimizar o uso em tablets e celulares dentro do laboratório (PWA).*
+*   [ ] **Scanner Nativo Otimizado:** Melhorar a UX do `QuickScanModal` para leitura contínua (modo "Caixa de Supermercado").
+*   [ ] **Ações de Deslizar (Swipe):** Implementar gestos nas listas mobile para Editar/Mover rapidamente.
+*   [ ] **Modo Offline Robusto:** Implementar `SyncQueue` para enfileirar transações caso a conexão caia durante o uso em zonas mortas do laboratório.
+*   [ ] **Responsividade Avançada:** Refinar o layout da `StorageMatrix` para telas pequenas.
 
 ### 📅 Milestone 4: Relatórios & Compliance (FUTURO)
-*Objetivo: Atender requisitos legais (Polícia Federal/Anvisa).*
-*   [ ] **Issue #301 - Mapa de Mapa de Produtos Controlados:** Relatório mensal automático somando entradas e saídas de itens com flag `isControlled`.
-*   [ ] **Issue #302 - Curva ABC:** Dashboard de inteligência de consumo.
-*   [ ] **Issue #303 - Certificados:** Upload e anexo de PDFs (Laudos/CoAs) aos lotes V2.
+*Objetivo: Atender requisitos legais (Polícia Federal/Anvisa) e Inteligência de Negócio.*
+*   [ ] **Relatório de Controlados:** Mapa automático de entradas e saídas de itens com flag `isControlled` (já preparado no backend).
+*   [ ] **Análise de Custo:** Dashboard financeiro detalhado (Custo Médio, Valor em Estoque por Local).
+*   [ ] **Certificados Digitais:** Upload e anexo de PDFs (Laudos/CoAs) aos lotes V2.
+*   [ ] **Trilha de Auditoria Exportável:** Gerar PDF imutável com o log de ações do sistema.
 
 ---
 
@@ -47,3 +48,4 @@ Uma tarefa só é considerada pronta quando:
 2.  A funcionalidade persiste dados corretamente nas tabelas V2 (Ledger).
 3.  A UI reflete a alteração instantaneamente (Optimistic UI).
 4.  Não há regressão na performance de renderização da lista principal.
+5.  A funcionalidade opera 100% offline.

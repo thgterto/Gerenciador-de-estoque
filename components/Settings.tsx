@@ -1,7 +1,10 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { db } from '../db';
 import { InventoryService } from '../services/InventoryService';
+import { ImportService } from '../services/ImportService';
 import { GoogleSheetsService } from '../services/GoogleSheetsService';
+import { seedDatabase } from '../services/DatabaseSeeder'; 
 import { GOOGLE_CONFIG } from '../config/apiConfig';
 import { useAlert } from '../context/AlertContext';
 import { useAuth } from '../context/AuthContext';
@@ -13,6 +16,7 @@ import { Button } from './ui/Button';
 import { Modal } from './ui/Modal'; 
 import { PageContainer } from './ui/PageContainer'; 
 import { Input } from './ui/Input';
+import { ExportEngine } from '../utils/ExportEngine';
 
 export const Settings: React.FC = () => {
     const { addToast } = useAlert();
@@ -20,31 +24,23 @@ export const Settings: React.FC = () => {
     const { theme, toggleTheme } = useTheme();
     const [loading, setLoading] = useState(false);
     
-    // Cloud Settings (Google Sheets)
     const [googleUrl, setGoogleUrl] = useState('');
     const [isCloudConnected, setIsCloudConnected] = useState(false);
 
-    // Enrichment State
     const [enriching, setEnriching] = useState(false);
     const [enrichProgress, setEnrichProgress] = useState(0);
     const [enrichTotal, setEnrichTotal] = useState(0);
     
-    // Wizard State
     const [wizardOpen, setWizardOpen] = useState(false);
     const [wizardMode, setWizardMode] = useState<ImportMode>('MASTER');
 
-    // Secure Reset State
     const [resetModalOpen, setResetModalOpen] = useState(false);
     const [resetConfirmationText, setResetConfirmationText] = useState('');
-    const [resetTargetMode, setResetTargetMode] = useState<'EMPTY' | 'DEMO' | null>(null);
+    const [resetTargetMode, setResetTargetMode] = useState<'EMPTY' | 'DEMO' | 'LIMS' | null>(null);
 
-    // Tour State
     const [tourEnabled, setTourEnabled] = useState(true);
-
-    // Audit State
     const [auditStats, setAuditStats] = useState<{ matches: number, mismatches: number, corrections: number } | null>(null);
 
-    // File Input Ref for JSON Upload
     const jsonInputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
@@ -63,24 +59,6 @@ export const Settings: React.FC = () => {
         setIsCloudConnected(connected);
     };
 
-    const toggleTour = () => {
-        const newValue = !tourEnabled;
-        setTourEnabled(newValue);
-        localStorage.setItem('LC_TUTORIAL_ENABLED', String(newValue));
-        addToast(
-            newValue ? 'Onboarding Ativado' : 'Onboarding Desativado',
-            newValue ? 'success' : 'info',
-            newValue ? 'O guia será exibido para novos usuários.' : 'O guia não será exibido automaticamente.'
-        );
-    };
-
-    const resetTourHistory = () => {
-        localStorage.removeItem('LC_TUTORIAL_SEEN');
-        addToast('Histórico Reiniciado', 'success', 'O tour será exibido na próxima atualização da página.');
-    };
-
-    // --- Actions ---
-
     const handleSaveGoogleConfig = async () => {
         let cleanUrl = googleUrl.trim();
         
@@ -89,7 +67,6 @@ export const Settings: React.FC = () => {
             return;
         }
 
-        // Auto-fix common URL mistakes
         if (cleanUrl.includes('/edit')) {
             addToast('URL Corrigida', 'info', 'Detectamos um link de edição. Tentando converter para link de execução...');
             cleanUrl = cleanUrl.split('/edit')[0] + '/exec';
@@ -120,7 +97,6 @@ export const Settings: React.FC = () => {
             return;
         }
         
-        // Warning Dialog logic
         if (!confirm("Atenção: A sincronização irá baixar os dados da nuvem e mesclar com os locais. Em caso de conflito, os dados da nuvem prevalecerão. Continuar?")) {
             return;
         }
@@ -151,34 +127,42 @@ export const Settings: React.FC = () => {
             }
         }, 100);
     };
-    
-    const handleJsonUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (!file) return;
 
-        const reader = new FileReader();
-        reader.onload = async (evt) => {
+    const handleDownloadSeed = async () => {
+        setLoading(true);
+        try {
+            await ExportEngine.generateLimsSeedFile();
+            addToast('Seed Gerado', 'success', 'Substitua o arquivo "limsData.ts" no seu código fonte por este download.');
+        } catch (e) {
+            console.error(e);
+            addToast('Erro', 'error', 'Falha ao gerar arquivo de seed.');
+        } finally {
+            setLoading(false);
+        }
+    };
+    
+    const handleOverwriteSeeding = async () => {
+        if (confirm("ATENÇÃO: Esta ação irá APAGAR todos os dados atuais e recarregar o banco de dados a partir do arquivo 'limsData.ts' (Dados Atuais). Continuar?")) {
+            setLoading(true);
             try {
-                const jsonContent = JSON.parse(evt.target?.result as string);
+                await db.clearData(); 
+                localStorage.removeItem('LC_SKIP_AUTO_SEED'); 
+                await seedDatabase(true); 
                 
-                if (confirm("ATENÇÃO: Esta ação substituirá todo o banco de dados atual pelos dados do arquivo JSON selecionado. Deseja continuar?")) {
-                    setLoading(true);
-                    await InventoryService.replaceDatabaseWithData(jsonContent);
-                    addToast('Banco de Dados Restaurado', 'success', 'Os dados foram carregados com sucesso.');
-                    setTimeout(() => window.location.reload(), 1500);
-                }
-            } catch (err) {
-                console.error(err);
-                addToast('Erro no Arquivo', 'error', 'O arquivo selecionado não é um JSON válido ou está corrompido.');
+                addToast('Sucesso', 'success', 'O seeding foi sobrescrito com os dados atuais.');
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1000);
+            } catch (e) {
+                console.error("Erro ao sobrescrever seeding:", e);
+                addToast('Erro Crítico', 'error', 'Falha ao recarregar dados. Verifique o console.');
             } finally {
                 setLoading(false);
-                if (jsonInputRef.current) jsonInputRef.current.value = '';
             }
-        };
-        reader.readAsText(file);
+        }
     };
 
-    const openResetModal = (mode: 'EMPTY' | 'DEMO') => {
+    const openResetModal = (mode: 'EMPTY' | 'DEMO' | 'LIMS') => {
         setResetTargetMode(mode);
         setResetConfirmationText('');
         setResetModalOpen(true);
@@ -207,7 +191,7 @@ export const Settings: React.FC = () => {
                 addToast('Sistema Limpo', 'success', 'O banco de dados foi esvaziado com sucesso.');
             } else {
                 localStorage.removeItem('LC_SKIP_AUTO_SEED');
-                addToast('Restaurando Demo', 'success', 'Os dados de exemplo serão recarregados.');
+                addToast('Dados Carregados', 'success', 'A base de dados foi restaurada.');
             }
 
             setTimeout(() => {
@@ -249,7 +233,7 @@ export const Settings: React.FC = () => {
         setTimeout(async () => {
             try {
                 addToast('Iniciando Enriquecimento', 'info', 'Consultando API CAS Common Chemistry...');
-                const result = await InventoryService.enrichInventory((current, total) => {
+                const result = await ImportService.enrichInventory((current, total) => {
                     setEnrichProgress(current);
                     setEnrichTotal(total);
                 });
@@ -282,6 +266,44 @@ export const Settings: React.FC = () => {
                     <p className="text-text-secondary dark:text-gray-400 text-base">Gestão de banco de dados, nuvem e preferências.</p>
                 </div>
 
+                {/* Cards de Ação */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <Card padding="p-6">
+                        <div className="flex items-center gap-3 mb-4 text-text-main dark:text-white">
+                            <span className="material-symbols-outlined text-2xl text-primary">upload_file</span>
+                            <h3 className="text-lg font-bold">Importação</h3>
+                        </div>
+                        <div className="flex flex-col gap-3">
+                            <Button onClick={() => openWizard('MASTER')} variant="outline" className="w-full justify-start" icon="inventory_2">
+                                Importar Inventário (Planilha)
+                            </Button>
+                            <Button onClick={() => openWizard('HISTORY')} variant="outline" className="w-full justify-start" icon="history">
+                                Importar Histórico de Movimentações
+                            </Button>
+                        </div>
+                    </Card>
+
+                    <Card padding="p-6">
+                        <div className="flex items-center gap-3 mb-4 text-text-main dark:text-white">
+                            <span className="material-symbols-outlined text-2xl text-secondary">science</span>
+                            <h3 className="text-lg font-bold">Enriquecimento de Dados</h3>
+                        </div>
+                        <p className="text-xs text-text-secondary dark:text-gray-400 mb-4">
+                            Busca automática de dados químicos (Fórmula, Peso, Riscos) na API CAS para itens com CAS Number.
+                        </p>
+                        {enriching ? (
+                             <div className="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700 mt-2">
+                                <div className="bg-primary h-2.5 rounded-full transition-all duration-300" style={{ width: `${(enrichProgress/enrichTotal)*100}%` }}></div>
+                                <p className="text-xs text-center mt-1">{enrichProgress} / {enrichTotal}</p>
+                             </div>
+                        ) : (
+                            <Button onClick={handleEnrichment} variant="primary" icon="auto_fix_high" className="w-full">
+                                Enriquecer com CAS
+                            </Button>
+                        )}
+                    </Card>
+                </div>
+                
                 {/* --- SEÇÃO: GOOGLE SHEETS INTEGRATION --- */}
                 <Card padding="p-6" className="border-l-4 border-l-[#0F9D58]">
                      <div className="flex items-center gap-3 mb-4 text-text-main dark:text-white relative z-10">
@@ -309,7 +331,6 @@ export const Settings: React.FC = () => {
                             value={googleUrl}
                             onChange={e => setGoogleUrl(e.target.value)}
                             placeholder="https://script.google.com/macros/s/.../exec"
-                            helpText="Certifique-se de implantar como 'Web App' e definir o acesso como 'Qualquer pessoa'."
                         />
                         <div className="flex gap-3">
                             <Button onClick={handleSaveGoogleConfig} variant="primary" disabled={loading} icon="save">
@@ -361,119 +382,6 @@ export const Settings: React.FC = () => {
                     )}
                 </Card>
 
-                {/* CAS ENRICHMENT SECTION */}
-                <Card padding="p-6" className="relative overflow-hidden bg-info-bg/30 dark:bg-info/10 border-info/20">
-                    <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
-                         <span className="material-symbols-outlined text-9xl text-info dark:text-white">science</span>
-                    </div>
-                    <div className="flex items-center gap-3 mb-4 text-info-text dark:text-blue-400 relative z-10">
-                        <div className="p-2 bg-info-bg dark:bg-blue-900/30 rounded-lg border border-info/20">
-                            <span className="material-symbols-outlined text-2xl">auto_awesome</span>
-                        </div>
-                        <h3 className="text-lg font-bold text-text-main dark:text-white">Inteligência Química (CAS.org)</h3>
-                    </div>
-                    <p className="text-sm text-text-secondary dark:text-gray-300 mb-6 relative z-10 max-w-3xl">
-                        Conecte-se à base de dados do CAS Common Chemistry para preencher automaticamente as 
-                        classificações de risco (GHS) e padronizar nomes de reagentes usando o número CAS.
-                    </p>
-
-                    <div className="relative z-10">
-                         <div className="flex flex-col sm:flex-row items-center gap-4">
-                            <Button 
-                                onClick={handleEnrichment}
-                                disabled={enriching || loading}
-                                variant="primary"
-                                className="bg-info hover:bg-blue-600 text-white border-none shadow-md shadow-blue-500/20 w-full sm:w-auto"
-                                icon={enriching ? 'hourglass_top' : 'cloud_sync'}
-                            >
-                                {enriching ? 'Processando...' : 'Buscar Informações Faltantes'}
-                            </Button>
-                            {enriching && (
-                                <div className="flex flex-col gap-1 flex-1 w-full max-w-xs">
-                                    <div className="flex justify-between text-xs font-bold text-info-text dark:text-blue-300">
-                                        <span>Consultando API...</span>
-                                        <span>{enrichProgress} / {enrichTotal}</span>
-                                    </div>
-                                    <div className="w-full bg-blue-200 dark:bg-blue-900 rounded-full h-2 overflow-hidden">
-                                        <div 
-                                            className="bg-info h-2 rounded-full transition-all duration-300" 
-                                            style={{width: `${enrichTotal > 0 ? (enrichProgress / enrichTotal) * 100 : 0}%`}}
-                                        ></div>
-                                    </div>
-                                </div>
-                            )}
-                         </div>
-                    </div>
-                </Card>
-
-                {/* MIGRATION SECTION - EXCEL IMPORTS */}
-                <Card padding="p-6" className="relative overflow-hidden">
-                    <div className="flex items-center gap-3 mb-4 text-primary relative z-10">
-                        <div className="p-2 bg-primary/10 rounded-lg border border-primary/20">
-                            <span className="material-symbols-outlined text-2xl">import_export</span>
-                        </div>
-                        <h3 className="text-lg font-bold text-text-main dark:text-white">Importação e Migração de Excel</h3>
-                    </div>
-                    <p className="text-sm text-text-secondary dark:text-gray-400 mb-6 relative z-10 max-w-3xl">
-                        Ferramentas para carregar dados externos. Utilize os botões abaixo para importar planilhas (.xlsx, .csv) 
-                        com suporte automático à detecção de tabelas e mapeamento inteligente.
-                    </p>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 relative z-10">
-                        {/* Card 1: Master Data */}
-                        <Card variant="interactive" padding="p-5" className="bg-surface-light dark:bg-surface-dark hover:bg-background-light dark:hover:bg-background-dark border-none ring-1 ring-border-light dark:ring-border-dark hover:ring-primary/50" onClick={() => openWizard('MASTER')}>
-                            <div className="flex items-center gap-3 mb-3">
-                                <span className="material-symbols-outlined text-primary text-2xl bg-primary/5 p-2 rounded-full group-hover:bg-primary group-hover:text-white transition-colors">inventory_2</span>
-                                <h4 className="font-bold text-text-main dark:text-white">1. Importar Inventário (Mestre)</h4>
-                            </div>
-                            <p className="text-xs text-text-secondary dark:text-gray-400 mb-4 flex-1">
-                                Carregue cadastro de produtos, saldos iniciais e dados de Lote/Validade. Suporta detecção automática de cabeçalhos e mesclagem inteligente.
-                            </p>
-                            <div className="w-full py-2.5 bg-primary text-white font-bold rounded-lg flex items-center justify-center gap-2 shadow-md shadow-primary/20 pointer-events-none">
-                                <span className="material-symbols-outlined text-sm">upload_file</span>
-                                Iniciar Importação
-                            </div>
-                        </Card>
-
-                        {/* Card 2: History Data */}
-                        <Card variant="interactive" padding="p-5" className="bg-surface-light dark:bg-surface-dark hover:bg-background-light dark:hover:bg-background-dark border-none ring-1 ring-border-light dark:ring-border-dark hover:ring-secondary/50" onClick={() => openWizard('HISTORY')}>
-                            <div className="flex items-center gap-3 mb-3">
-                                <span className="material-symbols-outlined text-secondary text-2xl bg-secondary/5 p-2 rounded-full group-hover:bg-secondary group-hover:text-white transition-colors">history</span>
-                                <h4 className="font-bold text-text-main dark:text-white">2. Importar Histórico (Movimentações)</h4>
-                            </div>
-                            <p className="text-xs text-text-secondary dark:text-gray-400 mb-4 flex-1">
-                                Carregue logs de entradas e saídas passadas. Útil para auditoria e reconstrução de saldo via Ledger V2.
-                            </p>
-                            <div className="w-full py-2.5 bg-secondary text-white font-bold rounded-lg flex items-center justify-center gap-2 shadow-md shadow-secondary/20 pointer-events-none">
-                                <span className="material-symbols-outlined text-sm">history_edu</span>
-                                Carregar Histórico
-                            </div>
-                        </Card>
-
-                        {/* Card 3: JSON Restore */}
-                        <Card variant="interactive" padding="p-5" className="bg-surface-light dark:bg-surface-dark hover:bg-background-light dark:hover:bg-background-dark border-none ring-1 ring-border-light dark:ring-border-dark hover:ring-slate-500" onClick={() => jsonInputRef.current?.click()}>
-                            <div className="flex items-center gap-3 mb-3">
-                                <span className="material-symbols-outlined text-slate-500 text-2xl bg-slate-100 dark:bg-slate-800 p-2 rounded-full group-hover:bg-slate-500 group-hover:text-white transition-colors">restore</span>
-                                <h4 className="font-bold text-text-main dark:text-white">3. Restaurar Backup JSON</h4>
-                            </div>
-                            <p className="text-xs text-text-secondary dark:text-gray-400 mb-4 flex-1">
-                                Restauração completa de banco de dados nativo do LabControl (Full Dump).
-                            </p>
-                             <div className="w-full py-2.5 bg-slate-600 text-white font-bold rounded-lg flex items-center justify-center gap-2 shadow-md shadow-slate-500/20 pointer-events-none">
-                                <span className="material-symbols-outlined text-sm">settings_backup_restore</span>
-                                Carregar JSON
-                            </div>
-                            <input 
-                                type="file" 
-                                ref={jsonInputRef} 
-                                onChange={handleJsonUpload} 
-                                className="hidden" 
-                                accept=".json"
-                            />
-                        </Card>
-                    </div>
-                </Card>
-
                 {/* BACKUP & SYSTEM */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <Card padding="p-6">
@@ -491,15 +399,15 @@ export const Settings: React.FC = () => {
                             >
                                 {loading ? 'Gerando...' : 'Backup Completo (.xlsx)'}
                             </Button>
-                            
+
                             <Button 
-                                onClick={() => handleExportExcel(true)}
+                                onClick={handleDownloadSeed}
                                 disabled={loading}
-                                variant="ghost"
-                                size="sm"
-                                className="w-full justify-center mt-1"
+                                variant="outline"
+                                className="w-full justify-start mt-2 border-primary/20 text-primary hover:bg-primary/5"
+                                icon="code"
                             >
-                                Baixar Modelo de Importação
+                                Baixar como Seed File (limsData.ts)
                             </Button>
                         </div>
                     </Card>
@@ -514,7 +422,17 @@ export const Settings: React.FC = () => {
                                 Ações destrutivas ou de correção avançada.
                             </p>
                             
-                            <div className="grid grid-cols-2 gap-2 mt-2">
+                            <Button 
+                                onClick={handleOverwriteSeeding}
+                                variant="primary" 
+                                className="w-full justify-center text-xs font-bold bg-indigo-600 hover:bg-indigo-700 text-white shadow-md shadow-indigo-500/20"
+                                icon="database"
+                                disabled={loading}
+                            >
+                                Sobreescrever Seeding com Dados Atuais
+                            </Button>
+
+                            <div className="grid grid-cols-2 gap-2 mt-1">
                                 <Button 
                                     onClick={() => openResetModal('DEMO')}
                                     variant="white"
@@ -522,7 +440,7 @@ export const Settings: React.FC = () => {
                                     icon="restart_alt"
                                     disabled={loading}
                                 >
-                                    Restaurar Demo
+                                    Restaurar Exemplo
                                 </Button>
                                 <Button 
                                     onClick={() => openResetModal('EMPTY')}
@@ -531,14 +449,14 @@ export const Settings: React.FC = () => {
                                     icon="delete_forever"
                                     disabled={loading}
                                 >
-                                    Limpar Tudo (Zero)
+                                    Limpar Tudo
                                 </Button>
                             </div>
                         </div>
                     </Card>
                 </div>
-                
-                {/* Componentes de Overlay */}
+
+                {/* Import Wizard Overlay */}
                 <ImportWizard 
                     isOpen={wizardOpen} 
                     onClose={() => setWizardOpen(false)} 
@@ -549,7 +467,7 @@ export const Settings: React.FC = () => {
                 <Modal 
                     isOpen={resetModalOpen} 
                     onClose={() => setResetModalOpen(false)} 
-                    title={resetTargetMode === 'EMPTY' ? "Apagar TUDO e Iniciar do Zero?" : "Restaurar Dados de Exemplo?"} 
+                    title={resetTargetMode === 'EMPTY' ? "Apagar TUDO e Iniciar do Zero?" : "Recarregar Banco de Dados?"} 
                     className="max-w-md"
                 >
                     <div className="p-6 pt-0">
@@ -557,12 +475,12 @@ export const Settings: React.FC = () => {
                             <span className="material-symbols-outlined text-danger text-3xl">warning</span>
                             <div className="text-sm text-danger-text dark:text-red-200">
                                 <p className="font-bold mb-1">Ação Irreversível</p>
-                                <p>Todos os dados locais, incluindo histórico e configurações, serão apagados permanentemente.</p>
+                                <p>Todos os dados locais atuais serão apagados permanentemente.</p>
                                 {resetTargetMode === 'EMPTY' && (
                                     <p className="mt-2 font-bold underline">O sistema iniciará totalmente vazio.</p>
                                 )}
-                                {resetTargetMode === 'DEMO' && (
-                                    <p className="mt-2 font-bold underline">Os dados fictícios (LIMS) serão recarregados.</p>
+                                {(resetTargetMode === 'DEMO' || resetTargetMode === 'LIMS') && (
+                                    <p className="mt-2 font-bold underline">Os dados padrão serão recarregados.</p>
                                 )}
                             </div>
                         </div>

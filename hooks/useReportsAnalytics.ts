@@ -1,7 +1,6 @@
 
 import { useMemo } from 'react';
 import { InventoryItem, MovementRecord } from '../types';
-import { getItemStatus } from '../utils/businessRules';
 
 export interface ABCItem {
     id: string;
@@ -90,9 +89,46 @@ export const useReportsAnalytics = (items: InventoryItem[], history: MovementRec
             .sort((a, b) => new Date(a.expiryDate).getTime() - new Date(b.expiryDate).getTime());
     }, [items]);
 
+    // 4. Monthly Flow (Entries vs Exits)
+    const monthlyFlow = useMemo(() => {
+        const dataMap = new Map<string, { in: number, out: number }>();
+        const monthNames = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
+        
+        // Generate keys for last 12 months to ensure continuity
+        const today = new Date();
+        for (let i = 11; i >= 0; i--) {
+            const d = new Date(today.getFullYear(), today.getMonth() - i, 1);
+            const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+            dataMap.set(key, { in: 0, out: 0 });
+        }
+
+        history.forEach(h => {
+            const d = new Date(h.date);
+            const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+            
+            if (dataMap.has(key)) {
+                const current = dataMap.get(key)!;
+                if (h.type === 'ENTRADA') current.in += h.quantity;
+                if (h.type === 'SAIDA') current.out += h.quantity;
+            }
+        });
+
+        const sortedKeys = Array.from(dataMap.keys()).sort();
+        
+        return {
+            labels: sortedKeys.map(k => {
+                const [_, m] = k.split('-');
+                return monthNames[parseInt(m) - 1];
+            }),
+            dataIn: sortedKeys.map(k => dataMap.get(k)!.in),
+            dataOut: sortedKeys.map(k => dataMap.get(k)!.out)
+        };
+    }, [history]);
+
     return {
         abcAnalysis,
         controlledReport,
-        expiryRisk
+        expiryRisk,
+        monthlyFlow
     };
 };

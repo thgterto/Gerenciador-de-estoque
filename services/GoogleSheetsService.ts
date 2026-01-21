@@ -20,8 +20,12 @@ export const GoogleSheetsService = {
     
     getUrl() {
         const url = GOOGLE_CONFIG.getWebUrl();
-        if (!url) throw new Error("URL do Google Web App não configurada. Vá em Configurações.");
+        // Não lançar erro aqui, retornar null para ser tratado pelo caller
         return url;
+    },
+
+    isConfigured() {
+        return !!GOOGLE_CONFIG.getWebUrl();
     },
 
     async fetchWithRetry(url: string, options: RequestInit, retries = 3, delay = 1000): Promise<Response> {
@@ -40,7 +44,15 @@ export const GoogleSheetsService = {
     },
 
     async request(action: string, payload: any = {}): Promise<GasResponse> {
+        if (!this.isConfigured()) {
+            // Silenciosamente ignora requisições se não estiver configurado
+            // Retorna falso sucesso para não quebrar a UI
+            return { success: false, message: "Service not configured (Offline Mode)" };
+        }
+
         const url = this.getUrl();
+        if (!url) return { success: false, message: "URL Missing" };
+
         try {
             const response = await this.fetchWithRetry(url, {
                 method: 'POST',
@@ -58,12 +70,14 @@ export const GoogleSheetsService = {
             }
         } catch (error: any) {
             console.error(`[GoogleSheets] Erro na ação ${action}:`, error);
+            // Propaga erro apenas se for crítico, senão falha silenciosa para não travar UI
             throw error;
         }
     },
 
     async testConnection(): Promise<boolean> {
         try {
+            if (!this.isConfigured()) return false;
             const res = await this.request('ping');
             return res.success === true;
         } catch (e) {
@@ -74,6 +88,7 @@ export const GoogleSheetsService = {
     // --- SYNC OPERATIONS ---
 
     async fetchInventory(): Promise<InventoryItem[]> {
+        if (!this.isConfigured()) return [];
         const res = await this.request('read_inventory');
         if (!res.success || !Array.isArray(res.data)) {
             return [];
@@ -82,6 +97,8 @@ export const GoogleSheetsService = {
     },
 
     async fetchFullDatabase(): Promise<FullDatabasePayload> {
+        if (!this.isConfigured()) throw new Error("Google Sheets não configurado.");
+        
         const res = await this.request('read_full_db');
         if (!res.success || !res.data) {
             throw new Error("Falha ao baixar banco de dados completo.");
@@ -95,14 +112,17 @@ export const GoogleSheetsService = {
     },
 
     async addOrUpdateItem(item: InventoryItem): Promise<void> {
+        if (!this.isConfigured()) return;
         await this.request('upsert_item', { item });
     },
 
     async deleteItem(itemId: string): Promise<void> {
+        if (!this.isConfigured()) return;
         await this.request('delete_item', { id: itemId });
     },
 
     async logMovement(record: MovementRecord): Promise<void> {
+        if (!this.isConfigured()) return;
         await this.request('log_movement', { record });
     }
 };

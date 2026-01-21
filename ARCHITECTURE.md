@@ -40,16 +40,10 @@ Define "Qual" instância do item estamos tratando.
 
 ### 2.3 Saldos Distribuídos (`balances`)
 Define "Onde" e "Quanto" existe de cada lote.
-*   `id`: UUID
+*   `id`: `BAL-{HASH}`
 *   `batchId`: FK para Lote.
 *   `locationId`: FK para Localização.
 *   `quantity`: Quantidade decimal exata neste local específico.
-
-### 2.4 Localizações (`storage_locations`)
-Hierarquia de armazenamento.
-*   `id`: `LOC-{SLUG}`
-*   `type`: WAREHOUSE > ROOM > CABINET > SHELF > BOX.
-*   `pathString`: Caminho legível (ex: "Almoxarifado > Geladeira 1 > Gaveta B").
 
 ---
 
@@ -69,14 +63,18 @@ Wrapper sobre o Dexie.js que intercepta chamadas de leitura/escrita.
 *   **L3 Storage (IndexedDB):** Persistência durável.
 *   **Optimistic UI:** Ao salvar, o L1 é atualizado antes da Promise do IDB resolver. Se o IDB falhar, o L1 sofre rollback silencioso e o usuário é notificado.
 
-### 3.3 Estratégia de Normalização de Importação
-Para suportar cargas massivas via Excel (que são inerentemente "planas"), o sistema utiliza uma estratégia de **Lazy Normalization** no `ImportEngine`:
+### 3.3 Estratégia de Normalização de Importação (Lazy Normalization)
+Para suportar cargas massivas via Excel (que são inerentemente "planas"), o sistema utiliza uma estratégia no `ImportEngine`:
 1.  O usuário carrega uma planilha plana (Nome, Lote, Qtd).
 2.  O sistema gera Hashes determinísticos para `CatalogID` (baseado no nome/SAP) e `BatchID` (baseado no lote).
 3.  Durante a transação de salvamento, o sistema verifica se esses IDs já existem no Ledger V2.
     *   Se não existirem, cria os registros de Catálogo e Lote.
     *   Se existirem, atualiza apenas o Saldo (`balances`).
-4.  Isso permite que o usuário gerencie o estoque via planilhas simples sem perder a integridade relacional do banco de dados.
+
+### 3.4 Identidade Determinística (Idempotência)
+Para evitar duplicação de dados ao re-importar planilhas ou sincronizar dados:
+*   **IDs de Histórico:** Gerados via Hash do conteúdo (`Data + Tipo + Item + Lote + Qtd`). Se a mesma linha for importada duas vezes, o Hash será idêntico e o banco de dados ignorará a segunda inserção (ou atualizará se necessário), garantindo idempotência.
+*   **IDs de Saldos:** `BAL-{Hash(BatchID + LocationID)}`. Garante que só exista um registro de saldo para um lote em um local específico.
 
 ---
 

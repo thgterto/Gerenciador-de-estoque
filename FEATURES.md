@@ -17,17 +17,21 @@ O módulo central do sistema, projetado para alta performance mesmo com milhares
     *   **Localização:** Filtragem por armazém ou sala específica.
     *   **Status:** Visualização rápida de itens Vencidos ou com Estoque Baixo.
 
-## 2. Motor de Importação & Dados (Novo)
+## 2. Motor de Importação & Dados (Atualizado v1.8)
 
 Ferramentas avançadas para migração e manutenção de dados em massa via Excel.
 
-*   **Detecção de Tabelas:** O sistema escaneia a planilha enviada, ignora cabeçalhos irrelevantes (logos, títulos) e identifica automaticamente onde os dados começam.
+*   **Detecção Automática de Tabelas:** O sistema escaneia a planilha enviada, ignora cabeçalhos irrelevantes (logos, títulos) e identifica automaticamente onde os dados começam usando heurísticas de regex.
+*   **Mapeamento GHS:** Reconhece colunas específicas de risco químico:
+    *   `O` (Oxidante), `T` (Tóxico), `T+` (Muito Tóxico).
+    *   `C` (Corrosivo), `E` (Explosivo), `N` (Ambiental).
+    *   `Xn` (Nocivo), `Xi` (Irritante), `F` (Inflamável), `F+` (Ext. Inflamável).
 *   **Smart Merge (Mesclagem Inteligente):**
     *   Ao importar uma planilha de "Inventário Mestre", o sistema verifica se o item já existe.
     *   Se existir, ele atualiza apenas o saldo e validade, **preservando** dados ricos que não existem na planilha (como Fórmula Molecular, Classificação GHS detalhada e IDs internos).
 *   **Histórico Determinístico:**
-    *   Ao importar planilhas de movimentação passada, o sistema gera um ID único (Hash) baseado na Data + Produto + Lote + Quantidade.
-    *   Isso impede que a mesma movimentação seja duplicada no banco de dados, mesmo se o usuário importar o arquivo múltiplas vezes.
+    *   Ao importar planilhas de movimentação passada, o sistema gera um ID único (Hash).
+    *   Isso impede que a mesma movimentação seja duplicada no banco de dados.
 
 ## 3. Matriz de Armazenamento
 
@@ -38,7 +42,7 @@ Visualização espacial para gestão física do laboratório.
     *   🔴 **Vermelho:** Itens vencidos.
     *   🟡 **Amarelo:** Estoque baixo.
     *   ⚠️ **Ícones de Risco:** Mostra se há incompatibilidade química no mesmo local (ex: Oxidantes próximos a Inflamáveis).
-*   **Atribuição Visual:** Clique em um slot vazio para alocar um item ou mover um existente.
+*   **Atribuição Visual:** Clique em um slot vazio para alocar um item ou mover um existente via Drag-and-Drop.
 
 ## 4. Inteligência Química (Integração CAS)
 

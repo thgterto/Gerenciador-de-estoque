@@ -28,14 +28,11 @@ function doPost(e) {
       
       // --- READ OPERATIONS ---
       case 'read_full_db':
-        const catalog = getCatalog();
-        const batches = getBatches();
-        const balances = getBalances();
         result.data = {
-            view: getDenormalizedInventory(catalog, batches, balances),
-            catalog: catalog,
-            batches: batches,
-            balances: balances
+            view: getDenormalizedInventory(), 
+            catalog: getCatalog(),            
+            batches: getBatches(),            
+            balances: getBalances()           
         };
         break;
 
@@ -76,11 +73,11 @@ function doPost(e) {
       .setMimeType(ContentService.MimeType.JSON);
 
   } catch (error) {
-    console.error('Error in doPost:', error);
     return ContentService
       .createTextOutput(JSON.stringify({ 
         success: false, 
-        error: "Internal Server Error"
+        error: error.toString(),
+        stack: error.stack 
       }))
       .setMimeType(ContentService.MimeType.JSON);
   } finally {
@@ -287,7 +284,7 @@ function legacyUpsertItem(item) {
   };
   
   const balance = {
-    id: item.id,
+    id: `BAL-${item.id}`,
     batchId: batch.id,
     locationId: item.location.warehouse,
     quantity: item.quantity
@@ -322,10 +319,10 @@ function deleteItem(itemId) {
   rowsToDelete.reverse().forEach(rowIdx => sheet.deleteRow(rowIdx));
 }
 
-function getDenormalizedInventory(catalog, batches, balances) {
-  catalog = catalog || getCatalog();
-  batches = batches || getBatches();
-  balances = balances || getBalances();
+function getDenormalizedInventory() {
+  const catalog = getCatalog();
+  const batches = getBatches();
+  const balances = getBalances();
 
   const catMap = new Map(catalog.map(c => [c.id, c]));
   const batchMap = new Map(batches.map(b => [b.id, b]));

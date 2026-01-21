@@ -13,7 +13,8 @@ import {
     InventoryBatch,
     StorageLocationEntity,
     BusinessPartner,
-    StockBalance
+    StockBalance,
+    SyncQueueItem
 } from './types';
 import { HybridStorageManager } from './utils/HybridStorage';
 
@@ -29,13 +30,14 @@ export class QStockDB extends Dexie {
   // --- V2 Normalized Tables (LIMS Architecture) ---
   catalog!: Table<CatalogProduct, string>;
   batches!: Table<InventoryBatch, string>;
-  storage_locations!: Table<StorageLocationEntity, string>;
+  storage_locations!: Table<StorageLocationEntity, string>; // Standardized name
   partners!: Table<BusinessPartner, string>;
   balances!: Table<StockBalance, string>; // The "Cache" for distributed stock
 
   // --- Support Tables ---
-  locations!: Table<LocationDTO, number>; // Legacy Imports
-  suppliers!: Table<SupplierDTO, number>; // Legacy Imports
+  syncQueue!: Table<SyncQueueItem, number>; // Offline Sync Queue
+  locations!: Table<LocationDTO, number>; // Legacy Imports Container
+  suppliers!: Table<SupplierDTO, number>; // Legacy Imports Container
   sapOrders!: Table<any, number>;
   sapOrderItems!: Table<any, number>;
   localOrders!: Table<LocalPurchaseOrderDTO, string>;
@@ -59,18 +61,17 @@ export class QStockDB extends Dexie {
     });
 
     // Schema Version 2 (LIMS V2 Upgrade)
-    // Adiciona tabelas normalizadas e índices de performance
     (this as any).version(2).stores({
-        // V2 Tables
-        catalog: 'id, sapCode, name, categoryId',
+        // V2 Tables - STRICTLY INDEXED
+        catalog: 'id, sapCode, name, categoryId, casNumber',
         batches: 'id, catalogId, lotNumber, partnerId, status, expiryDate',
         storage_locations: 'id, name, type, parentId',
         partners: 'id, name, type, active',
-        balances: 'id, [batchId+locationId], batchId, locationId', // Compound index for fast lookup
+        balances: 'id, [batchId+locationId], batchId, locationId', 
         
-        // Retain V1
-        items: 'id, sapCode, lotNumber, name, category, supplier, expiryDate, itemStatus, location.warehouse, molecularFormula',
-        history: 'id, itemId, date, type, sapCode, lot, productName, batchId, fromLocationId, toLocationId', // Enhanced index
+        // Retain V1 Schema
+        items: 'id, sapCode, lotNumber, name, category, supplier, expiryDate, itemStatus, location.warehouse, molecularFormula, batchId, catalogId',
+        history: 'id, itemId, date, type, sapCode, lot, productName, batchId, fromLocationId, toLocationId', 
         sapOrders: 'id, sapOrderId, status',
         sapOrderItems: 'id, sapOrderId, productBatchId',
         locations: 'id, storageLocation, fullLocationCode',
@@ -78,6 +79,11 @@ export class QStockDB extends Dexie {
         localOrders: 'id, status, orderNumber, createdAt',
         systemConfigs: 'key, category',
         systemLogs: '++id, timestamp, level, module'
+    });
+
+    // Schema Version 3 (Offline Capabilities)
+    (this as any).version(3).stores({
+        syncQueue: '++id, timestamp, action',
     });
   }
 }
