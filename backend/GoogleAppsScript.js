@@ -287,7 +287,7 @@ function legacyUpsertItem(item) {
   };
   
   const balance = {
-    id: `BAL-${item.id}`,
+    id: item.id,
     batchId: batch.id,
     locationId: item.location.warehouse,
     quantity: item.quantity
