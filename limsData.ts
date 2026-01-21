@@ -1292,4 +1292,6 @@ export const LIMS_DATA: any = {
       "INSERT INTO movimentacoes (id_lote, tipo_mov, data_mov, quantidade) VALUES (428, 'ENTRADA', '2025-12-23', 2.0);",
       "INSERT INTO movimentacoes (id_lote, tipo_mov, data_mov, quantidade) VALUES (311, 'ENTRADA', '2025-12-23', 2.0);",
       "INSERT INTO movimentacoes (id_lote, tipo_mov, data_mov, quantidade) VALUES (464, 'ENTRADA', '2025-12-23', 30.0);",
-      "INSERT INTO movimentacoes (id_lote, tipo_mov, data_
+    ]
+  }
+}

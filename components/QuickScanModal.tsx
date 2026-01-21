@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Modal } from './ui/Modal';
 import { Button } from './ui/Button';
 import { InventoryService } from '../services/InventoryService';
@@ -24,7 +24,7 @@ export const QuickScanModal: React.FC<Props> = ({ isOpen, onClose }) => {
   const lastScanRef = useRef<{code: string, time: number} | null>(null);
   const [scanHistory, setScanHistory] = useState<{name: string, time: string, type: 'IN'|'OUT'}[]>([]);
 
-  const handleScan = async (decodedText: string) => {
+  const handleScan = useCallback(async (decodedText: string) => {
       // Debounce lógico: Ignora o mesmo código se lido em menos de 2 segundos
       const now = Date.now();
       if (lastScanRef.current && 
@@ -77,11 +77,13 @@ export const QuickScanModal: React.FC<Props> = ({ isOpen, onClose }) => {
       } finally {
           setIsLoading(false);
       }
-  };
+  }, [continuousMode, addToast]);
+
+  const handleError = useCallback((msg: string) => console.debug("Scan error:", msg), []);
 
   const { elementId, startScanner, stopScanner, error, isScanning } = useScanner({
       onScan: handleScan,
-      onError: (msg) => console.debug("Scan error:", msg),
+      onError: handleError,
       aspectRatio: 1.0
   });
 
