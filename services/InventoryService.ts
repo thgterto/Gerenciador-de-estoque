@@ -255,46 +255,69 @@ export const InventoryService = {
 
     if (quantity < 0) throw new Error("A quantidade não pode ser negativa.");
 
-    let updatedBalance: StockBalance | null = null;
+    let updatedBalances: StockBalance[] = [];
     let newHistory: MovementRecord | null = null;
 
-    await db.transaction('rw', [db.rawDb.items, db.rawDb.history, db.rawDb.balances], async () => {
-        // Read directly from DB to ensure lock and fresh data
+    await db.transaction('rw', [db.rawDb.items, db.rawDb.history, db.rawDb.balances, db.rawDb.batches], async () => {
+        // 1. Fetch Item (Locking)
         const item = await db.rawDb.items.get(itemId);
         if (!item) throw new Error("Item não encontrado no inventário.");
-
-        let newBalance = item.quantity;
-        let deltaQty = 0;
-
-        if (type === 'ENTRADA') {
-            newBalance = item.quantity + quantity;
-            deltaQty = quantity;
-        }
-        else if (type === 'SAIDA') {
-            if (quantity > item.quantity) {
-                throw new Error(`Saldo insuficiente. Disponível: ${item.quantity} ${item.baseUnit}`);
-            }
-            newBalance = item.quantity - quantity;
-            deltaQty = quantity;
-        }
-        else if (type === 'AJUSTE') {
-            const diff = quantity - item.quantity;
-            newBalance = quantity;
-            deltaQty = Math.abs(diff);
-        }
-        else if (type === 'TRANSFERENCIA') {
-            deltaQty = quantity;
-        }
-
-        const updatedItem: InventoryItem = {
-            ...item,
-            quantity: parseFloat(newBalance.toFixed(3)),
-            lastUpdated: new Date().toISOString()
-        };
 
         const batchId = item.batchId || `BAT-${itemId}`;
         const mainLocId = item.locationId || item.location.warehouse || `LOC-DEFAULT`;
 
+        // 2. V2 Logic: Update Balances FIRST (Source of Truth)
+        // Helper to upsert balance
+        const updateBalance = async (bId: string, locId: string, delta: number, absolute: boolean = false) => {
+            const existing = await db.rawDb.balances.where({ batchId: bId, locationId: locId }).first();
+            const currentQty = existing ? existing.quantity : 0;
+            const newQty = absolute ? delta : Math.max(0, currentQty + delta);
+
+            const bal: StockBalance = {
+                id: existing?.id || crypto.randomUUID(),
+                batchId: bId,
+                locationId: locId,
+                quantity: parseFloat(newQty.toFixed(3)),
+                lastMovementAt: new Date().toISOString()
+            };
+            await db.balances.put(bal);
+            updatedBalances.push(bal);
+            return bal;
+        };
+
+        if (type === 'ENTRADA') {
+            await updateBalance(batchId, toLocationId || mainLocId, quantity);
+        }
+        else if (type === 'SAIDA') {
+            await updateBalance(batchId, fromLocationId || mainLocId, -quantity);
+        }
+        else if (type === 'AJUSTE') {
+             // For adjustment, we usually adjust a specific location.
+             // If no specific location provided, assume main.
+             await updateBalance(batchId, mainLocId, quantity, true);
+        }
+        else if (type === 'TRANSFERENCIA') {
+             if (!fromLocationId || !toLocationId) throw new Error("Transferência requer origem e destino.");
+             // Atomic Move
+             await updateBalance(batchId, fromLocationId, -quantity);
+             await updateBalance(batchId, toLocationId, quantity);
+        }
+
+        // 3. V1 Logic: Derived from V2 (Consistency Check)
+        // Sum all balances for this Catalog/Batch to get the Total Stock
+        // If Item represents a specific Batch:
+        const allBalances = await db.rawDb.balances.where('batchId').equals(batchId).toArray();
+        const totalQty = allBalances.reduce((sum, b) => sum + b.quantity, 0);
+
+        const updatedItem: InventoryItem = {
+            ...item,
+            quantity: parseFloat(totalQty.toFixed(3)), // Driven by V2
+            lastUpdated: new Date().toISOString()
+        };
+
+        await db.items.put(updatedItem);
+
+        // 4. History Logging
         newHistory = {
             id: crypto.randomUUID(),
             itemId: item.id,
@@ -306,44 +329,19 @@ export const InventoryService = {
             productName: item.name,
             sapCode: item.sapCode,
             lot: item.lotNumber,
-            quantity: parseFloat(deltaQty.toFixed(3)),
+            quantity: parseFloat(quantity.toFixed(3)),
             unit: item.baseUnit,
             location_warehouse: item.location.warehouse,
             supplier: item.supplier,
             observation: observation || (type === 'AJUSTE' ? 'Correção manual' : ''),
         };
-
-        // Update DB
-        await db.items.put(updatedItem); // Hybrid wrapper updates memory cache too
         await db.history.add(newHistory);
-
-        if (type !== 'AJUSTE') { 
-            const targetLoc = toLocationId || mainLocId;
-            const balanceKey = await db.rawDb.balances
-                .where({ batchId: batchId, locationId: targetLoc })
-                .first();
-            
-            let currentLocQty = balanceKey ? balanceKey.quantity : 0;
-            
-            if (type === 'ENTRADA') currentLocQty += quantity;
-            else if (type === 'SAIDA') currentLocQty -= quantity;
-            
-            updatedBalance = {
-                id: balanceKey?.id || crypto.randomUUID(),
-                batchId: batchId,
-                locationId: targetLoc,
-                quantity: Math.max(0, currentLocQty),
-                lastMovementAt: new Date().toISOString()
-            };
-            
-            await db.balances.put(updatedBalance);
-        }
     });
 
     if (newHistory) {
         GoogleSheetsService.request('sync_transaction', {
-            balances: updatedBalance ? [updatedBalance] : [],
-            movements: [newHistory]
+            balances: updatedBalances,
+            movements: [newHistory!]
         }).catch(e => {
             console.error("Sheets Sync Transaction failed", e);
         });
@@ -496,24 +494,29 @@ export const InventoryService = {
   },
 
   async deleteItem(id: string): Promise<void> {
-      await db.transaction('rw', [db.rawDb.items, db.rawDb.balances, db.rawDb.batches], async () => {
+      await db.transaction('rw', [db.rawDb.items, db.rawDb.balances, db.rawDb.batches, db.rawDb.catalog], async () => {
           const item = await db.rawDb.items.get(id);
           await db.items.delete(id);
 
           if (item) {
               // Cleanup V2 orphans
               const batchId = item.batchId || `BAT-${id}`;
-              const balances = await db.rawDb.balances.where('batchId').equals(batchId).toArray();
-              const balanceIds = balances.map(b => b.id);
 
-              if (balanceIds.length > 0) {
-                  await db.balances.bulkDelete(balanceIds);
+              // 1. Delete Balances linked to this Batch
+              const balances = await db.rawDb.balances.where('batchId').equals(batchId).toArray();
+              if (balances.length > 0) {
+                  await db.balances.bulkDelete(balances.map(b => b.id));
               }
 
-              // Only delete batch if it exists and matches our ID convention (safe check)
-              const batch = await db.rawDb.batches.get(batchId);
-              if (batch) {
-                  await db.rawDb.batches.delete(batchId);
+              // 2. Delete the Batch itself
+              await db.rawDb.batches.delete(batchId);
+
+              // 3. Cleanup Catalog if no other batches refer to it (Prevent Orphaned Catalogs)
+              if (item.catalogId) {
+                  const siblingBatches = await db.rawDb.batches.where('catalogId').equals(item.catalogId).count();
+                  if (siblingBatches === 0) {
+                       await db.rawDb.catalog.delete(item.catalogId);
+                  }
               }
           }
       });
