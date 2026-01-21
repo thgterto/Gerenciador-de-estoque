@@ -229,63 +229,66 @@ export const InventoryService = {
 
     if (quantity < 0) throw new Error("A quantidade não pode ser negativa.");
 
-    const item = await db.items.get(itemId);
-    if (!item) throw new Error("Item não encontrado no inventário.");
-
-    let newBalance = item.quantity;
-    let deltaQty = 0;
-
-    if (type === 'ENTRADA') {
-        newBalance = item.quantity + quantity;
-        deltaQty = quantity;
-    } 
-    else if (type === 'SAIDA') {
-        if (quantity > item.quantity) {
-            throw new Error(`Saldo insuficiente. Disponível: ${item.quantity} ${item.baseUnit}`);
-        }
-        newBalance = item.quantity - quantity;
-        deltaQty = quantity;
-    }
-    else if (type === 'AJUSTE') {
-        const diff = quantity - item.quantity;
-        newBalance = quantity;
-        deltaQty = Math.abs(diff); 
-    }
-    else if (type === 'TRANSFERENCIA') {
-        deltaQty = quantity;
-    }
-
-    const updatedItem: InventoryItem = { 
-        ...item, 
-        quantity: parseFloat(newBalance.toFixed(3)), 
-        lastUpdated: new Date().toISOString() 
-    };
-    
-    const batchId = item.batchId || `BAT-${itemId}`;
-    const mainLocId = item.locationId || item.location.warehouse || `LOC-DEFAULT`; 
-
-    const newHistory: MovementRecord = {
-        id: crypto.randomUUID(), 
-        itemId: item.id, 
-        date: date,
-        type: type,
-        batchId: batchId,
-        fromLocationId: fromLocationId || (type === 'SAIDA' ? mainLocId : undefined),
-        toLocationId: toLocationId || (type === 'ENTRADA' ? mainLocId : undefined),
-        productName: item.name,
-        sapCode: item.sapCode,
-        lot: item.lotNumber,
-        quantity: parseFloat(deltaQty.toFixed(3)),
-        unit: item.baseUnit,
-        location_warehouse: item.location.warehouse,
-        supplier: item.supplier,
-        observation: observation || (type === 'AJUSTE' ? 'Correção manual' : ''),
-    };
-
     let updatedBalance: StockBalance | null = null;
+    let newHistory: MovementRecord | null = null;
 
     await db.transaction('rw', [db.rawDb.items, db.rawDb.history, db.rawDb.balances], async () => {
-        await db.items.put(updatedItem);
+        // Read directly from DB to ensure lock and fresh data
+        const item = await db.rawDb.items.get(itemId);
+        if (!item) throw new Error("Item não encontrado no inventário.");
+
+        let newBalance = item.quantity;
+        let deltaQty = 0;
+
+        if (type === 'ENTRADA') {
+            newBalance = item.quantity + quantity;
+            deltaQty = quantity;
+        }
+        else if (type === 'SAIDA') {
+            if (quantity > item.quantity) {
+                throw new Error(`Saldo insuficiente. Disponível: ${item.quantity} ${item.baseUnit}`);
+            }
+            newBalance = item.quantity - quantity;
+            deltaQty = quantity;
+        }
+        else if (type === 'AJUSTE') {
+            const diff = quantity - item.quantity;
+            newBalance = quantity;
+            deltaQty = Math.abs(diff);
+        }
+        else if (type === 'TRANSFERENCIA') {
+            deltaQty = quantity;
+        }
+
+        const updatedItem: InventoryItem = {
+            ...item,
+            quantity: parseFloat(newBalance.toFixed(3)),
+            lastUpdated: new Date().toISOString()
+        };
+
+        const batchId = item.batchId || `BAT-${itemId}`;
+        const mainLocId = item.locationId || item.location.warehouse || `LOC-DEFAULT`;
+
+        newHistory = {
+            id: crypto.randomUUID(),
+            itemId: item.id,
+            date: date,
+            type: type,
+            batchId: batchId,
+            fromLocationId: fromLocationId || (type === 'SAIDA' ? mainLocId : undefined),
+            toLocationId: toLocationId || (type === 'ENTRADA' ? mainLocId : undefined),
+            productName: item.name,
+            sapCode: item.sapCode,
+            lot: item.lotNumber,
+            quantity: parseFloat(deltaQty.toFixed(3)),
+            unit: item.baseUnit,
+            location_warehouse: item.location.warehouse,
+            supplier: item.supplier,
+            observation: observation || (type === 'AJUSTE' ? 'Correção manual' : ''),
+        };
+
+        // Update DB
+        await db.items.put(updatedItem); // Hybrid wrapper updates memory cache too
         await db.history.add(newHistory);
 
         if (type !== 'AJUSTE') { 
@@ -311,12 +314,14 @@ export const InventoryService = {
         }
     });
 
-    GoogleSheetsService.request('sync_transaction', {
-        balances: updatedBalance ? [updatedBalance] : [],
-        movements: [newHistory]
-    }).catch(e => {
-        console.error("Sheets Sync Transaction failed", e);
-    });
+    if (newHistory) {
+        GoogleSheetsService.request('sync_transaction', {
+            balances: updatedBalance ? [updatedBalance] : [],
+            movements: [newHistory]
+        }).catch(e => {
+            console.error("Sheets Sync Transaction failed", e);
+        });
+    }
   },
 
   async registerMovement(item: InventoryItem, type: 'ENTRADA'|'SAIDA'|'AJUSTE', quantity: number, date: string, obs: string) {
@@ -464,8 +469,26 @@ export const InventoryService = {
   },
 
   async deleteItem(id: string): Promise<void> {
-      await db.transaction('rw', [db.rawDb.items, db.rawDb.balances], async () => {
+      await db.transaction('rw', [db.rawDb.items, db.rawDb.balances, db.rawDb.batches], async () => {
+          const item = await db.rawDb.items.get(id);
           await db.items.delete(id);
+
+          if (item) {
+              // Cleanup V2 orphans
+              const batchId = item.batchId || `BAT-${id}`;
+              const balances = await db.rawDb.balances.where('batchId').equals(batchId).toArray();
+              const balanceIds = balances.map(b => b.id);
+
+              if (balanceIds.length > 0) {
+                  await db.balances.bulkDelete(balanceIds);
+              }
+
+              // Only delete batch if it exists and matches our ID convention (safe check)
+              const batch = await db.rawDb.batches.get(batchId);
+              if (batch) {
+                  await db.rawDb.batches.delete(batchId);
+              }
+          }
       });
       
       GoogleSheetsService.deleteItem(id).catch(e => console.error(e));

@@ -76,11 +76,11 @@ function doPost(e) {
       .setMimeType(ContentService.MimeType.JSON);
 
   } catch (error) {
+    console.error('Error in doPost:', error);
     return ContentService
       .createTextOutput(JSON.stringify({ 
         success: false, 
-        error: error.toString(),
-        stack: error.stack 
+        error: "Internal Server Error"
       }))
       .setMimeType(ContentService.MimeType.JSON);
   } finally {
