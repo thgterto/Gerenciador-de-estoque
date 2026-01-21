@@ -97,7 +97,7 @@ const normalizeData = (items: InventoryItem[]) => {
 
         // 5. Balance (Saldo no Local)
         balances.push({
-            id: crypto.randomUUID(), 
+            id: item.id, // Use Item ID as Balance ID to prevent duplication during Sync
             batchId: batchId, 
             locationId: locId, 
             quantity: item.quantity,
@@ -379,11 +379,12 @@ export const InventoryService = {
 
   async addItem(dto: CreateItemDTO): Promise<void> {
       validateItemPayload(dto);
-      const newId = crypto.randomUUID();
+      const uuid = crypto.randomUUID();
       const now = new Date().toISOString();
-      const catalogId = `CAT-${newId}`;
-      const batchId = `BAT-${newId}`;
-      const balanceId = `BAL-${newId}`;
+      const catalogId = `CAT-${uuid}`;
+      const batchId = `BAT-${uuid}`;
+      const balanceId = `BAL-${uuid}`;
+      const newId = balanceId; // Item ID matches Balance ID (V2 Alignment)
       
       const newItem: InventoryItem = {
           id: newId,
