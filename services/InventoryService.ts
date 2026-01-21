@@ -175,16 +175,42 @@ export const InventoryService = {
   },
 
   async findItemByCode(code: string): Promise<InventoryItem | null> {
-      const items = await this.getAllItems();
+      // 1. Try exact ID match first (Fastest, O(1))
+      // db.items.get() uses memory cache if available, or efficient DB lookup
+      const byId = await db.items.get(code);
+      if (byId) return byId;
+
       const search = code.toLowerCase().trim().replace(/[^a-z0-9]/g, "");
-      
-      const exactMatch = items.find(i => 
-          i.id === code || 
+      if (!search) return null;
+
+      // 2. Check Memory Cache (O(N) in-memory)
+      // If cache is already populated (e.g. by getAllItems), use it.
+      const cachedItems = db.items.memoryCache;
+      if (cachedItems) {
+          const exactMatch = cachedItems.find(i =>
+              (i.sapCode && i.sapCode.toLowerCase().replace(/[^a-z0-9]/g, "") === search) ||
+              (i.lotNumber && i.lotNumber.toLowerCase().replace(/[^a-z0-9]/g, "") === search)
+          );
+          return exactMatch || null;
+      }
+
+      // 3. Try Index Lookups (Fast for correct inputs)
+      // This handles case-insensitive matches without scanning
+      const sapMatch = await db.rawDb.items.where('sapCode').equalsIgnoreCase(code).first();
+      if (sapMatch) return sapMatch;
+
+      const lotMatch = await db.rawDb.items.where('lotNumber').equalsIgnoreCase(code).first();
+      if (lotMatch) return lotMatch;
+
+      // 4. Fallback to Stream Filter (O(N) I/O, but low memory)
+      // Avoids loading all items into memory if cache is cold.
+      // We use rawDb to bypass the wrapper's "load all" behavior.
+      const match = await db.rawDb.items.filter(i =>
           (i.sapCode && i.sapCode.toLowerCase().replace(/[^a-z0-9]/g, "") === search) || 
           (i.lotNumber && i.lotNumber.toLowerCase().replace(/[^a-z0-9]/g, "") === search)
-      );
-      if (exactMatch) return exactMatch;
-      return null;
+      ).first();
+
+      return match || null;
   },
 
   async getItemBatchDetails(itemId: string): Promise<BatchDetailView[]> {

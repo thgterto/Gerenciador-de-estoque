@@ -30,6 +30,10 @@ class HybridTableWrapper<T, TKey> {
       this.notifyChange();
   }
 
+  get memoryCache(): T[] | null {
+      return this._memoryCache;
+  }
+
   // Otimização: Atualiza memória imediatamente para UI responsiva
   private optimisticUpdate(action: ChangeType, itemOrKey: T | TKey | T[] | TKey[]) {
     // Se não temos cache em memória, não fazemos update otimista, esperamos o DB
