@@ -401,21 +401,25 @@ export const ItemForm: React.FC<ItemFormProps> = ({
                                             const isChecked = formData.risks?.[ghs.key] || false;
                                             return (
                                                 <Tooltip key={ghs.key} content={ghs.label} position="top">
-                                                    <div 
+                                                    <button
+                                                        type="button"
+                                                        role="checkbox"
+                                                        aria-checked={isChecked}
+                                                        aria-label={`Risco: ${ghs.label}`}
                                                         onClick={() => {
                                                             setFormData(p => ({
                                                                 ...p,
                                                                 risks: { ...p.risks, [ghs.key]: !isChecked } as RiskFlags
                                                             }));
                                                         }}
-                                                        className={`cursor-pointer border rounded-lg size-8 flex items-center justify-center transition-all ${
+                                                        className={`cursor-pointer border rounded-lg size-8 flex items-center justify-center transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-red-500 ${
                                                             isChecked 
                                                             ? 'bg-white border-red-500 shadow ring-1 ring-red-500' 
                                                             : 'bg-white/50 border-transparent hover:bg-white'
                                                         }`}
                                                     >
                                                         <span className={`material-symbols-outlined text-[18px] ${isChecked ? ghs.textColor : 'text-slate-300'}`}>{ghs.icon}</span>
-                                                    </div>
+                                                    </button>
                                                 </Tooltip>
                                             );
                                         })}
