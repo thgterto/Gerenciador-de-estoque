@@ -4,7 +4,7 @@ import { InventoryItem, MovementRecord, ImportResult, RiskFlags, CatalogProduct 
 import { GoogleSheetsService } from './GoogleSheetsService';
 import { CasApiService } from './CasApiService';
 import { DataMapper } from '../utils/parsers/DataMapper';
-import { generateHash } from '../utils/stringUtils';
+import { generateHash, normalizeStr } from '../utils/stringUtils';
 
 function hasActiveRisks(risks?: RiskFlags): boolean {
     if (!risks) return false;
@@ -157,12 +157,22 @@ export const ImportService = {
                     updatedItems.push(upItem);
 
                     // Update V2 Balance (Main location)
-                    const balanceId = `BAL-${generateHash((item.batchId || `BAT-${item.id}`) + (item.locationId || ''))}`;
-                    if (item.batchId && item.locationId) {
+                    const batchId = item.batchId || `BAT-${item.id}`;
+                    let locationId = item.locationId;
+
+                    // If locationId is missing (legacy data), derive it from location object to match DataMapper logic
+                    if (!locationId) {
+                        const locStr = `${item.location.warehouse || 'Geral'} ${item.location.cabinet || ''} ${item.location.shelf || ''}`.trim();
+                        locationId = `LOC-${generateHash(normalizeStr(locStr))}`;
+                    }
+
+                    const balanceId = `BAL-${generateHash(batchId + locationId)}`;
+
+                    if (batchId && locationId) {
                         updatedBalances.push({
                             id: balanceId,
-                            batchId: item.batchId,
-                            locationId: item.locationId,
+                            batchId: batchId,
+                            locationId: locationId,
                             quantity: newQty,
                             lastMovementAt: new Date().toISOString()
                         });
