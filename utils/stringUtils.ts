@@ -1,4 +1,7 @@
 
+// Shared Intl.Collator for performance
+export const defaultCollator = new Intl.Collator('pt-BR', { sensitivity: 'base', numeric: true });
+
 // Regex pré-compilado para performance
 const CLEAN_REGEX = /[^A-Z0-9]/g;
 const MULTI_SPACE_REGEX = /\s+/g;
