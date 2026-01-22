@@ -14,6 +14,7 @@ import {
     StorageLocationEntity,
     BusinessPartner,
     StockBalance,
+    StockMovement, // New Entity
     SyncQueueItem
 } from './types';
 import { HybridStorageManager } from './utils/HybridStorage';
@@ -33,6 +34,7 @@ export class QStockDB extends Dexie {
   storage_locations!: Table<StorageLocationEntity, string>; // Standardized name
   partners!: Table<BusinessPartner, string>;
   balances!: Table<StockBalance, string>; // The "Cache" for distributed stock
+  stock_movements!: Table<StockMovement, string>; // The Real Ledger
 
   // --- Support Tables ---
   syncQueue!: Table<SyncQueueItem, number>; // Offline Sync Queue
@@ -84,6 +86,12 @@ export class QStockDB extends Dexie {
     // Schema Version 3 (Offline Capabilities)
     (this as any).version(3).stores({
         syncQueue: '++id, timestamp, action',
+    });
+
+    // Schema Version 4 (Ledger Architecture)
+    (this as any).version(4).stores({
+        stock_movements: 'id, batchId, type, [batchId+createdAt], [type+createdAt], fromLocationId, toLocationId',
+        balances: 'id, [batchId+locationId], batchId, locationId' // Re-affirming balances with correct indices
     });
   }
 }

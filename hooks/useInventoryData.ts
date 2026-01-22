@@ -63,6 +63,9 @@ export const useInventoryData = () => {
         
         const init = async () => {
             try {
+                // 1. Initialize Service (Runs Migrations if needed)
+                await InventoryService.initialize();
+
                 const dbCount = await db.rawDb.items.count();
                 const setupDone = localStorage.getItem(SESSION_KEYS.SETUP_COMPLETED) === 'true';
                 

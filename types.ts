@@ -220,6 +220,22 @@ export interface MovementRecord {
   readonly supplier?: string;
 }
 
+/**
+ * Pure Ledger Entry (V2 Structure).
+ * Corresponds to the 'stock_movements' table.
+ */
+export interface StockMovement {
+  id: UUID;
+  batchId: string; // FK -> InventoryBatch
+  fromLocationId?: string; // FK -> StorageLocationEntity
+  toLocationId?: string; // FK -> StorageLocationEntity
+  quantity: number;
+  type: 'ENTRADA' | 'SAIDA' | 'AJUSTE' | 'TRANSFERENCIA';
+  userId?: string;
+  createdAt: DateISOString;
+  observation?: string;
+}
+
 // ============================================================================
 // 4. OPERATIONAL DTOs & SERVICE TYPES
 // ============================================================================
