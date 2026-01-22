@@ -1,7 +1,6 @@
 
 // Regex pré-compilado para performance
 const CLEAN_REGEX = /[^A-Z0-9]/g;
-const UNDERSCORE_DOT_REGEX = /[_\.]/g;
 const MULTI_SPACE_REGEX = /\s+/g;
 
 // Mapa de Normalização de Unidades

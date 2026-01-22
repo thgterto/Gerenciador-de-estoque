@@ -132,7 +132,7 @@ export const useDashboardAnalytics = (items: InventoryItem[], history: MovementR
                  const close = runningTotal + delta;
                  
                  // Formata Data (DD/MM)
-                 const [year, month, d] = day.split('-');
+                 const [, month, d] = day.split('-');
                  const label = `${d}/${month}`;
 
                  // RangeBar: ApexCharts desenha de Min a Max. A cor indica a direção.

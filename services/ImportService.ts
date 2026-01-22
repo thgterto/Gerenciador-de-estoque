@@ -1,7 +1,6 @@
 
 import { db } from '../db';
-import { InventoryItem, MovementRecord, ImportResult, RiskFlags, CatalogProduct } from '../types';
-import { GoogleSheetsService } from './GoogleSheetsService';
+import { InventoryItem, MovementRecord, ImportResult, RiskFlags } from '../types';
 import { CasApiService } from './CasApiService';
 import { DataMapper } from '../utils/parsers/DataMapper';
 import { generateHash, normalizeStr } from '../utils/stringUtils';
@@ -197,7 +196,6 @@ export const ImportService = {
       const candidates = items.filter(i => i.casNumber && i.casNumber.length > 4 && (!i.molecularFormula || !hasActiveRisks(i.risks)));
       
       let updatedCount = 0;
-      let processed = 0;
 
       // Extract unique CAS numbers
       const casList = candidates.map(c => c.casNumber!);

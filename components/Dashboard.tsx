@@ -137,7 +137,7 @@ export const Dashboard: React.FC<Props> = ({ items, history, onAddToPurchase }) 
       },
       tooltip: { 
           theme: theme,
-          custom: function({ series, seriesIndex, dataPointIndex, w }) {
+          custom: function({ seriesIndex, dataPointIndex, w }) {
               const data = w.config.series[seriesIndex].data[dataPointIndex];
               const meta = data.meta;
               

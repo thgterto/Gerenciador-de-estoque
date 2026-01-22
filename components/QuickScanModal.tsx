@@ -17,7 +17,6 @@ export const QuickScanModal: React.FC<Props> = ({ isOpen, onClose }) => {
   const { addToast } = useAlert();
   const [scannedItem, setScannedItem] = useState<InventoryItem | null>(null);
   const [quantity, setQuantity] = useState<string>('1');
-  const [isLoading, setIsLoading] = useState(false);
   const [continuousMode, setContinuousMode] = useState(false);
   
   // Controle de "CoolDown" para evitar leituras duplas do mesmo código
@@ -34,7 +33,6 @@ export const QuickScanModal: React.FC<Props> = ({ isOpen, onClose }) => {
       }
       lastScanRef.current = { code: decodedText, time: now };
 
-      setIsLoading(true);
       try {
           // 1. Tentar encontrar o item
           const item = await InventoryService.findItemByCode(decodedText);
@@ -74,8 +72,6 @@ export const QuickScanModal: React.FC<Props> = ({ isOpen, onClose }) => {
       } catch (e) {
           console.error(e);
           addToast('Erro', 'error', 'Falha ao processar código.');
-      } finally {
-          setIsLoading(false);
       }
   }, [continuousMode, addToast]);
 

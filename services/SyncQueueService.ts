@@ -1,7 +1,6 @@
 
 import { db } from '../db';
 import { GoogleSheetsService } from './GoogleSheetsService';
-import { SyncQueueItem } from '../types';
 
 export const SyncQueueService = {
     

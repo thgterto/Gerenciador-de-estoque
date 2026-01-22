@@ -3,7 +3,6 @@ import { SqlParser } from './SqlParser';
 import { 
     InventoryItem, 
     MovementRecord, 
-    RiskFlags, 
     FullRelationalDumpDTO,
     CatalogProduct,
     InventoryBatch,

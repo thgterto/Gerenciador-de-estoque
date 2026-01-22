@@ -12,7 +12,6 @@ import {
     StockBalance,
     InventoryBatch,
     CatalogProduct,
-    RiskFlags,
     BatchDetailView
 } from '../types';
 import { generateInventoryId, sanitizeProductName, normalizeUnit, generateHash } from '../utils/stringUtils';
@@ -507,7 +506,7 @@ export const InventoryService = {
 
             if (itemToDelete && itemToDelete.batchId) {
                const balances = await db.rawDb.balances.where('batchId').equals(itemToDelete.batchId).toArray();
-               const balanceIds = balances.map(b => b.id);
+               const balanceIds = balances.map((b: any) => b.id);
                await db.rawDb.balances.bulkDelete(balanceIds);
             }
         });
@@ -532,7 +531,7 @@ export const InventoryService = {
             
             if (batchIds.length > 0) {
                 const balances = await db.rawDb.balances.where('batchId').anyOf(batchIds).toArray();
-                const balanceIds = balances.map(b => b.id);
+                const balanceIds = balances.map((b: any) => b.id);
                 await db.rawDb.balances.bulkDelete(balanceIds);
             }
         });
@@ -559,12 +558,12 @@ export const InventoryService = {
       let mismatches = 0;
       let corrections = 0;
       
-      const batchMap = new Map(batches.map(b => [b.id, b]));
+      const batchMap = new Map(batches.map((b: InventoryBatch) => [b.id, b]));
       
       // Sum up ledger by Catalog (Product ID)
       const ledgerSums = new Map<string, number>();
       
-      balances.forEach(bal => {
+      balances.forEach((bal: StockBalance) => {
           const batch = batchMap.get(bal.batchId);
           if (batch && batch.catalogId) {
              const current = ledgerSums.get(batch.id) || 0; // Use Batch ID

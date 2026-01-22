@@ -1,7 +1,7 @@
 
 import React, { useState, useMemo, useEffect } from 'react';
-import { InventoryItem, RiskFlags } from '../types';
-import { RISK_CONFIG, getItemStatus, analyzeLocation } from '../utils/businessRules';
+import { InventoryItem } from '../types';
+import { getItemStatus, analyzeLocation } from '../utils/businessRules';
 import { Card } from './ui/Card';
 import { Button } from './ui/Button';
 import { PageHeader } from './ui/PageHeader';
@@ -166,7 +166,7 @@ export const StorageMatrix: React.FC<Props> = ({ items }) => {
     }, [selectedLocKey, locations]);
 
     // Mapeia itens para o Grid e vice-versa
-    const { gridMap, reverseGridMap, unassignedItems } = useMemo(() => {
+    const { gridMap, reverseGridMap } = useMemo(() => {
         const map: Record<string, InventoryItem> = {};
         const revMap: Record<string, string> = {};
         const unassigned: InventoryItem[] = [];
@@ -183,7 +183,7 @@ export const StorageMatrix: React.FC<Props> = ({ items }) => {
                 unassigned.push(item);
             }
         });
-        return { gridMap: map, reverseGridMap: revMap, unassignedItems: unassigned };
+        return { gridMap: map, reverseGridMap: revMap };
     }, [selectedLocationItems]);
 
     const activeCellId = useMemo(() => {
@@ -258,7 +258,7 @@ export const StorageMatrix: React.FC<Props> = ({ items }) => {
                             </div>
                         ) : (
                             <div id="tour-storage-grid" className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
-                                {Object.entries(locations).map(([key, locItems]) => {
+                                {Object.entries(locations).map(([key]) => {
                                     const analysis = locationStats[key];
                                     const [warehouse, cabinet] = key.split(' > ');
                                     return (

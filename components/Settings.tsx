@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { db } from '../db';
 import { InventoryService } from '../services/InventoryService';
 import { ImportService } from '../services/ImportService';
@@ -7,8 +7,6 @@ import { GoogleSheetsService } from '../services/GoogleSheetsService';
 import { seedDatabase } from '../services/DatabaseSeeder'; 
 import { GOOGLE_CONFIG } from '../config/apiConfig';
 import { useAlert } from '../context/AlertContext';
-import { useAuth } from '../context/AuthContext';
-import { useTheme } from '../context/ThemeContext';
 import { ImportWizard } from './ImportWizard';
 import { ImportMode } from '../utils/ImportEngine';
 import { Card } from './ui/Card'; 
@@ -20,8 +18,6 @@ import { ExportEngine } from '../utils/ExportEngine';
 
 export const Settings: React.FC = () => {
     const { addToast } = useAlert();
-    const { hasRole } = useAuth();
-    const { theme, toggleTheme } = useTheme();
     const [loading, setLoading] = useState(false);
     
     const [googleUrl, setGoogleUrl] = useState('');
@@ -38,14 +34,9 @@ export const Settings: React.FC = () => {
     const [resetConfirmationText, setResetConfirmationText] = useState('');
     const [resetTargetMode, setResetTargetMode] = useState<'EMPTY' | 'DEMO' | 'LIMS' | null>(null);
 
-    const [tourEnabled, setTourEnabled] = useState(true);
     const [auditStats, setAuditStats] = useState<{ matches: number, mismatches: number, corrections: number } | null>(null);
 
-    const jsonInputRef = useRef<HTMLInputElement>(null);
-
     useEffect(() => {
-        const isEnabled = localStorage.getItem('LC_TUTORIAL_ENABLED') !== 'false';
-        setTourEnabled(isEnabled);
         
         const url = GOOGLE_CONFIG.getWebUrl();
         setGoogleUrl(url);
