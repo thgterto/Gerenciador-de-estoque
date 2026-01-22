@@ -315,8 +315,6 @@ export const ImportEngine = {
     // Objeto acumulador de riscos
     const risksObj: RiskFlags = { O: false, T: false, T_PLUS: false, C: false, E: false, N: false, Xn: false, Xi: false, F: false, F_PLUS: false };
     
-    let hasRiskColumn = false;
-
     schema.forEach(field => {
       const sourceHeader = mapping[field.key];
       let value = sourceHeader ? row[sourceHeader] : undefined;
@@ -332,7 +330,6 @@ export const ImportEngine = {
                       risksObj[code as keyof RiskFlags] = true;
                   }
               }
-              hasRiskColumn = true;
           }
       }
 
@@ -380,8 +377,6 @@ export const ImportEngine = {
              if (has(['GHS09', 'AMBIEN', 'POLU', 'PEIXE'])) risksObj.N = true;
              if (has(['GHS07', 'NOCIV', 'IRRIT', 'XN', 'HARMFUL'])) risksObj.Xn = true;
              if (has(['XI', 'IRRITANT'])) risksObj.Xi = true;
-             
-             hasRiskColumn = true;
           }
       } else {
           if (field.required) {

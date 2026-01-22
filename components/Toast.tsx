@@ -1,5 +1,5 @@
 
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useAlert } from '../context/AlertContext';
 import { AppNotification } from '../types';
 

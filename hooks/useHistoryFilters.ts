@@ -1,5 +1,5 @@
 
-import { useState, useEffect, useMemo, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { MovementRecord } from '../types';
 import { normalizeStr } from '../utils/stringUtils';
 import { db } from '../db';
@@ -75,7 +75,7 @@ export const useHistoryFilters = (
                 // 3. Execução da Query com Filtragem no Worker do Dexie
                 // Nota: Usamos filter() JS dentro da chain do Dexie.
                 // Embora não use índice para tudo, evita carregar objetos desnecessários na memória do React.
-                const results = await collection.filter(h => {
+                const results = await collection.filter((h: MovementRecord) => {
                     // Filtro de Data
                     if (minDate && h.date < minDate) return false;
                     if (dateFilter === 'TODAY' && !h.date.startsWith(todayStr)) return false;
@@ -105,7 +105,7 @@ export const useHistoryFilters = (
                 let entries = 0, exits = 0, adjustments = 0;
                 let balance = 0;
 
-                results.forEach(h => {
+                results.forEach((h: MovementRecord) => {
                     if (h.type === 'ENTRADA') {
                         entries++;
                         balance += h.quantity;

@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, useMemo, useRef } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { InventoryItem, QRCodeDataDTO, CreateItemDTO } from '../types';
 import QRCode from 'react-qr-code';
 import { Input } from './ui/Input';
@@ -7,7 +7,6 @@ import { Button } from './ui/Button';
 import { Modal } from './ui/Modal';
 import { ItemForm } from './ItemForm';
 import { AddItem } from './AddItem';
-import { InventoryService } from '../services/InventoryService';
 import { useAlert } from '../context/AlertContext';
 import { useScanner } from '../hooks/useScanner';
 import { Select } from './ui/Select';

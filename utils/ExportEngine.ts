@@ -3,11 +3,6 @@ import * as XLSX from 'xlsx';
 import { InventoryItem, MovementRecord } from '../types';
 import { db } from '../db';
 
-interface ExportDataOptions {
-    fileName?: string;
-    sheetName?: string;
-}
-
 // SECURITY: Sanitize cells to prevent CSV Injection (Formula Injection)
 const sanitizeCell = (value: any): any => {
     if (typeof value === 'string') {

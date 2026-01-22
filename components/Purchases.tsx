@@ -6,7 +6,6 @@ import { PageContainer } from './ui/PageContainer';
 import { Button } from './ui/Button';
 import { PurchaseAlertCard } from './PurchaseAlertCard';
 import { useDebounce } from '../hooks/useDebounce';
-import { Card } from './ui/Card';
 import { EmptyState } from './ui/EmptyState';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui/Table';
 import { Badge } from './ui/Badge';
@@ -170,7 +169,7 @@ export const Purchases: React.FC<PurchasesProps> = ({
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {purchaseList.map((item, index) => (
+                            {purchaseList.map((item) => (
                                 <TableRow key={item.id}>
                                     <TableCell>
                                         <input type="checkbox" checked className="rounded border-border-light text-primary focus:ring-primary dark:bg-surface-dark dark:border-border-dark cursor-pointer"/>

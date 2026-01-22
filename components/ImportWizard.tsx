@@ -330,7 +330,6 @@ export const ImportWizard: React.FC<Props> = ({ isOpen, onClose, mode }) => {
       }
   };
 
-  const isSheetSelection = !!workbook && availableSheets.length > 1 && detectedTables.length === 0;
   const isTableSelection = detectedTables.length > 1;
   const isUpload = !workbook;
 

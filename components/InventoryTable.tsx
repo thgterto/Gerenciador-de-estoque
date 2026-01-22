@@ -198,7 +198,7 @@ export const InventoryTable: React.FC<Props> = ({ items, onActions, onAddNew }) 
       return 'inventory_2'; 
   }, []);
 
-  const copyToClipboard = useCallback((text: string, label: string) => {
+  const copyToClipboard = useCallback((text: string) => {
       if(!text) return;
       navigator.clipboard.writeText(text);
   }, []);

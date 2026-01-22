@@ -1,7 +1,6 @@
 
 import { db } from '../db';
 import { InventoryItem, MovementRecord, FullRelationalDumpDTO } from '../types';
-import { InventoryService } from './InventoryService';
 import { ImportService } from './ImportService';
 import { DataMapper } from '../utils/parsers/DataMapper';
 
