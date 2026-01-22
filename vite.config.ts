@@ -5,7 +5,7 @@ import { resolve } from 'path'
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
-  base: './', // Essencial para o modo "Portable" (caminhos relativos)
+  base: process.env.VERCEL ? '/' : './', // '/' para Vercel, './' para Electron (Portable)
   resolve: {
     alias: {
       react: resolve('./node_modules/react'),
