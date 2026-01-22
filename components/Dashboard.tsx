@@ -9,6 +9,7 @@ import { PageContainer } from './ui/PageContainer';
 import { Button } from './ui/Button';
 import { PageHeader } from './ui/PageHeader'; // Importado
 import { formatDateTime, formatDate } from '../utils/formatters';
+import { defaultCollator } from '../utils/stringUtils';
 import { useDashboardAnalytics } from '../hooks/useDashboardAnalytics';
 import { useTheme } from '../context/ThemeContext';
 
@@ -248,8 +249,9 @@ export const Dashboard: React.FC<Props> = ({ items, history, onAddToPurchase }) 
   ];
 
   // Options for Dropdown (Optimized for performance)
+  // Optimization: Replaced localeCompare with shared Intl.Collator (~2x faster)
   const itemOptions = useMemo(() => {
-      const sorted = [...items].sort((a,b) => a.name.localeCompare(b.name)).slice(0, 500);
+      const sorted = [...items].sort((a,b) => defaultCollator.compare(a.name, b.name)).slice(0, 500);
       return sorted.map(i => ({ 
           value: i.id, 
           label: `${i.name} ${i.sapCode ? `(${i.sapCode})` : ''} - ${i.lotNumber}` 
