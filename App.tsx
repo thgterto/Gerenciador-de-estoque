@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect, useRef, useMemo, Suspense } from 'react';
 import { HashRouter as Router, Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
+import { SpeedInsights } from '@vercel/speed-insights/react';
 import { Layout } from './components/Layout';
 import { AddItem } from './components/AddItem'; 
 import { MovementModal, EditModal, RequestModal, QRGeneratorModal, AddItemModal } from './components/Modals'; 
@@ -273,6 +274,7 @@ export default function App() {
                 <AlertProvider>
                     <AuthProvider>
                         <LabControlContent />
+                        <SpeedInsights />
                     </AuthProvider>
                 </AlertProvider>
             </ThemeProvider>
