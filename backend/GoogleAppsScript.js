@@ -73,11 +73,14 @@ function doPost(e) {
       .setMimeType(ContentService.MimeType.JSON);
 
   } catch (error) {
+    // Log error internally (Google Cloud Logging)
+    console.error(error);
+
     return ContentService
       .createTextOutput(JSON.stringify({ 
         success: false, 
-        error: error.toString(),
-        stack: error.stack 
+        error: error.toString()
+        // Stack trace removed for security
       }))
       .setMimeType(ContentService.MimeType.JSON);
   } finally {
