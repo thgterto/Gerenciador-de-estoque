@@ -1,7 +1,10 @@
 
 import { db } from '../db';
 import { GoogleSheetsService } from './GoogleSheetsService';
-import { SyncQueueService } from './SyncQueueService'; // Import Queue Service
+import { SyncQueueService } from './SyncQueueService';
+import { LedgerService } from './LedgerService';   // NEW
+import { SnapshotService } from './SnapshotService'; // NEW
+import { MigrationV2 } from '../utils/MigrationV2'; // NEW
 import { 
     InventoryItem, 
     MovementRecord, 
@@ -27,11 +30,16 @@ const validateItemPayload = (item: Partial<InventoryItem>) => {
 
 /**
  * InventoryService Core Logic
- * Implements the "Dual Write" pattern to maintain sync between Snapshot (V1) and Ledger (V2).
+ * NOW UPDATED: Uses LedgerService as the Single Source of Truth.
  */
 export const InventoryService = {
   
   // --- Initialization / Sync ---
+
+  async initialize() {
+      // Auto-migrate on startup if needed
+      await MigrationV2.runMigration();
+  },
   
   async syncFromCloud(): Promise<void> {
       try {
@@ -146,7 +154,7 @@ export const InventoryService = {
       });
   },
 
-  // --- Transactional Operations (Dual Write V1+V2) ---
+  // --- Transactional Operations (Ledger V2) ---
 
   async processTransaction(payload: StockTransactionDTO): Promise<void> {
     const { itemId, type, quantity, date, observation, fromLocationId, toLocationId } = payload;
@@ -156,112 +164,92 @@ export const InventoryService = {
     const item = await db.items.get(itemId);
     if (!item) throw new Error("Item não encontrado no inventário.");
 
-    let newBalance = item.quantity;
-    let deltaQty = 0;
-
-    // Logic: V1 Snapshot Calculation
-    if (type === 'ENTRADA') {
-        newBalance = item.quantity + quantity;
-        deltaQty = quantity;
-    } 
-    else if (type === 'SAIDA') {
-        if (quantity > item.quantity) {
-            throw new Error(`Saldo insuficiente. Disponível: ${item.quantity} ${item.baseUnit}`);
-        }
-        newBalance = item.quantity - quantity;
-        deltaQty = quantity;
-    }
-    else if (type === 'AJUSTE') {
-        const diff = quantity - item.quantity;
-        newBalance = quantity;
-        deltaQty = Math.abs(diff); 
-    }
-    else if (type === 'TRANSFERENCIA') {
-        deltaQty = quantity;
-    }
-
-    const updatedItem: InventoryItem = { 
-        ...item, 
-        quantity: parseFloat(newBalance.toFixed(3)), 
-        lastUpdated: new Date().toISOString() 
-    };
-    
-    // Logic: V2 Ledger IDs
+    // Resolve IDs
     const batchId = item.batchId || `BAT-${itemId}`;
-    const mainLocId = item.locationId || `LOC-${generateHash(item.location.warehouse || 'Geral')}`; 
+    const mainLocId = item.locationId || `LOC-${generateHash(item.location.warehouse || 'Geral')}`;
 
-    const newHistory: MovementRecord = {
-        id: crypto.randomUUID(), 
-        itemId: item.id, 
-        date: date,
+    // Determine effective Source/Dest locations & Delta for Ledger
+    let effectiveFrom = fromLocationId;
+    let effectiveTo = toLocationId;
+    let ledgerQuantity = quantity;
+
+    if (type === 'SAIDA' && !effectiveFrom) effectiveFrom = mainLocId;
+    if (type === 'ENTRADA' && !effectiveTo) effectiveTo = mainLocId;
+
+    if (type === 'TRANSFERENCIA') {
+        if (!effectiveFrom) effectiveFrom = mainLocId;
+        // toLocationId is required for transfer
+    }
+
+    // Fix for AJUSTE: The UI sends the "Target Total Quantity", but Ledger expects a "Delta".
+    if (type === 'AJUSTE') {
+        const currentQty = item.quantity; // V1 Snapshot quantity (Close enough for UI adjustment)
+        const diff = quantity - currentQty;
+
+        ledgerQuantity = Math.abs(diff);
+
+        if (diff > 0) {
+            // Gain: Treat like Entry
+            effectiveTo = mainLocId;
+            effectiveFrom = undefined;
+        } else if (diff < 0) {
+            // Loss: Treat like Exit
+            effectiveFrom = mainLocId;
+            effectiveTo = undefined;
+        } else {
+            // No change
+            return;
+        }
+    }
+    
+    // 1. EXECUTE LEDGER TRANSACTION (Atomic)
+    // This throws if stock is insufficient or invalid.
+    const movement = await LedgerService.registerMovement({
+        batchId,
+        type,
+        quantity: ledgerQuantity,
+        fromLocationId: effectiveFrom,
+        toLocationId: effectiveTo,
+        userId: payload.userId || 'USER',
+        observation: observation,
+        date: date
+    });
+
+    // 2. ASYNC SNAPSHOT UPDATE (The "Worker")
+    // Re-calculates the V1 Item View based on the new Ledger State
+    await SnapshotService.updateItemSnapshot(batchId);
+
+    // 3. Legacy Audit Trail (Keep 'history' table for existing UI charts/grids)
+    // We duplicate this logic briefly to support the old chart view until it's refactored
+    const historyRecord: MovementRecord = {
+        id: movement.id,
+        itemId: item.id,
+        date: movement.createdAt,
         type: type,
         batchId: batchId,
-        fromLocationId: fromLocationId || (type === 'SAIDA' ? mainLocId : undefined),
-        toLocationId: toLocationId || (type === 'ENTRADA' ? mainLocId : undefined),
+        fromLocationId: movement.fromLocationId,
+        toLocationId: movement.toLocationId,
         productName: item.name,
         sapCode: item.sapCode,
         lot: item.lotNumber,
-        quantity: parseFloat(deltaQty.toFixed(3)),
+        quantity: quantity,
         unit: item.baseUnit,
         location_warehouse: item.location.warehouse,
         supplier: item.supplier,
-        observation: observation || (type === 'AJUSTE' ? 'Correção manual' : ''),
+        observation: observation || ''
     };
+    await db.history.add(historyRecord);
 
-    let updatedBalance: StockBalance | null = null;
-
-    try {
-        // EXECUTE ATOMIC DUAL WRITE
-        await db.transaction('rw', [db.rawDb.items, db.rawDb.history, db.rawDb.balances], async () => {
-            // 1. Update V1 Snapshot
-            await db.items.put(updatedItem);
-            // 2. Add Audit Trail
-            await db.history.add(newHistory);
-
-            // 3. Update V2 Balance (Stock at specific location)
-            if (type !== 'AJUSTE' && type !== 'TRANSFERENCIA') { 
-                const targetLocId = toLocationId || mainLocId;
-                
-                const balanceKey = await db.rawDb.balances
-                    .where({ batchId: batchId, locationId: targetLocId })
-                    .first();
-                
-                let currentLocQty = balanceKey ? balanceKey.quantity : 0;
-                
-                if (type === 'ENTRADA') currentLocQty += quantity;
-                else if (type === 'SAIDA') currentLocQty -= quantity;
-                
-                const balanceId = balanceKey?.id || `BAL-${generateHash(batchId + targetLocId)}`;
-
-                updatedBalance = {
-                    id: balanceId,
-                    batchId: batchId,
-                    locationId: targetLocId,
-                    quantity: Math.max(0, currentLocQty),
-                    lastMovementAt: new Date().toISOString()
-                };
-                
-                await db.balances.put(updatedBalance);
-            }
-        });
-    } catch (e) {
-        console.error("Transaction failed. Invalidating L1 cache.", e);
-        db.invalidateCaches();
-        throw e;
-    }
-
-    // Cloud Sync (Resilient)
-    // Tenta enviar direto; se falhar, enfileira.
+    // 4. Cloud Sync
     if (GoogleSheetsService.isConfigured()) {
+        // We sync the raw movement + the updated balance (fetched fresh)
+        // Ideally we fetch the specific balance changed, but for now we sync movement.
         const payload = {
-            balances: updatedBalance ? [updatedBalance] : [],
-            movements: [newHistory]
+            movements: [historyRecord]
         };
 
         GoogleSheetsService.request('sync_transaction', payload)
-            .catch(() => {
-                SyncQueueService.enqueue('sync_transaction', payload);
-            });
+            .catch(() => SyncQueueService.enqueue('sync_transaction', payload));
     }
   },
 
