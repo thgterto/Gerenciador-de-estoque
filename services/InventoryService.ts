@@ -12,7 +12,6 @@ import {
     StockBalance,
     InventoryBatch,
     CatalogProduct,
-    RiskFlags,
     BatchDetailView
 } from '../types';
 import { generateInventoryId, sanitizeProductName, normalizeUnit, generateHash } from '../utils/stringUtils';
@@ -506,8 +505,8 @@ export const InventoryService = {
             await db.items.delete(id);
 
             if (itemToDelete && itemToDelete.batchId) {
-               const balances = await db.rawDb.balances.where('batchId').equals(itemToDelete.batchId).toArray();
-               const balanceIds = balances.map(b => b.id);
+               const balances = await db.rawDb.balances.where('batchId').equals(itemToDelete.batchId).toArray() as StockBalance[];
+               const balanceIds = balances.map((b: StockBalance) => b.id);
                await db.rawDb.balances.bulkDelete(balanceIds);
             }
         });
@@ -531,8 +530,8 @@ export const InventoryService = {
             await db.items.bulkDelete(ids);
             
             if (batchIds.length > 0) {
-                const balances = await db.rawDb.balances.where('batchId').anyOf(batchIds).toArray();
-                const balanceIds = balances.map(b => b.id);
+                const balances = await db.rawDb.balances.where('batchId').anyOf(batchIds).toArray() as StockBalance[];
+                const balanceIds = balances.map((b: StockBalance) => b.id);
                 await db.rawDb.balances.bulkDelete(balanceIds);
             }
         });
@@ -559,7 +558,7 @@ export const InventoryService = {
       let mismatches = 0;
       let corrections = 0;
       
-      const batchMap = new Map(batches.map(b => [b.id, b]));
+      const batchMap = new Map(batches.map((b: InventoryBatch) => [b.id, b]));
       
       // Sum up ledger by Catalog (Product ID)
       const ledgerSums = new Map<string, number>();

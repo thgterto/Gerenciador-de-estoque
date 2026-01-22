@@ -63,7 +63,14 @@ export const useScanner = ({ onScan, onError, aspectRatio = 1.0 }: UseScannerPro
         if (!element) return;
 
         try {
-            const scanner = new Html5Qrcode(elementId);
+            const scanner = new Html5Qrcode(elementId, {
+                formatsToSupport: [
+                    Html5QrcodeSupportedFormats.QR_CODE,
+                    Html5QrcodeSupportedFormats.EAN_13,
+                    Html5QrcodeSupportedFormats.CODE_128
+                ],
+                verbose: false
+            });
             scannerRef.current = scanner;
 
             await scanner.start(
@@ -71,12 +78,7 @@ export const useScanner = ({ onScan, onError, aspectRatio = 1.0 }: UseScannerPro
                 {
                     fps: 10,
                     qrbox: { width: 250, height: 250 },
-                    aspectRatio: aspectRatio,
-                    formatsToSupport: [
-                        Html5QrcodeSupportedFormats.QR_CODE,
-                        Html5QrcodeSupportedFormats.EAN_13,
-                        Html5QrcodeSupportedFormats.CODE_128
-                    ]
+                    aspectRatio: aspectRatio
                 },
                 (decodedText) => {
                     // Previne leituras múltiplas muito rápidas (debounce simples)
@@ -86,7 +88,7 @@ export const useScanner = ({ onScan, onError, aspectRatio = 1.0 }: UseScannerPro
                     if (navigator.vibrate) navigator.vibrate(50);
                     onScan(decodedText);
                 },
-                (err) => {
+                (_) => {
                     // Ignora erros de frame vazio
                 }
             );
