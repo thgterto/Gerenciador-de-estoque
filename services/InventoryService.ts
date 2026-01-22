@@ -183,7 +183,12 @@ export const InventoryService = {
 
     // Fix for AJUSTE: The UI sends the "Target Total Quantity", but Ledger expects a "Delta".
     if (type === 'AJUSTE') {
-        const currentQty = item.quantity; // V1 Snapshot quantity (Close enough for UI adjustment)
+        // Fetch authoritative balance from V2 Ledger for accuracy (V1 might be stale)
+        const currentBalance = await db.rawDb.balances
+            .where({ batchId: batchId, locationId: mainLocId })
+            .first();
+
+        const currentQty = currentBalance ? currentBalance.quantity : 0;
         const diff = quantity - currentQty;
 
         ledgerQuantity = Math.abs(diff);
