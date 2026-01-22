@@ -124,18 +124,30 @@ export const InventoryChildRow = React.memo(({
                     <div className="px-2 text-right">
                         <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                              <Tooltip content="Novo Lote (Clonar)">
-                                <button onClick={()=>onActions.clone(item)} className="p-1.5 hover:bg-white dark:hover:bg-slate-700 rounded text-text-secondary hover:text-primary transition-colors shadow-sm">
-                                    <span className="material-symbols-outlined text-[16px]">content_copy</span>
+                                <button
+                                    onClick={()=>onActions.clone(item)}
+                                    className="p-1.5 hover:bg-white dark:hover:bg-slate-700 rounded text-text-secondary hover:text-primary transition-colors shadow-sm"
+                                    aria-label="Clonar lote"
+                                >
+                                    <span className="material-symbols-outlined text-[16px]" aria-hidden="true">content_copy</span>
                                 </button>
                              </Tooltip>
                              <Tooltip content="Editar">
-                                <button onClick={()=>onActions.edit(item)} className="p-1.5 hover:bg-white dark:hover:bg-slate-700 rounded text-text-secondary hover:text-primary transition-colors shadow-sm">
-                                    <span className="material-symbols-outlined text-[16px]">edit</span>
+                                <button
+                                    onClick={()=>onActions.edit(item)}
+                                    className="p-1.5 hover:bg-white dark:hover:bg-slate-700 rounded text-text-secondary hover:text-primary transition-colors shadow-sm"
+                                    aria-label="Editar lote"
+                                >
+                                    <span className="material-symbols-outlined text-[16px]" aria-hidden="true">edit</span>
                                 </button>
                              </Tooltip>
                              <Tooltip content="Movimentar">
-                                <button onClick={()=>onActions.move(item)} className="p-1.5 hover:bg-white dark:hover:bg-slate-700 rounded text-text-secondary hover:text-primary transition-colors shadow-sm">
-                                    <span className="material-symbols-outlined text-[16px]">swap_horiz</span>
+                                <button
+                                    onClick={()=>onActions.move(item)}
+                                    className="p-1.5 hover:bg-white dark:hover:bg-slate-700 rounded text-text-secondary hover:text-primary transition-colors shadow-sm"
+                                    aria-label="Movimentar lote"
+                                >
+                                    <span className="material-symbols-outlined text-[16px]" aria-hidden="true">swap_horiz</span>
                                 </button>
                              </Tooltip>
                         </div>
@@ -393,19 +405,19 @@ export const InventoryMobileChildRow = React.memo(({
                 {/* Actions Toolbar */}
                 <div className="grid grid-cols-4 gap-2 mt-3 pt-2 border-t border-dashed border-slate-100 dark:border-slate-700">
                      <button onClick={()=>onActions.move(item)} className="flex flex-col items-center justify-center text-text-secondary hover:text-primary py-1 active:bg-slate-50 dark:active:bg-slate-700 rounded transition-colors group">
-                         <span className="material-symbols-outlined text-[20px] group-hover:scale-110 transition-transform">swap_horiz</span>
+                         <span className="material-symbols-outlined text-[20px] group-hover:scale-110 transition-transform" aria-hidden="true">swap_horiz</span>
                          <span className="text-[9px] mt-0.5 font-medium">Mover</span>
                      </button>
                      <button onClick={()=>onActions.clone(item)} className="flex flex-col items-center justify-center text-text-secondary hover:text-primary py-1 active:bg-slate-50 dark:active:bg-slate-700 rounded transition-colors group">
-                         <span className="material-symbols-outlined text-[18px] group-hover:scale-110 transition-transform">content_copy</span>
+                         <span className="material-symbols-outlined text-[18px] group-hover:scale-110 transition-transform" aria-hidden="true">content_copy</span>
                          <span className="text-[9px] mt-0.5 font-medium">Clonar</span>
                      </button>
                      <button onClick={()=>onActions.edit(item)} className="flex flex-col items-center justify-center text-text-secondary hover:text-primary py-1 active:bg-slate-50 dark:active:bg-slate-700 rounded transition-colors group">
-                         <span className="material-symbols-outlined text-[18px] group-hover:scale-110 transition-transform">edit</span>
+                         <span className="material-symbols-outlined text-[18px] group-hover:scale-110 transition-transform" aria-hidden="true">edit</span>
                          <span className="text-[9px] mt-0.5 font-medium">Editar</span>
                      </button>
                      <button onClick={()=>onActions.qr(item)} className="flex flex-col items-center justify-center text-text-secondary hover:text-primary py-1 active:bg-slate-50 dark:active:bg-slate-700 rounded transition-colors group">
-                         <span className="material-symbols-outlined text-[18px] group-hover:scale-110 transition-transform">print</span>
+                         <span className="material-symbols-outlined text-[18px] group-hover:scale-110 transition-transform" aria-hidden="true">print</span>
                          <span className="text-[9px] mt-0.5 font-medium">QR</span>
                      </button>
                 </div>
