@@ -15,6 +15,8 @@ import { ThemeProvider } from './context/ThemeContext';
 import { ToastContainer } from './components/Toast';
 import { Login } from './components/Login';
 import { SyncQueueService } from './services/SyncQueueService';
+import { PageContainer } from './components/ui/PageContainer';
+import { PageHeader } from './components/ui/PageHeader';
 
 // Hooks Personalizados
 import { useInventoryData } from './hooks/useInventoryData';
@@ -189,7 +191,16 @@ const LabControlContent = () => {
                    <Route path="/storage" element={<StorageMatrix items={items} />} />
                    
                    {/* Legacy Route redirect to modal behavior if accessed directly */}
-                   <Route path="/add-item" element={<AddItem onCancel={() => navigate('/inventory')} />} />
+                   <Route path="/add-item" element={
+                        <PageContainer scrollable={true}>
+                            <PageHeader
+                                title="Adicionar Novo Item"
+                                description="Preencha os dados abaixo para cadastrar um novo item no inventário."
+                                breadcrumbs={[{ label: 'Inventário', path: '/inventory' }, { label: 'Novo Item' }]}
+                            />
+                            <AddItem onCancel={() => navigate('/inventory')} />
+                        </PageContainer>
+                   } />
 
                    <Route path="/purchases" element={
                         <Purchases 

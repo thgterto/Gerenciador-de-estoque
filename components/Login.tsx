@@ -34,7 +34,7 @@ export const Login: React.FC = () => {
     };
 
     return (
-        <div className="min-h-screen bg-background-dark flex flex-col items-center justify-center p-4">
+        <div className="min-h-screen bg-background-dark flex flex-col items-center justify-center p-4 overflow-y-auto">
             <Card padding="p-0" className="w-full max-w-md overflow-hidden animate-scale-in">
                 <div className="p-8 bg-background-light dark:bg-slate-800/50 border-b border-border-light dark:border-border-dark text-center">
                     <div className="inline-flex items-center justify-center size-16 bg-primary/10 rounded-full mb-4 text-primary border border-primary/20">
