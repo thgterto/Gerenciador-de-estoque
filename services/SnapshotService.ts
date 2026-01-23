@@ -1,6 +1,6 @@
 
 import { db } from '../db';
-import { InventoryItem, StorageAddress } from '../types';
+import { InventoryItem, StorageAddress, StockBalance } from '../types';
 
 /**
  * SNAPSHOT SERVICE (V1 Updater)
@@ -31,10 +31,10 @@ export const SnapshotService = {
             }
 
             // Get all balances for this batch (distributed across locations)
-            const balances = await db.rawDb.balances.where('batchId').equals(batchId).toArray();
+            const balances: StockBalance[] = await db.rawDb.balances.where('batchId').equals(batchId).toArray();
 
             // 2. Aggregate Total Quantity
-            const totalQuantity = balances.reduce((sum, bal) => sum + bal.quantity, 0);
+            const totalQuantity = balances.reduce((sum: number, bal: StockBalance) => sum + bal.quantity, 0);
 
             // 3. Determine Primary Location (Heuristic for V1 Flat View)
             // The UI expects a single location. We pick the one with the most stock, or the first one.
@@ -49,7 +49,7 @@ export const SnapshotService = {
 
             if (balances.length > 0) {
                 // Sort by quantity desc to find "Main" location
-                balances.sort((a, b) => b.quantity - a.quantity);
+                balances.sort((a: StockBalance, b: StockBalance) => b.quantity - a.quantity);
                 primaryLocationId = balances[0].locationId;
 
                 const locEntity = await db.rawDb.storage_locations.get(primaryLocationId);
@@ -71,7 +71,7 @@ export const SnapshotService = {
             // In the legacy system, Item ID often equaled Batch ID or a hash.
             // We need to find if there is an existing item linked to this batch.
 
-            const existingItem = await db.items.where('batchId').equals(batchId).first();
+            const existingItem = await db.rawDb.items.where('batchId').equals(batchId).first();
             const itemId = existingItem ? existingItem.id : batchId; // Fallback to Batch ID if new
 
             const now = new Date().toISOString();

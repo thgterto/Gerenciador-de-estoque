@@ -1,6 +1,6 @@
 
 import { db } from '../db';
-import { StockMovement, StockBalance, StorageLocationEntity } from '../types';
+import { StockMovement, StockBalance } from '../types';
 import { generateHash } from '../utils/stringUtils';
 
 interface RegisterMovementDTO {
