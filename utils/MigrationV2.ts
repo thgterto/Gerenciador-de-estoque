@@ -6,21 +6,28 @@ import { generateInventoryId, generateHash } from '../utils/stringUtils';
 /**
  * Migration Utility
  * Promotes V1 "Flat" Data to V2 "Relational" Ledger.
- * Should be run once on startup if V2 tables are empty.
+ * Should be run once on startup.
  */
 export const MigrationV2 = {
 
     async runMigration() {
-        // Check if migration is needed
-        const batchCount = await db.rawDb.batches.count();
-        if (batchCount > 0) {
-            console.log("[Migration] V2 Ledger already populated. Skipping.");
+        // CHANGED: Removed the strict check that aborted if ANY batch existed.
+        // Instead, we will inspect the items to see if they are missing V2 links.
+
+        console.log("[Migration] Checking for V1 -> V2 Promotion candidates...");
+
+        // Fetch all items that might need migration.
+        // Optimization: In a huge DB, we might want to filter by !catalogId or !batchId if indexed.
+        // For now, iterating all is safer to catch partial migrations.
+        const items = await db.items.toArray();
+        const pendingItems = items.filter(i => !i.batchId || !i.catalogId);
+
+        if (pendingItems.length === 0) {
+            console.log("[Migration] All items appear to be migrated. Skipping.");
             return;
         }
 
-        console.log("[Migration] Starting V1 -> V2 Promotion...");
-
-        const items = await db.items.toArray();
+        console.log(`[Migration] Found ${pendingItems.length} legacy items to promote.`);
         let migratedCount = 0;
 
         // Use a transaction for safety (or chunk it if too large)
@@ -35,7 +42,7 @@ export const MigrationV2 = {
             db.rawDb.storage_locations
         ], async () => {
 
-            for (const item of items) {
+            for (const item of pendingItems) {
                 try {
                     await this._promoteItem(item);
                     migratedCount++;
