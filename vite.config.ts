@@ -18,7 +18,17 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     emptyOutDir: true,
-    chunkSizeWarningLimit: 1000
+    chunkSizeWarningLimit: 1000,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom'],
+          charts: ['apexcharts', 'react-apexcharts'],
+          utils: ['xlsx', 'html5-qrcode'],
+          ui: ['react-window', 'react-virtualized-auto-sizer']
+        }
+      }
+    }
   },
   optimizeDeps: {
     include: ['react-virtualized-auto-sizer', 'react-window']

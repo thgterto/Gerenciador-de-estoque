@@ -18,12 +18,8 @@ import {
     InventoryMobileGroupRow, 
     InventoryMobileChildRow 
 } from './InventoryRows';
-import * as ReactWindow from 'react-window';
-import * as AutoSizerPkg from 'react-virtualized-auto-sizer';
-
-const VariableSizeList = (ReactWindow as any).VariableSizeList || (ReactWindow as any).default?.VariableSizeList || (ReactWindow as any).default;
-const FixedSizeList = (ReactWindow as any).FixedSizeList || (ReactWindow as any).default?.FixedSizeList || (ReactWindow as any).default;
-const AutoSizer = (AutoSizerPkg as any).default || AutoSizerPkg;
+import { VariableSizeList, FixedSizeList } from 'react-window';
+import AutoSizer from 'react-virtualized-auto-sizer';
 
 interface Props {
   items: InventoryItem[];
