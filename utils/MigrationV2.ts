@@ -13,25 +13,10 @@ export const MigrationV2 = {
     async runMigration() {
         console.log("[Migration] Checking for orphaned V1 items...");
 
-        // Find items that haven't been linked to V2 Ledger yet
-        // We look for items missing the 'batchId' link, which indicates they are still V1-only
-        const itemsToMigrate = await db.rawDb.items.filter((i: InventoryItem) => !i.batchId).toArray();
-
-        if (itemsToMigrate.length === 0) {
-            // Optimization: If no orphans, we assume we are good.
-            // We do NOT return early just because *some* batches exist (batchCount > 0),
-            // because we might have a partial migration state.
-            // But if 0 items need migration, we are done.
-            return;
-        }
-
-        console.log(`[Migration] Found ${itemsToMigrate.length} items pending migration. Starting V1 -> V2 Promotion...`);
-
         let migratedCount = 0;
 
-        // Use a transaction for safety (or chunk it if too large)
-        // For local IndexedDB, chunking is better to avoid locking UI too long
-
+        // Use a single transaction to stream and migrate items
+        // This avoids loading all items into memory (OOM fix) via 'toArray()'
         await db.transaction('rw', [
             db.rawDb.items,
             db.rawDb.catalog,
@@ -40,18 +25,21 @@ export const MigrationV2 = {
             db.rawDb.stock_movements,
             db.rawDb.storage_locations
         ], async () => {
-
-            for (const item of itemsToMigrate) {
-                try {
-                    await this._promoteItem(item);
-                    migratedCount++;
-                } catch (e) {
-                    console.error(`[Migration] Failed to migrate item ${item.id}:`, e);
+            await db.rawDb.items.each(async (item: InventoryItem) => {
+                if (!item.batchId) {
+                    try {
+                        await this._promoteItem(item);
+                        migratedCount++;
+                    } catch (e) {
+                        console.error(`[Migration] Failed to migrate item ${item.id}:`, e);
+                    }
                 }
-            }
+            });
         });
 
-        console.log(`[Migration] Completed. Promoted ${migratedCount} items.`);
+        if (migratedCount > 0) {
+            console.log(`[Migration] Completed. Promoted ${migratedCount} items.`);
+        }
     },
 
     async _promoteItem(item: InventoryItem) {

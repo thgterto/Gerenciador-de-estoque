@@ -1,17 +1,21 @@
+
 import React, { useState, useEffect, useRef } from 'react';
-import { InventoryItem, RiskFlags, CasDataDTO, CreateItemDTO, ItemType } from '../types';
-import { CasApiService } from '../services/CasApiService';
+import { InventoryItem, CreateItemDTO, ItemType, RiskFlags } from '../types';
 import { InventoryService } from '../services/InventoryService'; 
-import { sanitizeProductName } from '../utils/stringUtils'; 
 import { useAlert } from '../context/AlertContext';
 import { Input } from './ui/Input';
 import { Button } from './ui/Button';
-import { Tooltip } from './Tooltip';
 import { Card } from './ui/Card'; 
-import { GHS_OPTIONS } from '../utils/businessRules';
 import { Select } from './ui/Select'; 
 import { BatchList } from './BatchList'; 
 import { useDebounce } from '../hooks/useDebounce';
+import { useItemForm } from '../hooks/useItemForm';
+import { useCasSearch } from '../hooks/useCasSearch';
+import { TypeSelector } from './item-form/TypeSelector';
+import { RiskSelector } from './item-form/RiskSelector';
+import { BatchInfo } from './item-form/BatchInfo';
+import { StorageInfo } from './item-form/StorageInfo';
+import { CasApiService } from '../services/CasApiService';
 
 interface ItemFormProps {
     initialData?: Partial<InventoryItem>;
@@ -22,14 +26,6 @@ interface ItemFormProps {
     onScan?: (field: keyof CreateItemDTO) => void;
     onGenerateQR?: (itemData: Partial<InventoryItem>) => void;
 }
-
-const TYPE_CONFIG: Record<ItemType, { label: string, icon: string, color: string, activeClass: string }> = {
-    'REAGENT': { label: 'Reagente', icon: 'science', color: 'text-primary', activeClass: 'bg-primary text-white shadow-md' },
-    'GLASSWARE': { label: 'Vidraria', icon: 'biotech', color: 'text-secondary', activeClass: 'bg-secondary text-white shadow-md' },
-    'EQUIPMENT': { label: 'Equipamento', icon: 'precision_manufacturing', color: 'text-blue-600', activeClass: 'bg-blue-600 text-white shadow-md' },
-    'SPARE_PART': { label: 'Peça Rep.', icon: 'settings_suggest', color: 'text-orange-500', activeClass: 'bg-orange-500 text-white shadow-md' },
-    'CONSUMABLE': { label: 'Consumível', icon: 'inventory', color: 'text-emerald-600', activeClass: 'bg-emerald-600 text-white shadow-md' },
-};
 
 const INITIAL_RISKS: RiskFlags = { O: false, T: false, T_PLUS: false, C: false, E: false, N: false, Xn: false, Xi: false, F: false, F_PLUS: false };
 
@@ -43,36 +39,23 @@ export const ItemForm: React.FC<ItemFormProps> = ({
     onGenerateQR
 }) => {
     const { addToast } = useAlert();
-    const [isCasLoading, setIsCasLoading] = useState(false);
-    const [isSubmitting, setIsSubmitting] = useState(false);
-    const [casResult, setCasResult] = useState<CasDataDTO | null>(null);
+    const {
+        formData, setFormData, errors, itemType, setItemType,
+        handleChange, handleTypeChange, handleSubmit, isSubmitting
+    } = useItemForm({ initialData, onSubmit });
 
-    // States para Sugestão e Validação
+    const { isCasLoading, casResult, setCasResult, searchCas } = useCasSearch();
+
+    // Suggestion State
     const [suggestions, setSuggestions] = useState<InventoryItem[]>([]);
     const [showSuggestions, setShowSuggestions] = useState(false);
-    const [errors, setErrors] = useState<Record<string, string>>({});
     const suggestionsRef = useRef<HTMLDivElement>(null);
-    
-    const [searchTerm, setSearchTerm] = useState('');
+    const [searchTerm, setSearchTerm] = useState(initialData?.name || '');
     const debouncedSearchTerm = useDebounce(searchTerm, 300);
-    const [itemType, setItemType] = useState<ItemType>('REAGENT');
-
-    const [formData, setFormData] = useState<Partial<CreateItemDTO>>({
-        name: '',
-        itemType: 'REAGENT',
-        category: '',
-        baseUnit: 'UN',
-        quantity: 0,
-        minStockLevel: 0,
-        lotNumber: '',
-        location: { warehouse: 'Central', cabinet: '', shelf: '', position: '' },
-        risks: { ...INITIAL_RISKS },
-        ...initialData
-    });
 
     const isEditMode = !!initialData?.id;
 
-    // Categorias dinâmicas
+    // Helper: Categories (Could be moved to constants)
     const getCategoriesByType = (type: ItemType) => {
         switch(type) {
             case 'REAGENT': return ['Ácidos', 'Bases', 'Sais', 'Solventes', 'Padrões', 'Meios de Cultura'];
@@ -84,25 +67,18 @@ export const ItemForm: React.FC<ItemFormProps> = ({
         }
     };
 
+    // Initialize Search Term
     useEffect(() => {
-        if (initialData) {
-            setFormData(prev => ({ ...prev, ...initialData }));
-            if (initialData.name && !searchTerm) setSearchTerm(initialData.name); 
-            if (initialData.itemType) setItemType(initialData.itemType);
-            else if (initialData.molecularFormula || initialData.casNumber) setItemType('REAGENT');
-            
-            if (initialData.molecularFormula && !casResult) {
-                setCasResult({
-                    rn: initialData.casNumber || '',
-                    name: initialData.name || '',
-                    molecularFormula: initialData.molecularFormula,
-                    molecularMass: initialData.molecularWeight
-                });
-            }
-        }
+        if (initialData?.name) setSearchTerm(initialData.name);
     }, [initialData]);
 
-    // Busca de Sugestões
+    // Handle Name Change wrapper
+    const handleNameChange = (val: string) => {
+        handleChange('name', val);
+        setSearchTerm(val);
+    };
+
+    // Suggestions Logic
     useEffect(() => {
         if (debouncedSearchTerm.length > 2) {
              const term = debouncedSearchTerm.toLowerCase();
@@ -121,34 +97,6 @@ export const ItemForm: React.FC<ItemFormProps> = ({
         }
     }, [debouncedSearchTerm]);
 
-    const handleTypeChange = (type: ItemType) => {
-        setItemType(type);
-        setFormData(prev => ({ ...prev, itemType: type, category: '' }));
-        setErrors({});
-    };
-
-    const handleChange = (field: string, value: any) => {
-        if (errors[field]) setErrors(prev => { const n = { ...prev }; delete n[field]; return n; });
-        if (field.includes('.')) {
-            const [parent, child] = field.split('.');
-            setFormData(prev => {
-                const parentObj = (prev[parent as keyof CreateItemDTO] as any) || {};
-                return { ...prev, [parent]: { ...parentObj, [child]: value } };
-            });
-        } else {
-            setFormData(prev => ({ ...prev, [field]: value }));
-        }
-        if (field === 'name' && typeof value === 'string') setSearchTerm(value);
-    };
-
-    const generateInternalBatch = () => {
-        const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
-        const randomSuffix = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
-        const code = `INT-${dateStr}-${randomSuffix}`;
-        handleChange('lotNumber', code);
-        addToast('Lote Gerado', 'success', code);
-    };
-
     const selectSuggestion = (item: InventoryItem) => {
         setFormData(prev => ({
             ...prev,
@@ -166,6 +114,7 @@ export const ItemForm: React.FC<ItemFormProps> = ({
         }));
         setSearchTerm(item.name);
         if (item.itemType) setItemType(item.itemType);
+
         if (item.casNumber) {
              setCasResult({
                 rn: item.casNumber,
@@ -178,104 +127,36 @@ export const ItemForm: React.FC<ItemFormProps> = ({
         addToast('Modelo Carregado', 'info', 'Dados copiados. Preencha o lote.');
     };
 
-    const handleCasSearch = async () => {
-        if (!formData.casNumber || formData.casNumber.length < 4) {
-            addToast('Atenção', 'warning', 'Digite um número CAS válido.');
-            return;
-        }
-        setIsCasLoading(true);
-        try {
-            const data = await CasApiService.fetchChemicalData(formData.casNumber);
-            if (data) {
-                setCasResult(data);
-                const suggestedRisks = CasApiService.analyzeRisks(data);
-                setFormData(prev => ({
-                    ...prev,
-                    name: !prev.name ? sanitizeProductName(CasApiService.formatName(data.name)) : prev.name, 
-                    risks: { ...prev.risks, ...suggestedRisks } as RiskFlags,
-                    molecularFormula: data.molecularFormula,
-                    molecularWeight: data.molecularMass
-                }));
-                if(!formData.name) setSearchTerm(data.name);
-                addToast('Dados Encontrados', 'success', `CAS: ${data.rn}`);
-            } else {
-                addToast('Não Encontrado', 'info', 'CAS não localizado.');
-            }
-        } catch (e) {
-            addToast('Erro', 'error', 'Falha ao buscar dados CAS.');
-        } finally {
-            setIsCasLoading(false);
-        }
+    const handleGenerateInternalBatch = () => {
+        const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+        const randomSuffix = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+        const code = `INT-${dateStr}-${randomSuffix}`;
+        handleChange('lotNumber', code);
+        addToast('Lote Gerado', 'success', code);
     };
 
-    const validate = (): boolean => {
-        const newErrors: Record<string, string> = {};
-        let isValid = true;
-        if (!formData.name?.trim()) { newErrors.name = 'Nome é obrigatório.'; isValid = false; }
-        if (!formData.category?.trim()) { newErrors.category = 'Selecione uma categoria.'; isValid = false; }
-        if (!formData.baseUnit?.trim()) { newErrors.baseUnit = 'Unidade é obrigatória.'; isValid = false; }
-        if (!formData.location?.warehouse?.trim()) { newErrors['location.warehouse'] = 'Local é obrigatório.'; isValid = false; }
-        setErrors(newErrors);
-        return isValid;
-    };
-
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!validate()) {
-            addToast('Campos Obrigatórios', 'warning', 'Verifique os campos em vermelho.');
-            return;
-        }
-        
-        setIsSubmitting(true);
-        try {
-            let finalLotNumber = formData.lotNumber;
-            // Gera um ID único se o lote estiver vazio (para equipamentos sem série ou consumíveis)
-            if (!finalLotNumber || finalLotNumber.trim() === '') {
-                const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
-                const randomSuffix = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
-                if (itemType === 'EQUIPMENT') {
-                    finalLotNumber = `EQ-${dateStr}-${randomSuffix}`;
-                } else {
-                    finalLotNumber = `INT-${dateStr}-${randomSuffix}`;
-                }
+    const onCasSearch = async () => {
+        const result = await searchCas(formData.casNumber);
+        if (result) {
+            // Update name only if it's empty to avoid overwriting user input,
+            // but always update chemical data (risks, formula, etc).
+            if (!formData.name) {
+                setSearchTerm(result.name);
+                handleChange('name', result.name);
             }
 
-            await onSubmit({ 
-                ...formData, 
-                lotNumber: finalLotNumber,
-                itemType 
-            });
-        } finally {
-            setIsSubmitting(false);
+            if (result.risks) handleChange('risks', { ...formData.risks, ...result.risks });
+            if (result.molecularFormula) handleChange('molecularFormula', result.molecularFormula);
+            if (result.molecularWeight) handleChange('molecularWeight', result.molecularWeight);
         }
     };
 
     return (
         <form onSubmit={handleSubmit} className="flex flex-col min-h-full relative" autoComplete="off">
             
-            {/* TABS DE TIPO */}
-            <div className="flex flex-wrap gap-2 w-full pb-4 shrink-0">
-                {(Object.entries(TYPE_CONFIG) as [ItemType, typeof TYPE_CONFIG[ItemType]][]).map(([key, config]) => (
-                    <button
-                        key={key}
-                        type="button"
-                        onClick={() => handleTypeChange(key)}
-                        className={`
-                            flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wide transition-all border
-                            ${itemType === key 
-                                ? `${config.activeClass} border-transparent` 
-                                : 'bg-white dark:bg-slate-800 text-text-secondary dark:text-gray-400 border-border-light dark:border-border-dark hover:bg-slate-50 dark:hover:bg-slate-700'
-                            }
-                        `}
-                    >
-                        <span className="material-symbols-outlined text-[18px]">{config.icon}</span>
-                        {config.label}
-                    </button>
-                ))}
-            </div>
+            <TypeSelector currentType={itemType} onChange={handleTypeChange} />
 
-            {/* CONTEÚDO PRINCIPAL (Scrollable se necessário, mas o modal pai já tem scroll) */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 w-full pb-20"> {/* pb-20 para não cobrir com o footer fixo */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 w-full pb-20">
                 
                 {/* COLUNA ESQUERDA: DADOS BÁSICOS */}
                 <div className="flex flex-col gap-6">
@@ -291,7 +172,7 @@ export const ItemForm: React.FC<ItemFormProps> = ({
                                     label="Nome do Item"
                                     required
                                     value={formData.name || ''} 
-                                    onChange={e => handleChange('name', e.target.value)}
+                                    onChange={e => handleNameChange(e.target.value)}
                                     error={errors.name}
                                     placeholder={itemType === 'REAGENT' ? "Ex: Ácido Sulfúrico" : "Nome do item"}
                                 />
@@ -372,7 +253,7 @@ export const ItemForm: React.FC<ItemFormProps> = ({
                                     rightElement={
                                         <button 
                                             type="button" 
-                                            onClick={handleCasSearch} 
+                                            onClick={onCasSearch}
                                             disabled={isCasLoading} 
                                             className="text-text-secondary hover:text-primary transition-colors p-1"
                                             title="Buscar na API CAS"
@@ -397,33 +278,10 @@ export const ItemForm: React.FC<ItemFormProps> = ({
                                     </div>
                                 )}
 
-                                <div>
-                                    <label className="text-[11px] font-bold text-slate-500 uppercase mb-2 block">Riscos Associados</label>
-                                    <div className="flex flex-wrap gap-2">
-                                        {GHS_OPTIONS.map((ghs) => {
-                                            const isChecked = formData.risks?.[ghs.key] || false;
-                                            return (
-                                                <Tooltip key={ghs.key} content={ghs.label} position="top">
-                                                    <div 
-                                                        onClick={() => {
-                                                            setFormData(p => ({
-                                                                ...p,
-                                                                risks: { ...p.risks, [ghs.key]: !isChecked } as RiskFlags
-                                                            }));
-                                                        }}
-                                                        className={`cursor-pointer border rounded-lg size-8 flex items-center justify-center transition-all ${
-                                                            isChecked 
-                                                            ? 'bg-white border-red-500 shadow ring-1 ring-red-500' 
-                                                            : 'bg-white/50 border-transparent hover:bg-white'
-                                                        }`}
-                                                    >
-                                                        <span className={`material-symbols-outlined text-[18px] ${isChecked ? ghs.textColor : 'text-slate-300'}`}>{ghs.icon}</span>
-                                                    </div>
-                                                </Tooltip>
-                                            );
-                                        })}
-                                    </div>
-                                </div>
+                                <RiskSelector
+                                    risks={formData.risks || INITIAL_RISKS}
+                                    onChange={(r) => handleChange('risks', r)}
+                                />
                             </div>
                         </Card>
                     )}
@@ -431,128 +289,21 @@ export const ItemForm: React.FC<ItemFormProps> = ({
 
                 {/* COLUNA DIREITA: LOGÍSTICA & ESTOQUE */}
                 <div className="flex flex-col gap-6 w-full">
-                    <Card noBorder className="shadow-sm border-2 border-blue-200 dark:border-blue-800 bg-blue-50/20 dark:bg-blue-900/5 relative" padding="p-5">
-                         <div className="flex items-center gap-2 mb-4 border-b border-blue-200 dark:border-blue-800 pb-2">
-                            <span className="material-symbols-outlined text-blue-600 dark:text-blue-400 text-[20px]">layers</span> 
-                            <h3 className="text-sm font-bold uppercase tracking-wider text-blue-700 dark:text-blue-300">Lote & Validade</h3>
-                        </div>
-
-                        <div className="space-y-4">
-                            <div className="grid grid-cols-2 gap-4">
-                                <Input 
-                                    label={itemType === 'EQUIPMENT' ? "Patrimônio/Série" : "Lote / Série"}
-                                    value={formData.lotNumber || ''} 
-                                    onChange={e => handleChange('lotNumber', e.target.value)}
-                                    error={errors.lotNumber}
-                                    placeholder={itemType === 'EQUIPMENT' ? "Ex: PAT-001 (Vazio p/ auto)" : "Vazio p/ auto"}
-                                    className="border-blue-200 focus:border-blue-500 focus:ring-blue-200 pr-16"
-                                    rightElement={
-                                        <div className="flex items-center gap-1">
-                                             <button 
-                                                type="button" 
-                                                onClick={generateInternalBatch} 
-                                                className="text-text-secondary hover:text-blue-600 transition-colors p-1"
-                                                title="Gerar Lote Interno"
-                                             >
-                                                <span className="material-symbols-outlined">autorenew</span>
-                                             </button>
-                                             {onScan && (
-                                                 <button 
-                                                    type="button" 
-                                                    onClick={() => onScan('lotNumber')} 
-                                                    className="text-text-secondary hover:text-primary transition-colors p-1"
-                                                    title="Escanear"
-                                                 >
-                                                    <span className="material-symbols-outlined">qr_code_scanner</span>
-                                                 </button>
-                                             )}
-                                        </div>
-                                    }
-                                />
-
-                                {itemType !== 'EQUIPMENT' && (
-                                    <Input 
-                                        label="Validade"
-                                        type="date"
-                                        value={formData.expiryDate || ''} 
-                                        onChange={e => handleChange('expiryDate', e.target.value)}
-                                        className="border-blue-200 focus:border-blue-500 focus:ring-blue-200"
-                                    />
-                                )}
-                            </div>
-                            
-                            <Input 
-                                label="Fabricante / Fornecedor"
-                                value={formData.supplier || ''} 
-                                onChange={e => handleChange('supplier', e.target.value)}
-                                className="border-blue-200 focus:border-blue-500 focus:ring-blue-200"
-                            />
-                            
-                             <div className="grid grid-cols-2 gap-4">
-                                <Input 
-                                    label="Qtd Inicial"
-                                    type="number" 
-                                    step="0.001"
-                                    min={0}
-                                    value={formData.quantity} 
-                                    onChange={e => handleChange('quantity', Number(e.target.value))}
-                                    error={errors.quantity}
-                                    disabled={isEditMode} 
-                                    helpText={isEditMode ? "Use 'Movimentar' para alterar." : ""}
-                                    className="border-blue-200 focus:border-blue-500 focus:ring-blue-200 font-bold"
-                                />
-                                <Input 
-                                    label="Estoque Mínimo"
-                                    type="number" 
-                                    step="1"
-                                    min={0}
-                                    value={formData.minStockLevel} 
-                                    onChange={e => handleChange('minStockLevel', Number(e.target.value))}
-                                    className="border-blue-200 focus:border-blue-500 focus:ring-blue-200"
-                                />
-                            </div>
-                        </div>
-                    </Card>
+                    <BatchInfo
+                        formData={formData}
+                        onChange={handleChange}
+                        errors={errors}
+                        itemType={itemType}
+                        isEditMode={isEditMode}
+                        onGenerateInternalBatch={handleGenerateInternalBatch}
+                        onScan={onScan}
+                    />
                     
-                    {/* CARD: ARMAZENAMENTO */}
-                    <Card noBorder className="shadow-sm border border-border-light dark:border-border-dark" padding="p-5">
-                        <div className="flex items-center gap-2 mb-4 border-b border-border-light dark:border-border-dark pb-2">
-                            <span className="material-symbols-outlined text-text-secondary text-[20px]">location_on</span> 
-                            <h3 className="text-sm font-bold uppercase tracking-wider text-text-secondary dark:text-gray-400">Armazenamento</h3>
-                        </div>
-                        
-                        <div className="space-y-4">
-                            <div className="grid grid-cols-2 gap-4">
-                                 <Input 
-                                    label="Armazém / Sala"
-                                    required
-                                    placeholder="Ex: Geral"
-                                    value={formData.location?.warehouse || ''}
-                                    onChange={e => handleChange('location.warehouse', e.target.value)}
-                                    error={errors['location.warehouse']}
-                                />
-                                <Input 
-                                    label="Armário / Geladeira"
-                                    value={formData.location?.cabinet || ''}
-                                    onChange={e => handleChange('location.cabinet', e.target.value)}
-                                    placeholder="Ex: Inflamáveis"
-                                />
-                            </div>
-                            <div className="grid grid-cols-2 gap-4">
-                                <Input 
-                                    label="Prateleira"
-                                    value={formData.location?.shelf || ''}
-                                    onChange={e => handleChange('location.shelf', e.target.value)}
-                                />
-                                <Input 
-                                    label="Posição (Grid)"
-                                    value={formData.location?.position || ''}
-                                    onChange={e => handleChange('location.position', e.target.value)}
-                                    placeholder="Ex: A1"
-                                />
-                            </div>
-                        </div>
-                    </Card>
+                    <StorageInfo
+                        location={formData.location || { warehouse: '', cabinet: '', shelf: '', position: '' }}
+                        onChange={handleChange}
+                        errors={errors}
+                    />
                 </div>
             </div>
 
