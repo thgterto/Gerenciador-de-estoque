@@ -107,15 +107,20 @@ export const InventoryService = {
   },
 
   async findItemByCode(code: string): Promise<InventoryItem | null> {
-      const items = await this.getAllItems();
-      const search = code.toLowerCase().trim().replace(/[^a-z0-9]/g, "");
+      const cleanCode = code.trim();
+
+      // 1. Try Direct ID Lookup (Fastest - Primary Key)
+      let item = await db.items.get(cleanCode);
+      if (item) return item;
+
+      // 2. Try Exact SAP Code (Indexed)
+      item = await db.items.where('sapCode').equals(cleanCode).first();
+      if (item) return item;
+
+      // 3. Try Exact Lot Number (Indexed)
+      item = await db.items.where('lotNumber').equals(cleanCode).first();
+      if (item) return item;
       
-      const exactMatch = items.find(i => 
-          i.id === code || 
-          (i.sapCode && i.sapCode.toLowerCase().replace(/[^a-z0-9]/g, "") === search) || 
-          (i.lotNumber && i.lotNumber.toLowerCase().replace(/[^a-z0-9]/g, "") === search)
-      );
-      if (exactMatch) return exactMatch;
       return null;
   },
 
@@ -369,16 +374,27 @@ export const InventoryService = {
       let history: MovementRecord | null = null;
 
       try {
-        // ATOMIC WRITE ALL
-        await db.transaction('rw', [db.rawDb.items, db.rawDb.catalog, db.rawDb.batches, db.rawDb.history, db.rawDb.balances], async () => {
+        // ATOMIC WRITE ALL (Includes stock_movements for Ledger)
+        await db.transaction('rw', [db.rawDb.items, db.rawDb.catalog, db.rawDb.batches, db.rawDb.history, db.rawDb.balances, db.rawDb.stock_movements], async () => {
             await db.items.add(newItem);
             await db.rawDb.catalog.put(catalog); 
             await db.rawDb.batches.put(batch);
-            await db.rawDb.balances.put(balance);
             
             if (newItem.quantity > 0) {
+                // Use LedgerService for robust stock entry (V2)
+                const movement = await LedgerService.registerMovement({
+                    batchId: batchId,
+                    type: 'ENTRADA',
+                    quantity: newItem.quantity,
+                    toLocationId: locId,
+                    userId: 'SYSTEM',
+                    observation: 'Cadastro Inicial',
+                    date: now
+                });
+
+                // Maintain V1 History for UI compatibility
                 history = {
-                    id: crypto.randomUUID(),
+                    id: movement.id,
                     itemId: newId,
                     date: now,
                     type: 'ENTRADA' as const,
@@ -392,6 +408,9 @@ export const InventoryService = {
                     batchId: batchId
                 };
                 await db.history.add(history);
+            } else {
+                // Zero stock: Just create the empty balance record manually to initialize it
+                await db.rawDb.balances.put(balance);
             }
         });
       } catch (e) {
@@ -543,30 +562,23 @@ export const InventoryService = {
   
   // Audits consistency between V1 (UI) and V2 (Ledger)
   async runLedgerAudit(fix: boolean = false) {
-      const items = await db.items.toArray();
-      const balances = await db.rawDb.balances.toArray() as StockBalance[];
-      const batches = await db.rawDb.batches.toArray() as InventoryBatch[];
-      
       let matches = 0;
       let mismatches = 0;
       let corrections = 0;
       
-      const batchMap = new Map(batches.map((b: InventoryBatch) => [b.id, b]));
-      
-      // Sum up ledger by Catalog (Product ID)
+      // Map: BatchID -> Total Quantity from V2 Balances
       const ledgerSums = new Map<string, number>();
       
-      balances.forEach((bal: StockBalance) => {
-          const batch = batchMap.get(bal.batchId);
-          if (batch && batch.catalogId) {
-             const current = ledgerSums.get(batch.id) || 0; // Use Batch ID
-             ledgerSums.set(batch.id, current + bal.quantity);
-          }
+      // Stream Balances (V2) - Memory Efficient
+      await db.rawDb.balances.each(bal => {
+          const current = ledgerSums.get(bal.batchId) || 0;
+          ledgerSums.set(bal.batchId, current + bal.quantity);
       });
 
       const updates: InventoryItem[] = [];
 
-      for (const item of items) {
+      // Stream Items (V1) and Compare
+      await db.items.each(item => {
           const batchId = item.batchId || `BAT-${item.id}`;
           const ledgerQty = ledgerSums.get(batchId);
           
@@ -591,7 +603,7 @@ export const InventoryService = {
                    }
                }
           }
-      }
+      });
 
       if (fix && updates.length > 0) {
           await db.items.bulkPut(updates);
