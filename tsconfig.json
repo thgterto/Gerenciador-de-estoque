@@ -16,7 +16,7 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src", "**/*.ts", "**/*.tsx"],
-  "exclude": ["node_modules", "vite.config.ts", "electron"],
+  "include": ["./**/*.ts", "./**/*.tsx"],
+  "exclude": ["node_modules", "vite.config.ts", "electron", "dist", "release"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

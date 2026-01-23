@@ -10,14 +10,10 @@ import { EmptyState } from './ui/EmptyState';
 import { PageContainer } from './ui/PageContainer';
 import { PageHeader } from './ui/PageHeader';
 import { formatDateTime } from '../utils/formatters';
-import * as ReactWindow from 'react-window';
-import * as AutoSizerPkg from 'react-virtualized-auto-sizer';
+import { FixedSizeList as List } from 'react-window';
+import AutoSizer from 'react-virtualized-auto-sizer';
 import { useHistoryFilters } from '../hooks/useHistoryFilters';
 import { Card } from './ui/Card';
-
-const FixedSizeList = (ReactWindow as any).FixedSizeList || (ReactWindow as any).default?.FixedSizeList || (ReactWindow as any).default;
-const List = FixedSizeList;
-const AutoSizer = (AutoSizerPkg as any).default || AutoSizerPkg;
 
 interface Props {
   history?: MovementRecord[]; 
