@@ -1,7 +1,7 @@
 
 import { db } from '../db';
 import { InventoryItem, CatalogProduct, InventoryBatch, StockBalance, StockMovement } from '../types';
-import { generateInventoryId, generateHash } from '../utils/stringUtils';
+import { generateHash } from '../utils/stringUtils';
 
 /**
  * Migration Utility
@@ -11,16 +11,22 @@ import { generateInventoryId, generateHash } from '../utils/stringUtils';
 export const MigrationV2 = {
 
     async runMigration() {
-        // Check if migration is needed
-        const batchCount = await db.rawDb.batches.count();
-        if (batchCount > 0) {
-            console.log("[Migration] V2 Ledger already populated. Skipping.");
+        console.log("[Migration] Checking for orphaned V1 items...");
+
+        // Find items that haven't been linked to V2 Ledger yet
+        // We look for items missing the 'batchId' link, which indicates they are still V1-only
+        const itemsToMigrate = await db.rawDb.items.filter((i: InventoryItem) => !i.batchId).toArray();
+
+        if (itemsToMigrate.length === 0) {
+            // Optimization: If no orphans, we assume we are good.
+            // We do NOT return early just because *some* batches exist (batchCount > 0),
+            // because we might have a partial migration state.
+            // But if 0 items need migration, we are done.
             return;
         }
 
-        console.log("[Migration] Starting V1 -> V2 Promotion...");
+        console.log(`[Migration] Found ${itemsToMigrate.length} items pending migration. Starting V1 -> V2 Promotion...`);
 
-        const items = await db.items.toArray();
         let migratedCount = 0;
 
         // Use a transaction for safety (or chunk it if too large)
@@ -35,7 +41,7 @@ export const MigrationV2 = {
             db.rawDb.storage_locations
         ], async () => {
 
-            for (const item of items) {
+            for (const item of itemsToMigrate) {
                 try {
                     await this._promoteItem(item);
                     migratedCount++;
@@ -138,7 +144,7 @@ export const MigrationV2 = {
 
         // 7. Link Back (Update V1 Item with new FKs)
         if (!item.catalogId || !item.batchId) {
-            await db.items.update(item.id, {
+            await db.rawDb.items.update(item.id, {
                 catalogId,
                 batchId,
                 locationId

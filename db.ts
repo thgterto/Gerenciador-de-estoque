@@ -93,6 +93,9 @@ export class QStockDB extends Dexie {
         stock_movements: 'id, batchId, type, [batchId+createdAt], [type+createdAt], fromLocationId, toLocationId',
         balances: 'id, [batchId+locationId], batchId, locationId' // Re-affirming balances with correct indices
     });
+
+    // Schema Version 5 (Migration Fix Trigger)
+    (this as any).version(5).stores({});
   }
 }
 
