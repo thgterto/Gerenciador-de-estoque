@@ -2,7 +2,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { InventoryItem, CreateItemDTO, ItemType, RiskFlags } from '../types';
 import { InventoryService } from '../services/InventoryService'; 
-import { sanitizeProductName } from '../utils/stringUtils'; 
 import { useAlert } from '../context/AlertContext';
 import { Input } from './ui/Input';
 import { Button } from './ui/Button';
@@ -41,7 +40,7 @@ export const ItemForm: React.FC<ItemFormProps> = ({
 }) => {
     const { addToast } = useAlert();
     const {
-        formData, setFormData, errors, setErrors, itemType, setItemType,
+        formData, setFormData, errors, itemType, setItemType,
         handleChange, handleTypeChange, handleSubmit, isSubmitting
     } = useItemForm({ initialData, onSubmit });
 
