@@ -1,7 +1,8 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { InventoryItem, QRCodeDataDTO, CreateItemDTO } from '../types';
-import QRCode from 'react-qr-code';
+import * as ReactQRCode from 'react-qr-code';
+const QRCode = (ReactQRCode as any).default || ReactQRCode;
 import { Input } from './ui/Input';
 import { Button } from './ui/Button';
 import { Modal } from './ui/Modal';
