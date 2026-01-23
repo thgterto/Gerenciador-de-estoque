@@ -322,9 +322,9 @@ export const InventoryMobileGroupRow = React.memo(({
                     {/* Content */}
                     <div className="flex-1 min-w-0">
                         <div className="flex justify-between items-start">
-                             <h4 className="font-bold text-text-main dark:text-white truncate text-sm pr-2 leading-tight">
+                             <h3 className="font-bold text-text-main dark:text-white truncate text-sm pr-2 leading-tight">
                                  {primaryItem.name}
-                             </h4>
+                             </h3>
                              {items.length > 1 && (
                                  <span className="text-[10px] font-bold bg-slate-100 dark:bg-slate-700 px-1.5 py-0.5 rounded text-text-secondary border border-slate-200 dark:border-slate-600">
                                      {items.length}
