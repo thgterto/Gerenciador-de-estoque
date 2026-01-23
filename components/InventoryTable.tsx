@@ -22,7 +22,7 @@ import * as ReactWindow from 'react-window';
 import * as AutoSizerPkg from 'react-virtualized-auto-sizer';
 
 const VariableSizeList = (ReactWindow as any).VariableSizeList || (ReactWindow as any).default?.VariableSizeList || (ReactWindow as any).default;
-const List = VariableSizeList;
+const FixedSizeList = (ReactWindow as any).FixedSizeList || (ReactWindow as any).default?.FixedSizeList || (ReactWindow as any).default;
 const AutoSizer = (AutoSizerPkg as any).default || AutoSizerPkg;
 
 interface Props {
@@ -325,8 +325,11 @@ export const InventoryTable: React.FC<Props> = ({ items, onActions, onAddNew }) 
              </div>
 
              <div className="flex items-center gap-4 pt-3 border-t border-border-light dark:border-border-dark overflow-x-auto pb-1 no-scrollbar">
-                <div 
-                    className="flex items-center gap-2 cursor-pointer group shrink-0" 
+                <button
+                    type="button"
+                    role="switch"
+                    aria-checked={hideZeroStock}
+                    className="flex items-center gap-2 cursor-pointer group shrink-0 bg-transparent border-none p-0 focus:outline-none focus:ring-2 focus:ring-primary/50 rounded"
                     onClick={() => setHideZeroStock(!hideZeroStock)}
                     title="Ocultar itens com saldo zero ou negativo"
                 >
@@ -336,7 +339,7 @@ export const InventoryTable: React.FC<Props> = ({ items, onActions, onAddNew }) 
                      <span className="text-xs font-medium text-text-secondary dark:text-slate-400 group-hover:text-text-main dark:group-hover:text-white transition-colors select-none">
                          Ocultar zerados
                      </span>
-                </div>
+                </button>
 
                 <div className="h-4 w-px bg-border-light dark:border-border-dark shrink-0"></div>
 
@@ -391,20 +394,38 @@ export const InventoryTable: React.FC<Props> = ({ items, onActions, onAddNew }) 
              <div className="flex-1 w-full relative">
                 {flatList.length > 0 ? (
                     <AutoSizer>
-                        {({ height, width }: { height: number; width: number }) => (
-                            <List
-                                ref={listRef}
-                                height={height}
-                                itemCount={flatList.length}
-                                itemSize={getItemSize}
-                                itemKey={itemKey}
-                                width={width}
-                                className="custom-scrollbar"
-                                itemData={itemData}
-                            >
-                                {InventoryRow}
-                            </List>
-                        )}
+                        {({ height, width }: { height: number; width: number }) => {
+                            if (isMobile) {
+                                return (
+                                    <FixedSizeList
+                                        ref={listRef}
+                                        height={height}
+                                        itemCount={flatList.length}
+                                        itemSize={130}
+                                        itemKey={itemKey}
+                                        width={width}
+                                        className="custom-scrollbar"
+                                        itemData={itemData}
+                                    >
+                                        {InventoryRow}
+                                    </FixedSizeList>
+                                );
+                            }
+                            return (
+                                <VariableSizeList
+                                    ref={listRef}
+                                    height={height}
+                                    itemCount={flatList.length}
+                                    itemSize={getItemSize}
+                                    itemKey={itemKey}
+                                    width={width}
+                                    className="custom-scrollbar"
+                                    itemData={itemData}
+                                >
+                                    {InventoryRow}
+                                </VariableSizeList>
+                            );
+                        }}
                     </AutoSizer>
                 ) : (
                     <EmptyState 
