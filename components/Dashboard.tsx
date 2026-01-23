@@ -1,7 +1,11 @@
 
 import React, { useMemo, useState } from 'react';
-import Chart from 'react-apexcharts';
+import * as ReactApexChart from 'react-apexcharts';
 import { ApexOptions } from 'apexcharts';
+
+// Fix for Minified React error #130 (Element type is invalid)
+// Handles differences in CommonJS/ESM interop across environments
+const Chart = (ReactApexChart as any).default || ReactApexChart;
 import { InventoryItem, MovementRecord } from '../types';
 import { Card } from './ui/Card';
 import { MetricCard } from './ui/MetricCard';
