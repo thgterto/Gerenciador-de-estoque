@@ -25,7 +25,7 @@ export const MigrationV2 = {
             db.rawDb.stock_movements,
             db.rawDb.storage_locations
         ], async () => {
-            await db.rawDb.items.each(async (item) => {
+            await db.rawDb.items.each(async (item: InventoryItem) => {
                 if (!item.batchId) {
                     try {
                         await this._promoteItem(item);

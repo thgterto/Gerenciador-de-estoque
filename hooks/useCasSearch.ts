@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { CasApiService } from '../services/CasApiService';
 import { useAlert } from '../context/AlertContext';
-import { CasDataDTO, RiskFlags, CreateItemDTO } from '../types';
+import { CasDataDTO } from '../types';
 import { sanitizeProductName } from '../utils/stringUtils';
 
 export const useCasSearch = () => {

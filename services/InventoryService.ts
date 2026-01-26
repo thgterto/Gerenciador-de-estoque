@@ -114,11 +114,11 @@ export const InventoryService = {
       if (item) return item;
 
       // 2. Try Exact SAP Code (Indexed)
-      item = await db.items.where('sapCode').equals(cleanCode).first();
+      item = await db.rawDb.items.where('sapCode').equals(cleanCode).first();
       if (item) return item;
 
       // 3. Try Exact Lot Number (Indexed)
-      item = await db.items.where('lotNumber').equals(cleanCode).first();
+      item = await db.rawDb.items.where('lotNumber').equals(cleanCode).first();
       if (item) return item;
       
       return null;
@@ -570,7 +570,7 @@ export const InventoryService = {
       const ledgerSums = new Map<string, number>();
       
       // Stream Balances (V2) - Memory Efficient
-      await db.rawDb.balances.each(bal => {
+      await db.rawDb.balances.each((bal: StockBalance) => {
           const current = ledgerSums.get(bal.batchId) || 0;
           ledgerSums.set(bal.batchId, current + bal.quantity);
       });
@@ -578,7 +578,7 @@ export const InventoryService = {
       const updates: InventoryItem[] = [];
 
       // Stream Items (V1) and Compare
-      await db.items.each(item => {
+      await db.rawDb.items.each((item: InventoryItem) => {
           const batchId = item.batchId || `BAT-${item.id}`;
           const ledgerQty = ledgerSums.get(batchId);
           
