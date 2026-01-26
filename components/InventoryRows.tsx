@@ -9,7 +9,8 @@ import { Tooltip } from './Tooltip';
 import { formatDate } from '../utils/formatters';
 
 // Polaris-like Grid Template (Must match InventoryTable header exactly)
-const GRID_TEMPLATE = "40px minmax(240px, 3fr) 120px minmax(180px, 1.5fr) 100px 100px 130px 110px";
+// Updated to use fractional units for better responsiveness and prevent cut-off
+const GRID_TEMPLATE = "40px minmax(200px, 3fr) 120px minmax(150px, 1.5fr) 100px 100px 130px 110px";
 
 interface ChildRowProps {
     item: InventoryItem;
@@ -96,8 +97,8 @@ export const InventoryChildRow = React.memo(({
                     <div className="px-2"></div>
 
                     {/* Col 4: Location */}
-                    <div className="px-2 truncate text-text-secondary dark:text-slate-400 text-xs flex items-center gap-1">
-                        <span className="material-symbols-outlined text-[14px] opacity-70">location_on</span>
+                    <div className="px-2 truncate text-text-secondary dark:text-slate-400 text-xs flex items-center gap-1" title={`${item.location.warehouse} ${item.location.cabinet ? `› ${item.location.cabinet}` : ''}`}>
+                        <span className="material-symbols-outlined text-[14px] opacity-70 shrink-0">location_on</span>
                         <span className="truncate">{item.location.warehouse} {item.location.cabinet ? `› ${item.location.cabinet}` : ''}</span>
                     </div>
 

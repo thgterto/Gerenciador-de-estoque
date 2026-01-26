@@ -23,7 +23,7 @@ export const PageContainer: React.FC<PageContainerProps> = ({
                 flex flex-col w-full mx-auto px-4 md:px-6 max-w-[1600px]
                 ${scrollable 
                     ? 'h-full overflow-y-auto custom-scrollbar py-6' // Scroll na página
-                    : 'h-full min-h-0 overflow-hidden py-4'          // Altura travada
+                    : 'h-[100dvh] min-h-0 overflow-hidden py-4'      // Altura travada (Viewport)
                 } 
                 ${className}
             `}
