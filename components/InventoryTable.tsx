@@ -35,7 +35,8 @@ interface Props {
   onAddNew?: () => void;
 }
 
-const GRID_TEMPLATE = "40px minmax(240px, 3fr) 120px minmax(180px, 1.5fr) 100px 100px 130px 110px";
+// Must match InventoryRows
+const GRID_TEMPLATE = "40px minmax(200px, 3fr) 120px minmax(150px, 1.5fr) 100px 100px 130px 110px";
 
 // Row Component estático para evitar recriação
 const InventoryRow = React.memo(({ index, style, data }: { index: number, style: React.CSSProperties, data: any }) => {
@@ -364,7 +365,7 @@ export const InventoryTable: React.FC<Props> = ({ items, onActions, onAddNew }) 
         </Card>
 
         {/* Table Block - Fills Remaining Space */}
-        <Card padding="p-0" className={`flex-1 min-h-0 flex flex-col ${isMobile ? 'bg-transparent border-none shadow-none' : 'bg-surface-light dark:bg-surface-dark'} relative overflow-hidden`}>
+        <Card padding="p-0" className={`flex-1 min-h-[400px] flex flex-col ${isMobile ? 'bg-transparent border-none shadow-none' : 'bg-surface-light dark:bg-surface-dark'} relative overflow-hidden`}>
              {!isMobile && (
                  <div className="bg-background-light dark:bg-slate-800/50 border-b border-border-light dark:border-border-dark text-xs font-bold uppercase tracking-wider text-text-secondary dark:text-slate-400 shrink-0 z-10">
                     <div className="grid items-center px-4" style={{ gridTemplateColumns: GRID_TEMPLATE }}>

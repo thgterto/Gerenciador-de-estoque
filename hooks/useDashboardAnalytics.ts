@@ -100,7 +100,8 @@ export const useDashboardAnalytics = (items: InventoryItem[], history: MovementR
                  netChangeInWindow += delta;
 
                  // Agrupar por dia (YYYY-MM-DD)
-                 const dayKey = h.date.split('T')[0];
+                 // Use a safe fallback for date parsing if 'T' is missing (e.g. legacy data)
+                 const dayKey = h.date.includes('T') ? h.date.split('T')[0] : h.date.substring(0, 10);
                  const currentDayDelta = dailyDeltas.get(dayKey) || 0;
                  dailyDeltas.set(dayKey, currentDayDelta + delta);
              });

@@ -20,6 +20,45 @@ import { mapMovementType } from '../businessRules';
 export const DataMapper = {
 
     /**
+     * Tenta parsear datas em formatos variados (SQL, BR, ISO) para ISO 8601.
+     * Retorna string vazia ou data atual se inválido, dependendo do contexto.
+     */
+    parseDate(rawDate: any, fallbackToNow: boolean = false): string {
+        if (!rawDate) return fallbackToNow ? new Date().toISOString() : '';
+
+        // Se já é ISO
+        if (typeof rawDate === 'string' && rawDate.includes('T') && rawDate.endsWith('Z')) {
+            return rawDate;
+        }
+
+        let dateObj: Date | null = null;
+
+        // Formato BR (DD/MM/YYYY) ou SQL (YYYY-MM-DD)
+        const str = String(rawDate).trim();
+
+        // DD/MM/YYYY
+        if (/^\d{1,2}\/\d{1,2}\/\d{4}/.test(str)) {
+            const [d, m, y] = str.split('/').map(Number);
+            dateObj = new Date(y, m - 1, d);
+        }
+        // YYYY-MM-DD
+        else if (/^\d{4}-\d{1,2}-\d{1,2}/.test(str)) {
+            dateObj = new Date(str);
+        }
+        // Timestamp Numérico
+        else if (!isNaN(Number(str))) {
+             dateObj = new Date(Number(str));
+        }
+
+        if (dateObj && !isNaN(dateObj.getTime())) {
+            return dateObj.toISOString();
+        }
+
+        // Se falhar e precisar de fallback (ex: data de movimentação)
+        return fallbackToNow ? new Date().toISOString() : '';
+    },
+
+    /**
      * Gera estruturas normalizadas V2 a partir de uma lista plana de itens V1.
      * Fundamental para manter a integridade do Ledger.
      */
@@ -90,13 +129,16 @@ export const DataMapper = {
             
             // Verifica se o lote já foi processado para evitar duplicatas em caso de dados sujos
             if (!batchMap.has(batchId)) {
+                // Valida data de validade antes de persistir
+                const cleanExpiry = this.parseDate(item.expiryDate, false);
+
                 batchMap.set(batchId, {
                     id: batchId, 
                     catalogId: catalogId, 
                     partnerId: partnerId, 
                     lotNumber: item.lotNumber,
                     unitCost: item.unitCost || 0, 
-                    expiryDate: item.expiryDate, 
+                    expiryDate: cleanExpiry,
                     status: item.itemStatus === 'Ativo' ? 'ACTIVE' : 'BLOCKED', 
                     createdAt: item.createdAt || new Date().toISOString(),
                     updatedAt: new Date().toISOString()
@@ -204,6 +246,9 @@ export const DataMapper = {
                 const locStr = 'Geral';
                 const locationId = `LOC-${generateHash(normalizeStr(locStr))}`;
 
+                // Valida Data de Validade
+                const cleanExpiry = this.parseDate(lot.validade, false);
+
                 itemsToInsert.push({
                     id: deterministicId, 
                     sapCode: sap, 
@@ -214,7 +259,7 @@ export const DataMapper = {
                     category: 'Geral', 
                     minStockLevel: 10, 
                     supplier: supplier,
-                    expiryDate: lot.validade || '', 
+                    expiryDate: cleanExpiry,
                     dateAcquired: new Date().toISOString(), 
                     lastUpdated: new Date().toISOString(),
                     itemStatus: 'Ativo', 
@@ -264,6 +309,9 @@ export const DataMapper = {
                  let targetId = legacyBatchIdToUuidMap.get(legacyIdStr);
                  let linkedItem: InventoryItem | undefined;
                  
+                 // Normaliza Data da Movimentação (Essencial para Gráficos)
+                 const movDate = this.parseDate(m.data_mov, true);
+
                  if (targetId) {
                      linkedItem = itemsMap.get(targetId);
                  }
@@ -277,7 +325,7 @@ export const DataMapper = {
                          const ghostItem: InventoryItem = {
                              id: ghostId, sapCode: 'LEGACY', name: ghostName,
                              lotNumber: 'GEN', baseUnit: 'UN', quantity: 0, category: 'Arquivo Morto',
-                             minStockLevel: 0, supplier: 'Legado', expiryDate: '', dateAcquired: m.data_mov || new Date().toISOString(),
+                             minStockLevel: 0, supplier: 'Legado', expiryDate: '', dateAcquired: movDate,
                              lastUpdated: new Date().toISOString(), itemStatus: 'Obsoleto', type: 'ROH', materialGroup: 'Legacy',
                              isControlled: false, unitCost: 0, currency: 'BRL', location: { warehouse: 'Arquivo', cabinet: '', shelf: '', position: '' },
                              locationId: `LOC-${generateHash(normalizeStr('Arquivo'))}`,
@@ -307,18 +355,18 @@ export const DataMapper = {
                      else if (type === 'SAIDA') linkedItem.quantity -= qty;
                      
                      // Ajusta data de aquisição pela primeira entrada
-                     if (type === 'ENTRADA' && m.data_mov && (!linkedItem.dateAcquired || m.data_mov < linkedItem.dateAcquired)) {
-                         linkedItem.dateAcquired = m.data_mov;
+                     if (type === 'ENTRADA' && movDate && (!linkedItem.dateAcquired || movDate < linkedItem.dateAcquired)) {
+                         linkedItem.dateAcquired = movDate;
                      }
                  }
                  
-                 const historyId = generateHash(`${linkedItem!.id}-${m.data_mov}-${type}-${qty}-${idx}`);
+                 const historyId = generateHash(`${linkedItem!.id}-${movDate}-${type}-${qty}-${idx}`);
         
                  historyToInsert.push({
                     id: `HIST-${historyId}`, 
                     itemId: linkedItem!.id, 
                     batchId: linkedItem!.batchId,
-                    date: m.data_mov || new Date().toISOString(), 
+                    date: movDate,
                     type: type, 
                     productName: linkedItem!.name,
                     sapCode: linkedItem!.sapCode, 

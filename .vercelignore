@@ -1,0 +1,12 @@
+electron/
+backend/
+thoughts/
+.Jules/
+.git/
+start.bat
+*.md
+tests/
+LIMS_real_data*
+*.sql
+*.zip
+.DS_Store

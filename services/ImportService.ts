@@ -115,6 +115,12 @@ export const ImportService = {
             if (v2Data.balances.length > 0) await db.rawDb.balances.bulkPut(v2Data.balances);
         });
         
+        // Auto-trigger enrichment for items with missing chemical data
+        // This runs in background to avoid blocking UI
+        setTimeout(() => {
+             this.enrichInventory((c, t) => console.log(`[Auto-Enrich] ${c}/${t}`));
+        }, 2000);
+
         return stats;
       } catch (e) {
         db.invalidateCaches();
