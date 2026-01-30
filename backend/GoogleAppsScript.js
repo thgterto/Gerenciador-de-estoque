@@ -64,6 +64,11 @@ function doPost(e) {
         result.message = "Item deletado";
         break;
 
+      case 'delete_bulk':
+        deleteBulk(payload.ids);
+        result.message = "Itens deletados em massa";
+        break;
+
       default:
         throw new Error("Ação desconhecida: " + action);
     }
@@ -337,6 +342,32 @@ function deleteItem(itemId) {
   
   // Delete from bottom up to avoid index shifting
   rowsToDelete.reverse().forEach(rowIdx => sheet.deleteRow(rowIdx));
+}
+
+function deleteBulk(ids) {
+  if (!ids || ids.length === 0) return;
+  const sheet = ensureSheet('Balances', ['ID', 'BatchID', 'LocationID', 'Quantity', 'UpdatedAt']);
+  const data = sheet.getDataRange().getValues();
+  const map = getColumnMap(sheet);
+
+  const rowsToDelete = [];
+  const targetItemIds = new Set(ids.map(String));
+  // Strict matching for BatchID: Assumes BAT-{ItemID} format which is standard
+  const targetBatchIds = new Set(ids.map(id => 'BAT-' + id));
+
+  for (let i = 1; i < data.length; i++) {
+    const rowBatchId = String(data[i][map['BatchID']]);
+    const rowId = String(data[i][map['ID']]);
+
+    // Strict match logic to prevent false positives (e.g. "1" inside "11")
+    if (targetItemIds.has(rowId) || targetBatchIds.has(rowBatchId)) {
+      rowsToDelete.push(i + 1);
+    }
+  }
+
+  // Delete from bottom up
+  rowsToDelete.sort((a, b) => b - a);
+  rowsToDelete.forEach(rowIdx => sheet.deleteRow(rowIdx));
 }
 
 function getDenormalizedInventory() {

@@ -121,6 +121,11 @@ export const GoogleSheetsService = {
         await this.request('delete_item', { id: itemId });
     },
 
+    async deleteBulk(ids: string[]): Promise<void> {
+        if (!this.isConfigured()) return;
+        await this.request('delete_bulk', { ids });
+    },
+
     async logMovement(record: MovementRecord): Promise<void> {
         if (!this.isConfigured()) return;
         await this.request('log_movement', { record });
