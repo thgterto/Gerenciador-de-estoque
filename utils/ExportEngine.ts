@@ -136,5 +136,54 @@ export const LIMS_DATA: any = ${JSON.stringify(exportData, null, 2)};
 
             return row;
         });
+    },
+
+    /**
+     * Relatório de Substâncias Controladas (Polícia Federal / Exército)
+     */
+    prepareControlledReport: (items: InventoryItem[]) => {
+        return items
+            .filter(i => i.isControlled)
+            .map(i => {
+                const row = {
+                    "Código SAP": i.sapCode,
+                    "Produto Controlado": i.name,
+                    "CAS Number": i.casNumber || 'N/A',
+                    "Lote": i.lotNumber,
+                    "Validade": i.expiryDate ? new Date(i.expiryDate).toLocaleDateString() : 'N/A',
+                    "Saldo Atual": i.quantity,
+                    "Unidade": i.baseUnit,
+                    "Localização": `${i.location.warehouse} > ${i.location.cabinet || ''}`
+                };
+                return row;
+            });
+    },
+
+    /**
+     * Relatório Financeiro e de Custo de Estoque
+     */
+    prepareCostReport: (items: InventoryItem[]) => {
+        let totalInventoryValue = 0;
+
+        const rows = items.map(i => {
+            const unitCost = i.unitCost || 0;
+            const totalValue = unitCost * i.quantity;
+            totalInventoryValue += totalValue;
+
+            return {
+                "Produto": i.name,
+                "Lote": i.lotNumber,
+                "Quantidade": i.quantity,
+                "Custo Unitário": unitCost,
+                "Valor Total": totalValue,
+                "Moeda": i.currency || 'BRL',
+                "Status": i.itemStatus
+            };
+        });
+
+        // Add Summary Row at the top or bottom?
+        // Usually bottom but sorting might mess it up.
+        // We'll just return the rows, the total can be calculated in Excel.
+        return rows;
     }
 };

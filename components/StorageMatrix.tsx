@@ -132,10 +132,15 @@ export const StorageMatrix: React.FC<Props> = ({ items }) => {
         const handleResize = () => {
             const mobile = window.innerWidth < 768;
             setIsMobile(mobile);
-            if (mobile) setViewMode('LIST');
         };
         window.addEventListener('resize', handleResize);
-        handleResize(); // Initial check
+
+        // Initial check only
+        if (window.innerWidth < 768) {
+            setIsMobile(true);
+            setViewMode('LIST');
+        }
+
         return () => window.removeEventListener('resize', handleResize);
     }, []);
     

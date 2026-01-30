@@ -18,6 +18,7 @@ export const QuickScanModal: React.FC<Props> = ({ isOpen, onClose }) => {
   const [scannedItem, setScannedItem] = useState<InventoryItem | null>(null);
   const [quantity, setQuantity] = useState<string>('1');
   const [continuousMode, setContinuousMode] = useState(false);
+  const [continuousType, setContinuousType] = useState<'ENTRADA' | 'SAIDA'>('SAIDA');
   
   // Controle de "CoolDown" para evitar leituras duplas do mesmo código
   const lastScanRef = useRef<{code: string, time: number} | null>(null);
@@ -41,19 +42,22 @@ export const QuickScanModal: React.FC<Props> = ({ isOpen, onClose }) => {
               setScannedItem(item);
               
               if (continuousMode) {
-                  // Modo Contínuo: Registra saída imediata de 1 unidade
+                  // Modo Contínuo: Registra movimento imediato
                   await InventoryService.registerMovement(
                       item, 
-                      'SAIDA', 
+                      continuousType,
                       1, 
                       new Date().toISOString(), 
-                      'Scan Rápido (Contínuo)'
+                      `Scan Rápido (${continuousType})`
                   );
                   
-                  addToast(`Saída Registrada: ${item.name}`, 'success', '-1 UN', 2000);
+                  const typeLabel = continuousType === 'ENTRADA' ? 'Entrada' : 'Saída';
+                  const symbol = continuousType === 'ENTRADA' ? '+1' : '-1';
+
+                  addToast(`${typeLabel} Registrada: ${item.name}`, 'success', `${symbol} UN`, 2000);
                   
                   setScanHistory(prev => [
-                      { name: item.name, time: new Date().toLocaleTimeString(), type: 'OUT' },
+                      { name: item.name, time: new Date().toLocaleTimeString(), type: continuousType === 'SAIDA' ? 'OUT' : 'IN' },
                       ...prev.slice(0, 4) // Mantém apenas os últimos 5
                   ]);
                   
@@ -147,12 +151,28 @@ export const QuickScanModal: React.FC<Props> = ({ isOpen, onClose }) => {
             </div>
             
             {/* Botão de Toggle de Modo */}
-            <div className="absolute top-[320px] right-4 z-20">
+            <div className="absolute top-[320px] right-4 z-20 flex flex-col gap-2 items-end">
+                {continuousMode && (
+                     <div className="flex bg-black/50 backdrop-blur-md rounded-full p-1 border border-white/20 animate-fade-in">
+                         <button
+                            onClick={() => setContinuousType('ENTRADA')}
+                            className={`px-3 py-1.5 rounded-full text-xs font-bold transition-colors ${continuousType === 'ENTRADA' ? 'bg-green-500 text-white' : 'text-white/70 hover:text-white'}`}
+                         >
+                             ENTRADA
+                         </button>
+                         <button
+                            onClick={() => setContinuousType('SAIDA')}
+                            className={`px-3 py-1.5 rounded-full text-xs font-bold transition-colors ${continuousType === 'SAIDA' ? 'bg-red-500 text-white' : 'text-white/70 hover:text-white'}`}
+                         >
+                             SAÍDA
+                         </button>
+                     </div>
+                )}
                 <button 
                     onClick={() => setContinuousMode(!continuousMode)}
                     className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold shadow-lg backdrop-blur-md transition-all ${
                         continuousMode 
-                        ? 'bg-green-500 text-white animate-pulse' 
+                        ? 'bg-amber-500 text-white'
                         : 'bg-white/20 text-white border border-white/30'
                     }`}
                 >

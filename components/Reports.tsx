@@ -103,8 +103,8 @@ const FlowChart = React.memo(({ labels, dataIn, dataOut }: { labels: string[], d
 });
 
 export const Reports: React.FC<Props> = ({ items, history }) => {
-    const [activeTab, setActiveTab] = useState<'ABC' | 'CONTROLLED' | 'EXPIRY' | 'FLOW'>('ABC');
-    const { abcAnalysis, controlledReport, expiryRisk, monthlyFlow } = useReportsAnalytics(items, history);
+    const [activeTab, setActiveTab] = useState<'ABC' | 'COST' | 'CONTROLLED' | 'EXPIRY' | 'FLOW'>('ABC');
+    const { abcAnalysis, controlledReport, expiryRisk, costAnalysis, monthlyFlow } = useReportsAnalytics(items, history);
     
     const chartData = useMemo(() => {
         if (activeTab !== 'ABC') return { A: 0, B: 0, C: 0 };
@@ -124,6 +124,7 @@ export const Reports: React.FC<Props> = ({ items, history }) => {
                 <div className="flex bg-surface-light dark:bg-surface-dark p-1 rounded-lg border border-border-light dark:border-border-dark overflow-x-auto no-scrollbar">
                     {[
                         { id: 'ABC', label: 'Curva ABC', icon: 'analytics' },
+                        { id: 'COST', label: 'Financeiro', icon: 'attach_money' },
                         { id: 'FLOW', label: 'Fluxo', icon: 'swap_vert' },
                         { id: 'CONTROLLED', label: 'Controlados', icon: 'verified_user' },
                         { id: 'EXPIRY', label: 'Validade', icon: 'event_busy' }
@@ -145,6 +146,69 @@ export const Reports: React.FC<Props> = ({ items, history }) => {
                     ))}
                 </div>
             </PageHeader>
+
+            {/* TAB CONTENT: COST ANALYSIS */}
+            {activeTab === 'COST' && (
+                <div className="flex flex-col gap-6 animate-fade-in">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                         <Card padding="p-6" className="bg-primary/5 border-primary/20">
+                             <h3 className="text-sm font-bold text-primary uppercase tracking-wide">Valor Total em Estoque</h3>
+                             <p className="text-3xl font-black text-text-main dark:text-white mt-2">
+                                 {costAnalysis.totalValue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                             </p>
+                         </Card>
+                         <Card padding="p-6">
+                             <h3 className="text-sm font-bold text-text-secondary uppercase tracking-wide">Item Mais Valioso</h3>
+                             {costAnalysis.items.length > 0 ? (
+                                 <div className="mt-2">
+                                     <p className="text-xl font-bold text-text-main dark:text-white truncate" title={costAnalysis.items[0].name}>{costAnalysis.items[0].name}</p>
+                                     <p className="text-sm text-text-secondary">{costAnalysis.items[0].totalValue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</p>
+                                 </div>
+                             ) : <p className="mt-2 text-text-secondary italic">--</p>}
+                         </Card>
+                    </div>
+
+                    <Card padding="p-0" className="flex flex-col overflow-hidden">
+                        <div className="px-6 py-4 border-b border-border-light dark:border-border-dark bg-background-light/50 dark:bg-slate-800/50 flex justify-between items-center">
+                            <h3 className="font-bold text-text-main dark:text-white">Detalhamento de Custos</h3>
+                        </div>
+                        <Table>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead>Produto</TableHead>
+                                    <TableHead className="text-right">Qtd</TableHead>
+                                    <TableHead className="text-right">Custo Unit.</TableHead>
+                                    <TableHead className="text-right font-bold">Total</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                {costAnalysis.items.slice(0, 50).map(item => (
+                                    <TableRow key={item.id}>
+                                        <TableCell>
+                                            <div className="font-medium">{item.name}</div>
+                                            <div className="text-xs text-text-secondary">{item.lotNumber}</div>
+                                        </TableCell>
+                                        <TableCell className="text-right font-mono">{item.quantity} {item.baseUnit}</TableCell>
+                                        <TableCell className="text-right font-mono text-text-secondary">
+                                            {item.unitCost ? item.unitCost.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) : '-'}
+                                        </TableCell>
+                                        <TableCell className="text-right font-bold">
+                                            {item.totalValue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                                        </TableCell>
+                                    </TableRow>
+                                ))}
+                                {costAnalysis.items.length === 0 && (
+                                    <TableRow>
+                                        <TableCell colSpan={4} className="text-center text-text-secondary opacity-60 py-12">
+                                            Sem dados de custo registrados.
+                                        </TableCell>
+                                    </TableRow>
+                                )}
+                            </TableBody>
+                        </Table>
+                    </Card>
+                </div>
+            )}
 
             {/* TAB CONTENT: CURVA ABC */}
             {activeTab === 'ABC' && (
