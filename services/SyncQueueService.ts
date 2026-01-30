@@ -42,30 +42,61 @@ export const SyncQueueService = {
             // Fetch pending items (FIFO)
             const pendingItems = await db.rawDb.syncQueue.orderBy('id').limit(5).toArray();
             
-            for (const item of pendingItems) {
-                try {
-                    const res = await GoogleSheetsService.request(item.action, item.payload);
-                    
-                    if (res.success) {
-                        await db.rawDb.syncQueue.delete(item.id!);
-                        console.log(`[SyncQueue] Item ${item.id} processed successfully`);
-                    } else {
-                        throw new Error(res.message || "Unknown error");
+            if (pendingItems.length === 0) return;
+
+            // Prepare batch request
+            const batchPayload = {
+                operations: pendingItems.map(item => ({
+                    id: item.id,
+                    action: item.action,
+                    payload: item.payload
+                }))
+            };
+
+            try {
+                // Execute batch request
+                const res = await GoogleSheetsService.request('batch_request', batchPayload);
+
+                if (res.success && Array.isArray(res.data)) {
+                    // Process results
+                    for (const result of res.data) {
+                        const item = pendingItems.find(p => p.id === result.id);
+                        if (!item) continue;
+
+                        if (result.success) {
+                            await db.rawDb.syncQueue.delete(result.id);
+                            console.log(`[SyncQueue] Item ${result.id} processed successfully`);
+                        } else {
+                            console.warn(`[SyncQueue] Item ${result.id} failed:`, result.error);
+
+                            if (item.retryCount >= 5) {
+                                console.error(`[SyncQueue] Item ${result.id} max retries reached. Deleting.`);
+                                await db.rawDb.syncQueue.delete(result.id);
+                            } else {
+                                await db.rawDb.syncQueue.update(result.id, {
+                                    retryCount: item.retryCount + 1,
+                                    error: String(result.error)
+                                });
+                            }
+                        }
                     }
-                } catch (error) {
-                    console.warn(`[SyncQueue] Item ${item.id} failed:`, error);
-                    // Increment retry or delete if fatal
-                    if (item.retryCount >= 5) {
-                        console.error(`[SyncQueue] Item ${item.id} max retries reached. Deleting.`);
-                         await db.rawDb.syncQueue.delete(item.id!);
-                    } else {
-                        await db.rawDb.syncQueue.update(item.id!, { 
-                            retryCount: item.retryCount + 1,
+                } else {
+                    throw new Error(res.message || "Batch request returned invalid data");
+                }
+            } catch (error) {
+                console.warn(`[SyncQueue] Batch request failed:`, error);
+                // In case of network error or total failure, apply retry logic to the first item
+                // so we don't get stuck in a loop without backoff/max-retry handling
+                const firstItem = pendingItems[0];
+                if (firstItem) {
+                     if (firstItem.retryCount >= 5) {
+                        await db.rawDb.syncQueue.delete(firstItem.id!);
+                     } else {
+                        await db.rawDb.syncQueue.update(firstItem.id!, {
+                            retryCount: firstItem.retryCount + 1,
                             error: String(error)
                         });
-                        // Stop processing batch on first failure to maintain order consistency
-                        break;
-                    }
+                     }
                 }
             }
         } finally {
