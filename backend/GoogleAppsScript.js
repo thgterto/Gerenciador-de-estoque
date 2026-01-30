@@ -318,25 +318,25 @@ function legacyUpsertItem(item) {
 }
 
 function deleteItem(itemId) {
-  // Inefficient but functional for small datasets. For larger ones, consider marking as 'DELETED' status.
+  // Optimized for bulk deletions: Read, Filter, Clear, Write
   const sheet = ensureSheet('Balances', ['ID', 'BatchID', 'LocationID', 'Quantity', 'UpdatedAt']);
-  const data = sheet.getDataRange().getValues();
+  const range = sheet.getDataRange();
+  const data = range.getValues();
   const map = getColumnMap(sheet);
   
-  const rowsToDelete = [];
+  // Filter keeping the header (row 0) and rows that DO NOT match
+  const newData = data.filter((row, i) => {
+    if (i === 0) return true; // keep header
+    const rowBatchId = String(row[map['BatchID']]);
+    const rowId = String(row[map['ID']]);
+    return !(rowBatchId.includes(itemId) || rowId == itemId);
+  });
   
-  for (let i = 1; i < data.length; i++) {
-    const rowBatchId = String(data[i][map['BatchID']]);
-    const rowId = String(data[i][map['ID']]);
-    
-    // Check both legacy ID and new BatchID link
-    if (rowBatchId.includes(itemId) || rowId == itemId) {
-      rowsToDelete.push(i + 1);
-    }
+  if (newData.length < data.length) {
+    // There are changes
+    sheet.clearContents();
+    sheet.getRange(1, 1, newData.length, newData[0].length).setValues(newData);
   }
-  
-  // Delete from bottom up to avoid index shifting
-  rowsToDelete.reverse().forEach(rowIdx => sheet.deleteRow(rowIdx));
 }
 
 function getDenormalizedInventory() {
