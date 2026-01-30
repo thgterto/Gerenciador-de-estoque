@@ -1,4 +1,3 @@
-
 // ==========================================
 // LabControl - Relational Backend (3NF)
 // ==========================================
@@ -16,57 +15,7 @@ function doPost(e) {
 
   try {
     const requestData = JSON.parse(e.postData.contents);
-    const action = requestData.action;
-    const payload = requestData;
-
-    let result = { success: true };
-
-    switch (action) {
-      case 'ping':
-        result.message = "Connected to 3NF Backend";
-        break;
-      
-      // --- READ OPERATIONS ---
-      case 'read_full_db':
-        result.data = {
-            view: getDenormalizedInventory(), 
-            catalog: getCatalog(),            
-            batches: getBatches(),            
-            balances: getBalances()           
-        };
-        break;
-
-      case 'read_inventory':
-        result.data = getDenormalizedInventory();
-        break;
-
-      // --- WRITE OPERATIONS (Transactional) ---
-      case 'sync_transaction':
-        handleSyncTransaction(payload);
-        result.message = "Transação sincronizada com sucesso";
-        break;
-
-      // --- LEGACY SUPPORT ---
-      case 'upsert_item':
-        legacyUpsertItem(payload.item);
-        result.message = "Item salvo";
-        break;
-        
-      case 'log_movement':
-        if (payload.record) {
-           bulkLogMovements([payload.record]);
-        }
-        result.message = "Movimento registrado";
-        break;
-
-      case 'delete_item':
-        deleteItem(payload.id);
-        result.message = "Item deletado";
-        break;
-
-      default:
-        throw new Error("Ação desconhecida: " + action);
-    }
+    const result = dispatchAction(requestData.action, requestData);
 
     return ContentService
       .createTextOutput(JSON.stringify(result))
@@ -86,6 +35,89 @@ function doPost(e) {
   } finally {
     lock.releaseLock();
   }
+}
+
+function dispatchAction(action, payload) {
+  let result = { success: true };
+
+  switch (action) {
+    case 'batch_request':
+      if (!payload.operations || !Array.isArray(payload.operations)) {
+          throw new Error("Invalid batch payload: 'operations' array missing.");
+      }
+      const batchResults = [];
+      for (const op of payload.operations) {
+          try {
+              // op expected structure: { id: number, action: string, payload: any }
+              // dispatchAction expects (action, payload) where payload contains the arguments needed
+              const subResult = dispatchAction(op.action, op.payload || {});
+
+              // Merge subResult into the batch result entry
+              batchResults.push({
+                  id: op.id,
+                  success: true,
+                  ...subResult
+              });
+          } catch (e) {
+              batchResults.push({
+                  id: op.id,
+                  success: false,
+                  error: e.toString()
+              });
+              // Stop processing on first error to maintain consistency
+              break;
+          }
+      }
+      result.data = batchResults;
+      break;
+
+    case 'ping':
+      result.message = "Connected to 3NF Backend";
+      break;
+
+    // --- READ OPERATIONS ---
+    case 'read_full_db':
+      result.data = {
+          view: getDenormalizedInventory(),
+          catalog: getCatalog(),
+          batches: getBatches(),
+          balances: getBalances()
+      };
+      break;
+
+    case 'read_inventory':
+      result.data = getDenormalizedInventory();
+      break;
+
+    // --- WRITE OPERATIONS (Transactional) ---
+    case 'sync_transaction':
+      handleSyncTransaction(payload);
+      result.message = "Transação sincronizada com sucesso";
+      break;
+
+    // --- LEGACY SUPPORT ---
+    case 'upsert_item':
+      legacyUpsertItem(payload.item);
+      result.message = "Item salvo";
+      break;
+
+    case 'log_movement':
+      if (payload.record) {
+         bulkLogMovements([payload.record]);
+      }
+      result.message = "Movimento registrado";
+      break;
+
+    case 'delete_item':
+      deleteItem(payload.id);
+      result.message = "Item deletado";
+      break;
+
+    default:
+      throw new Error("Ação desconhecida: " + action);
+  }
+
+  return result;
 }
 
 function doGet(e) {
