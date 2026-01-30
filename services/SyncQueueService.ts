@@ -1,6 +1,7 @@
 
 import { db } from '../db';
 import { GoogleSheetsService } from './GoogleSheetsService';
+import { SyncQueueItem } from '../types';
 
 export const SyncQueueService = {
     
@@ -46,7 +47,7 @@ export const SyncQueueService = {
 
             // Prepare batch request
             const batchPayload = {
-                operations: pendingItems.map(item => ({
+                operations: pendingItems.map((item: SyncQueueItem) => ({
                     id: item.id,
                     action: item.action,
                     payload: item.payload
@@ -60,7 +61,7 @@ export const SyncQueueService = {
                 if (res.success && Array.isArray(res.data)) {
                     // Process results
                     for (const result of res.data) {
-                        const item = pendingItems.find(p => p.id === result.id);
+                        const item = pendingItems.find((p: SyncQueueItem) => p.id === result.id);
                         if (!item) continue;
 
                         if (result.success) {

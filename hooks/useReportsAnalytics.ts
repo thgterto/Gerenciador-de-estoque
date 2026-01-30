@@ -84,12 +84,40 @@ export const useReportsAnalytics = (items: InventoryItem[], history: MovementRec
         const next90Days = new Date(today);
         next90Days.setDate(today.getDate() + 90);
 
-        return items
+        const result = items
             .filter(i => i.expiryDate && new Date(i.expiryDate) <= next90Days)
             .sort((a, b) => new Date(a.expiryDate).getTime() - new Date(b.expiryDate).getTime());
+
+        return result.map(i => ({
+            ...i,
+            daysRemaining: Math.ceil((new Date(i.expiryDate).getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
+        }));
     }, [items]);
 
-    // 4. Monthly Flow (Entries vs Exits)
+    // 4. Cost Analysis (Inventory Valuation)
+    const costAnalysis = useMemo(() => {
+        let totalValue = 0;
+        const details = items.map(item => {
+            const unitCost = item.unitCost || 0;
+            const total = item.quantity * unitCost;
+            totalValue += total;
+            return {
+                ...item,
+                unitCost,
+                totalValue: total
+            };
+        });
+
+        // Sort by value desc
+        details.sort((a, b) => b.totalValue - a.totalValue);
+
+        return {
+            totalValue,
+            items: details
+        };
+    }, [items]);
+
+    // 5. Monthly Flow (Entries vs Exits)
     const monthlyFlow = useMemo(() => {
         const dataMap = new Map<string, { in: number, out: number }>();
         const monthNames = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
@@ -129,6 +157,7 @@ export const useReportsAnalytics = (items: InventoryItem[], history: MovementRec
         abcAnalysis,
         controlledReport,
         expiryRisk,
+        costAnalysis,
         monthlyFlow
     };
 };

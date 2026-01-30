@@ -63,5 +63,14 @@ Para um detalhamento completo de todas as funcionalidades, incluindo Matriz de A
     npm run dev
     ```
 
+## 🧪 Testes
+
+O projeto utiliza **Vitest** + **React Testing Library**.
+
+1.  **Rodar testes unitários:**
+    ```bash
+    npm test
+    ```
+
 ---
 **Licença:** Proprietária / Uso Interno.

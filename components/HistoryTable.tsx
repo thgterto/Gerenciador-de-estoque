@@ -14,6 +14,7 @@ import { FixedSizeList as List } from 'react-window';
 import AutoSizer from 'react-virtualized-auto-sizer';
 import { useHistoryFilters } from '../hooks/useHistoryFilters';
 import { Card } from './ui/Card';
+import { ExportEngine } from '../utils/ExportEngine';
 
 interface Props {
   history?: MovementRecord[]; 
@@ -102,7 +103,10 @@ export const HistoryTable: React.FC<Props> = ({ preselectedItemId, preselectedBa
             description="Auditoria completa de entradas, saídas e ajustes de inventário."
             className="mb-4"
         >
-            <Button variant="white" icon="download" onClick={() => alert('Use o menu de Configurações para exportar dados completos.')}>
+            <Button variant="white" icon="download" onClick={() => {
+                const data = ExportEngine.prepareHistoryData(filtered);
+                ExportEngine.generateExcel([{ name: 'Historico Filtrado', data }], 'Historico_Movimentacoes');
+            }}>
                 Exportar Relatório
             </Button>
         </PageHeader>
