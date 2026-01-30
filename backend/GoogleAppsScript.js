@@ -242,6 +242,9 @@ function upsertData(sheetName, headers, items, idField = 'id') {
 
   const newRows = [];
   
+  let updates = false;
+  let maxCols = data.length > 0 ? data[0].length : 0;
+
   items.forEach(item => {
     // Map item object to array based on headers order
     const row = headers.map(h => {
@@ -274,12 +277,30 @@ function upsertData(sheetName, headers, items, idField = 'id') {
         return '';
     });
 
+    if (row.length > maxCols) maxCols = row.length;
+
     if(idRowMap.has(item[idField])) {
-      sheet.getRange(idRowMap.get(item[idField]), 1, 1, row.length).setValues([row]);
+      const rowIdx = idRowMap.get(item[idField]) - 1;
+      const existingRow = data[rowIdx];
+      // Update existing row in memory
+      for(let k = 0; k < row.length; k++) {
+        existingRow[k] = row[k];
+      }
+      updates = true;
     } else {
       newRows.push(row);
     }
   });
+
+  if (updates) {
+      // Ensure rectangularity if columns expanded
+      if (maxCols > (data.length > 0 ? data[0].length : 0)) {
+          data.forEach(r => {
+              while (r.length < maxCols) r.push('');
+          });
+      }
+      sheet.getRange(1, 1, data.length, maxCols).setValues(data);
+  }
 
   if (newRows.length > 0) {
     sheet.getRange(sheet.getLastRow() + 1, 1, newRows.length, newRows[0].length).setValues(newRows);
