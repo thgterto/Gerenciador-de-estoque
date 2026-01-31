@@ -13,46 +13,46 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Design System Colors
+        // Revamped Design System - "Scientific Teal" Theme
         primary: {
-            DEFAULT: '#7C3AED', // Purple 600
-            hover: '#6D28D9',   // Purple 700 (Derived)
-            light: '#F5F3FF',   // Purple 50 (Derived)
+            DEFAULT: '#0D9488', // Teal 600
+            hover: '#0F766E',   // Teal 700
+            light: '#F0FDFA',   // Teal 50
         },
         secondary: {
-            DEFAULT: '#A78BFA', // Purple 400
-            hover: '#8B5CF6',   // Purple 500 (Derived)
-            light: '#EDE9FE',   // Purple 100 (Derived)
+            DEFAULT: '#2DD4BF', // Teal 400
+            hover: '#14B8A6',   // Teal 500
+            light: '#CCFBF1',   // Teal 100
         },
         cta: {
-            DEFAULT: '#F97316', // Orange 500
-            hover: '#EA580C',   // Orange 600 (Derived)
+            DEFAULT: '#F97316', // Orange 500 (Kept for contrast)
+            hover: '#EA580C',   // Orange 600
         },
         background: {
-           DEFAULT: '#FAF5FF',  // Purple 50
-           light: '#FAF5FF',
-           dark: '#1D1D27'      // Kept from old config
+           DEFAULT: '#F8FAFC',  // Slate 50 (Clean professional background)
+           light: '#FFFFFF',
+           dark: '#0F172A'      // Slate 900
         },
         text: {
-           DEFAULT: '#4C1D95',  // Purple 900
-           main: '#4C1D95',
-           secondary: '#6D28D9', // Purple 700 (Derived for contrast)
-           light: '#A78BFA'      // Purple 400
+           DEFAULT: '#0F172A',  // Slate 900
+           main: '#0F172A',
+           secondary: '#334155', // Slate 700
+           light: '#94A3B8'      // Slate 400
         },
 
-        // Legacy/Support Colors (kept for compatibility but shifted to theme)
+        // Legacy/Support Colors
         surface: {
            light: '#FFFFFF',
-           dark: '#293141'
+           dark: '#1E293B'      // Slate 800
         },
-        sidebar: '#1E1B4B',     // Purple 950 (Darker for sidebar)
+        sidebar: '#0F172A',     // Slate 900
         border: {
-           light: '#E9D5FF',    // Purple 200
-           DEFAULT: '#C084FC',  // Purple 400
-           dark: '#4C1D95'      // Purple 900
+           light: '#E2E8F0',    // Slate 200
+           DEFAULT: '#CBD5E1',  // Slate 300
+           dark: '#475569'      // Slate 600
         },
 
-        // Cores Semânticas (Standard Tailwind Palette usually fine, but keeping custom)
+        // Semantic Colors
         success: {
             DEFAULT: '#10B981',
             bg: '#ECFDF5',
@@ -69,15 +69,15 @@ export default {
             text: '#B91C1C'
         },
         info: {
-            DEFAULT: '#3B82F6',
-            bg: '#EFF6FF',
-            text: '#1D4ED8'
+            DEFAULT: '#0EA5E9', // Sky 500
+            bg: '#F0F9FF',
+            text: '#0369A1'
         }
       },
       fontFamily: { 
-        sans: ['Exo', 'sans-serif'],
-        mono: ['Roboto Mono', 'monospace'],
-        display: ['Exo', 'sans-serif']
+        sans: ['"Space Grotesk"', 'Exo', 'sans-serif'],
+        mono: ['"Roboto Mono"', 'monospace'],
+        display: ['"Space Grotesk"', 'sans-serif']
       },
       spacing: {
         'xs': '4px',
@@ -90,9 +90,9 @@ export default {
       },
       boxShadow: {
         'sm': '0 1px 2px rgba(0,0,0,0.05)',
-        'md': '0 4px 6px rgba(0,0,0,0.1)',
-        'lg': '0 10px 15px rgba(0,0,0,0.1)',
-        'xl': '0 20px 25px rgba(0,0,0,0.15)',
+        'md': '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+        'lg': '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+        'xl': '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
       },
       animation: {
         'fade-in': 'fadeIn 0.3s ease-out forwards',
