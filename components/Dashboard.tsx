@@ -392,22 +392,22 @@ export const Dashboard: React.FC<Props> = ({ items, history, onAddToPurchase }) 
                                 <tr key={tx.id} className="hover:bg-background-light dark:hover:bg-slate-800/50 transition-colors group">
                                     <td className="px-6 py-3">
                                         <span className={`
-                                            inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium
-                                            ${tx.type === 'ENTRADA' ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400' : 
-                                              tx.type === 'SAIDA' ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400' : 
-                                              'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400'}
+                                            inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-[11px] font-bold tracking-wide uppercase
+                                            ${tx.type === 'ENTRADA' ? 'bg-emerald-50 text-emerald-700 border border-emerald-100 dark:bg-emerald-900/20 dark:text-emerald-400 dark:border-emerald-800' :
+                                              tx.type === 'SAIDA' ? 'bg-red-50 text-red-700 border border-red-100 dark:bg-red-900/20 dark:text-red-400 dark:border-red-800' :
+                                              'bg-amber-50 text-amber-700 border border-amber-100 dark:bg-amber-900/20 dark:text-amber-400 dark:border-amber-800'}
                                         `}>
                                             {tx.type}
                                         </span>
                                     </td>
                                     <td className="px-6 py-3 font-medium text-text-main dark:text-white truncate max-w-[200px]" title={tx.productName}>
                                         {tx.productName}
-                                        <div className="text-[10px] text-text-secondary font-normal mt-0.5 font-mono">Lote: {tx.lot}</div>
+                                        <div className="text-[11px] text-text-light font-medium mt-0.5 tracking-wide">Lote: <span className="font-mono text-text-secondary">{tx.lot}</span></div>
                                     </td>
                                     <td className="px-6 py-3 text-right font-mono font-medium text-text-main dark:text-slate-300">
-                                        {tx.quantity} <span className="text-[10px] text-text-light">{tx.unit}</span>
+                                        {tx.quantity} <span className="text-[10px] text-text-light font-sans font-normal uppercase">{tx.unit}</span>
                                     </td>
-                                    <td className="px-6 py-3 text-right text-text-secondary dark:text-gray-400 text-xs">
+                                    <td className="px-6 py-3 text-right text-text-secondary dark:text-gray-400 text-[11px] font-medium">
                                         {formatDateTime(tx.date)}
                                     </td>
                                 </tr>

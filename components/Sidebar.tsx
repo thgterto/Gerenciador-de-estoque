@@ -105,8 +105,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ onLogout, notificationsCount =
                  <Icon name="science" size={28} className="text-white" />
               </div>
               <div className="flex flex-col">
-                 <h1 className="text-text-main dark:text-white text-base font-bold leading-tight">LabControl</h1>
-                 <p className="text-text-secondary dark:text-gray-400 text-xs font-normal">Gestão de Estoque</p>
+                 <h1 className="text-text-main dark:text-white text-lg font-display font-bold leading-none tracking-tight">LabControl</h1>
+                 <p className="text-text-secondary dark:text-gray-400 text-[11px] font-medium tracking-wide uppercase mt-0.5">Gestão de Estoque</p>
               </div>
               {/* Mobile Close */}
                <button onClick={closeMobile} className="md:hidden ml-auto text-text-secondary hover:text-primary transition-colors">
