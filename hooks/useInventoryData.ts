@@ -2,7 +2,6 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { InventoryItem, MovementRecord } from '../types';
 import { InventoryService } from '../services/InventoryService';
-import { SharePointService } from '../services/SharePointService';
 import { db } from '../db';
 import { seedDatabase } from '../services/DatabaseSeeder';
 import { useAlert } from '../context/AlertContext';
@@ -80,7 +79,6 @@ export const useInventoryData = () => {
 
                 // 2. Sync Cloud (Opcional)
                 try {
-                    await SharePointService.initialize();
                     await InventoryService.syncFromCloud();
                 } catch (e) {
                     // Silent fail for offline mode

@@ -1,10 +1,11 @@
 
 import { db } from '../db';
-import { GoogleSheetsService } from './GoogleSheetsService';
-import { SyncQueueService } from './SyncQueueService';
-import { LedgerService } from './LedgerService';   // NEW
-import { SnapshotService } from './SnapshotService'; // NEW
-import { MigrationV2 } from '../utils/MigrationV2'; // NEW
+import { LedgerService } from './LedgerService';
+import { SnapshotService } from './SnapshotService';
+import { MigrationV2 } from '../utils/MigrationV2';
+import { InventorySyncManager } from './InventorySyncManager';
+import { InventoryExportService } from './InventoryExportService';
+import { InventoryAuditService } from './InventoryAuditService';
 import { 
     InventoryItem, 
     MovementRecord, 
@@ -18,7 +19,6 @@ import {
     BatchDetailView
 } from '../types';
 import { generateInventoryId, sanitizeProductName, normalizeUnit, generateHash } from '../utils/stringUtils';
-import { ExportEngine } from '../utils/ExportEngine';
 
 // Validation Helper
 const validateItemPayload = (item: Partial<InventoryItem>) => {
@@ -30,7 +30,7 @@ const validateItemPayload = (item: Partial<InventoryItem>) => {
 
 /**
  * InventoryService Core Logic
- * NOW UPDATED: Uses LedgerService as the Single Source of Truth.
+ * Refactored to follow SRP. Delegates Sync, Audit, and Export to specialized services.
  */
 export const InventoryService = {
   
@@ -42,40 +42,7 @@ export const InventoryService = {
   },
   
   async syncFromCloud(): Promise<void> {
-      try {
-          if (!GoogleSheetsService.isConfigured()) {
-              console.log("Modo Offline: Google Sheets não configurado.");
-              return;
-          }
-
-          // Check for pending offline changes to prevent overwrite
-          const pendingCount = await SyncQueueService.getQueueSize();
-          if (pendingCount > 0) {
-              console.warn(`[Sync] Aborted: ${pendingCount} offline changes pending. Triggering push first.`);
-              SyncQueueService.triggerProcess();
-              return;
-          }
-
-          console.log("Iniciando sincronização V2 (Smart Merge)...");
-          const { view, catalog, batches, balances } = await GoogleSheetsService.fetchFullDatabase();
-          
-          if (view.length > 0) {
-              // Atomic Transaction
-              await db.transaction('rw', [db.rawDb.items, db.rawDb.catalog, db.rawDb.batches, db.rawDb.balances], async () => {
-                  await Promise.all([
-                      db.items.bulkPut(view),
-                      db.rawDb.catalog.bulkPut(catalog),
-                      db.rawDb.batches.bulkPut(batches),
-                      db.rawDb.balances.bulkPut(balances)
-                  ]);
-              });
-              console.log(`Sync Concluído: ${view.length} items atualizados.`);
-          }
-      } catch (error) {
-          console.error("Erro na sincronização Cloud:", error);
-          // Invalidate cache on sync error to ensure consistency
-          db.invalidateCaches();
-      }
+      return InventorySyncManager.syncFromCloud();
   },
 
   // --- Read Operations ---
@@ -251,16 +218,10 @@ export const InventoryService = {
     await db.history.add(historyRecord);
 
     // 4. Cloud Sync
-    if (GoogleSheetsService.isConfigured()) {
-        // We sync the raw movement + the updated balance (fetched fresh)
-        // Ideally we fetch the specific balance changed, but for now we sync movement.
-        const payload = {
-            movements: [historyRecord]
-        };
-
-        GoogleSheetsService.request('sync_transaction', payload)
-            .catch(() => SyncQueueService.enqueue('sync_transaction', payload));
-    }
+    const syncPayload = {
+        movements: [historyRecord]
+    };
+    InventorySyncManager.notifyChange('sync_transaction', syncPayload);
   },
 
   async registerMovement(item: InventoryItem, type: 'ENTRADA'|'SAIDA'|'AJUSTE', quantity: number, date: string, obs: string) {
@@ -292,10 +253,7 @@ export const InventoryService = {
         throw e;
     }
     
-    if (GoogleSheetsService.isConfigured()) {
-        GoogleSheetsService.addOrUpdateItem(updatedItem)
-            .catch(() => SyncQueueService.enqueue('upsert_item', { item: updatedItem }));
-    }
+    InventorySyncManager.notifyItemChange(updatedItem);
   },
 
   async addItem(dto: CreateItemDTO): Promise<void> {
@@ -418,17 +376,14 @@ export const InventoryService = {
         throw e;
       }
 
-      if (GoogleSheetsService.isConfigured()) {
-          const payload = {
-              catalog: [catalog],
-              batches: [batch],
-              balances: [balance],
-              movements: history ? [history] : []
-          };
-          
-          GoogleSheetsService.request('sync_transaction', payload)
-              .catch(() => SyncQueueService.enqueue('sync_transaction', payload));
-      }
+      const syncPayload = {
+          catalog: [catalog],
+          batches: [batch],
+          balances: [balance],
+          movements: history ? [history] : []
+      };
+
+      InventorySyncManager.notifyChange('sync_transaction', syncPayload);
   },
 
   async updateItem(item: InventoryItem): Promise<void> {
@@ -503,10 +458,7 @@ export const InventoryService = {
         throw e;
       }
       
-      if (GoogleSheetsService.isConfigured()) {
-          GoogleSheetsService.addOrUpdateItem(updatedItem)
-              .catch(() => SyncQueueService.enqueue('upsert_item', { item: updatedItem }));
-      }
+      InventorySyncManager.notifyItemChange(updatedItem);
   },
 
   async deleteItem(id: string): Promise<void> {
@@ -527,10 +479,7 @@ export const InventoryService = {
         throw e;
       }
       
-      if (GoogleSheetsService.isConfigured()) {
-          GoogleSheetsService.deleteItem(id)
-             .catch(() => SyncQueueService.enqueue('delete_item', { id }));
-      }
+      InventorySyncManager.notifyItemDelete(id);
   },
 
   async deleteBulk(ids: string[]): Promise<void> {
@@ -552,64 +501,14 @@ export const InventoryService = {
         throw e;
       }
 
-      if (GoogleSheetsService.isConfigured()) {
-          ids.forEach(id => {
-              GoogleSheetsService.deleteItem(id)
-                .catch(() => SyncQueueService.enqueue('delete_item', { id }));
-          });
-      }
+      ids.forEach(id => {
+          InventorySyncManager.notifyItemDelete(id);
+      });
   },
   
   // Audits consistency between V1 (UI) and V2 (Ledger)
   async runLedgerAudit(fix: boolean = false) {
-      let matches = 0;
-      let mismatches = 0;
-      let corrections = 0;
-      
-      // Map: BatchID -> Total Quantity from V2 Balances
-      const ledgerSums = new Map<string, number>();
-      
-      // Stream Balances (V2) - Memory Efficient
-      await db.rawDb.balances.each((bal: StockBalance) => {
-          const current = ledgerSums.get(bal.batchId) || 0;
-          ledgerSums.set(bal.batchId, current + bal.quantity);
-      });
-
-      const updates: InventoryItem[] = [];
-
-      // Stream Items (V1) and Compare
-      await db.rawDb.items.each((item: InventoryItem) => {
-          const batchId = item.batchId || `BAT-${item.id}`;
-          const ledgerQty = ledgerSums.get(batchId);
-          
-          if (ledgerQty !== undefined) {
-              // Floating point tolerance
-              if (Math.abs(ledgerQty - item.quantity) > 0.001) {
-                  mismatches++;
-                  if (fix) {
-                      updates.push({ ...item, quantity: parseFloat(ledgerQty.toFixed(3)) });
-                      corrections++;
-                  }
-              } else {
-                  matches++;
-              }
-          } else {
-               // Item exists in V1 but no balance in V2 (Drift)
-               if (item.quantity > 0) {
-                   mismatches++;
-                   if (fix) {
-                       updates.push({ ...item, quantity: 0 });
-                       corrections++;
-                   }
-               }
-          }
-      });
-
-      if (fix && updates.length > 0) {
-          await db.items.bulkPut(updates);
-      }
-
-      return { matches, mismatches, corrections };
+      return InventoryAuditService.runLedgerAudit(fix);
   },
 
   async replaceDatabaseWithData(data: any): Promise<void> {
@@ -618,14 +517,7 @@ export const InventoryService = {
   },
   
   async exportData(options: ExportOptions) {
-      const sheets = [];
       const items = await this.getAllItems();
-      sheets.push({ name: 'Inventario', data: ExportEngine.prepareInventoryData(items) });
-      if (options.includeHistory) {
-          const history = await this.getHistory();
-          sheets.push({ name: 'Historico', data: ExportEngine.prepareHistoryData(history) });
-      }
-      const filename = `LabControl_Export_${new Date().toISOString().split('T')[0]}`;
-      ExportEngine.generateExcel(sheets, filename);
+      await InventoryExportService.exportData(items, () => this.getHistory(), options);
   }
 };
