@@ -14,8 +14,6 @@
     "test": "vitest"
   },
   "dependencies": {
-    "@azure/msal-browser": "^3.10.0",
-    "@microsoft/microsoft-graph-client": "^3.0.7",
     "apexcharts": "^5.3.6",
     "dexie": "^4.0.1",
     "echarts": "^5.5.0",
