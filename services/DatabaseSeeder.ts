@@ -40,9 +40,22 @@ export const seedDatabase = async (force: boolean = false, customData?: any, upd
       
       let sourceData: any = customData;
       
-      // Lazy Loading: Carrega os dados pesados apenas se necessário
+      // 1. Tenta carregar Custom Seed (definido pelo usuário)
       if (!sourceData) {
-          console.log('Carregando módulo de dados LIMS sob demanda...');
+          try {
+              const customSeedConfig = await db.rawDb.systemConfigs.get('custom_seed');
+              if (customSeedConfig && customSeedConfig.value) {
+                  console.log('DatabaseSeeder: Usando Custom Seed definido pelo usuário.');
+                  sourceData = JSON.parse(customSeedConfig.value);
+              }
+          } catch (e) {
+              console.warn('Erro ao verificar custom_seed:', e);
+          }
+      }
+
+      // 2. Fallback: Carrega o Seed Padrão (Factory Default)
+      if (!sourceData) {
+          console.log('Carregando módulo de dados LIMS padrão (Factory Default)...');
           try {
               const module = await import('../limsData');
               sourceData = (window as any).LIMS_DATA || module.LIMS_DATA;

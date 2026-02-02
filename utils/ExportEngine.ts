@@ -35,12 +35,11 @@ export const ExportEngine = {
      * compatível com o 'limsData.ts' original. Isso permite ao desenvolvedor substituir
      * o arquivo fonte para tornar os dados atuais permanentes no código.
      */
-    generateLimsSeedFile: async () => {
+    generateSeedObject: async () => {
         const items = await db.items.toArray();
         const history = await db.history.toArray();
         
-        // Converte o formato interno para o formato esperado pelo Seed
-        const exportData = {
+        return {
             metadata: {
                 gerado_em: new Date().toISOString(),
                 status: "GENERATED FROM BROWSER DB",
@@ -51,6 +50,10 @@ export const ExportEngine = {
                 history: history
             }
         };
+    },
+
+    generateLimsSeedFile: async () => {
+        const exportData = await ExportEngine.generateSeedObject();
 
         const fileContent = `
 // ARQUIVO GERADO AUTOMATICAMENTE PELO LABCONTROL
