@@ -200,7 +200,7 @@ export const InventoryList: React.FC<InventoryListProps> = ({
                                         itemSize={130}
                                         itemKey={itemKey}
                                         width={width}
-                                        className="custom-scrollbar"
+                                        className="custom-scrollbar overflow-y-auto"
                                         itemData={itemData}
                                     >
                                         {InventoryRow}
@@ -215,7 +215,7 @@ export const InventoryList: React.FC<InventoryListProps> = ({
                                     itemSize={getItemSize}
                                     itemKey={itemKey}
                                     width={width}
-                                    className="custom-scrollbar"
+                                    className="custom-scrollbar overflow-y-auto"
                                     itemData={itemData}
                                 >
                                     {InventoryRow}

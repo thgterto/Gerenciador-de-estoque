@@ -258,7 +258,7 @@ export const HistoryTable: React.FC<Props> = ({ preselectedItemId, preselectedBa
                                 itemCount={filtered.length}
                                 itemSize={72}
                                 width={width}
-                                className="custom-scrollbar"
+                                className="custom-scrollbar overflow-y-auto"
                                 itemData={itemData}
                             >
                                 {HistoryRow}
