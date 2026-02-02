@@ -196,17 +196,19 @@ export const Dashboard: React.FC<Props> = ({ items, history, onAddToPurchase }) 
   };
 
   const paretoData = useMemo(() => {
-    let accumulated = 0;
     const totalCount = selectedItemId ? 1 : (items.length || 1); 
     
-    return categoryStats.map(cat => {
-        accumulated += cat.count;
-        return {
+    return categoryStats.reduce((acc: any[], cat) => {
+        const last = acc.length > 0 ? acc[acc.length - 1].rawCumulative : 0;
+        const newCumulative = last + cat.count;
+        acc.push({
             name: cat.name,
             count: cat.count,
-            cumulative: Math.min(100, Math.round((accumulated / totalCount) * 100))
-        };
-    });
+            rawCumulative: newCumulative,
+            cumulative: Math.min(100, Math.round((newCumulative / totalCount) * 100))
+        });
+        return acc;
+    }, []);
   }, [categoryStats, items.length, selectedItemId]);
 
   const paretoOptions: ApexOptions = {

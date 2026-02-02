@@ -4,7 +4,6 @@ import { RiskFlags, CasDataDTO } from '../types';
 // SECURITY FIX: Safe access pattern for import.meta.env to prevent runtime crashes if env is undefined
 const getEnv = (): any => {
     try {
-        // @ts-ignore
         return import.meta.env || {};
     } catch {
         return {};

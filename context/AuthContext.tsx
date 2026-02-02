@@ -1,5 +1,5 @@
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState } from 'react';
 import { User, UserRole } from '../types';
 
 interface AuthContextType {
@@ -19,21 +19,18 @@ const MOCK_USERS: Record<string, { pass: string, name: string, role: UserRole }>
 };
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    // Restaurar sessão
+  const [user, setUser] = useState<User | null>(() => {
     const stored = localStorage.getItem('LC_AUTH_USER');
     if (stored) {
         try {
-            setUser(JSON.parse(stored));
+            return JSON.parse(stored);
         } catch (e) {
             localStorage.removeItem('LC_AUTH_USER');
         }
     }
-    setIsLoading(false);
-  }, []);
+    return null;
+  });
+  const [isLoading] = useState(false);
 
   const login = async (username: string, pass: string): Promise<boolean> => {
       // Simula delay de rede

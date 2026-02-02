@@ -77,7 +77,7 @@ export const QuickScanModal: React.FC<Props> = ({ isOpen, onClose }) => {
           console.error(e);
           addToast('Erro', 'error', 'Falha ao processar código.');
       }
-  }, [continuousMode, addToast]);
+  }, [continuousMode, continuousType, addToast]);
 
   const handleError = useCallback((msg: string) => console.debug("Scan error:", msg), []);
 
@@ -89,12 +89,14 @@ export const QuickScanModal: React.FC<Props> = ({ isOpen, onClose }) => {
 
   useEffect(() => {
       if (isOpen) {
-          const timer = setTimeout(() => startScanner(), 100);
+          const timer = setTimeout(() => {
+              setScannedItem(null);
+              setScanHistory([]);
+              startScanner();
+          }, 100);
           return () => clearTimeout(timer);
       } else {
           stopScanner();
-          setScannedItem(null);
-          setScanHistory([]);
       }
   }, [isOpen, startScanner, stopScanner]);
 

@@ -268,6 +268,7 @@ export const TutorialModal: React.FC<Props> = ({ isOpen, onClose, setTab }) => {
 
   useLayoutEffect(() => {
       if (isOpen) {
+          // eslint-disable-next-line react-hooks/set-state-in-effect
           setIsReady(false);
           updatePosition();
           window.addEventListener('resize', updatePosition);
@@ -275,6 +276,7 @@ export const TutorialModal: React.FC<Props> = ({ isOpen, onClose, setTab }) => {
               window.removeEventListener('resize', updatePosition);
           };
       }
+      // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentStep, isOpen]);
 
   const handleNext = () => {

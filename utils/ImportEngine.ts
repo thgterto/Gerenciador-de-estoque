@@ -43,7 +43,7 @@ const parseExcelDate = (value: any): string | null => {
   const str = String(value).trim();
   
   // Caso 2: Strings BR (DD/MM/AAAA) e variações
-  const ptBrMatch = str.match(/^(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{2,4})/);
+  const ptBrMatch = str.match(/^(\d{1,2})[/.-](\d{1,2})[/.-](\d{2,4})/);
   if (ptBrMatch) {
       const day = parseInt(ptBrMatch[1], 10);
       const month = parseInt(ptBrMatch[2], 10);
@@ -55,7 +55,7 @@ const parseExcelDate = (value: any): string | null => {
   }
   
   // Caso 3: ISO (YYYY-MM-DD)
-  const isoMatch = str.match(/^(\d{4})[\/.-](\d{1,2})[\/.-](\d{1,2})/);
+  const isoMatch = str.match(/^(\d{4})[/.-](\d{1,2})[/.-](\d{1,2})/);
   if (isoMatch) {
       const dt = new Date(str);
       if (!isNaN(dt.getTime())) return dt.toISOString().split('T')[0];
@@ -157,7 +157,7 @@ const sniffColumnType = (header: string, sampleData: any[]): { isDate: number, i
         if (num !== null) validNumbers++;
         if (date !== null) {
             const isExcelDate = typeof val === 'number' && val > 20000;
-            const isStringDate = typeof val === 'string' && (/[\/\.-]/.test(val));
+            const isStringDate = typeof val === 'string' && (/[/.-]/.test(val));
             if (isExcelDate || isStringDate) validDates++;
         }
         if (bool) validBooleans++;
@@ -317,7 +317,7 @@ export const ImportEngine = {
     
     schema.forEach(field => {
       const sourceHeader = mapping[field.key];
-      let value = sourceHeader ? row[sourceHeader] : undefined;
+      const value = sourceHeader ? row[sourceHeader] : undefined;
 
       // Se for uma coluna de risco booleana e tivermos mapeamento, processa
       if (field.type === 'boolean' && field.key.startsWith('risk_')) {

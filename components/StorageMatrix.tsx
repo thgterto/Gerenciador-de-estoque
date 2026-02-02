@@ -125,8 +125,8 @@ export const StorageMatrix: React.FC<Props> = ({ items }) => {
     const [selectedLocKey, setSelectedLocKey] = useState<string | null>(null);
     const [auditMode, setAuditMode] = useState(false);
     const [selectedItem, setSelectedItem] = useState<InventoryItem | null>(null);
-    const [viewMode, setViewMode] = useState<'GRID' | 'LIST'>('GRID');
-    const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+    const [viewMode, setViewMode] = useState<'GRID' | 'LIST'>(() => window.innerWidth < 768 ? 'LIST' : 'GRID');
+    const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768);
 
     useEffect(() => {
         const handleResize = () => {
@@ -134,12 +134,6 @@ export const StorageMatrix: React.FC<Props> = ({ items }) => {
             setIsMobile(mobile);
         };
         window.addEventListener('resize', handleResize);
-
-        // Initial check only
-        if (window.innerWidth < 768) {
-            setIsMobile(true);
-            setViewMode('LIST');
-        }
 
         return () => window.removeEventListener('resize', handleResize);
     }, []);
