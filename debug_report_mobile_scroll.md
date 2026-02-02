@@ -1,53 +1,24 @@
 # Relatório de Investigação: Swipe em Mobile
 
 ## Objetivo
-Investigar o comportamento da aplicação ao realizar o gesto de "swipe" (deslizar) em modo mobile e registrar os logs gerados.
+Investigar o relato de que "ao fazer swipe nos cards, a tela não scrolla".
 
 ## Metodologia
-1.  Injeção de listeners de eventos (`touchstart`, `touchmove`, `touchend`, `scroll`, `mousedown`) na aplicação (`App.tsx`).
-2.  Execução automatizada via Playwright emulando um iPhone 13.
-3.  Simulação de gestos de toque reais utilizando o protocolo CDP (`Input.dispatchTouchEvent`), garantindo que o navegador interprete as ações como toque e não como mouse.
+1.  Reprodução automatizada via Playwright emulando iPhone 13.
+2.  Identificação de bloqueios de UI (Modais).
+3.  Teste isolado de componentes (Metric Cards vs Charts).
 
-## Resultados Observados
+## Resultados
 
-Os logs confirmam que a aplicação recebe e processa os eventos de toque corretamente.
+1.  **Bloqueio por Modais:** Inicialmente, todos os testes de rolagem falharam devido à presença do Modal de Configuração de Banco de Dados (`DatabaseSetupModal`) e/ou Tutorial, que cobrem a tela com um overlay. Ao desabilitar/fechar esses modais, a rolagem funcionou normalmente na maior parte da tela.
+2.  **Metric Cards (Polaris):** A rolagem funciona corretamente sobre os cards de métricas (KPIs), confirmando que os componentes Polaris não bloqueiam nativamente a rolagem.
+3.  **Charts (ApexCharts):** A rolagem FALHA consistentemente ao tentar iniciar o swipe sobre a área do gráfico. Isso é um comportamento conhecido da biblioteca ApexCharts, que captura eventos de toque para interações (zoom, pan, tooltip).
 
-1.  **Reconhecimento de Toque:** O sistema registra `TouchStart`, `TouchMove` e `TouchEnd` sequencialmente.
-2.  **Rolagem (Scroll):** Eventos de `Scroll` são disparados durante o movimento de swipe.
-3.  **Comportamento de Layout:** O log `Scroll: 0` (referente a `window.scrollY`) confirma que a rolagem ocorre dentro de um container interno (`PageContainer`), e não na janela principal (`window`), o que está alinhado com a arquitetura CSS `overflow: hidden` definida no `index.css`.
+## Solução Aplicada
 
-## Log Capturado
+Para mitigar o problema nos gráficos:
+1.  **CSS Global:** Adicionado `touch-action: pan-y !important` para `.apexcharts-canvas` em `index.css`.
+2.  **Configuração do Gráfico:** Desabilitado `zoom` e `selection` nas configurações do ApexCharts em `Dashboard.tsx` para reduzir a captura de eventos.
+3.  **Wrapper:** Adicionado wrapper `div` com classe `touch-pan-y` ao redor dos gráficos.
 
-```log
-[MobileSwipeDebug] MouseDown: 139, 467  <-- Clique no botão de Login
-[MobileSwipeDebug] TouchStart: 200.00, 200.00
-[MobileSwipeDebug] TouchMove: 200.00, 230.00
-[MobileSwipeDebug] TouchMove: 200.00, 260.00
-[MobileSwipeDebug] TouchMove: 200.00, 290.00
-[MobileSwipeDebug] TouchMove: 200.00, 320.00
-[MobileSwipeDebug] TouchMove: 200.00, 350.00
-[MobileSwipeDebug] TouchMove: 200.00, 380.00
-[MobileSwipeDebug] TouchMove: 200.00, 410.00
-[MobileSwipeDebug] TouchMove: 200.00, 440.00
-[MobileSwipeDebug] TouchMove: 200.00, 470.00
-[MobileSwipeDebug] TouchMove: 200.00, 500.00
-[MobileSwipeDebug] TouchEnd
-[MobileSwipeDebug] TouchStart: 200.00, 500.00
-[MobileSwipeDebug] TouchMove: 200.00, 470.00
-[MobileSwipeDebug] Scroll: 0
-[MobileSwipeDebug] TouchMove: 200.00, 440.00
-[MobileSwipeDebug] Scroll: 0
-[MobileSwipeDebug] Scroll: 0
-[MobileSwipeDebug] TouchMove: 200.00, 410.00
-[MobileSwipeDebug] Scroll: 0
-[MobileSwipeDebug] TouchMove: 200.00, 350.00
-[MobileSwipeDebug] Scroll: 0
-[MobileSwipeDebug] TouchMove: 200.00, 320.00
-[MobileSwipeDebug] Scroll: 0
-[MobileSwipeDebug] Scroll: 0
-[MobileSwipeDebug] TouchMove: 200.00, 260.00
-[MobileSwipeDebug] Scroll: 0
-[MobileSwipeDebug] Scroll: 0
-[MobileSwipeDebug] TouchMove: 200.00, 230.00
-[MobileSwipeDebug] Scroll: 0
-```
+Nota: Devido à implementação interna de `preventDefault` pelo ApexCharts, a rolagem pode ainda ser intermitente diretamente sobre o SVG do gráfico, mas as medidas acima maximizam a compatibilidade com a rolagem nativa.

@@ -48,6 +48,8 @@ export const Dashboard: React.FC<Props> = ({ items, history, onAddToPurchase }) 
           id: 'movement-chart',
           type: 'area',
           toolbar: { show: false },
+          zoom: { enabled: false },
+          selection: { enabled: false },
           fontFamily: 'Inter, sans-serif',
           background: 'transparent'
       },
@@ -91,6 +93,8 @@ export const Dashboard: React.FC<Props> = ({ items, history, onAddToPurchase }) 
       chart: {
           type: 'rangeBar',
           toolbar: { show: false },
+          zoom: { enabled: false },
+          selection: { enabled: false },
           fontFamily: 'Inter, sans-serif',
           background: 'transparent',
           animations: { enabled: true }
@@ -209,6 +213,8 @@ export const Dashboard: React.FC<Props> = ({ items, history, onAddToPurchase }) 
     chart: {
       type: 'line',
       toolbar: { show: false },
+      zoom: { enabled: false },
+      selection: { enabled: false },
       fontFamily: 'Inter, sans-serif',
       background: 'transparent'
     },
@@ -364,7 +370,7 @@ export const Dashboard: React.FC<Props> = ({ items, history, onAddToPurchase }) 
                         </p>
                     </div>
                 </div>
-                <div className="flex-1 w-full relative p-4 bg-gradient-to-b from-transparent to-background-light/30 dark:to-background-dark/30">
+                <div className="flex-1 w-full relative p-4 bg-gradient-to-b from-transparent to-background-light/30 dark:to-background-dark/30 touch-pan-y">
                      {selectedItemId && waterfallSeries.length > 0 ? (
                          <Chart options={waterfallOptions} series={waterfallSeries} type="rangeBar" height="100%" />
                      ) : (

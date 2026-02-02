@@ -227,3 +227,8 @@
   touch-action: pan-y;
   transform: translateZ(0);
 }
+
+/* Force ApexCharts to allow touch scrolling */
+.apexcharts-canvas, .apexcharts-canvas svg {
+  touch-action: pan-y !important;
+}
