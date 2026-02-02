@@ -305,13 +305,13 @@ export const TutorialModal: React.FC<Props> = ({ isOpen, onClose, setTab }) => {
     <div className="fixed inset-0 z-[100] overflow-hidden">
         {/* Spotlight Effect */}
         <div 
-            className="absolute transition-all duration-700 ease-[cubic-bezier(0.25,0.46,0.45,0.94)]"
+            className="absolute transition-all duration-700 ease-[cubic-bezier(0.25,0.46,0.45,0.94)] pointer-events-none"
             style={spotlightStyle}
         />
 
         {/* Content Card */}
         <div 
-            className={`bg-surface-light dark:bg-surface-dark rounded-xl shadow-2xl border border-border-light dark:border-border-dark flex flex-col transition-all duration-500 ease-out ${isReady ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}
+            className={`bg-surface-light dark:bg-surface-dark rounded-xl shadow-2xl border border-border-light dark:border-border-dark flex flex-col transition-all duration-500 ease-out ${isReady ? 'opacity-100 scale-100' : 'opacity-0 scale-95'} max-h-[90vh] overflow-y-auto custom-scrollbar`}
             style={tooltipStyle}
         >
             <div className="h-1.5 bg-gradient-to-r from-primary to-primary-hover w-full rounded-t-xl"></div>
