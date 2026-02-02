@@ -200,11 +200,12 @@ export const ItemForm: React.FC<ItemFormProps> = ({
                                     value={formData.category || ''}
                                     onChange={e => handleChange('category', e.target.value)}
                                     error={errors.category}
-                                >
-                                    <option value="" disabled>Selecione...</option>
-                                    {getCategoriesByType(itemType).map(c => <option key={c} value={c}>{c}</option>)}
-                                    <option value="Outros">Outros</option>
-                                </Select>
+                                    options={[
+                                        { label: 'Selecione...', value: '', disabled: true },
+                                        ...getCategoriesByType(itemType).map(c => ({ label: c, value: c })),
+                                        { label: 'Outros', value: 'Outros' }
+                                    ]}
+                                />
                                 <Input 
                                     label="Unidade (Base)"
                                     required

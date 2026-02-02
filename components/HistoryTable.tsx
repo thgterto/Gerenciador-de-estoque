@@ -208,12 +208,13 @@ export const HistoryTable: React.FC<Props> = ({ preselectedItemId, preselectedBa
                             label="Tipo de Movimento"
                             value={typeFilter}
                             onChange={(e) => setTypeFilter(e.target.value as any)}
-                        >
-                            <option value="ALL">Todos</option>
-                            <option value="ENTRADA">Entradas</option>
-                            <option value="SAIDA">Saídas</option>
-                            <option value="AJUSTE">Ajustes</option>
-                        </Select>
+                            options={[
+                                { label: 'Todos', value: 'ALL' },
+                                { label: 'Entradas', value: 'ENTRADA' },
+                                { label: 'Saídas', value: 'SAIDA' },
+                                { label: 'Ajustes', value: 'AJUSTE' }
+                            ]}
+                        />
                     </div>
                     <div className="w-full lg:w-48">
                         <Select 
@@ -221,12 +222,13 @@ export const HistoryTable: React.FC<Props> = ({ preselectedItemId, preselectedBa
                             value={dateFilter}
                             onChange={(e) => setDateFilter(e.target.value as any)}
                             icon="calendar_today"
-                        >
-                            <option value="ALL">Todo o Período</option>
-                            <option value="TODAY">Hoje</option>
-                            <option value="WEEK">Últimos 7 dias</option>
-                            <option value="MONTH">Últimos 30 dias</option>
-                        </Select>
+                            options={[
+                                { label: 'Todo o Período', value: 'ALL' },
+                                { label: 'Hoje', value: 'TODAY' },
+                                { label: 'Últimos 7 dias', value: 'WEEK' },
+                                { label: 'Últimos 30 dias', value: 'MONTH' }
+                            ]}
+                        />
                     </div>
                  </div>
             </div>
