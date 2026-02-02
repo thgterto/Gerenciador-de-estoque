@@ -153,6 +153,24 @@ export const Settings: React.FC = () => {
         }
     };
 
+    const handleMergeSeed = async () => {
+        if (confirm("Isto irá atualizar os itens existentes com os dados do arquivo de seed (limsData.ts). Quantidades do seed serão aplicadas. Continuar?")) {
+            setLoading(true);
+            try {
+                await seedDatabase(false, undefined, true);
+                addToast('Sucesso', 'success', 'Dados atualizados do seed.');
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1000);
+            } catch (e) {
+                console.error("Erro ao atualizar do seed:", e);
+                addToast('Erro', 'error', 'Falha ao atualizar dados.');
+            } finally {
+                setLoading(false);
+            }
+        }
+    };
+
     const openResetModal = (mode: 'EMPTY' | 'DEMO' | 'LIMS') => {
         setResetTargetMode(mode);
         setResetConfirmationText('');
@@ -399,6 +417,16 @@ export const Settings: React.FC = () => {
                                 icon="code"
                             >
                                 Baixar como Seed File (limsData.ts)
+                            </Button>
+
+                            <Button
+                                onClick={handleMergeSeed}
+                                disabled={loading}
+                                variant="outline"
+                                className="w-full justify-start mt-2 border-secondary/20 text-secondary hover:bg-secondary/5"
+                                icon="update"
+                            >
+                                Atualizar do Seed (Merge)
                             </Button>
                         </div>
                     </Card>

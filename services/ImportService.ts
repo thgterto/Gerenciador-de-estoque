@@ -14,7 +14,7 @@ export const ImportService = {
   
   // --- Bulk Import with Smart Merge Strategy ---
   
-  async importBulk(newItems: InventoryItem[], replaceMode: boolean = false): Promise<ImportResult> {
+  async importBulk(newItems: InventoryItem[], replaceMode: boolean = false, overwriteQuantities: boolean = false): Promise<ImportResult> {
       const stats = { total: newItems.length, created: 0, updated: 0, ignored: 0 };
 
       try {
@@ -82,7 +82,7 @@ export const ImportService = {
                     // Se a planilha tem quantidade > 0, isso geralmente vira um movimento de entrada separado.
                     // Aqui assumimos que se a planilha traz quantidade, é uma entrada inicial ou ajuste.
                     // Porém, importBulk é chamado para cadastro mestre.
-                    quantity: existing.quantity 
+                    quantity: (overwriteQuantities && newItem.quantity !== undefined) ? newItem.quantity : existing.quantity
                 };
                 mergedItems.push(merged);
             } else {

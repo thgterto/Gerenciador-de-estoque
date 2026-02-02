@@ -31,10 +31,10 @@ export const processLimsData = async (sourceData: any) => {
     return { flatItems, historyItems };
 };
 
-export const seedDatabase = async (force: boolean = false, customData?: any) => {
+export const seedDatabase = async (force: boolean = false, customData?: any, update: boolean = false) => {
   try {
       const count = await db.rawDb.items.count();
-      if (!force && count > 0) return;
+      if (!force && !update && count > 0) return;
 
       console.log('Iniciando Seeding/Restore...');
       
@@ -90,7 +90,7 @@ export const seedDatabase = async (force: boolean = false, customData?: any) => 
           });
       } else {
           // Importação incremental usando InventoryService otimizado
-          if (flatItems.length > 0) await ImportService.importBulk(flatItems);
+          if (flatItems.length > 0) await ImportService.importBulk(flatItems, false, update);
           if (historyItems.length > 0) await ImportService.importHistoryBulk(historyItems, false);
       }
       db.invalidateCaches();
