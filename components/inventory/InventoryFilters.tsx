@@ -73,10 +73,11 @@ export const InventoryFilters: React.FC<InventoryFiltersProps> = ({
                         value={locationFilter}
                         onChange={e => setLocationFilter(e.target.value)}
                         containerClassName="w-full"
-                    >
-                        <option value="">Todas Localizações</option>
-                        {uniqueLocations.map(loc => <option key={loc} value={loc}>{loc}</option>)}
-                    </Select>
+                        options={[
+                            { label: 'Todas Localizações', value: '' },
+                            ...uniqueLocations.map(loc => ({ label: loc, value: loc }))
+                        ]}
+                    />
                 </div>
              </div>
 

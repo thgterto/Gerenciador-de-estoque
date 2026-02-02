@@ -1,7 +1,9 @@
 
 import React, { InputHTMLAttributes, forwardRef } from 'react';
+import { TextField, Icon } from '@shopify/polaris';
+import { getIcon } from '../../utils/iconMapper';
 
-interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
+interface InputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'onChange' | 'value'> {
     label?: string;
     icon?: string;
     error?: string;
@@ -9,6 +11,8 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
     containerClassName?: string;
     rightElement?: React.ReactNode;
     helpText?: string;
+    value?: string;
+    onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(({ 
@@ -21,61 +25,51 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(({
     rightElement,
     helpText,
     id,
+    onChange,
+    value,
+    type,
     ...props 
 }, ref) => {
-    const inputId = id || props.name || Math.random().toString(36).substr(2, 9);
+
+    // Adapt onChange
+    const handleChange = (newValue: string) => {
+        if (onChange) {
+            // Mock event object for compatibility with existing code
+            const event = {
+                target: { value: newValue, name: props.name || '', type: type || 'text' },
+                currentTarget: { value: newValue, name: props.name || '', type: type || 'text' },
+                preventDefault: () => {},
+                stopPropagation: () => {}
+            } as unknown as React.ChangeEvent<HTMLInputElement>;
+            onChange(event);
+        }
+    };
+
+    // Prefix icon handling
+    const polarisIcon = getIcon(icon);
+    const prefix = polarisIcon ? <Icon source={polarisIcon} /> : (icon ? <span className="material-symbols-outlined text-[20px]">{icon}</span> : null);
+
+    // Suffix handling
+    const suffix = isLoading ? <span className="material-symbols-outlined animate-spin text-[20px]">progress_activity</span> : rightElement;
 
     return (
-        <div className={`flex flex-col gap-1.5 ${containerClassName}`}>
-            {label && (
-                <label htmlFor={inputId} className="text-[13px] font-medium text-slate-700 dark:text-slate-300">
-                    {label} {props.required && <span className="text-red-600">*</span>}
-                </label>
-            )}
-            <div className="relative">
-                {icon && (
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
-                        <span className="material-symbols-outlined text-[20px]">{icon}</span>
-                    </div>
-                )}
-                <input
-                    ref={ref}
-                    id={inputId}
-                    className={`
-                        w-full rounded-lg border text-sm transition-shadow duration-200
-                        placeholder:text-slate-400 dark:placeholder:text-slate-500
-                        focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary
-                        bg-white dark:bg-slate-900 text-slate-900 dark:text-white
-                        h-10 
-                        ${icon ? 'pl-10' : 'pl-3'} 
-                        ${!className.includes('pr-') ? (rightElement || isLoading ? 'pr-10' : 'pr-3') : ''}
-                        ${error 
-                            ? 'border-red-500 focus:border-red-500 focus:ring-red-500/20' 
-                            : 'border-slate-300 dark:border-slate-600 hover:border-slate-400 dark:hover:border-slate-500'
-                        }
-                        ${className}
-                    `}
-                    {...props}
-                />
-                {(isLoading || rightElement) && (
-                    <div className={`absolute inset-y-0 right-0 pr-3 flex items-center gap-1 ${isLoading ? 'pointer-events-none' : ''}`}>
-                        {isLoading ? (
-                            <span className="material-symbols-outlined animate-spin text-primary text-[20px]">progress_activity</span>
-                        ) : (
-                            rightElement
-                        )}
-                    </div>
-                )}
-            </div>
-            {helpText && !error && (
-                <p className="text-xs text-slate-500 dark:text-slate-400">{helpText}</p>
-            )}
-            {error && (
-                <p className="text-xs text-red-600 font-medium flex items-center gap-1 animate-fade-in">
-                    <span className="material-symbols-outlined text-[14px]">error</span>
-                    {error}
-                </p>
-            )}
+        <div className={containerClassName}>
+            <TextField
+                label={label || ''}
+                value={value}
+                onChange={handleChange}
+                error={error}
+                helpText={helpText}
+                prefix={prefix}
+                suffix={suffix}
+                type={type as any}
+                disabled={props.disabled}
+                placeholder={props.placeholder}
+                name={props.name}
+                id={id}
+                autoComplete={props.autoComplete}
+                readOnly={props.readOnly}
+            />
         </div>
     );
 });

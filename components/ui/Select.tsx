@@ -1,18 +1,23 @@
 
 import React, { SelectHTMLAttributes } from 'react';
+import { Select as PolarisSelect } from '@shopify/polaris';
 
 interface SelectOption {
     label: string;
-    value: string | number;
+    value: string;
+    disabled?: boolean;
 }
 
-interface SelectProps extends SelectHTMLAttributes<HTMLSelectElement> {
+interface SelectProps extends Omit<SelectHTMLAttributes<HTMLSelectElement>, 'onChange' | 'value'> {
     label?: string;
-    icon?: string;
+    icon?: string; // Ignored in Polaris unless we customize
     error?: string;
     options?: SelectOption[];
     containerClassName?: string;
     helpText?: string;
+    value?: string;
+    onChange?: (e: React.ChangeEvent<HTMLSelectElement>) => void;
+    children?: React.ReactNode; // For backward compatibility if we parse it, but better to enforce options
 }
 
 export const Select: React.FC<SelectProps> = ({ 
@@ -25,58 +30,75 @@ export const Select: React.FC<SelectProps> = ({
     containerClassName = '',
     helpText,
     id,
+    onChange,
+    value,
     ...props 
 }) => {
-    const selectId = id || props.name || Math.random().toString(36).substr(2, 9);
+
+    // Attempt to extract options from children if options is empty
+    let finalOptions: SelectOption[] = options;
+
+    if (!finalOptions.length && children) {
+        // This is a best-effort extraction. Complex structures might fail.
+        // It's recommended to migrate to 'options' prop.
+        const extractOptions = (nodes: React.ReactNode): SelectOption[] => {
+            const opts: SelectOption[] = [];
+            React.Children.forEach(nodes, (child) => {
+                if (!React.isValidElement(child)) return;
+
+                if (child.type === 'option') {
+                    const { value, children: label, disabled } = child.props as any;
+                    opts.push({ label: String(label), value: String(value), disabled });
+                } else if (child.type === React.Fragment) {
+                     opts.push(...extractOptions(child.props.children));
+                } else if (Array.isArray(child)) {
+                     opts.push(...extractOptions(child));
+                }
+                // Handle mapped arrays which might appear as arrays in children
+            });
+            return opts;
+        };
+        // React.Children.map flattens arrays, so we can iterate
+        React.Children.forEach(children, (child) => {
+             if (!React.isValidElement(child)) return;
+             if (child.type === 'option') {
+                 const { value, children: label, disabled } = child.props as any;
+                 finalOptions.push({ label: String(label), value: String(value), disabled });
+             } else if (child.type === React.Fragment) {
+                 // handle fragment if needed
+             }
+        });
+
+        // If extraction failed or was incomplete due to Fragments/Arrays not being fully traversed by forEach in some cases,
+        // we might just rely on 'options' being passed.
+        // Given the task is to "eliminate adaptation failure", maybe we should try to support children better
+        // OR just refactor the usages. I will refactor usages.
+        // But I'll leave the prop in interface to avoid type errors before I fix usages.
+    }
+
+    const handleChange = (newValue: string) => {
+        if (onChange) {
+            const event = {
+                target: { value: newValue, name: props.name || '' },
+                currentTarget: { value: newValue, name: props.name || '' }
+            } as unknown as React.ChangeEvent<HTMLSelectElement>;
+            onChange(event);
+        }
+    };
 
     return (
-        <div className={`flex flex-col gap-1.5 ${containerClassName}`}>
-            {label && (
-                <label htmlFor={selectId} className="text-[13px] font-medium text-slate-700 dark:text-slate-300">
-                    {label} {props.required && <span className="text-red-600">*</span>}
-                </label>
-            )}
-            <div className="relative">
-                {icon && (
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
-                        <span className="material-symbols-outlined text-[20px]">{icon}</span>
-                    </div>
-                )}
-                <select
-                    id={selectId}
-                    className={`
-                        w-full rounded-lg border text-sm transition-shadow duration-200 appearance-none cursor-pointer
-                        focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary
-                        bg-white dark:bg-slate-900 text-slate-900 dark:text-white
-                        h-10
-                        ${icon ? 'pl-10' : 'pl-3'} pr-10
-                        ${error 
-                            ? 'border-red-500 focus:border-red-500 focus:ring-red-500/20' 
-                            : 'border-slate-300 dark:border-slate-600 hover:border-slate-400 dark:hover:border-slate-500'
-                        }
-                        ${className}
-                    `}
-                    {...props}
-                >
-                    {children ? children : options.map((opt) => (
-                        <option key={opt.value} value={opt.value}>
-                            {opt.label}
-                        </option>
-                    ))}
-                </select>
-                <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-slate-500">
-                    <span className="material-symbols-outlined text-[20px]">unfold_more</span>
-                </div>
-            </div>
-            {helpText && !error && (
-                <p className="text-xs text-slate-500 dark:text-slate-400">{helpText}</p>
-            )}
-            {error && (
-                <p className="text-xs text-red-600 font-medium flex items-center gap-1 animate-fade-in">
-                    <span className="material-symbols-outlined text-[14px]">error</span>
-                    {error}
-                </p>
-            )}
+        <div className={containerClassName}>
+            <PolarisSelect
+                label={label || ''}
+                options={finalOptions}
+                onChange={handleChange}
+                value={value}
+                error={error}
+                helpText={helpText}
+                id={id}
+                disabled={props.disabled}
+                placeholder={props.placeholder}
+            />
         </div>
     );
 };
