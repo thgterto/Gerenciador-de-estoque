@@ -96,17 +96,17 @@ export const useReportsAnalytics = (items: InventoryItem[], history: MovementRec
 
     // 4. Cost Analysis (Inventory Valuation)
     const costAnalysis = useMemo(() => {
-        let totalValue = 0;
         const details = items.map(item => {
             const unitCost = item.unitCost || 0;
             const total = item.quantity * unitCost;
-            totalValue += total;
             return {
                 ...item,
                 unitCost,
                 totalValue: total
             };
         });
+
+        const totalValue = details.reduce((acc, curr) => acc + curr.totalValue, 0);
 
         // Sort by value desc
         details.sort((a, b) => b.totalValue - a.totalValue);

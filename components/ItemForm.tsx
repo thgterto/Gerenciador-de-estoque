@@ -69,6 +69,7 @@ export const ItemForm: React.FC<ItemFormProps> = ({
 
     // Initialize Search Term
     useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         if (initialData?.name) setSearchTerm(initialData.name);
     }, [initialData]);
 
@@ -93,6 +94,7 @@ export const ItemForm: React.FC<ItemFormProps> = ({
                  setShowSuggestions(uniqueMap.size > 0);
              });
         } else {
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             setShowSuggestions(false);
         }
     }, [debouncedSearchTerm]);

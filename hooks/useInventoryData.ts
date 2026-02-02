@@ -55,7 +55,7 @@ export const useInventoryData = () => {
                 setLoading(false);
             }
         }
-    }, [addToast]);
+    }, []);
 
     useEffect(() => {
         isMounted.current = true;
@@ -101,9 +101,9 @@ export const useInventoryData = () => {
             isMounted.current = false;
             unsubscribe();
         };
-    }, [loadData, addToast]);
+    }, [loadData]);
 
-    const handleDbSetup = async (type: 'EMPTY' | 'DEMO') => {
+    const handleDbSetup = useCallback(async (type: 'EMPTY' | 'DEMO') => {
         setLoading(true);
         setShowDbSetup(false);
         
@@ -119,9 +119,9 @@ export const useInventoryData = () => {
         localStorage.setItem(SESSION_KEYS.SETUP_COMPLETED, 'true');
         localStorage.setItem(SESSION_KEYS.DATA_VERSION, CURRENT_DATA_VERSION);
         await loadData(true);
-    };
+    }, [addToast, loadData]);
 
     return useMemo(() => ({
         items, history, loading, loadingHistory, metrics, showDbSetup, handleDbSetup, refresh: loadData
-    }), [items, history, loading, loadingHistory, metrics, showDbSetup, loadData]);
+    }), [items, history, loading, loadingHistory, metrics, showDbSetup, handleDbSetup, loadData]);
 };

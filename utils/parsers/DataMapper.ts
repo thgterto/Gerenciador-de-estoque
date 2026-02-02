@@ -261,7 +261,7 @@ export const DataMapper = {
             // Processamento Lógico (Cálculo de Saldo)
             parsedMovements.forEach((m, idx) => {
                  const legacyIdStr = String(m.id_lote);
-                 let targetId = legacyBatchIdToUuidMap.get(legacyIdStr);
+                 const targetId = legacyBatchIdToUuidMap.get(legacyIdStr);
                  let linkedItem: InventoryItem | undefined;
                  
                  if (targetId) {

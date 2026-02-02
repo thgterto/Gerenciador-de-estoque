@@ -63,7 +63,7 @@ export const useDashboardAnalytics = (items: InventoryItem[], history: MovementR
         // --- 4. LÓGICA DE WATERFALL (Saldo Acumulado Diário) ---
         // Apenas calculada se um item específico estiver selecionado
         let wSeries: any[] = [];
-        let wColors: string[] = [];
+        const wColors: string[] = [];
         
         if (selectedItemId && activeItems.length > 0) {
              const currentItem = activeItems[0];

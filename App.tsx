@@ -90,6 +90,7 @@ const LabControlContent = () => {
   // Clean history filters when navigating away
   useEffect(() => {
     if (location.pathname !== '/history') {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setHistoryFilterId(null);
       setHistoryBatchId(null);
     }

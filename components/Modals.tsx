@@ -252,6 +252,7 @@ export const EditModal: React.FC<EditModalProps> = ({ isOpen, onClose, item, onS
   const [showQRModal, setShowQRModal] = useState(false);
   const { addToast } = useAlert();
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { setEditedItem(item); }, [item, isOpen]);
 
   const handleScanSuccess = (decodedText: string) => {
@@ -262,7 +263,7 @@ export const EditModal: React.FC<EditModalProps> = ({ isOpen, onClose, item, onS
               const obj = JSON.parse(decodedText);
               if (activeScanField === 'sapCode' && obj.s) val = obj.s;
               if (activeScanField === 'lotNumber' && obj.l) val = obj.l;
-          } catch(e) {}
+          } catch(e) { /* ignore */ }
           setEditedItem({ ...editedItem, [activeScanField]: val });
           addToast('Scan Sucesso', 'success', `Campo atualizado.`);
       }
@@ -327,6 +328,7 @@ export const MovementModal: React.FC<MovementModalProps> = ({ isOpen, onClose, i
 
     useEffect(() => {
         if(isOpen) {
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             setQuantity(1);
             setObservation('');
             setType('SAIDA');
@@ -441,6 +443,7 @@ export const RequestModal: React.FC<RequestModalProps> = ({ isOpen, onClose, onC
     const [searchTerm, setSearchTerm] = useState('');
 
     useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         if(isOpen) { setSelectedId(''); setQty(1); setSearchTerm(''); }
     }, [isOpen]);
 

@@ -36,7 +36,7 @@ export const Select: React.FC<SelectProps> = ({
 }) => {
 
     // Attempt to extract options from children if options is empty
-    let finalOptions: SelectOption[] = options;
+    const finalOptions: SelectOption[] = options;
 
     if (!finalOptions.length && children) {
         // This is a best-effort extraction. Complex structures might fail.
