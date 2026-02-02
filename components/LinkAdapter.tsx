@@ -1,5 +1,4 @@
 
-import React from 'react';
 import { Link as ReactRouterLink } from 'react-router-dom';
 
 const IS_EXTERNAL_LINK_REGEX = /^(?:[a-z][a-z\d+.-]*:|\/\/)/;

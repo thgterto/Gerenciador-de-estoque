@@ -29,7 +29,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(({
     value,
     type,
     ...props 
-}, ref) => {
+}, _) => {
 
     // Adapt onChange
     const handleChange = (newValue: string) => {
@@ -67,7 +67,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(({
                 placeholder={props.placeholder}
                 name={props.name}
                 id={id}
-                autoComplete={props.autoComplete}
+                autoComplete={props.autoComplete as string}
                 readOnly={props.readOnly}
             />
         </div>

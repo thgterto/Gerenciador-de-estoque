@@ -1,6 +1,6 @@
 
 import React, { ButtonHTMLAttributes } from 'react';
-import { Button as PolarisButton, Icon } from '@shopify/polaris';
+import { Button as PolarisButton } from '@shopify/polaris';
 import { getIcon } from '../../utils/iconMapper';
 
 type ButtonVariant = 'primary' | 'secondary' | 'success' | 'danger' | 'ghost' | 'outline' | 'white' | 'warning' | 'info';

@@ -24,7 +24,8 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
     className = '' 
 }) => {
     return (
-        <Box paddingBlockEnd="400" className={className}>
+        <div className={className}>
+        <Box paddingBlockEnd="400">
             <BlockStack gap="400">
                 {breadcrumbs && (
                     <InlineStack gap="200">
@@ -66,5 +67,6 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
                 </div>
             </BlockStack>
         </Box>
+        </div>
     );
 };

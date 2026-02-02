@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Card as PolarisCard, Text, Icon, BlockStack, InlineStack, Badge, Box } from '@shopify/polaris';
+import { Card as PolarisCard, Text, Icon, BlockStack, InlineStack, Box } from '@shopify/polaris';
 import { getIcon } from '../../utils/iconMapper';
 import { Badge as CustomBadge } from './Badge';
 
@@ -29,9 +29,8 @@ export const Card: React.FC<CardProps> = ({
     colorScheme = 'neutral',
     padding,
     className = '',
-    noBorder = false,
+    noBorder: _noBorder = false,
     badge, action, onClick, delay,
-    ...props 
 }) => {
     
     // Metric Card Layout

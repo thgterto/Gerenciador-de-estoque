@@ -87,7 +87,7 @@ export const BatchInfo: React.FC<BatchInfoProps> = ({
                         type="number"
                         step="0.001"
                         min={0}
-                        value={formData.quantity}
+                        value={String(formData.quantity ?? 0)}
                         onChange={e => onChange('quantity', Number(e.target.value))}
                         error={errors.quantity}
                         disabled={isEditMode}
@@ -99,7 +99,7 @@ export const BatchInfo: React.FC<BatchInfoProps> = ({
                         type="number"
                         step="1"
                         min={0}
-                        value={formData.minStockLevel}
+                        value={String(formData.minStockLevel ?? 0)}
                         onChange={e => onChange('minStockLevel', Number(e.target.value))}
                         className="border-blue-200 focus:border-blue-500 focus:ring-blue-200"
                     />

@@ -46,11 +46,11 @@ export const Select: React.FC<SelectProps> = ({
             React.Children.forEach(nodes, (child) => {
                 if (!React.isValidElement(child)) return;
 
-                if (child.type === 'option') {
-                    const { value, children: label, disabled } = child.props as any;
+                if ((child as any).type === 'option') {
+                    const { value, children: label, disabled } = ((child as any).props || {}) as any;
                     opts.push({ label: String(label), value: String(value), disabled });
-                } else if (child.type === React.Fragment) {
-                     opts.push(...extractOptions(child.props.children));
+                } else if ((child as any).type === React.Fragment) {
+                     opts.push(...extractOptions((child as any).props.children));
                 } else if (Array.isArray(child)) {
                      opts.push(...extractOptions(child));
                 }
@@ -61,10 +61,10 @@ export const Select: React.FC<SelectProps> = ({
         // React.Children.map flattens arrays, so we can iterate
         React.Children.forEach(children, (child) => {
              if (!React.isValidElement(child)) return;
-             if (child.type === 'option') {
-                 const { value, children: label, disabled } = child.props as any;
+             if ((child as any).type === 'option') {
+                 const { value, children: label, disabled } = ((child as any).props || {}) as any;
                  finalOptions.push({ label: String(label), value: String(value), disabled });
-             } else if (child.type === React.Fragment) {
+             } else if ((child as any).type === React.Fragment) {
                  // handle fragment if needed
              }
         });
@@ -97,7 +97,6 @@ export const Select: React.FC<SelectProps> = ({
                 helpText={helpText}
                 id={id}
                 disabled={props.disabled}
-                placeholder={props.placeholder}
             />
         </div>
     );
