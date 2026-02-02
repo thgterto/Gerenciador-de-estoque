@@ -13,10 +13,9 @@ interface BadgeProps {
     withDot?: boolean;
 }
 
-export const Badge: React.FC<BadgeProps> = ({ children, variant = 'neutral', icon, className = '', withDot = false }) => {
+export const Badge: React.FC<BadgeProps> = ({ children, variant = 'neutral', icon, className = '', withDot: _withDot = false }) => {
 
     let tone: 'success' | 'warning' | 'critical' | 'info' | 'new' | undefined;
-    let progress: 'complete' | 'partiallyComplete' | 'incomplete' | undefined;
 
     switch (variant) {
         case 'success': tone = 'success'; break;
@@ -27,10 +26,6 @@ export const Badge: React.FC<BadgeProps> = ({ children, variant = 'neutral', ico
         case 'neutral': tone = undefined; break;
     }
 
-    if (withDot) {
-        progress = 'complete';
-    }
-
     const polarisIcon = getIcon(icon);
     // Polaris Badge 'icon' prop expects IconSource.
     // If we have a string icon not in map, we pass a component.
@@ -38,8 +33,8 @@ export const Badge: React.FC<BadgeProps> = ({ children, variant = 'neutral', ico
 
     return (
         <span className={className}>
-            <PolarisBadge tone={tone} progress={progress} icon={iconSource}>
-                {children}
+            <PolarisBadge tone={tone} icon={iconSource}>
+                {children as any}
             </PolarisBadge>
         </span>
     );

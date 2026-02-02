@@ -1,5 +1,6 @@
-import { Table } from 'dexie';
+import { Table, TransactionMode } from 'dexie';
 import { InventoryItem, MovementRecord, StockBalance } from '../types';
+import type { QStockDB } from '../db';
 
 // --- Interfaces & Types ---
 type ChangeType = 'ADD' | 'UPDATE' | 'DELETE' | 'BULK' | 'BULK_DELETE';
@@ -205,14 +206,14 @@ class HybridTableWrapper<T, TKey> {
 }
 
 export class HybridStorageManager {
-  private db: any;
+  private db: QStockDB;
   public items: HybridTableWrapper<InventoryItem, string>;
   public history: HybridTableWrapper<MovementRecord, string>;
   public balances: HybridTableWrapper<StockBalance, string>;
   private listeners: Listener[] = [];
   private notifyTimeout: any = null;
 
-  constructor(dexieInstance: any) {
+  constructor(dexieInstance: QStockDB) {
     this.db = dexieInstance;
     const notify = () => this.emitChange();
     this.items = new HybridTableWrapper<InventoryItem, string>('items', this.db.items, 'id', notify);
@@ -252,7 +253,7 @@ export class HybridStorageManager {
       this.balances.invalidate();
   }
 
-  transaction(mode: string, tables: any[], scope: () => Promise<void>) {
+  transaction(mode: TransactionMode, tables: any[], scope: () => Promise<void>) {
       return this.db.transaction(mode, tables, scope);
   }
   

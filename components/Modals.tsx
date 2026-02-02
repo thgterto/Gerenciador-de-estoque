@@ -389,7 +389,7 @@ export const MovementModal: React.FC<MovementModalProps> = ({ isOpen, onClose, i
                                     type="number" 
                                     step="any" 
                                     min="0.0001"
-                                    value={quantity} 
+                                value={String(quantity)}
                                     onChange={e => setQuantity(parseFloat(e.target.value))} 
                                     required 
                                     autoFocus
@@ -493,7 +493,7 @@ export const RequestModal: React.FC<RequestModalProps> = ({ isOpen, onClose, onC
                         label="Quantidade Necessária" 
                         type="number" 
                         min="1" 
-                        value={qty} 
+                        value={String(qty)}
                         onChange={e => setQty(parseInt(e.target.value))} 
                         required 
                     />
