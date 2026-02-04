@@ -203,13 +203,22 @@ function getBatches() {
 }
 
 function getBalances() {
-  const sheet = ensureSheet('Balances', ['ID', 'BatchID', 'LocationID', 'Quantity', 'UpdatedAt']);
-  const data = sheet.getDataRange().getValues();
-  const map = getColumnMap(sheet);
+  const sheet = ensureSheet('Balances', ['ID', 'BatchID', 'LocationID', 'Quantity', 'UpdatedAt', 'Status']);
+  let map = getColumnMap(sheet);
 
+  // Migration: Add Status column if missing
+  if (map['Status'] === undefined) {
+    sheet.getRange(1, sheet.getLastColumn() + 1).setValue('Status');
+    map = getColumnMap(sheet);
+  }
+
+  const data = sheet.getDataRange().getValues();
   const res = [];
   for(let i=1; i<data.length; i++) {
     const r = data[i];
+    // Filter soft deleted
+    if(map['Status'] !== undefined && r[map['Status']] === 'DELETED') continue;
+
     if(r[map['ID']]) {
         res.push({ 
             id: r[map['ID']], 
@@ -310,7 +319,7 @@ function upsertData(sheetName, headers, items, idField = 'id') {
 function handleSyncTransaction(payload) {
   if (payload.catalog) upsertData('Catalog', ['ID', 'Name', 'SAP', 'CAS', 'Unit', 'Category', 'Risks_JSON', 'UpdatedAt'], payload.catalog);
   if (payload.batches) upsertData('Batches', ['ID', 'CatalogID', 'LotNumber', 'ExpiryDate', 'PartnerID', 'Status', 'UpdatedAt'], payload.batches);
-  if (payload.balances) upsertData('Balances', ['ID', 'BatchID', 'LocationID', 'Quantity', 'UpdatedAt'], payload.balances);
+  if (payload.balances) upsertData('Balances', ['ID', 'BatchID', 'LocationID', 'Quantity', 'UpdatedAt', 'Status'], payload.balances);
   if (payload.movements) upsertData('Movements', ['ID', 'Date', 'Type', 'BatchID', 'Quantity', 'User', 'Observation'], payload.movements);
 }
 
@@ -371,24 +380,44 @@ function legacyUpsertItem(item) {
 }
 
 function deleteItem(itemId) {
-  // Optimized for bulk deletions: Read, Filter, Clear, Write
-  const sheet = ensureSheet('Balances', ['ID', 'BatchID', 'LocationID', 'Quantity', 'UpdatedAt']);
-  const range = sheet.getDataRange();
-  const data = range.getValues();
-  const map = getColumnMap(sheet);
+  // Optimized for large datasets: Soft Delete (Status = 'DELETED')
+  const sheet = ensureSheet('Balances', ['ID', 'BatchID', 'LocationID', 'Quantity', 'UpdatedAt', 'Status']);
+  let map = getColumnMap(sheet);
   
-  // Filter keeping the header (row 0) and rows that DO NOT match
-  const newData = data.filter((row, i) => {
-    if (i === 0) return true; // keep header
-    const rowBatchId = String(row[map['BatchID']]);
-    const rowId = String(row[map['ID']]);
-    return !(rowBatchId.includes(itemId) || rowId == itemId);
-  });
+  // Migration: Add Status column if missing
+  if (map['Status'] === undefined) {
+    sheet.getRange(1, sheet.getLastColumn() + 1).setValue('Status');
+    map = getColumnMap(sheet);
+  }
+
+  const data = sheet.getDataRange().getValues();
+  const statusColIndex = map['Status'];
+  const statusValues = [];
+
+  let hasChanges = false;
+
+  // data includes header, so i=0 is header
+  for(let i=0; i<data.length; i++) {
+     if (i===0) {
+       statusValues.push([data[i][statusColIndex]]);
+       continue;
+     }
+
+     const row = data[i];
+     const rowBatchId = String(row[map['BatchID']]);
+     const rowId = String(row[map['ID']]);
+
+     if (rowBatchId.includes(itemId) || rowId == itemId) {
+       statusValues.push(['DELETED']);
+       hasChanges = true;
+     } else {
+       statusValues.push([row[statusColIndex]]);
+     }
+  }
   
-  if (newData.length < data.length) {
-    // There are changes
-    sheet.clearContents();
-    sheet.getRange(1, 1, newData.length, newData[0].length).setValues(newData);
+  if (hasChanges) {
+    // Write back only the Status column
+    sheet.getRange(1, statusColIndex + 1, statusValues.length, 1).setValues(statusValues);
   }
 }
 
