@@ -40,7 +40,7 @@ export const Card: React.FC<CardProps> = ({
         return (
             <div
                 onClick={onClick}
-                className={`${bgClass} ${borderClass} ${padding} relative overflow-hidden transition-all duration-150 hover:-translate-y-1 hover:shadow-md cursor-default ${onClick ? 'cursor-pointer' : ''} ${className}`}
+                className={`${bgClass} ${borderClass} ${padding} relative transition-all duration-150 hover:-translate-y-1 hover:shadow-md cursor-default ${onClick ? 'cursor-pointer' : ''} ${className}`}
                 style={delay ? { animationDelay: `${delay}ms` } : {}}
                 {...props}
             >
