@@ -41,6 +41,7 @@ export default {
            dark: '#111827'      // Gray 900
         },
         surface: {
+           DEFAULT: '#FFFFFF',  // White for cards
            light: '#FFFFFF',
            dark: '#1F2937'      // Gray 800
         },
@@ -86,7 +87,7 @@ export default {
         }
       },
       fontFamily: { 
-        sans: ['"Inter"', '"Space Grotesk"', 'sans-serif'], // Switched to Inter for cleaner look
+        sans: ['"Inter"', '"Space Grotesk"', 'sans-serif'],
         mono: ['"JetBrains Mono"', '"Roboto Mono"', 'monospace'],
         display: ['"Space Grotesk"', 'sans-serif']
       },

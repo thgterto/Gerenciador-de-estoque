@@ -15,6 +15,7 @@ interface SidebarProps {
 export const Sidebar: React.FC<SidebarProps> = ({
     onLogout,
     notificationsCount,
+    onSync,
     isMobileOpen,
     closeMobile
 }) => {
@@ -23,6 +24,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
     const menuItems = [
         { path: '/', icon: 'dashboard', label: 'Dashboard' },
         { path: '/inventory', icon: 'inventory_2', label: 'Inventário' },
+        { path: '/storage', icon: 'grid_view', label: 'Armazenamento' },
+        { path: '/history', icon: 'history', label: 'Histórico' },
         { path: '/purchases', icon: 'shopping_cart', label: 'Compras' },
         { path: '/reports', icon: 'bar_chart', label: 'Relatórios' },
         { path: '/settings', icon: 'settings', label: 'Configurações' },
@@ -33,10 +36,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
     return (
         <>
       {/* Sidebar Container */}
-      <aside className={`fixed md:relative z-40 w-64 h-full bg-sidebar border-r border-gray-800 flex flex-col transition-transform duration-300 ease-in-out shadow-xl md:shadow-none ${sidebarClass}`}>
+      <aside className={`fixed md:relative z-40 w-64 h-full bg-sidebar border-r border-sidebar-border flex flex-col transition-transform duration-300 ease-in-out shadow-xl md:shadow-none ${sidebarClass}`}>
 
         {/* Logo Header */}
-        <div className="h-16 flex items-center px-6 border-b border-gray-800 bg-sidebar shrink-0">
+        <div className="h-16 flex items-center px-6 border-b border-sidebar-border bg-sidebar shrink-0">
             <div className="flex items-center gap-3">
                 <div className="p-1.5 bg-gradient-to-br from-primary to-secondary rounded-lg shadow-lg">
                     <Icon name="science" className="text-white" size={24} />
@@ -60,7 +63,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                         className={({ isActive }) =>
                             `flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 group ${
                                 isActive
-                                    ? 'bg-white/10 text-white shadow-sm border-l-4 border-secondary pl-3' // Active: Soft BG + Lime Border
+                                    ? 'bg-white/10 text-white shadow-sm border-l-4 border-secondary pl-3' // Active
                                     : 'text-gray-400 hover:bg-white/5 hover:text-white hover:pl-5' // Inactive
                             }`
                         }
@@ -77,15 +80,26 @@ export const Sidebar: React.FC<SidebarProps> = ({
             ))}
         </nav>
 
-        {/* User Profile Footer */}
-        <div className="p-0 border-t border-gray-800 shrink-0 bg-gray-900/30">
+        {/* Sync & User Profile Footer */}
+        <div className="p-0 border-t border-sidebar-border shrink-0 bg-sidebar-hover">
+
+            {/* Sync Button Action */}
+            <div
+                className="flex items-center gap-3 px-6 py-3 cursor-pointer hover:bg-white/5 transition-colors border-b border-sidebar-border/50 text-gray-400 hover:text-secondary group"
+                onClick={onSync}
+            >
+                <Icon name="sync" className="group-hover:rotate-180 transition-transform duration-500" size={20} />
+                <span className="text-sm font-medium">Sincronizar Dados</span>
+            </div>
+
+            {/* User Profile */}
             <div 
                 className="flex items-center gap-3 p-4 cursor-pointer hover:bg-white/5 transition-colors group"
                 onClick={onLogout}
                 role="button"
                 tabIndex={0}
             >
-                <div className="size-10 rounded-full bg-cover bg-center border-2 border-gray-700 shadow-sm shrink-0" style={{backgroundImage: `url(${user?.avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=Aneka'})`}}></div>
+                <div className="size-10 rounded-full bg-cover bg-center border-2 border-gray-600 shadow-sm shrink-0" style={{backgroundImage: `url(${user?.avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=Aneka'})`}}></div>
                 <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
                     <p className="text-sm font-semibold text-white truncate group-hover:text-secondary transition-colors">{user?.name || 'Usuário'}</p>
                     <p className="text-xs text-gray-500 truncate capitalize font-mono">{user?.role === 'ADMIN' ? 'Administrator' : 'Operator'}</p>
