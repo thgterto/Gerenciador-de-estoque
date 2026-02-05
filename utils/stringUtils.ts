@@ -1,4 +1,3 @@
-
 // Shared Intl.Collator for performance
 export const defaultCollator = new Intl.Collator('pt-BR', { sensitivity: 'base', numeric: true });
 
@@ -134,9 +133,9 @@ export const sanitizeProductName = (rawName: string): string => {
 
     let clean = String(rawName).trim().toUpperCase();
 
-    // 1. Tratamento de Separadores "Sujos"
-    clean = clean.replace(/_/g, ' ');
-    clean = clean.replace(/([A-Z])\.([A-Z])/g, '$1 $2');
+    // 1. Tratamento de Separadores "Sujos" (Substitui caracteres inadequados por espaço)
+    clean = clean.replace(/[;._]/g, ' '); // Substitui ; . _ por espaço
+    clean = clean.replace(/([A-Z])\.([A-Z])/g, ' ');
 
     // 2. Normalizar espaços múltiplos
     clean = clean.replace(MULTI_SPACE_REGEX, ' ').trim();
@@ -152,13 +151,16 @@ export const sanitizeProductName = (rawName: string): string => {
 
     // 4. Padronização de Símbolos
     clean = clean.replace(PERCENT_REGEX, '%');
-    clean = clean.replace(HYDRATION_REGEX, '$1H2O');
+    clean = clean.replace(HYDRATION_REGEX, 'H2O');
 
     // 5. Tokenização e Correção Ortográfica
     const tokens = clean.split(' ');
     const correctedTokens = tokens.map(token => {
         let cleanToken = token;
         if (token !== 'P.A.' && token !== 'U.S.P.') {
+            // Mantém apenas caracteres alfanuméricos e permitidos no final do token se necessário,
+            // mas o replace anterior já limpou bastante.
+            // Aqui garantimos que caracteres especiais indesejados no fim do token saiam.
             cleanToken = token.replace(/[^A-Z0-9ÁÉÍÓÚÂÊÔÃÕÇ%/-]+$/g, ''); 
         }
         
