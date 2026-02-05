@@ -4,6 +4,10 @@
   "version": "1.8.0",
   "main": "electron/main.cjs",
   "type": "module",
+  "overrides": {
+    "react": "$react",
+    "react-dom": "$react-dom"
+  },
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
