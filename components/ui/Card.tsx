@@ -32,33 +32,30 @@ export const Card: React.FC<CardProps> = ({
     ...props
 }) => {
     
-    // Metric Card Layout
+    // Metric Card Layout - Soft Modern
     if (variant === 'metric') {
-        const bgClass = 'bg-background'; // Solid background
-        const borderClass = 'border-2 border-black dark:border-white'; // Raw border
-
         return (
             <div
                 onClick={onClick}
-                className={`${bgClass} ${borderClass} ${padding} relative overflow-hidden transition-all duration-150 hover:-translate-y-1 hover:shadow-md cursor-default ${onClick ? 'cursor-pointer' : ''} ${className}`}
+                className={`bg-surface rounded-xl shadow-sm border border-border-light ${padding} relative transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 cursor-default ${onClick ? 'cursor-pointer' : ''} ${className}`}
                 style={delay ? { animationDelay: `${delay}ms` } : {}}
                 {...props}
             >
-                <div className="flex justify-between items-start mb-4">
-                    {title && <h3 className="text-sm font-bold uppercase tracking-wider text-text-secondary">{title}</h3>}
+                <div className="flex justify-between items-start mb-3">
+                    {title && <h3 className="text-sm font-semibold text-text-secondary tracking-wide uppercase opacity-90">{title}</h3>}
                     {icon && (
-                        <div className="p-2 bg-text text-background font-bold rounded-none">
+                        <div className="p-2 bg-primary/10 text-primary rounded-lg">
                             <Icon name={icon} size={20} />
                         </div>
                     )}
                 </div>
 
                 <div className="flex flex-col gap-1">
-                    <span className="text-4xl font-bold font-mono text-text-main tracking-tight">
+                    <span className="text-3xl font-bold text-text-main tracking-tight font-sans">
                         {value}
                     </span>
                     {subtitle && (
-                        <p className="text-xs font-medium text-text-light uppercase tracking-wide">
+                        <p className="text-xs font-medium text-text-light">
                             {subtitle}
                         </p>
                     )}
@@ -67,9 +64,9 @@ export const Card: React.FC<CardProps> = ({
         );
     }
 
-    // Default/Item Layout
-    const baseClasses = 'bg-background border-2 border-black dark:border-white transition-all duration-150';
-    const hoverClasses = onClick ? 'hover:-translate-y-1 hover:shadow-md cursor-pointer' : '';
+    // Default/Item Layout - Soft Modern
+    const baseClasses = 'bg-surface rounded-xl shadow-sm border border-border-light transition-all duration-300';
+    const hoverClasses = onClick ? 'hover:shadow-md hover:-translate-y-0.5 cursor-pointer' : '';
     const paddingClasses = padding === 'p-0' ? '' : padding;
 
     return (
@@ -80,19 +77,19 @@ export const Card: React.FC<CardProps> = ({
             {...props}
         >
             {(title || subtitle || action || icon || badge) && (
-                 <div className="flex items-center justify-between mb-4 border-b-2 border-black/5 dark:border-white/10 pb-3">
-                     <div className="flex items-center gap-3">
+                 <div className="flex items-center justify-between mb-5 border-b border-gray-100 dark:border-gray-700 pb-4">
+                     <div className="flex items-center gap-4">
                          {icon && (
-                            <div className="p-2 bg-black text-white dark:bg-white dark:text-black">
+                            <div className="p-2.5 bg-gray-50 text-gray-700 rounded-lg border border-gray-100 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700">
                                 <Icon name={icon} size={20} />
                             </div>
                          )}
                          <div className="flex flex-col">
-                             {title && <h2 className="text-lg font-bold uppercase leading-none">{title}</h2>}
-                             {subtitle && <p className="text-xs text-text-secondary mt-1 font-mono">{subtitle}</p>}
+                             {title && <h2 className="text-lg font-bold text-text-main leading-snug">{title}</h2>}
+                             {subtitle && <p className="text-xs text-text-secondary mt-0.5 font-medium">{subtitle}</p>}
                          </div>
                      </div>
-                     <div className="flex items-center gap-2">
+                     <div className="flex items-center gap-3">
                          {badge && <Badge variant={badge.color as any}>{badge.label}</Badge>}
                          {action && <div>{action}</div>}
                      </div>

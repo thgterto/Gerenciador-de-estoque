@@ -1,4 +1,3 @@
-
 import React, { InputHTMLAttributes, forwardRef } from 'react';
 import { TextField, Icon } from '@shopify/polaris';
 import { getIcon } from '../../utils/iconMapper';
@@ -45,15 +44,15 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(({
         }
     };
 
-    // Prefix icon handling
+    // Prefix icon handling - Softened style
     const polarisIcon = getIcon(icon);
-    const prefix = polarisIcon ? <Icon source={polarisIcon} /> : (icon ? <span className="material-symbols-outlined text-[20px]">{icon}</span> : null);
+    const prefix = polarisIcon ? <Icon source={polarisIcon} tone="subdued" /> : (icon ? <span className="material-symbols-outlined text-[18px] text-gray-400">{icon}</span> : null);
 
     // Suffix handling
-    const suffix = isLoading ? <span className="material-symbols-outlined animate-spin text-[20px]">progress_activity</span> : rightElement;
+    const suffix = isLoading ? <span className="material-symbols-outlined animate-spin text-[18px] text-primary">progress_activity</span> : rightElement;
 
     return (
-        <div className={containerClassName}>
+        <div className={`${containerClassName} input-soft-wrapper`}>
             <TextField
                 label={label || ''}
                 value={value}

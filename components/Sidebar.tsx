@@ -1,152 +1,113 @@
-import React, { useMemo } from 'react';
-import { Tooltip } from './Tooltip';
-import { useAuth } from '../context/AuthContext';
+import React from 'react';
+import { NavLink } from 'react-router-dom';
 import { Icon } from './ui/Icon';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import { Tooltip } from './Tooltip';
 
 interface SidebarProps {
-  onLogout: () => void;
-  onSync?: () => void;
-  notificationsCount?: number;
-  isMobileOpen?: boolean;
-  closeMobile?: () => void;
+    onLogout: () => void;
+    notificationsCount: number;
+    onSync: () => void;
+    isMobileOpen: boolean;
+    closeMobile: () => void;
 }
 
-interface MenuItem {
-    id: string;
-    path: string;
-    label: string;
-    icon: string;
-    badge?: number;
-    sectionTitle?: string; 
-    requiredRole?: 'ADMIN' | 'OPERATOR';
-}
+export const Sidebar: React.FC<SidebarProps> = ({
+    onLogout,
+    notificationsCount,
+    onSync,
+    isMobileOpen,
+    closeMobile
+}) => {
+    const { user } = useAuth();
 
-interface NavButtonProps {
-    item: MenuItem;
-    isActive: boolean;
-    onClick: () => void;
-}
+    const menuItems = [
+        { path: '/', icon: 'dashboard', label: 'Dashboard' },
+        { path: '/inventory', icon: 'inventory_2', label: 'Inventário' },
+        { path: '/storage', icon: 'grid_view', label: 'Armazenamento' },
+        { path: '/history', icon: 'history', label: 'Histórico' },
+        { path: '/purchases', icon: 'shopping_cart', label: 'Compras' },
+        { path: '/reports', icon: 'bar_chart', label: 'Relatórios' },
+        { path: '/settings', icon: 'settings', label: 'Configurações' },
+    ];
 
-const NavButton: React.FC<NavButtonProps> = ({ item, isActive, onClick }) => {
+    const sidebarClass = isMobileOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0';
+
     return (
-      <button 
-          onClick={onClick} 
-          className={`
-              w-full flex items-center gap-3 px-3 py-3 rounded-none transition-all duration-100 group relative select-none border-l-4
-              ${isActive 
-                  ? 'bg-primary text-black border-black font-bold'
-                  : 'text-gray-400 hover:bg-gray-900 hover:text-white border-transparent hover:border-primary font-medium'
-              }
-          `}
-      >
-          <div className="relative flex items-center justify-center">
-              <Icon name={item.icon} size={24} filled={isActive} />
-          </div>
-          <span className="text-sm flex-1 text-left tracking-tight uppercase">{item.label}</span>
-          
-          {item.badge && item.badge > 0 && (
-              <span className={`
-                  text-[10px] font-bold px-1.5 py-0.5 min-w-[20px] text-center
-                  ${isActive ? 'bg-black text-primary' : 'bg-primary text-black'}
-              `}>
-                  {item.badge}
-              </span>
-          )}
-      </button>
-    );
-};
-
-export const Sidebar: React.FC<SidebarProps> = ({ onLogout, notificationsCount = 0, isMobileOpen = false, closeMobile }) => {
-  const { user, hasRole } = useAuth();
-  const navigate = useNavigate();
-  const location = useLocation();
-  
-  const currentPath = location.pathname;
-
-  const menuItems = useMemo<MenuItem[]>(() => [
-      { id: 'dashboard', path: '/dashboard', label: 'Dashboard', icon: 'dashboard' },
-      { id: 'inventory', path: '/inventory', label: 'Estoque', icon: 'inventory_2', sectionTitle: 'Operacional' },
-      { id: 'purchases', path: '/purchases', label: 'Pedidos', icon: 'shopping_cart', badge: notificationsCount },
-      { id: 'storage', path: '/storage', label: 'Armazenamento', icon: 'grid_on' },
-      { id: 'history', path: '/history', label: 'Histórico', icon: 'history' },
-      { id: 'reports', path: '/reports', label: 'Relatórios', icon: 'bar_chart', sectionTitle: 'Gestão' },
-      { id: 'settings', path: '/settings', label: 'Configurações', icon: 'settings', requiredRole: 'ADMIN' }
-  ], [notificationsCount]);
-
-  const visibleItems = menuItems.filter(item => !item.requiredRole || hasRole(item.requiredRole));
-
-  const handleNavigation = (path: string) => {
-      navigate(path);
-      if (closeMobile) closeMobile();
-  };
-
-  const isActive = (path: string) => {
-      if (path === '/dashboard' && currentPath === '/') return true;
-      return currentPath.startsWith(path);
-  }
-
-  return (
-    <>
+        <>
       {/* Sidebar Container */}
-      <aside 
-        id="tour-sidebar" 
-        className={`
-            fixed md:relative top-0 left-0 h-full w-64 bg-sidebar z-40 flex flex-col
-            border-r-2 border-primary/20 transition-transform duration-300 ease-in-out shadow-none
-            ${isMobileOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
-        `}
-      >
-        {/* Brand Area */}
-        <div className="h-auto py-6 flex flex-col px-4 bg-sidebar shrink-0 gap-6 border-b border-gray-800">
-           <div className="flex items-center gap-3 px-2">
-              <div className="bg-primary aspect-square size-10 flex items-center justify-center border-2 border-black">
-                 <Icon name="science" size={28} className="text-black" />
-              </div>
-              <div className="flex flex-col">
-                 <h1 className="text-white text-lg font-display font-bold leading-none tracking-tight uppercase">LabControl</h1>
-                 <p className="text-primary text-[10px] font-mono tracking-widest uppercase mt-1">System v2.0</p>
-              </div>
-              {/* Mobile Close */}
-               <button onClick={closeMobile} className="md:hidden ml-auto text-gray-400 hover:text-primary transition-colors">
-                    <Icon name="close" size={24} />
-               </button>
-           </div>
+      <aside className={`fixed md:relative z-40 w-64 h-full bg-sidebar border-r border-sidebar-border flex flex-col transition-transform duration-300 ease-in-out shadow-xl md:shadow-none ${sidebarClass}`}>
+
+        {/* Logo Header */}
+        <div className="h-16 flex items-center px-6 border-b border-sidebar-border bg-sidebar shrink-0">
+            <div className="flex items-center gap-3">
+                <div className="p-1.5 bg-gradient-to-br from-primary to-secondary rounded-lg shadow-lg">
+                    <Icon name="science" className="text-white" size={24} />
+                </div>
+                <span className="text-xl font-bold tracking-tight text-white">
+                    Lab<span className="text-secondary">Control</span>
+                </span>
+            </div>
+            <button onClick={closeMobile} className="md:hidden ml-auto text-gray-400 hover:text-white">
+                <Icon name="close" size={24} />
+            </button>
         </div>
 
-        {/* Navigation Items */}
-        <nav className="flex-1 px-0 space-y-1 overflow-y-auto custom-scrollbar py-4">
-            {visibleItems.map((item, index) => (
-                <React.Fragment key={item.id}>
-                    {item.sectionTitle && (
-                         <div className={`px-6 mt-6 mb-2 flex items-center ${index === 0 ? 'mt-2' : ''}`}>
-                            <span className="text-[10px] font-mono font-bold text-gray-500 uppercase tracking-widest border-b border-gray-800 w-full pb-1">{item.sectionTitle}</span>
-                         </div>
-                    )}
-                    <NavButton 
-                        item={item} 
-                        isActive={isActive(item.path)}
-                        onClick={() => handleNavigation(item.path)}
-                    />
+        {/* Navigation */}
+        <nav className="flex-1 overflow-y-auto py-6 px-3 space-y-1 custom-scrollbar">
+            {menuItems.map((item) => (
+                <React.Fragment key={item.path}>
+                    <NavLink
+                        to={item.path}
+                        onClick={closeMobile}
+                        className={({ isActive }) =>
+                            `flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 group ${
+                                isActive
+                                    ? 'bg-white/10 text-white shadow-sm border-l-4 border-secondary pl-3' // Active
+                                    : 'text-gray-400 hover:bg-white/5 hover:text-white hover:pl-5' // Inactive
+                            }`
+                        }
+                    >
+                        <Icon name={item.icon} size={20} className="group-hover:scale-110 transition-transform duration-200" />
+                        <span className="truncate">{item.label}</span>
+                        {item.path === '/inventory' && notificationsCount > 0 && (
+                            <span className="ml-auto bg-accent text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm animate-pulse">
+                                {notificationsCount}
+                            </span>
+                        )}
+                    </NavLink>
                 </React.Fragment>
             ))}
         </nav>
 
-        {/* User Profile Footer */}
-        <div className="p-0 border-t border-gray-800 shrink-0">
+        {/* Sync & User Profile Footer */}
+        <div className="p-0 border-t border-sidebar-border shrink-0 bg-sidebar-hover">
+
+            {/* Sync Button Action */}
+            <div
+                className="flex items-center gap-3 px-6 py-3 cursor-pointer hover:bg-white/5 transition-colors border-b border-sidebar-border/50 text-gray-400 hover:text-secondary group"
+                onClick={onSync}
+            >
+                <Icon name="sync" className="group-hover:rotate-180 transition-transform duration-500" size={20} />
+                <span className="text-sm font-medium">Sincronizar Dados</span>
+            </div>
+
+            {/* User Profile */}
             <div 
-                className="flex items-center gap-3 p-4 bg-gray-900/50 cursor-pointer hover:bg-gray-900 transition-colors group"
+                className="flex items-center gap-3 p-4 cursor-pointer hover:bg-white/5 transition-colors group"
                 onClick={onLogout}
                 role="button"
                 tabIndex={0}
             >
-                <div className="size-9 rounded-none bg-cover bg-center border border-gray-600 shrink-0" style={{backgroundImage: `url(${user?.avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=Aneka'})`}}></div>
+                <div className="size-10 rounded-full bg-cover bg-center border-2 border-gray-600 shadow-sm shrink-0" style={{backgroundImage: `url(${user?.avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=Aneka'})`}}></div>
                 <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
-                    <p className="text-sm font-bold text-white truncate">{user?.name || 'Usuário'}</p>
-                    <p className="text-xs text-gray-400 truncate capitalize font-mono">{user?.role === 'ADMIN' ? 'ADMIN' : 'OPERATOR'}</p>
+                    <p className="text-sm font-semibold text-white truncate group-hover:text-secondary transition-colors">{user?.name || 'Usuário'}</p>
+                    <p className="text-xs text-gray-500 truncate capitalize font-mono">{user?.role === 'ADMIN' ? 'Administrator' : 'Operator'}</p>
                 </div>
                 <Tooltip content="Sair" position="top">
-                    <Icon name="logout" className="text-gray-500 group-hover:text-danger transition-colors" size={20} />
+                    <div className="p-2 rounded-full hover:bg-white/10 transition-colors">
+                        <Icon name="logout" className="text-gray-500 group-hover:text-danger transition-colors" size={18} />
+                    </div>
                 </Tooltip>
             </div>
         </div>

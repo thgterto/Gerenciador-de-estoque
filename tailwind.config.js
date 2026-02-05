@@ -13,72 +13,82 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Maestro Design System - High Contrast / Brutalist
+        // Soft Modern / Clean SaaS Palette
         primary: {
-            DEFAULT: '#CCFF00', // Acid Green
-            hover: '#B3E600',   // Slightly darker acid green
-            light: '#ECFCCB',   // Lime 100
-            foreground: '#000000' // Text on primary
-        },
-        secondary: {
-            DEFAULT: '#FF4500', // Signal Orange
-            hover: '#CC3700',
-            light: '#FFEDD5',
+            DEFAULT: '#005a7e', // Deep Blue
+            hover: '#004a66',
+            light: '#E0F2F7',
             foreground: '#FFFFFF'
         },
+        secondary: {
+            DEFAULT: '#96b400', // Olive/Lime
+            hover: '#7a9400',
+            light: '#F4F9CC',
+            foreground: '#FFFFFF'
+        },
+        accent: {
+            DEFAULT: '#ff681a', // Orange Red
+            hover: '#e65000',
+            light: '#FFF0E6'
+        },
         cta: {
-            DEFAULT: '#FF4500', // Signal Orange
-            hover: '#CC3700',
+            DEFAULT: '#ff681a', // Orange Red
+            hover: '#e65000',
         },
         background: {
-           DEFAULT: '#F5F5F5',  // Neutral 100
+           DEFAULT: '#F9FAFB',  // Light Gray (Cool)
            light: '#FFFFFF',
-           dark: '#0A0A0A'      // Nearly Black
+           dark: '#111827'      // Gray 900
         },
         surface: {
+           DEFAULT: '#FFFFFF',  // White for cards
            light: '#FFFFFF',
-           dark: '#171717'      // Neutral 900
+           dark: '#1F2937'      // Gray 800
         },
         text: {
-           DEFAULT: '#0A0A0A',  // Neutral 950
-           main: '#0A0A0A',
-           secondary: '#525252', // Neutral 600
-           light: '#A3A3A3',     // Neutral 400
+           DEFAULT: '#1F2937',  // Gray 800
+           main: '#111827',     // Gray 900
+           secondary: '#4B5563', // Gray 600
+           light: '#9CA3AF',     // Gray 400
            inverse: '#FFFFFF'
         },
-        sidebar: '#000000',     // Black
-
+        sidebar: {
+            DEFAULT: '#1A1C1E', // Deep Charcoal/Gunmetal
+            hover: '#2C2E33',
+            active: '#2C2E33',
+            border: '#2C2E33'
+        },
         border: {
-           light: '#E5E5E5',    // Neutral 200
-           DEFAULT: '#000000',  // Raw Black Border
-           dark: '#FFFFFF'      // Raw White Border (for dark mode)
+           light: '#E5E7EB',    // Gray 200
+           DEFAULT: '#D1D5DB',  // Gray 300
+           dark: '#374151'      // Gray 700
         },
 
         // Semantic Colors
         success: {
-            DEFAULT: '#00CC00', // Sharp Green
-            bg: '#F0FDF4',
-            text: '#006600'
+            DEFAULT: '#10B981', // Emerald 500
+            bg: '#ECFDF5',
+            text: '#065F46'
         },
         warning: {
-            DEFAULT: '#FFCC00', // Sharp Yellow
-            bg: '#FEFCE8',
-            text: '#854D0E'
+            DEFAULT: '#F59E0B', // Amber 500
+            bg: '#FFFBEB',
+            text: '#92400E'
         },
         danger: {
-            DEFAULT: '#8B0000', // Deep Red
+            DEFAULT: '#EF4444', // Red 500
             bg: '#FEF2F2',
-            text: '#8B0000'
+            text: '#991B1B'
         },
         info: {
-            DEFAULT: '#0000FF', // Pure Blue
+            DEFAULT: '#3B82F6', // Blue 500
             bg: '#EFF6FF',
-            text: '#0000CC'
+            text: '#1E40AF'
         }
       },
       fontFamily: { 
-        sans: ['"Space Grotesk"', 'Exo', 'sans-serif'],
-        mono: ['"Roboto Mono"', 'monospace'],
+        sans: ['"Inter"', '"Space Grotesk"', 'sans-serif'],
+        mono: ['"JetBrains Mono"', '"Roboto Mono"', 'monospace'],
         display: ['"Space Grotesk"', 'sans-serif']
       },
       spacing: {
@@ -92,16 +102,28 @@ export default {
       },
       boxShadow: {
         'none': 'none',
-        'sm': '2px 2px 0px 0px rgba(0,0,0,1)', // Hard Shadow
-        'md': '4px 4px 0px 0px rgba(0,0,0,1)', // Hard Shadow
-        'lg': '6px 6px 0px 0px rgba(0,0,0,1)', // Hard Shadow
-        'xl': '8px 8px 0px 0px rgba(0,0,0,1)', // Hard Shadow
+        'sm': '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+        'md': '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+        'lg': '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+        'xl': '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+        'inner': 'inset 0 2px 4px 0 rgba(0, 0, 0, 0.06)',
+      },
+      borderRadius: {
+        'none': '0',
+        'sm': '0.125rem',
+        'DEFAULT': '0.25rem',
+        'md': '0.375rem',
+        'lg': '0.5rem',
+        'xl': '0.75rem',
+        '2xl': '1rem',
+        '3xl': '1.5rem',
+        'full': '9999px',
       },
       animation: {
-        'fade-in': 'fadeIn 0.2s ease-out forwards', // Faster
-        'slide-up': 'slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards', // Snappier
-        'slide-left': 'slideLeft 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards',
-        'scale-in': 'scaleIn 0.15s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+        'fade-in': 'fadeIn 0.3s ease-out forwards',
+        'slide-up': 'slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+        'slide-left': 'slideLeft 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+        'scale-in': 'scaleIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards',
       },
       keyframes: {
         fadeIn: {
@@ -109,15 +131,15 @@ export default {
           '100%': { opacity: '1' },
         },
         slideUp: {
-          '0%': { opacity: '0', transform: 'translateY(20px)' },
+          '0%': { opacity: '0', transform: 'translateY(10px)' },
           '100%': { opacity: '1', transform: 'translateY(0)' },
         },
         slideLeft: {
-          '0%': { opacity: '0', transform: 'translateX(20px)' },
+          '0%': { opacity: '0', transform: 'translateX(10px)' },
           '100%': { opacity: '1', transform: 'translateX(0)' },
         },
         scaleIn: {
-          '0%': { opacity: '0', transform: 'scale(0.95)' },
+          '0%': { opacity: '0', transform: 'scale(0.98)' },
           '100%': { opacity: '1', transform: 'scale(1)' },
         }
       }
