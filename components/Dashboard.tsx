@@ -110,24 +110,24 @@ export const Dashboard: React.FC<DashboardProps> = ({ items, history, onAddToPur
       >
         
         {/* ROW 1: KPIs (Staggered / Asymmetrical) */}
-        <motion.div className="col-span-12 lg:col-span-3" variants={itemVariants}>
+        <motion.div className="col-span-12 md:col-span-6 xl:col-span-3" variants={itemVariants}>
              <Card variant="metric" title="Total de Itens" value={totalItems} icon="inventory_2"
                    className="bg-white border-black h-full"
                    onClick={() => navigate('/inventory')}
              />
         </motion.div>
-        <motion.div className="col-span-12 lg:col-span-3" variants={itemVariants}>
+        <motion.div className="col-span-12 md:col-span-6 xl:col-span-3" variants={itemVariants}>
              <Card variant="metric" title="Valor em Estoque" value={`R$ ${totalValue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`} icon="payments"
                    className="bg-white border-black h-full"
              />
         </motion.div>
-        <motion.div className="col-span-12 lg:col-span-3" variants={itemVariants}>
+        <motion.div className="col-span-12 md:col-span-6 xl:col-span-3" variants={itemVariants}>
              <Card variant="metric" title="Baixo Estoque" value={lowStockItems.length} subtitle={outOfStockItems.length > 0 ? `${outOfStockItems.length} zerados` : undefined} icon="warning"
                    colorScheme={lowStockItems.length > 0 ? 'warning' : 'neutral'}
                    className={lowStockItems.length > 0 ? 'bg-warning-bg border-warning' : 'bg-white border-black'}
              />
         </motion.div>
-        <motion.div className="col-span-12 lg:col-span-3" variants={itemVariants}>
+        <motion.div className="col-span-12 md:col-span-6 xl:col-span-3" variants={itemVariants}>
              <Card variant="metric" title="A Vencer" value={expiringItems.length} icon="event_busy"
                    colorScheme={expiringItems.length > 0 ? 'danger' : 'neutral'}
                    className={expiringItems.length > 0 ? 'bg-danger-bg border-danger' : 'bg-white border-black'}

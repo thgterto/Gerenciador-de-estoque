@@ -54,7 +54,7 @@ export const Card: React.FC<CardProps> = ({
                 </div>
 
                 <div className="flex flex-col gap-1">
-                    <span className="text-4xl font-bold font-mono text-text-main tracking-tight">
+                    <span className="text-3xl xl:text-4xl font-bold font-mono text-text-main tracking-tight">
                         {value}
                     </span>
                     {subtitle && (
@@ -81,18 +81,18 @@ export const Card: React.FC<CardProps> = ({
         >
             {(title || subtitle || action || icon || badge) && (
                  <div className="flex items-center justify-between mb-4 border-b-2 border-black/5 dark:border-white/10 pb-3">
-                     <div className="flex items-center gap-3">
+                     <div className="flex items-center gap-3 min-w-0">
                          {icon && (
-                            <div className="p-2 bg-black text-white dark:bg-white dark:text-black">
+                            <div className="p-2 bg-black text-white dark:bg-white dark:text-black shrink-0">
                                 <Icon name={icon} size={20} />
                             </div>
                          )}
-                         <div className="flex flex-col">
-                             {title && <h2 className="text-lg font-bold uppercase leading-none">{title}</h2>}
-                             {subtitle && <p className="text-xs text-text-secondary mt-1 font-mono">{subtitle}</p>}
+                         <div className="flex flex-col min-w-0">
+                             {title && <h2 className="text-lg font-bold uppercase leading-none truncate">{title}</h2>}
+                             {subtitle && <p className="text-xs text-text-secondary mt-1 font-mono truncate">{subtitle}</p>}
                          </div>
                      </div>
-                     <div className="flex items-center gap-2">
+                     <div className="flex items-center gap-2 shrink-0">
                          {badge && <Badge variant={badge.color as any}>{badge.label}</Badge>}
                          {action && <div>{action}</div>}
                      </div>
