@@ -19,6 +19,7 @@
     "apexcharts": "^5.3.6",
     "dexie": "^4.0.1",
     "echarts": "^5.5.0",
+    "framer-motion": "^12.31.2",
     "html5-qrcode": "^2.3.8",
     "lucide-react": "^0.475.0",
     "react": "^19.0.0",

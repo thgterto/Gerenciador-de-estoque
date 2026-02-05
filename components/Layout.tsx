@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Sidebar } from './Sidebar';
 import { Header } from './Header';
@@ -36,11 +35,11 @@ export const Layout: React.FC<LayoutProps> = ({
     }, [location.pathname]);
 
     return (
-        <div className="flex bg-background-light dark:bg-background-dark h-screen w-screen font-display overflow-hidden transition-colors duration-200">
-            {/* Mobile Overlay */}
+        <div className="flex bg-background h-screen w-screen font-sans overflow-hidden transition-colors duration-0">
+            {/* Mobile Overlay - High Contrast */}
             {isMobileMenuOpen && (
                 <div 
-                    className="fixed inset-0 bg-black/50 z-30 md:hidden animate-fade-in"
+                    className="fixed inset-0 bg-black/90 z-30 md:hidden animate-fade-in"
                     onClick={() => setIsMobileMenuOpen(false)}
                 />
             )}
@@ -53,7 +52,6 @@ export const Layout: React.FC<LayoutProps> = ({
                 closeMobile={() => setIsMobileMenuOpen(false)}
             />
        
-            {/* Removed md:ml-64 because Sidebar is relative in desktop flex container */}
             <main className="flex-1 flex flex-col h-full min-w-0 overflow-hidden relative transition-all">
                 <Header 
                     onToggleTheme={toggleTheme}
@@ -64,8 +62,14 @@ export const Layout: React.FC<LayoutProps> = ({
                     onMenuClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                 />
 
-                <div className="flex-1 flex flex-col min-h-0 overflow-hidden bg-background-light dark:bg-background-dark transition-colors duration-200">
-                    {children}
+                <div className="flex-1 flex flex-col min-h-0 overflow-hidden bg-background relative">
+                    {/* Grain Texture Overlay */}
+                    <div className="absolute inset-0 pointer-events-none bg-grain z-0 opacity-20 mix-blend-multiply"></div>
+
+                    {/* Content */}
+                    <div className="relative z-10 h-full overflow-y-auto custom-scrollbar p-0 md:p-0">
+                        {children}
+                    </div>
                 </div>
             </main>
         </div>

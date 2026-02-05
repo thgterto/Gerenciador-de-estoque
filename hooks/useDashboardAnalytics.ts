@@ -1,4 +1,3 @@
-
 import { useMemo } from 'react';
 import { InventoryItem, MovementRecord } from '../types';
 import { getItemStatus } from '../utils/businessRules';
@@ -20,6 +19,8 @@ export const useDashboardAnalytics = (items: InventoryItem[], history: MovementR
         
         const lowStockItems = [];
         const expiringItems = [];
+        const outOfStockItems = [];
+        let totalValue = 0;
 
         for (const item of activeItems) {
             const status = getItemStatus(item, now);
@@ -28,6 +29,13 @@ export const useDashboardAnalytics = (items: InventoryItem[], history: MovementR
             else if (item.expiryDate) {
                 const expDate = new Date(item.expiryDate);
                 if (expDate < next30Days && expDate >= now) expiringItems.push(item);
+            }
+
+            if (item.quantity <= 0) outOfStockItems.push(item);
+
+            // Calculate Value (quantity * unitCost)
+            if (item.unitCost && item.quantity > 0) {
+                totalValue += item.quantity * item.unitCost;
             }
         }
 
@@ -79,23 +87,16 @@ export const useDashboardAnalytics = (items: InventoryItem[], history: MovementR
              const windowMovements = activeHistory.filter(h => new Date(h.date) >= startDate);
 
              // 4.2. Calcular Saldo Inicial (Retroativo)
-             // Saldo Inicial = Saldo Atual - (Entradas) + (Saídas)
-             // Isso nos dá exatamente quanto tinhamos no dia 'startDate'
              let netChangeInWindow = 0;
              
              // Agrupamento Diário (Map<DataISO, Delta>)
              const dailyDeltas = new Map<string, number>();
-             
-             // Inicializa dias zerados para continuidade visual (opcional)
-             // for (let i = 0; i <= DAYS_WINDOW; i++) { ... } // Comentado para mostrar apenas dias com atividade
 
              windowMovements.forEach(h => {
                  let delta = 0;
                  if (h.type === 'ENTRADA') delta = h.quantity;
                  else if (h.type === 'SAIDA') delta = -h.quantity;
-                 // Ajustes manuais: assumimos positivo se não for especificado, ou tratamos como reset?
-                 // Simplificação: Ajuste entra como delta positivo se não tivermos info anterior.
-                 else if (h.type === 'AJUSTE') delta = 0; // Ajustes quebram a lógica de fluxo se não soubermos o valor anterior. Ignorando para não distorcer.
+                 else if (h.type === 'AJUSTE') delta = 0;
 
                  netChangeInWindow += delta;
 
@@ -111,7 +112,7 @@ export const useDashboardAnalytics = (items: InventoryItem[], history: MovementR
              // 4.3. Construção dos Dados do Gráfico
              const dataPoints: any[] = [];
              
-             // Barra 1: Saldo Inicial (Barra Cinza Sólida)
+             // Barra 1: Saldo Inicial
              dataPoints.push({
                  x: 'Início',
                  y: [0, parseFloat(startBalance.toFixed(2))],
@@ -135,7 +136,7 @@ export const useDashboardAnalytics = (items: InventoryItem[], history: MovementR
                  const [, month, d] = day.split('-');
                  const label = `${d}/${month}`;
 
-                 // RangeBar: ApexCharts desenha de Min a Max. A cor indica a direção.
+                 // RangeBar
                  dataPoints.push({
                      x: label,
                      y: [parseFloat(open.toFixed(2)), parseFloat(close.toFixed(2))], 
@@ -152,7 +153,7 @@ export const useDashboardAnalytics = (items: InventoryItem[], history: MovementR
                  runningTotal = close;
              });
 
-             // Barra Final: Saldo Atual (Barra Azul Sólida)
+             // Barra Final: Saldo Atual
              dataPoints.push({
                  x: 'Atual',
                  y: [0, parseFloat(currentQty.toFixed(2))],
@@ -163,16 +164,44 @@ export const useDashboardAnalytics = (items: InventoryItem[], history: MovementR
              wSeries = [{ data: dataPoints }];
         }
 
+        // --- 5. PARETO (ABC Analysis) ---
+        // Group items by Category and sum their value
+        const categoryMap = new Map<string, number>();
+        activeItems.forEach(item => {
+            if (item.category && item.quantity > 0 && item.unitCost) {
+                const val = item.quantity * item.unitCost;
+                categoryMap.set(item.category, (categoryMap.get(item.category) || 0) + val);
+            }
+        });
+
+        const sortedCategories = Array.from(categoryMap.entries())
+            .sort((a, b) => b[1] - a[1]);
+
+        const totalParetoValue = sortedCategories.reduce((acc, curr) => acc + curr[1], 0);
+        let accumulatedValue = 0;
+
+        const paretoData = sortedCategories.slice(0, 10).map(([category, value]) => {
+            accumulatedValue += value;
+            return {
+                category,
+                value,
+                accumulatedPercentage: totalParetoValue > 0 ? Math.round((accumulatedValue / totalParetoValue) * 100) : 0
+            };
+        });
+
         return {
             kpis: {
                 totalItems: activeItems.length,
                 lowStockItems,
                 expiringItems,
-                movementsToday
+                outOfStockItems,
+                movementsToday,
+                totalValue
             },
             chartData: { xData: xLabels, yData },
             waterfallSeries: wSeries,
-            waterfallColors: wColors
+            waterfallColors: wColors,
+            paretoData
         };
 
     }, [items, history, selectedItemId]);
@@ -204,6 +233,7 @@ export const useDashboardAnalytics = (items: InventoryItem[], history: MovementR
         recentTransactions,
         chartData: analytics.chartData,
         waterfallSeries: analytics.waterfallSeries,
-        waterfallColors: analytics.waterfallColors
+        waterfallColors: analytics.waterfallColors,
+        paretoData: analytics.paretoData
     };
 };
