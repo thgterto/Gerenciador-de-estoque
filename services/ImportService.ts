@@ -1,9 +1,9 @@
-
 import { db } from '../db';
 import { InventoryItem, MovementRecord, ImportResult, RiskFlags } from '../types';
 import { CasApiService } from './CasApiService';
 import { DataMapper } from '../utils/parsers/DataMapper';
 import { generateHash, normalizeStr } from '../utils/stringUtils';
+import { identifyCategory, suggestCasNumber } from '../utils/classificationUtils';
 
 function hasActiveRisks(risks?: RiskFlags): boolean {
     if (!risks) return false;
@@ -18,9 +18,25 @@ export const ImportService = {
       const stats = { total: newItems.length, created: 0, updated: 0, ignored: 0 };
 
       try {
+        // Prepare items with auto-classification
+        const processedItems = newItems.map(item => {
+            const updates: Partial<InventoryItem> = {};
+
+            if (!item.category || item.category === 'Outros' || item.category === 'OUTROS') {
+                updates.category = identifyCategory(item.name);
+            }
+
+            if (!item.casNumber) {
+                const suggested = suggestCasNumber(item.name);
+                if (suggested) updates.casNumber = suggested;
+            }
+
+            return { ...item, ...updates };
+        });
+
         // Strategy 1: WIPE & LOAD (Total Replacement)
         if (replaceMode) {
-             const v2Data = DataMapper.deriveNormalizedData(newItems);
+             const v2Data = DataMapper.deriveNormalizedData(processedItems);
              await db.transaction('rw', [
                 db.rawDb.items, 
                 db.rawDb.catalog, 
@@ -41,7 +57,7 @@ export const ImportService = {
                  ]);
                  
                  // Use bulkAdd for performance on empty tables
-                 await db.items.bulkAdd(newItems);
+                 await db.items.bulkAdd(processedItems);
                  if (v2Data.catalog.length > 0) await db.rawDb.catalog.bulkAdd(v2Data.catalog);
                  if (v2Data.batches.length > 0) await db.rawDb.batches.bulkAdd(v2Data.batches);
                  if (v2Data.partners.length > 0) await db.rawDb.partners.bulkAdd(v2Data.partners);
@@ -49,13 +65,13 @@ export const ImportService = {
                  if (v2Data.balances.length > 0) await db.rawDb.balances.bulkAdd(v2Data.balances);
              });
              
-             stats.created = newItems.length;
+             stats.created = processedItems.length;
              return stats;
         }
 
         // Strategy 2: SMART MERGE (Incremental Update)
         // Recupera itens existentes para comparar
-        const idsToCheck = newItems.map(i => i.id);
+        const idsToCheck = processedItems.map(i => i.id);
         const existingRecords = await db.items.bulkGet(idsToCheck); 
         
         const existingMap = new Map<string, InventoryItem>();
@@ -65,7 +81,7 @@ export const ImportService = {
         
         const mergedItems: InventoryItem[] = [];
 
-        newItems.forEach(newItem => {
+        processedItems.forEach(newItem => {
             const existing = existingMap.get(newItem.id);
             
             if (existing) {
@@ -76,12 +92,7 @@ export const ImportService = {
                     casNumber: newItem.casNumber || existing.casNumber,
                     molecularFormula: newItem.molecularFormula || existing.molecularFormula,
                     risks: hasActiveRisks(newItem.risks) ? newItem.risks : existing.risks,
-                    // Preserva saldo existente a menos que seja um reset explícito (tratado em outro lugar)
-                    // No import mestre, geralmente a planilha é a verdade, MAS se a planilha
-                    // tem quantidade 0 (definição de produto), não queremos zerar o estoque real.
-                    // Se a planilha tem quantidade > 0, isso geralmente vira um movimento de entrada separado.
-                    // Aqui assumimos que se a planilha traz quantidade, é uma entrada inicial ou ajuste.
-                    // Porém, importBulk é chamado para cadastro mestre.
+                    // Preserva saldo existente a menos que seja um reset explícito
                     quantity: (overwriteQuantities && newItem.quantity !== undefined) ? newItem.quantity : existing.quantity
                 };
                 mergedItems.push(merged);
@@ -108,10 +119,7 @@ export const ImportService = {
             if (v2Data.batches.length > 0) await db.rawDb.batches.bulkPut(v2Data.batches);
             if (v2Data.partners.length > 0) await db.rawDb.partners.bulkPut(v2Data.partners);
             if (v2Data.locations.length > 0) await db.rawDb.storage_locations.bulkPut(v2Data.locations);
-            // Balances: Careful not to overwrite quantities if we kept them from 'existing'
-            // Ideally balances logic should follow items logic.
-            // Since deriveNormalizedData uses item.quantity, and we kept existing.quantity, 
-            // v2Data.balances has the correct quantity.
+
             if (v2Data.balances.length > 0) await db.rawDb.balances.bulkPut(v2Data.balances);
         });
         
