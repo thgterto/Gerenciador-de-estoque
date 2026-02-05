@@ -1,6 +1,4 @@
-
 import React from 'react';
-import { BlockStack, InlineStack, Text, Box } from '@shopify/polaris';
 import { Link } from 'react-router-dom';
 
 interface BreadcrumbItem {
@@ -24,49 +22,41 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
     className = '' 
 }) => {
     return (
-        <div className={className}>
-        <Box paddingBlockEnd="400">
-            <BlockStack gap="400">
-                {breadcrumbs && (
-                    <InlineStack gap="200">
-                        <Link to="/dashboard" style={{ textDecoration: 'none', color: 'var(--p-color-text-subdued)' }}>
-                            <Text as="span" variant="bodySm" tone="subdued">Home</Text>
-                        </Link>
-                        {breadcrumbs.map((crumb, idx) => (
-                            <React.Fragment key={idx}>
-                                <Text as="span" variant="bodySm" tone="subdued">/</Text>
-                                {crumb.path ? (
-                                    <Link to={crumb.path} style={{ textDecoration: 'none', color: 'var(--p-color-text-subdued)' }}>
-                                        <Text as="span" variant="bodySm" tone="subdued">{crumb.label}</Text>
-                                    </Link>
-                                ) : (
-                                    <Text as="span" variant="bodySm" fontWeight="bold">{crumb.label}</Text>
-                                )}
-                            </React.Fragment>
-                        ))}
-                    </InlineStack>
-                )}
+        <div className={`flex flex-col gap-4 mb-8 ${className}`}>
+            {breadcrumbs && (
+                <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-text-light">
+                    <Link to="/dashboard" className="hover:text-primary transition-colors">Home</Link>
+                    {breadcrumbs.map((crumb, idx) => (
+                        <React.Fragment key={idx}>
+                            <span>/</span>
+                            {crumb.path ? (
+                                <Link to={crumb.path} className="hover:text-primary transition-colors">{crumb.label}</Link>
+                            ) : (
+                                <span className="font-bold text-text-main">{crumb.label}</span>
+                            )}
+                        </React.Fragment>
+                    ))}
+                </div>
+            )}
 
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: '16px' }}>
-                    <BlockStack gap="200">
-                        <Text as="h1" variant="headingXl" fontWeight="bold">
-                            {title}
-                        </Text>
-                        {description && (
-                            <Text as="p" tone="subdued" variant="bodyMd">
-                                {description}
-                            </Text>
-                        )}
-                    </BlockStack>
-
-                    {children && (
-                        <InlineStack gap="300">
-                            {children}
-                        </InlineStack>
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 border-b-4 border-black dark:border-white pb-4">
+                <div className="flex flex-col gap-1">
+                    <h1 className="text-4xl font-black uppercase tracking-tighter text-text-main">
+                        {title}
+                    </h1>
+                    {description && (
+                        <p className="text-sm text-text-secondary font-medium tracking-wide">
+                            {description}
+                        </p>
                     )}
                 </div>
-            </BlockStack>
-        </Box>
+
+                {children && (
+                    <div className="flex items-center gap-3">
+                        {children}
+                    </div>
+                )}
+            </div>
         </div>
     );
 };

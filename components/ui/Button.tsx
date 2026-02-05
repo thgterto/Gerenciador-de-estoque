@@ -1,7 +1,5 @@
-
 import React, { ButtonHTMLAttributes } from 'react';
-import { Button as PolarisButton } from '@shopify/polaris';
-import { getIcon } from '../../utils/iconMapper';
+import { Icon } from './Icon';
 
 type ButtonVariant = 'primary' | 'secondary' | 'success' | 'danger' | 'ghost' | 'outline' | 'white' | 'warning' | 'info';
 type ButtonSize = 'sm' | 'md' | 'lg';
@@ -23,81 +21,50 @@ export const Button: React.FC<ButtonProps> = ({
     className = '', 
     disabled,
     fullWidth = false,
-    onClick,
-    type,
     ...props 
 }) => {
     
-    let polarisVariant: 'primary' | 'plain' | 'monochromePlain' | 'tertiary' | undefined;
-    let polarisTone: 'critical' | 'success' | undefined; // Polaris supports 'critical' and 'success' (in some versions)
+    // Base Styles (Maestro: Raw, Bold, Uppercase)
+    const baseStyles = "inline-flex items-center justify-center font-bold uppercase tracking-wider transition-all duration-100 ease-out focus:outline-none border-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none active:translate-x-[1px] active:translate-y-[1px] active:shadow-none";
 
-    // Mapping variants
-    switch (variant) {
-        case 'primary':
-            polarisVariant = 'primary';
-            break;
-        case 'secondary':
-        case 'outline':
-        case 'white':
-            // Default button style (secondary/outline)
-            break;
-        case 'ghost':
-            polarisVariant = 'plain';
-            break;
-        case 'danger':
-            polarisTone = 'critical';
-            // If original was solid red, we might want variant='primary' tone='critical'
-            // But usually danger buttons are primary critical.
-            polarisVariant = 'primary';
-            break;
-        case 'success':
-            // Polaris doesn't support 'success' tone on buttons officially in all versions,
-            // but let's try or fallback to primary with custom class if needed.
-            // For now, map to primary.
-            polarisVariant = 'primary';
-            // tone='success' might work if supported, otherwise it ignores it.
-            polarisTone = 'success';
-            break;
-        case 'warning':
-        case 'info':
-            // No direct mapping, fallback to secondary or primary
-            break;
-    }
-
-    // Mapping sizes
-    const sizeMap: Record<ButtonSize, 'slim' | 'medium' | 'large'> = {
-        sm: 'slim',
-        md: 'medium',
-        lg: 'large'
+    // Variants
+    const variants = {
+        primary: "bg-primary text-black border-black hover:-translate-y-1 hover:-translate-x-1 hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:border-white dark:hover:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)]",
+        secondary: "bg-transparent text-text border-text hover:bg-text hover:text-background hover:-translate-y-1 hover:-translate-x-1 hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:hover:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)]",
+        success: "bg-success text-white border-success-text hover:bg-success-text hover:text-white hover:-translate-y-1 hover:-translate-x-1 hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]",
+        danger: "bg-danger text-white border-black hover:bg-red-900 hover:-translate-y-1 hover:-translate-x-1 hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]",
+        warning: "bg-warning text-black border-black hover:-translate-y-1 hover:-translate-x-1 hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]",
+        info: "bg-info text-white border-black hover:-translate-y-1 hover:-translate-x-1 hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]",
+        ghost: "bg-transparent text-text border-transparent hover:bg-gray-100 dark:hover:bg-gray-800",
+        outline: "bg-transparent text-text border-border hover:border-text hover:bg-gray-50",
+        white: "bg-white text-black border-gray-200 hover:border-black hover:shadow-sm"
     };
 
-    // Handling Icon
-    const polarisIcon = getIcon(icon);
+    // Sizes
+    const sizes = {
+        sm: "h-8 px-3 text-[10px]",
+        md: "h-10 px-4 text-xs",
+        lg: "h-12 px-6 text-sm"
+    };
 
-    // Fallback for custom icon string if not in mapper (rendering as children is not ideal for 'icon' prop)
-    // If icon is provided but not found in map, and it's a string, we might display it as text or try to find a material icon match?
-    // The previous implementation used material-symbols-outlined class.
-    // Polaris Button 'icon' prop expects a component.
-    // If we can't find it, we pass it as a component that renders the span.
-
-    const iconSource = polarisIcon || (icon ? () => <span className="material-symbols-outlined">{icon}</span> : undefined);
+    const variantStyles = variants[variant] || variants.primary;
+    const sizeStyles = sizes[size];
+    const widthStyles = fullWidth ? "w-full" : "";
 
     return (
-        <div className={className} style={{ display: fullWidth ? 'block' : 'inline-block' }}>
-            <PolarisButton
-                variant={polarisVariant}
-                tone={polarisTone}
-                size={sizeMap[size]}
-                loading={isLoading}
-                fullWidth={fullWidth}
-                disabled={disabled}
-                onClick={onClick}
-                submit={type === 'submit'}
-                icon={iconSource}
-                {...props as any} // Pass remaining props
-            >
-                {children}
-            </PolarisButton>
-        </div>
+        <button
+            className={`${baseStyles} ${variantStyles} ${sizeStyles} ${widthStyles} ${className}`}
+            disabled={disabled || isLoading}
+            {...props}
+        >
+            {isLoading && (
+                <svg className="animate-spin -ml-1 mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+            )}
+            {!isLoading && icon && <Icon name={icon} className="mr-2" size={size === 'sm' ? 14 : 18} />}
+            {children}
+        </button>
     );
 };

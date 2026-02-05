@@ -1,432 +1,185 @@
-
-import React, { useMemo, useState } from 'react';
-import * as ReactApexChart from 'react-apexcharts';
-import { ApexOptions } from 'apexcharts';
-
-// Fix for Minified React error #130 (Element type is invalid)
-// Handles differences in CommonJS/ESM interop across environments
-const Chart = (ReactApexChart as any).default || ReactApexChart;
-import { InventoryItem, MovementRecord } from '../types';
-import { Card } from './ui/Card';
-import { MetricCard } from './ui/MetricCard';
+import React, { useState } from 'react';
 import { PageContainer } from './ui/PageContainer';
+import { PageHeader } from './ui/PageHeader';
+import { Card } from './ui/Card';
 import { Button } from './ui/Button';
-import { PageHeader } from './ui/PageHeader'; // Importado
-import { formatDateTime, formatDate } from '../utils/formatters';
-import { defaultCollator } from '../utils/stringUtils';
 import { useDashboardAnalytics } from '../hooks/useDashboardAnalytics';
-import { useTheme } from '../context/ThemeContext';
+import Chart from 'react-apexcharts';
+import { useNavigate } from 'react-router-dom';
+import { Icon } from './ui/Icon';
+import { InventoryItem, MovementRecord } from '../types';
+import { formatDate, formatDateTime } from '../utils/formatters';
+import { motion, Variants } from 'framer-motion';
 
-interface Props {
+interface DashboardProps {
   items: InventoryItem[];
   history: MovementRecord[];
-  onAddToPurchase: (item: InventoryItem, reason: 'LOW_STOCK' | 'EXPIRING') => void;
+  onAddToPurchase: (item: InventoryItem, reason: 'LOW_STOCK' | 'EXPIRING' | 'MANUAL') => void;
   onAddStock: (item: InventoryItem) => void;
 }
 
-export const Dashboard: React.FC<Props> = ({ items, history, onAddToPurchase }) => {
-  const { theme } = useTheme();
-  const [selectedItemId, setSelectedItemId] = useState<string>('');
-  
+export const Dashboard: React.FC<DashboardProps> = ({ items, history, onAddToPurchase, onAddStock: _onAddStock }) => {
   const {
-      totalItems,
-      lowStockItems,
-      expiringItems,
-      categoryStats,
-      recentTransactions,
-      chartData,
-      movementsToday,
-      waterfallSeries,
-      waterfallColors
-  } = useDashboardAnalytics(items, history, selectedItemId || undefined);
-
-  // --- APEXCHARTS CONFIG ---
+    totalItems,
+    lowStockItems,
+    outOfStockItems,
+    expiringItems,
+    totalValue,
+    recentTransactions,
+    paretoData
+  } = useDashboardAnalytics(items, history);
   
-  // 1. Output Movement (Area Chart) - Default Global
-  const movementChartOptions: ApexOptions = {
-      chart: {
-          id: 'movement-chart',
-          type: 'area',
-          toolbar: { show: false },
-          zoom: { enabled: false },
-          selection: { enabled: false },
-          fontFamily: 'Inter, sans-serif',
-          background: 'transparent'
-      },
-      colors: ['#903A40'],
-      fill: {
-          type: 'gradient',
-          gradient: {
-              shadeIntensity: 1,
-              opacityFrom: 0.4,
-              opacityTo: 0.05,
-              stops: [0, 100]
-          }
-      },
-      dataLabels: { enabled: false },
-      stroke: { curve: 'smooth', width: 2 },
-      xaxis: {
-          categories: chartData.xData,
-          axisBorder: { show: false },
-          axisTicks: { show: false },
-          labels: { style: { colors: '#94A3B8' } }
-      },
-      yaxis: {
-          labels: { show: false },
-          show: false
-      },
-      grid: {
-          borderColor: theme === 'dark' ? '#334155' : '#E2E8F0',
-          strokeDashArray: 4,
-          yaxis: { lines: { show: true } }
-      },
-      tooltip: {
-          theme: theme,
-          y: { formatter: (val) => `${val} unidades` }
-      }
-  };
+  const navigate = useNavigate();
+  const [selectedItemId] = useState<string | null>(null);
 
-  const movementSeries = [{ name: 'Saídas', data: chartData.yData }];
-
-  // 2. Waterfall Chart (Detailed Item Analysis)
-  const waterfallOptions: ApexOptions = {
-      chart: {
-          type: 'rangeBar',
-          toolbar: { show: false },
-          zoom: { enabled: false },
-          selection: { enabled: false },
-          fontFamily: 'Inter, sans-serif',
-          background: 'transparent',
-          animations: { enabled: true }
-      },
-      colors: waterfallColors, // Colors from hook
-      plotOptions: {
-          bar: {
-              horizontal: false,
-              borderRadius: 2,
-              columnWidth: '50%',
-              distributed: true, // Required for individual bar colors
-              rangeBarGroupRows: true
-          }
-      },
-      dataLabels: {
-          enabled: true,
-          offsetY: -20, // Push label above bar
-          style: {
-              colors: [theme === 'dark' ? '#fff' : '#334155'],
-              fontSize: '11px',
-              fontWeight: 700
-          },
-          formatter: function(val: any, opts: any) {
-              const meta = opts.w.config.series[opts.seriesIndex].data[opts.dataPointIndex].meta;
-              if (meta && meta.delta !== undefined) {
-                  // Show Delta (+10, -5)
-                  return (meta.delta > 0 ? '+' : '') + meta.delta;
-              }
-              // Show Absolute Value for Start/End bars
-              return val[1]; 
-          }
-      },
-      xaxis: {
-           type: 'category',
-           labels: { 
-               style: { colors: '#94A3B8', fontSize: '11px' }
-           },
-           axisBorder: { show: false },
-           axisTicks: { show: false }
-      },
-      yaxis: {
-          labels: { style: { colors: '#94A3B8' } },
-          title: { text: 'Saldo Acumulado', style: { color: '#94A3B8', fontSize: '11px' } }
-      },
-      grid: {
-          borderColor: theme === 'dark' ? '#334155' : '#E2E8F0',
-          strokeDashArray: 4,
-          yaxis: { lines: { show: true } }
-      },
-      tooltip: { 
-          theme: theme,
-          custom: function({ seriesIndex, dataPointIndex, w }) {
-              const data = w.config.series[seriesIndex].data[dataPointIndex];
-              const meta = data.meta;
-              
-              if (!meta) return '';
-
-              let headerClass = 'bg-gray-100 text-gray-700';
-              let bodyContent = '';
-
-              if (meta.delta !== undefined) {
-                  // Movement Bar
-                  const isPositive = meta.delta >= 0;
-                  headerClass = isPositive ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800';
-                  bodyContent = `
-                    <div class="font-bold text-lg ${isPositive ? 'text-emerald-600' : 'text-red-600'} text-center">
-                        ${isPositive ? '+' : ''}${meta.delta}
-                    </div>
-                    <div class="text-[10px] text-gray-500 mt-1 text-center">
-                        Saldo: ${meta.open} ➝ ${meta.close}
-                    </div>
-                  `;
-              } else {
-                  // Static Bar (Start/End)
-                   headerClass = 'bg-blue-100 text-blue-800';
-                   bodyContent = `
-                    <div class="font-bold text-lg text-blue-600 text-center">
-                        ${meta.value}
-                    </div>
-                    <div class="text-[10px] text-gray-500 mt-1 text-center">
-                        Total Absoluto
-                    </div>
-                   `;
-              }
-              
-              return `
-                <div class="overflow-hidden rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-slate-800 min-w-[120px]">
-                    <div class="px-3 py-1.5 text-xs font-bold uppercase tracking-wider ${headerClass} text-center">
-                        ${meta.label || data.x}
-                    </div>
-                    <div class="p-3">
-                        ${bodyContent}
-                    </div>
-                </div>
-              `;
-          }
-      },
-      legend: { show: false }
-  };
-
-  const paretoData = useMemo(() => {
-    const totalCount = selectedItemId ? 1 : (items.length || 1); 
-    
-    return categoryStats.reduce((acc: any[], cat) => {
-        const last = acc.length > 0 ? acc[acc.length - 1].rawCumulative : 0;
-        const newCumulative = last + cat.count;
-        acc.push({
-            name: cat.name,
-            count: cat.count,
-            rawCumulative: newCumulative,
-            cumulative: Math.min(100, Math.round((newCumulative / totalCount) * 100))
-        });
-        return acc;
-    }, []);
-  }, [categoryStats, items.length, selectedItemId]);
-
-  const paretoOptions: ApexOptions = {
+  // --- CHART CONFIGURATIONS (High Contrast / Brutalist) ---
+  const commonChartOptions: ApexCharts.ApexOptions = {
     chart: {
-      type: 'line',
-      toolbar: { show: false },
-      zoom: { enabled: false },
-      selection: { enabled: false },
-      fontFamily: 'Inter, sans-serif',
-      background: 'transparent'
+        toolbar: { show: false },
+        background: 'transparent',
+        fontFamily: '"Space Grotesk", sans-serif'
     },
-    colors: ['#6797A1', '#F59E0B'],
-    stroke: { width: [0, 3], curve: 'smooth' },
+    colors: ['#525252'],
+    grid: {
+        borderColor: '#e5e5e5',
+        strokeDashArray: 0,
+        xaxis: { lines: { show: true } },
+        yaxis: { lines: { show: true } }
+    },
+    tooltip: { theme: 'dark' }
+  };
+
+  const paretoOptions: ApexCharts.ApexOptions = {
+    ...commonChartOptions,
+    chart: { ...commonChartOptions.chart, type: 'line' },
+    colors: ['#CCFF00', '#000000'], // Acid Green & Black
+    stroke: { width: [0, 3], curve: 'stepline' as const },
     plotOptions: {
-      bar: { columnWidth: '50%', borderRadius: 4 }
+      bar: { columnWidth: '60%', borderRadius: 0 } // Sharp corners
     },
-    dataLabels: {
-      enabled: true,
-      enabledOnSeries: [1],
-      formatter: (val) => `${val}%`
-    },
-    labels: paretoData.map(d => d.name),
+    dataLabels: { enabled: false },
     xaxis: {
-        labels: { 
-            style: { colors: '#94A3B8', fontSize: '10px' },
-            trim: true,
-            rotate: -45,
-            hideOverlappingLabels: false
-        }
+        categories: paretoData.map((d: any) => d.category),
+        labels: { style: { fontWeight: 700, fontSize: '10px' } }
     },
     yaxis: [
-      {
-        title: { text: 'Quantidade', style: { color: '#94A3B8' } },
-        labels: { style: { colors: '#94A3B8' } }
-      },
-      {
-        opposite: true,
-        title: { text: 'Acumulado (%)', style: { color: '#94A3B8' } },
-        max: 100,
-        labels: { style: { colors: '#94A3B8' } }
-      }
+      { title: { text: 'Valor Total', style: { fontWeight: 700 } } },
+      { opposite: true, title: { text: 'Acumulado %', style: { fontWeight: 700 } }, max: 100 }
     ],
-    legend: { show: false },
-    tooltip: { theme: theme }
+    legend: { position: 'top', fontWeight: 700 }
   };
 
   const paretoSeries = [
-    { name: 'Quantidade', type: 'column', data: paretoData.map(d => d.count) },
-    { name: 'Acumulado', type: 'line', data: paretoData.map(d => d.cumulative) }
+    { name: 'Valor (R$)', type: 'column', data: paretoData.map((d: any) => d.value) },
+    { name: '% Acumulado', type: 'line', data: paretoData.map((d: any) => d.accumulatedPercentage) }
   ];
 
-  // Options for Dropdown (Optimized for performance)
-  // Optimization: Replaced localeCompare with shared Intl.Collator (~2x faster)
-  const itemOptions = useMemo(() => {
-      const sorted = [...items].sort((a,b) => defaultCollator.compare(a.name, b.name)).slice(0, 500);
-      return sorted.map(i => ({ 
-          value: i.id, 
-          label: `${i.name} ${i.sapCode ? `(${i.sapCode})` : ''} - ${i.lotNumber}` 
-      }));
-  }, [items]);
+  // Animation Variants
+  const containerVariants: Variants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.05
+      }
+    }
+  };
+
+  const itemVariants: Variants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { type: 'spring', stiffness: 50, damping: 15 }
+    }
+  };
 
   return (
-    <PageContainer scrollable={true}>
-       {/* PADRONIZAÇÃO: Substituição do Header manual pelo PageHeader */}
-       <PageHeader 
-            title="Visão Geral" 
-            description="Métricas estratégicas e alertas operacionais."
-       >
-            <div className="w-full md:w-80">
-                 <div className="relative">
-                     <select
-                        className="w-full h-10 rounded-lg border border-border-light dark:border-border-dark bg-surface-light dark:bg-surface-dark text-text-main dark:text-white text-sm px-3 pr-8 focus:ring-2 focus:ring-primary focus:border-transparent outline-none cursor-pointer shadow-sm appearance-none truncate"
-                        value={selectedItemId}
-                        onChange={(e) => setSelectedItemId(e.target.value)}
-                     >
-                         <option value="">-- Visão Global (Todos) --</option>
-                         {itemOptions.map(opt => (
-                             <option key={opt.value} value={opt.value}>
-                                 {opt.label}
-                             </option>
-                         ))}
-                     </select>
-                     <div className="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none text-text-secondary">
-                        <span className="material-symbols-outlined text-[20px]">expand_more</span>
-                    </div>
-                 </div>
-            </div>
-       </PageHeader>
+    <PageContainer scrollable>
+      <PageHeader
+          title="Dashboard"
+          description="Visão Geral Operacional"
+      />
 
-      {/* KPI GRID */}
-      <div id="tour-kpi" className="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-2">
-        <div className="flex-1 min-h-0">
-            <MetricCard 
-                title={selectedItemId ? "Estoque Atual" : "Total de Itens"}
-                icon={selectedItemId ? "layers" : "science"}
-                value={selectedItemId ? (items.find(i => i.id === selectedItemId)?.quantity || 0) : totalItems.toLocaleString('pt-BR')}
-                subValue={selectedItemId ? items.find(i => i.id === selectedItemId)?.baseUnit : <span className="text-emerald-600 dark:text-emerald-400 flex items-center gap-1 text-[10px] font-bold"><span className="material-symbols-outlined text-[12px]">trending_up</span> +2.5%</span>}
-                variant="primary" 
-                delay={0}
-                className="h-full"
-            />
-        </div>
-
-        <div className="flex-1 min-h-0">
-             <MetricCard 
-                title="Fluxo Hoje"
-                icon="swap_horiz"
-                value={movementsToday}
-                subValue={<span className="text-text-secondary dark:text-slate-400 text-[10px] block mt-1">Movimentações registradas</span>}
-                variant="info" 
-                delay={50}
-                className="h-full"
-            />
-        </div>
-
-        <MetricCard 
-            title="Baixo Estoque"
-            icon="warning"
-            value={lowStockItems.length}
-            subValue={<span className="text-amber-600 dark:text-amber-400 text-[10px] font-bold">Repor urgente</span>}
-            variant="warning"
-            delay={100}
-            className="h-full"
-        />
-        <MetricCard 
-            title="Vencendo"
-            icon="event_busy"
-            value={expiringItems.length}
-            subValue={<span className="text-red-600 dark:text-red-400 text-[10px] font-bold">Próx. 30 dias</span>}
-            variant="danger"
-            delay={150}
-            className="h-full"
-        />
-      </div>
-
-      {/* MAIN CONTENT SPLIT */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
+      {/* FRAGMENTED GRID LAYOUT (MAESTRO STYLE) */}
+      <motion.div
+        className="grid grid-cols-12 gap-6 pb-12"
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+      >
         
-        {/* CHART SECTION */}
-        <div className="lg:col-span-2 flex flex-col gap-6">
-            <Card className="flex-1 flex flex-col min-h-[400px]" padding="p-0">
-                <div className="px-6 py-4 border-b border-border-light dark:border-border-dark flex justify-between items-center">
-                    <div>
-                        <h3 className="text-lg font-bold text-text-main dark:text-white flex items-center gap-2">
-                            {selectedItemId ? (
-                                <>
-                                    <span className="material-symbols-outlined text-primary">waterfall_chart</span>
-                                    Evolução de Saldo (Diário)
-                                </>
-                            ) : (
-                                <>
-                                    <span className="material-symbols-outlined text-primary">area_chart</span>
-                                    Movimentação de Saída
-                                </>
-                            )}
-                        </h3>
-                        <p className="text-xs text-text-secondary dark:text-gray-400 mt-1">
-                            {selectedItemId 
-                                ? 'Fluxo líquido e saldo acumulado nos últimos 15 dias com atividade.' 
-                                : 'Consumo mensal consolidado de reagentes e materiais.'}
-                        </p>
-                    </div>
-                </div>
-                <div className="flex-1 w-full relative p-4 bg-gradient-to-b from-transparent to-background-light/30 dark:to-background-dark/30 touch-pan-y">
-                     {selectedItemId && waterfallSeries.length > 0 ? (
-                         <Chart options={waterfallOptions} series={waterfallSeries} type="rangeBar" height="100%" />
-                     ) : (
-                         <Chart options={movementChartOptions} series={movementSeries} type="area" height="100%" />
-                     )}
-                </div>
-            </Card>
+        {/* ROW 1: KPIs (Staggered / Asymmetrical) */}
+        <motion.div className="col-span-12 lg:col-span-3" variants={itemVariants}>
+             <Card variant="metric" title="Total de Itens" value={totalItems} icon="inventory_2"
+                   className="bg-white border-black h-full"
+                   onClick={() => navigate('/inventory')}
+             />
+        </motion.div>
+        <motion.div className="col-span-12 lg:col-span-3" variants={itemVariants}>
+             <Card variant="metric" title="Valor em Estoque" value={`R$ ${totalValue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`} icon="payments"
+                   className="bg-white border-black h-full"
+             />
+        </motion.div>
+        <motion.div className="col-span-12 lg:col-span-3" variants={itemVariants}>
+             <Card variant="metric" title="Baixo Estoque" value={lowStockItems.length} subtitle={outOfStockItems.length > 0 ? `${outOfStockItems.length} zerados` : undefined} icon="warning"
+                   colorScheme={lowStockItems.length > 0 ? 'warning' : 'neutral'}
+                   className={lowStockItems.length > 0 ? 'bg-warning-bg border-warning' : 'bg-white border-black'}
+             />
+        </motion.div>
+        <motion.div className="col-span-12 lg:col-span-3" variants={itemVariants}>
+             <Card variant="metric" title="A Vencer" value={expiringItems.length} icon="event_busy"
+                   colorScheme={expiringItems.length > 0 ? 'danger' : 'neutral'}
+                   className={expiringItems.length > 0 ? 'bg-danger-bg border-danger' : 'bg-white border-black'}
+             />
+        </motion.div>
 
-            <Card padding="p-0" className="flex flex-col overflow-hidden">
-                <div className="px-6 py-4 border-b border-border-light dark:border-border-dark flex justify-between items-center bg-surface-light dark:bg-surface-dark">
-                    <h3 className="text-lg font-bold text-text-main dark:text-white">Últimas Transações</h3>
-                </div>
+        {/* ROW 2: MAIN CONTENT & SIDEBAR */}
+
+        {/* Main Content Area (Transactions) */}
+        <motion.div className="col-span-12 lg:col-span-8 flex flex-col gap-6" variants={itemVariants}>
+            <Card title="Movimentações Recentes" icon="history" className="min-h-[400px]" padding="p-0">
                 <div className="overflow-x-auto">
                     <table className="w-full text-left text-sm">
-                        <thead className="text-xs text-text-secondary dark:text-gray-400 uppercase bg-background-light dark:bg-background-dark font-semibold border-b border-border-light dark:border-border-dark">
+                        <thead className="bg-black text-white uppercase text-xs font-bold tracking-wider">
                             <tr>
-                                <th className="px-6 py-3">Tipo</th>
-                                <th className="px-6 py-3">Item</th>
-                                <th className="px-6 py-3 text-right">Qtd</th>
-                                <th className="px-6 py-3 text-right">Data</th>
+                                <th className="px-6 py-4">Tipo</th>
+                                <th className="px-6 py-4">Item</th>
+                                <th className="px-6 py-4 text-right">Qtd</th>
+                                <th className="px-6 py-4 text-right">Data</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-border-light dark:divide-border-dark">
-                            {recentTransactions.map(tx => (
-                                <tr key={tx.id} className="hover:bg-background-light dark:hover:bg-slate-800/50 transition-colors group">
-                                    <td className="px-6 py-3">
+                        <tbody className="divide-y divide-gray-200">
+                            {recentTransactions.map((tx) => (
+                                <tr key={tx.id} className="hover:bg-gray-50 transition-colors">
+                                    <td className="px-6 py-4">
                                         <span className={`
-                                            inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-[11px] font-bold tracking-wide uppercase
-                                            ${tx.type === 'ENTRADA' ? 'bg-emerald-50 text-emerald-700 border border-emerald-100 dark:bg-emerald-900/20 dark:text-emerald-400 dark:border-emerald-800' :
-                                              tx.type === 'SAIDA' ? 'bg-red-50 text-red-700 border border-red-100 dark:bg-red-900/20 dark:text-red-400 dark:border-red-800' :
-                                              'bg-amber-50 text-amber-700 border border-amber-100 dark:bg-amber-900/20 dark:text-amber-400 dark:border-amber-800'}
+                                            px-2 py-1 text-[10px] font-bold uppercase tracking-wide border
+                                            ${tx.type === 'ENTRADA'
+                                                ? 'bg-success-bg text-success border-success'
+                                                : tx.type === 'SAIDA'
+                                                    ? 'bg-neutral-100 text-neutral-800 border-neutral-300'
+                                                    : 'bg-warning-bg text-warning border-warning'}
                                         `}>
                                             {tx.type}
                                         </span>
                                     </td>
-                                    <td className="px-6 py-3 font-medium text-text-main dark:text-white truncate max-w-[200px]" title={tx.productName}>
+                                    <td className="px-6 py-4 font-bold text-text-main truncate max-w-[200px]" title={tx.productName}>
                                         {tx.productName}
-                                        <div className="text-[11px] text-text-light font-medium mt-0.5 tracking-wide">Lote: <span className="font-mono text-text-secondary">{tx.lot}</span></div>
+                                        <div className="text-[10px] text-text-light font-mono mt-0.5">Lote: {tx.lot}</div>
                                     </td>
-                                    <td className="px-6 py-3 text-right font-mono font-medium text-text-main dark:text-slate-300">
+                                    <td className="px-6 py-4 text-right font-mono font-bold text-text-main">
                                         {tx.quantity} <span className="text-[10px] text-text-light font-sans font-normal uppercase">{tx.unit}</span>
                                     </td>
-                                    <td className="px-6 py-3 text-right text-text-secondary dark:text-gray-400 text-[11px] font-medium">
+                                    <td className="px-6 py-4 text-right text-text-secondary text-[10px] font-mono">
                                         {formatDateTime(tx.date)}
                                     </td>
                                 </tr>
                             ))}
                             {recentTransactions.length === 0 && (
                                 <tr>
-                                    <td colSpan={4} className="py-12">
-                                         <div className="flex flex-col items-center justify-center text-text-secondary opacity-60">
-                                            <span className="material-symbols-outlined text-4xl mb-2 text-slate-300">receipt_long</span>
-                                            <p className="text-sm">Nenhuma movimentação recente.</p>
-                                        </div>
+                                    <td colSpan={4} className="py-12 text-center text-text-secondary italic">
+                                        Nenhuma movimentação recente.
                                     </td>
                                 </tr>
                             )}
@@ -434,57 +187,55 @@ export const Dashboard: React.FC<Props> = ({ items, history, onAddToPurchase }) 
                     </table>
                 </div>
             </Card>
-        </div>
+        </motion.div>
 
-        {/* SIDE PANEL */}
-        <div className="flex flex-col gap-6">
-            <Card className="flex flex-col" padding="p-0">
-                <div className="flex items-center justify-between px-6 py-4 border-b border-border-light dark:border-border-dark">
-                    <h3 className="text-lg font-bold text-text-main dark:text-white flex items-center gap-2">
+        {/* Side Panel (Action Items & Charts) */}
+        <motion.div className="col-span-12 lg:col-span-4 flex flex-col gap-6" variants={itemVariants}>
+
+            {/* Action Required Panel - Brutalist Alert Style */}
+            <Card className="flex flex-col border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]" padding="p-0">
+                <div className="flex items-center justify-between px-6 py-4 border-b-2 border-black bg-primary">
+                    <h3 className="text-lg font-black uppercase tracking-tight text-black flex items-center gap-2">
                         Ação Necessária
                         {(lowStockItems.length + expiringItems.length) > 0 && (
-                            <span className="bg-red-100 text-red-600 dark:bg-red-900 text-[10px] px-2 py-0.5 rounded-full font-bold">
+                            <span className="bg-black text-primary text-[10px] px-2 py-0.5 font-mono font-bold">
                                 {lowStockItems.length + expiringItems.length}
                             </span>
                         )}
                     </h3>
                 </div>
                 
-                <div className="flex flex-col gap-3 flex-1 overflow-y-auto max-h-[400px] custom-scrollbar p-5">
+                <div className="flex flex-col gap-4 flex-1 overflow-y-auto max-h-[400px] custom-scrollbar p-6 bg-white">
                     
                     {/* Low Stock Items */}
                     {lowStockItems.slice(0, 3).map(item => (
-                        <div key={item.id} className="p-3 rounded-lg bg-amber-50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-900/30 transition-shadow hover:shadow-sm">
+                        <div key={item.id} className="p-4 bg-warning-bg border-2 border-black transition-transform hover:-translate-y-1 hover:shadow-sm">
                             <div className="flex justify-between items-start mb-2">
                                 <div className="flex items-center gap-2 min-w-0">
-                                    <div className="p-1.5 rounded-md bg-white/60 dark:bg-black/20 text-amber-600 dark:text-amber-400 shrink-0">
-                                        <span className="material-symbols-outlined text-[18px]">warning</span>
-                                    </div>
+                                    <Icon name="warning" className="text-warning" size={20} />
                                     <div className="min-w-0">
-                                        <h4 className="font-bold text-sm text-text-main dark:text-white truncate leading-tight" title={item.name}>{item.name}</h4>
-                                        <div className="flex items-center gap-2 text-[10px] text-text-secondary dark:text-gray-400 mt-0.5">
-                                            <span className="font-mono bg-white/50 dark:bg-black/20 px-1 rounded">SAP: {item.sapCode || 'N/A'}</span>
-                                        </div>
+                                        <h4 className="font-bold text-sm text-black truncate uppercase leading-tight" title={item.name}>{item.name}</h4>
+                                        <div className="font-mono text-[10px] text-text-secondary mt-1">SAP: {item.sapCode || 'N/A'}</div>
                                     </div>
                                 </div>
                             </div>
                             
-                            <div className="flex items-center justify-between mt-3 pt-2 border-t border-amber-200/50 dark:border-amber-800/30">
+                            <div className="flex items-center justify-between mt-3 pt-3 border-t border-black/10">
                                 <div className="flex flex-col">
-                                     <div className="text-[10px] uppercase font-bold text-amber-700/70 dark:text-amber-400/70 tracking-wide">Estoque</div>
-                                     <div className="text-xs font-medium text-text-main dark:text-white">
-                                        <span className="font-bold text-amber-700 dark:text-amber-400">{item.quantity}</span> 
+                                     <div className="text-[10px] uppercase font-bold text-text-light tracking-wide">Estoque</div>
+                                     <div className="text-xs font-bold text-black font-mono">
+                                        <span className="text-warning">{item.quantity}</span>
                                         <span className="text-text-light mx-1">/</span> 
-                                        <span className="text-text-secondary">{item.minStockLevel} {item.baseUnit}</span>
+                                        <span>{item.minStockLevel} {item.baseUnit}</span>
                                      </div>
                                 </div>
                                 <Button 
                                     onClick={() => onAddToPurchase(item, 'LOW_STOCK')}
-                                    variant="ghost"
+                                    variant="warning"
                                     size="sm"
-                                    className="h-7 px-3 text-[10px] uppercase font-bold text-amber-700 dark:text-amber-400 bg-white/50 dark:bg-black/20 hover:bg-white dark:hover:bg-black/40 border border-transparent hover:border-amber-200"
+                                    className="text-[10px]"
                                 >
-                                    + Comprar
+                                    COMPRAR
                                 </Button>
                             </div>
                         </div>
@@ -492,49 +243,51 @@ export const Dashboard: React.FC<Props> = ({ items, history, onAddToPurchase }) 
 
                     {/* Expiring Items */}
                     {expiringItems.slice(0, 3).map(item => (
-                        <div key={item.id} className="p-3 rounded-lg bg-red-50 dark:bg-red-900/10 border border-red-100 dark:border-red-900/30 transition-shadow hover:shadow-sm">
+                        <div key={item.id} className="p-4 bg-danger-bg border-2 border-black transition-transform hover:-translate-y-1 hover:shadow-sm">
                              <div className="flex justify-between items-start mb-2">
                                 <div className="flex items-center gap-2 min-w-0">
-                                    <div className="p-1.5 rounded-md bg-white/60 dark:bg-black/20 text-red-600 dark:text-red-400 shrink-0">
-                                        <span className="material-symbols-outlined text-[18px]">event_busy</span>
-                                    </div>
+                                    <Icon name="event_busy" className="text-danger" size={20} />
                                     <div className="min-w-0">
-                                        <h4 className="font-bold text-sm text-text-main dark:text-white truncate leading-tight" title={item.name}>{item.name}</h4>
-                                        <div className="flex items-center gap-2 text-[10px] text-text-secondary dark:text-gray-400 mt-0.5">
-                                            <span className="font-mono bg-white/50 dark:bg-black/20 px-1 rounded">Lote: {item.lotNumber}</span>
-                                        </div>
+                                        <h4 className="font-bold text-sm text-black truncate uppercase leading-tight" title={item.name}>{item.name}</h4>
+                                        <div className="font-mono text-[10px] text-text-secondary mt-1">Lote: {item.lotNumber}</div>
                                     </div>
                                 </div>
                             </div>
                             
-                            <div className="flex items-center justify-between mt-3 pt-2 border-t border-red-200/50 dark:border-red-800/30">
+                            <div className="flex items-center justify-between mt-3 pt-3 border-t border-black/10">
                                 <div className="flex flex-col">
-                                     <div className="text-[10px] uppercase font-bold text-red-700/70 dark:text-red-400/70 tracking-wide">Vence em</div>
-                                     <div className="text-xs font-bold text-red-700 dark:text-red-400">
+                                     <div className="text-[10px] uppercase font-bold text-text-light tracking-wide">Vence em</div>
+                                     <div className="text-xs font-bold text-danger font-mono">
                                         {formatDate(item.expiryDate)}
                                      </div>
                                 </div>
                                 <Button 
                                     onClick={() => onAddToPurchase(item, 'EXPIRING')}
-                                    variant="ghost"
+                                    variant="danger"
                                     size="sm"
-                                    className="h-7 px-3 text-[10px] uppercase font-bold text-red-700 dark:text-red-400 bg-white/50 dark:bg-black/20 hover:bg-white dark:hover:bg-black/40 border border-transparent hover:border-red-200"
+                                    className="text-[10px]"
                                 >
-                                    + Repor
+                                    REPOR
                                 </Button>
                             </div>
                         </div>
                     ))}
+
+                    {(lowStockItems.length === 0 && expiringItems.length === 0) && (
+                        <div className="text-center py-8 text-text-secondary italic">
+                            Tudo certo! Nenhuma ação pendente.
+                        </div>
+                    )}
                 </div>
             </Card>
 
-            {/* PARETO CHART */}
+            {/* PARETO CHART - Brutalist Style */}
             {!selectedItemId && (
                 <Card padding="p-0" className="flex flex-col min-h-[300px]">
-                    <div className="px-6 py-4 border-b border-border-light dark:border-border-dark">
-                        <h3 className="text-lg font-bold text-text-main dark:text-white">Top Categorias (Pareto)</h3>
+                    <div className="px-6 py-4 border-b-2 border-black bg-black text-white">
+                        <h3 className="text-lg font-bold uppercase tracking-widest">Top Categorias</h3>
                     </div>
-                    <div className="flex-1 p-4 relative">
+                    <div className="flex-1 p-4 relative bg-white">
                         {paretoData.length > 0 ? (
                             <Chart options={paretoOptions} series={paretoSeries} type="line" height="100%" />
                         ) : (
@@ -545,8 +298,8 @@ export const Dashboard: React.FC<Props> = ({ items, history, onAddToPurchase }) 
                     </div>
                 </Card>
             )}
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
     </PageContainer>
   );
 };

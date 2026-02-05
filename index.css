@@ -8,14 +8,14 @@
   :root {
     color-scheme: light;
 
-    /* Design System - Colors (Updated to Teal/Slate) */
-    --color-primary: #0D9488;
-    --color-secondary: #2DD4BF;
-    --color-cta: #F97316;
-    --color-background: #F8FAFC;
-    --color-text: #0F172A;
+    /* Maestro Design System - High Contrast Variables */
+    --color-primary: #CCFF00; /* Acid Green */
+    --color-secondary: #FF4500; /* Signal Orange */
+    --color-cta: #FF4500;
+    --color-background: #F5F5F5;
+    --color-text: #0A0A0A;
 
-    /* Design System - Spacing */
+    /* Spacing */
     --space-xs: 4px;
     --space-sm: 8px;
     --space-md: 16px;
@@ -24,16 +24,20 @@
     --space-2xl: 48px;
     --space-3xl: 64px;
 
-    /* Design System - Shadows */
-    --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
-    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    /* Hard Shadows for Brutalist look */
+    --shadow-sm: 2px 2px 0px 0px rgba(0,0,0,1);
+    --shadow-md: 4px 4px 0px 0px rgba(0,0,0,1);
+    --shadow-lg: 6px 6px 0px 0px rgba(0,0,0,1);
+    --shadow-xl: 8px 8px 0px 0px rgba(0,0,0,1);
   }
 
   :root.dark {
     color-scheme: dark;
-    /* Dark mode updates if needed */
+    --color-primary: #CCFF00;
+    --color-background: #0A0A0A;
+    --color-text: #FFFFFF;
+    --shadow-sm: 2px 2px 0px 0px rgba(255,255,255,1);
+    --shadow-md: 4px 4px 0px 0px rgba(255,255,255,1);
   }
 
   html, body {
@@ -61,95 +65,128 @@
 }
 
 @layer components {
-  /* Design System - Component Specs */
+  /* Maestro Component Specs - Anti-Glass, High Contrast */
 
   /* Primary Button */
   .btn-primary {
-    background: var(--color-primary); /* Changed to use Primary Teal */
-    color: white;
+    background: var(--color-primary);
+    color: black; /* Always black text on Acid Green */
     padding: 12px 24px;
-    border-radius: 8px;
-    font-weight: 600;
-    transition: all 200ms ease;
+    border-radius: 0px; /* Raw corners */
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    transition: all 100ms ease; /* Snap transition */
     cursor: pointer;
-    border: 1px solid transparent;
+    border: 2px solid black;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .dark .btn-primary {
+    border-color: white;
+    box-shadow: 2px 2px 0px 0px white;
   }
 
   .btn-primary:hover {
-    opacity: 0.95;
-    background: #0F766E; /* Teal 700 */
-    transform: translateY(-1px);
+    transform: translate(-1px, -1px);
     box-shadow: var(--shadow-md);
+  }
+
+  .btn-primary:active {
+    transform: translate(1px, 1px);
+    box-shadow: none;
   }
 
   /* Secondary Button */
   .btn-secondary {
-    background: white;
-    color: var(--color-primary);
-    border: 1px solid #CBD5E1; /* Slate 300 */
+    background: transparent;
+    color: var(--color-text);
+    border: 2px solid currentColor;
     padding: 12px 24px;
-    border-radius: 8px;
-    font-weight: 600;
-    transition: all 200ms ease;
+    border-radius: 0px;
+    font-weight: 700;
+    text-transform: uppercase;
+    transition: all 100ms ease;
     cursor: pointer;
   }
 
   .btn-secondary:hover {
-    border-color: var(--color-primary);
-    background: #F0FDFA; /* Teal 50 */
-    color: #0F766E;
+    background: var(--color-text);
+    color: var(--color-background);
   }
 
-  /* Cards */
+  /* Cards - Anti-Glass */
   .card {
-    background: white;
-    border-radius: 12px;
+    background: var(--color-background);
+    border-radius: 0px; /* Raw corners */
     padding: 24px;
-    border: 1px solid #E2E8F0; /* Subtle border */
+    border: 2px solid black;
     box-shadow: var(--shadow-sm);
-    transition: all 200ms ease;
-    cursor: pointer;
+    transition: all 100ms ease;
+  }
+
+  .dark .card {
+    background: #171717;
+    border-color: white;
+    box-shadow: 2px 2px 0px 0px white;
   }
 
   .card:hover {
+    transform: translate(-2px, -2px);
     box-shadow: var(--shadow-md);
-    transform: translateY(-2px);
-    border-color: var(--color-secondary);
   }
 
   /* Inputs */
   .input {
     padding: 12px 16px;
-    border: 1px solid #E2E8F0;
-    border-radius: 8px;
+    border: 2px solid #000;
+    border-radius: 0px;
     font-size: 16px;
-    transition: all 200ms ease;
     background: white;
+    font-family: 'Roboto Mono', monospace;
+  }
+
+  .dark .input {
+    border-color: white;
+    background: #000;
+    color: white;
   }
 
   .input:focus {
-    border-color: var(--color-primary);
     outline: none;
-    box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.2); /* Teal ring */
+    background: #CCFF00; /* Highlight with Acid Green on focus */
+    color: black;
   }
 
-  /* Modals */
+  /* Modals - Remove Blur */
   .modal-overlay {
-    background: rgba(15, 23, 42, 0.6); /* Slate 900 with opacity */
-    backdrop-filter: blur(4px);
+    background: rgba(0, 0, 0, 0.85); /* Solid high opacity, no blur */
+    /* backdrop-filter: blur(4px); REMOVED */
   }
 
   .modal {
     background: white;
-    border-radius: 16px;
+    border-radius: 0px;
+    border: 2px solid black;
     padding: 32px;
     box-shadow: var(--shadow-xl);
     max-width: 500px;
     width: 90%;
   }
+
+  .dark .modal {
+    background: black;
+    border-color: white;
+  }
 }
 
 @layer utilities {
+  /* Grain Texture */
+  .bg-grain {
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.15'/%3E%3C/svg%3E");
+    background-repeat: repeat;
+  }
+
   /* Material Symbols Font Settings */
   .material-symbols-outlined {
     font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
@@ -162,42 +199,33 @@
     font-variation-settings: 'FILL' 1;
   }
 
-  /* Custom Scrollbar */
+  /* Custom Scrollbar - High Contrast */
   .custom-scrollbar {
     scrollbar-width: thin;
-    scrollbar-color: #94A3B8 transparent; /* Slate 400 */
+    scrollbar-color: #000 transparent;
   }
   
   .dark .custom-scrollbar {
-    scrollbar-color: #565259 transparent;
+    scrollbar-color: #CCFF00 transparent;
   }
 
   .custom-scrollbar::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
+    width: 8px;
+    height: 8px;
   }
   
   .custom-scrollbar::-webkit-scrollbar-track {
     background: transparent;
+    border-left: 1px solid #e5e5e5;
   }
   
   .custom-scrollbar::-webkit-scrollbar-thumb {
-    background-color: #94A3B8;
-    border-radius: 99px;
-    border: 1px solid transparent;
-    background-clip: content-box;
+    background-color: #000;
+    border-radius: 0;
   }
   
   .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background-color: var(--color-primary);
-  }
-  
-  .dark .custom-scrollbar::-webkit-scrollbar-thumb {
-    background-color: #565259;
-  }
-  
-  .dark .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background-color: var(--color-primary);
+    background-color: #CCFF00;
   }
 
   /* Hide Scrollbar but keep functionality */
