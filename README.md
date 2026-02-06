@@ -81,6 +81,11 @@ Para criar o executável portátil para distribuição (Windows/Linux/Mac):
     *   Ao executar o aplicativo gerado (ex: `LabControl UMV.exe`), uma pasta `labcontrol_data` será criada automaticamente ao lado do executável.
     *   Para mover o sistema (backup ou outro PC), basta copiar o executável e a pasta `labcontrol_data` juntos.
 
+    ⚠️ **Atenção sobre Permissões (Windows):**
+    Como o aplicativo grava dados na pasta `labcontrol_data` (ao lado do executável), evite instalar/colocar o .exe em pastas protegidas pelo sistema como `C:\Program Files` ou `C:\Windows`, pois isso exigiria executar como **Administrador** para funcionar corretamente.
+
+    **Recomendação:** Mantenha o executável na **Área de Trabalho**, **Documentos**, ou em um **Pen Drive**.
+
 ## 🧪 Testes
 
 O projeto utiliza **Vitest** + **React Testing Library**.
