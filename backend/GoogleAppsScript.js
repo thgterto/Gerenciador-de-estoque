@@ -28,7 +28,7 @@ function doPost(e) {
     return ContentService
       .createTextOutput(JSON.stringify({ 
         success: false, 
-        error: error.toString()
+        error: "Internal Server Error"
         // Stack trace removed for security
       }))
       .setMimeType(ContentService.MimeType.JSON);
