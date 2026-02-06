@@ -1,22 +1,25 @@
-import React, { ButtonHTMLAttributes } from 'react';
-import { Button as MuiButton, CircularProgress, SxProps, Theme } from '@mui/material';
+import React, { ElementType, forwardRef } from 'react';
+import { Button as MuiButton, ButtonProps as MuiButtonProps, CircularProgress, SxProps, Theme } from '@mui/material';
 import { Icon } from './Icon';
 
 type ButtonVariant = 'primary' | 'secondary' | 'success' | 'danger' | 'ghost' | 'outline' | 'outlined' | 'white' | 'warning' | 'info' | 'contained' | 'text';
 type ButtonSize = 'sm' | 'md' | 'lg';
 
-interface ButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'size' | 'color'> {
+// Extend MuiButtonProps but override some custom ones
+export interface ButtonProps extends Omit<MuiButtonProps, 'variant' | 'size' | 'color'> {
     variant?: ButtonVariant;
     size?: ButtonSize;
     icon?: string;
     isLoading?: boolean;
-    fullWidth?: boolean;
+    component?: ElementType;
+    to?: string;
     startIcon?: React.ReactNode;
     endIcon?: React.ReactNode;
+    fullWidth?: boolean;
     sx?: SxProps<Theme>;
 }
 
-export const Button: React.FC<ButtonProps> = ({ 
+export const Button = forwardRef<HTMLButtonElement, ButtonProps>(({
     children, 
     variant = 'primary', 
     size = 'md', 
@@ -28,8 +31,9 @@ export const Button: React.FC<ButtonProps> = ({
     startIcon,
     endIcon,
     sx,
+    component,
     ...props 
-}) => {
+}, ref) => {
     
     let color: 'primary' | 'secondary' | 'error' | 'warning' | 'info' | 'success' | 'inherit' = 'primary';
     let muiVariant: 'contained' | 'outlined' | 'text' = 'contained';
@@ -53,6 +57,7 @@ export const Button: React.FC<ButtonProps> = ({
 
     return (
         <MuiButton
+            ref={ref}
             variant={muiVariant}
             color={color}
             size={muiSize}
@@ -62,9 +67,12 @@ export const Button: React.FC<ButtonProps> = ({
             endIcon={endIcon}
             className={className}
             sx={sx}
+            component={component}
             {...(props as any)}
         >
             {children}
         </MuiButton>
     );
-};
+});
+
+Button.displayName = 'Button';
