@@ -1,5 +1,5 @@
 
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { InventoryItem } from '../types';
 import { getItemStatus, analyzeLocation } from '../utils/businessRules';
 import { Card } from './ui/Card';
@@ -9,9 +9,20 @@ import { normalizeStr } from '../utils/stringUtils';
 import { InventoryService } from '../services/InventoryService';
 import { useAlert } from '../context/AlertContext';
 import { Badge } from './ui/Badge';
+import { InventoryMobileChildRow } from './InventoryRows';
+import { useAuth } from '../context/AuthContext';
 
 interface Props {
   items: InventoryItem[];
+  onActions?: {
+    edit: (item: InventoryItem) => void;
+    move: (item: InventoryItem) => void;
+    delete: (id: string, name: string) => void;
+    request: () => void;
+    qr: (item: InventoryItem) => void;
+    viewHistory: (item: InventoryItem) => void;
+    clone: (item: InventoryItem) => void;
+  };
 }
 
 const ROWS = ['A', 'B', 'C', 'D', 'E', 'F'];
@@ -120,8 +131,9 @@ const StorageCell = React.memo(({ cellId, item, isSelected, auditMode, onSelect,
     );
 });
 
-export const StorageMatrix: React.FC<Props> = ({ items }) => {
+export const StorageMatrix: React.FC<Props> = ({ items, onActions }) => {
     const { addToast } = useAlert();
+    const { hasRole } = useAuth();
     const [selectedLocKey, setSelectedLocKey] = useState<string | null>(null);
     const [auditMode, setAuditMode] = useState(false);
     const [selectedItem, setSelectedItem] = useState<InventoryItem | null>(null);
@@ -210,6 +222,12 @@ export const StorageMatrix: React.FC<Props> = ({ items }) => {
             addToast('Erro', 'error', 'Falha ao mover item.');
         }
     };
+
+    const copyToClipboard = useCallback((text: string, label: string) => {
+        if(!text) return;
+        navigator.clipboard.writeText(text);
+        addToast(`${label} copiado!`, 'success');
+    }, [addToast]);
 
     return (
         <div className="flex flex-col h-full bg-background-light dark:bg-background-dark overflow-hidden animate-fade-in">
@@ -333,23 +351,40 @@ export const StorageMatrix: React.FC<Props> = ({ items }) => {
                                 </div>
                             ) : (
                                 <div className="bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl shadow-sm overflow-hidden flex-1 flex flex-col">
-                                    <div className="overflow-y-auto p-4 custom-scrollbar space-y-2">
+                                    <div className="overflow-y-auto p-0 custom-scrollbar">
                                         {selectedLocationItems.length === 0 ? (
                                             <div className="text-center py-12 text-text-secondary">Nenhum item neste local.</div>
                                         ) : (
                                             selectedLocationItems.map(item => {
-                                                const status = getItemStatus(item);
+                                                if (isMobile && onActions) {
+                                                    return (
+                                                        <InventoryMobileChildRow
+                                                            key={item.id}
+                                                            item={item}
+                                                            style={{}}
+                                                            isSelected={selectedItem?.id === item.id}
+                                                            isAdmin={hasRole('ADMIN')}
+                                                            onSelect={(_id) => setSelectedItem(item)}
+                                                            onActions={onActions}
+                                                            copyToClipboard={copyToClipboard}
+                                                            isLast={false}
+                                                        />
+                                                    );
+                                                }
+
+                                                // Fallback para Desktop List View ou se onActions não for passado
                                                 const pos = reverseGridMap[item.id] || 'S/P';
+                                                const status = getItemStatus(item);
                                                 
                                                 return (
                                                     <div 
                                                         key={item.id}
                                                         onClick={() => setSelectedItem(item)}
                                                         className={`
-                                                            flex items-center justify-between p-3 rounded-lg border cursor-pointer transition-colors
+                                                            flex items-center justify-between p-3 border-b border-border-light dark:border-slate-700 cursor-pointer transition-colors
                                                             ${selectedItem?.id === item.id 
                                                                 ? 'bg-primary/5 border-primary ring-1 ring-primary/20' 
-                                                                : 'bg-background-light dark:bg-slate-800 border-border-light dark:border-border-dark hover:border-primary/50'}
+                                                                : 'bg-background-light dark:bg-slate-800 hover:border-primary/50'}
                                                         `}
                                                     >
                                                         <div className="flex items-center gap-3 overflow-hidden">
@@ -390,7 +425,7 @@ export const StorageMatrix: React.FC<Props> = ({ items }) => {
                             )}
                         </div>
 
-                        {/* Painel Lateral de Detalhes */}
+                        {/* Painel Lateral de Detalhes (Desktop Only mostly, or bottom sheet) */}
                         <aside className={`
                             w-full lg:w-80 flex-shrink-0 flex flex-col gap-4 h-full overflow-hidden transition-all duration-300
                             ${!selectedItem && isMobile ? 'hidden' : ''}
@@ -420,6 +455,13 @@ export const StorageMatrix: React.FC<Props> = ({ items }) => {
                                                     <p className="font-bold text-sm text-text-main dark:text-white truncate" title={selectedItem.lotNumber}>{selectedItem.lotNumber}</p>
                                                 </div>
                                             </div>
+                                            {/* Actions for Desktop/Tablet where swipe isn't primary */}
+                                            {!isMobile && onActions && (
+                                                <div className="grid grid-cols-2 gap-2">
+                                                    <Button variant="white" onClick={() => onActions.move(selectedItem)} icon="swap_horiz">Mover</Button>
+                                                    <Button variant="white" onClick={() => onActions.edit(selectedItem)} icon="edit">Editar</Button>
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
                                 ) : (

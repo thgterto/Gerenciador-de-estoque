@@ -1,5 +1,31 @@
 const { app, BrowserWindow, ipcMain, shell } = require('electron');
 const path = require('path');
+const fs = require('fs');
+
+// --- PORTABLE DATA CONFIGURATION ---
+// In production (packaged), store data in a 'labcontrol_data' folder next to the executable.
+// This allows the app to be moved between computers with its data intact.
+const isDev = process.env.NODE_ENV === 'development';
+
+if (!isDev) {
+  try {
+    // process.execPath is the path to the executable file.
+    // path.dirname gives the folder containing the executable.
+    const portableDataPath = path.join(path.dirname(process.execPath), 'labcontrol_data');
+
+    // Create the directory if it doesn't exist
+    if (!fs.existsSync(portableDataPath)) {
+      fs.mkdirSync(portableDataPath, { recursive: true });
+    }
+
+    // Redirect Electron's userData (IndexedDB, LocalStorage, Logs, Cache)
+    app.setPath('userData', portableDataPath);
+    console.log(`[Portable] UserData path set to: ${portableDataPath}`);
+  } catch (error) {
+    console.error('[Portable] Failed to set portable data path:', error);
+    // Fallback to default %APPDATA% if write fails (e.g. read-only media)
+  }
+}
 
 // Prevent garbage collection
 let mainWindow;
@@ -11,7 +37,7 @@ function createWindow() {
     minWidth: 1024,
     minHeight: 768,
     title: "LabControl - UMV",
-    icon: path.join(__dirname, '../public/icon.png'), // Ensure this exists or remove
+    icon: path.join(__dirname, '../public/icon.png'),
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
@@ -21,9 +47,6 @@ function createWindow() {
     },
     autoHideMenuBar: true
   });
-
-  // Load app
-  const isDev = process.env.NODE_ENV === 'development';
 
   if (isDev) {
     mainWindow.loadURL('http://localhost:5173');

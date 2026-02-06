@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { motion, PanInfo, useAnimation } from 'framer-motion';
 import { InventoryItem } from '../types';
 import { InventoryGroup } from '../hooks/useInventoryFilters';
 import { getItemStatus } from '../utils/businessRules';
@@ -367,19 +368,56 @@ export const InventoryMobileChildRow = React.memo(({
     onActions
 }: ChildRowProps) => {
     const status = getItemStatus(item);
+    const controls = useAnimation();
     
     // Lógica Contextual Mobile
     let validityInfo = formatDate(item.expiryDate);
     if (item.itemType === 'EQUIPMENT' && item.maintenanceDate) validityInfo = `Manut: ${formatDate(item.maintenanceDate)}`;
     else if (item.itemType === 'GLASSWARE' && item.glassVolume) validityInfo = item.glassVolume;
 
+    const handleDragEnd = async ( _event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
+        const offset = info.offset.x;
+        const velocity = info.velocity.x;
+
+        if (offset < -100 || velocity < -500) {
+            // Swipe Left -> Edit
+            await controls.start({ x: -100, transition: { duration: 0.2 } });
+            onActions.edit(item);
+            controls.start({ x: 0 }); // Reset
+        } else if (offset > 100 || velocity > 500) {
+            // Swipe Right -> Move
+            await controls.start({ x: 100, transition: { duration: 0.2 } });
+            onActions.move(item);
+            controls.start({ x: 0 }); // Reset
+        } else {
+            controls.start({ x: 0, transition: { type: "spring", stiffness: 300, damping: 30 } });
+        }
+    };
+
     return (
-        <div style={style} className="w-full px-4 pl-8 pb-2 relative">
+        <div style={style} className="w-full px-4 pl-8 pb-2 relative overflow-hidden">
              {/* Tree Lines */}
              <div className="absolute left-[24px] top-0 bottom-0 w-px border-l border-dashed border-slate-300 dark:border-slate-700"></div>
              <div className="absolute left-[24px] top-[28px] w-4 h-px border-t border-dashed border-slate-300 dark:border-slate-700"></div>
 
-             <div className="bg-white dark:bg-slate-800 rounded-lg border border-border-light dark:border-slate-700 p-3 shadow-sm relative ml-1">
+             {/* Background Actions Layer */}
+             <div className="absolute inset-y-0 right-4 left-8 my-2 rounded-lg flex overflow-hidden pointer-events-none">
+                <div className="w-1/2 bg-blue-500 flex items-center justify-start pl-4 text-white">
+                    <span className="material-symbols-outlined">swap_horiz</span> {/* Right Swipe Action (Move) */}
+                </div>
+                <div className="w-1/2 bg-amber-500 flex items-center justify-end pr-4 text-white">
+                    <span className="material-symbols-outlined">edit</span> {/* Left Swipe Action (Edit) */}
+                </div>
+             </div>
+
+             <motion.div
+                drag="x"
+                dragConstraints={{ left: 0, right: 0 }}
+                dragElastic={0.2}
+                onDragEnd={handleDragEnd}
+                animate={controls}
+                className="bg-white dark:bg-slate-800 rounded-lg border border-border-light dark:border-slate-700 p-3 shadow-sm relative ml-1 z-10 touch-pan-y"
+             >
                 {/* Lote Header */}
                 <div className="flex justify-between items-start mb-2">
                     <div>
@@ -404,24 +442,24 @@ export const InventoryMobileChildRow = React.memo(({
 
                 {/* Actions Toolbar */}
                 <div className="grid grid-cols-4 gap-2 mt-3 pt-2 border-t border-dashed border-slate-100 dark:border-slate-700">
-                     <button onClick={()=>onActions.move(item)} className="flex flex-col items-center justify-center text-text-secondary hover:text-primary py-1 active:bg-slate-50 dark:active:bg-slate-700 rounded transition-colors group">
+                     <button onPointerDown={(e)=>e.stopPropagation()} onClick={(e)=>{e.stopPropagation(); onActions.move(item)}} className="flex flex-col items-center justify-center text-text-secondary hover:text-primary py-1 active:bg-slate-50 dark:active:bg-slate-700 rounded transition-colors group">
                          <span className="material-symbols-outlined text-[20px] group-hover:scale-110 transition-transform" aria-hidden="true">swap_horiz</span>
                          <span className="text-[9px] mt-0.5 font-medium">Mover</span>
                      </button>
-                     <button onClick={()=>onActions.clone(item)} className="flex flex-col items-center justify-center text-text-secondary hover:text-primary py-1 active:bg-slate-50 dark:active:bg-slate-700 rounded transition-colors group">
+                     <button onPointerDown={(e)=>e.stopPropagation()} onClick={(e)=>{e.stopPropagation(); onActions.clone(item)}} className="flex flex-col items-center justify-center text-text-secondary hover:text-primary py-1 active:bg-slate-50 dark:active:bg-slate-700 rounded transition-colors group">
                          <span className="material-symbols-outlined text-[18px] group-hover:scale-110 transition-transform" aria-hidden="true">content_copy</span>
                          <span className="text-[9px] mt-0.5 font-medium">Clonar</span>
                      </button>
-                     <button onClick={()=>onActions.edit(item)} className="flex flex-col items-center justify-center text-text-secondary hover:text-primary py-1 active:bg-slate-50 dark:active:bg-slate-700 rounded transition-colors group">
+                     <button onPointerDown={(e)=>e.stopPropagation()} onClick={(e)=>{e.stopPropagation(); onActions.edit(item)}} className="flex flex-col items-center justify-center text-text-secondary hover:text-primary py-1 active:bg-slate-50 dark:active:bg-slate-700 rounded transition-colors group">
                          <span className="material-symbols-outlined text-[18px] group-hover:scale-110 transition-transform" aria-hidden="true">edit</span>
                          <span className="text-[9px] mt-0.5 font-medium">Editar</span>
                      </button>
-                     <button onClick={()=>onActions.qr(item)} className="flex flex-col items-center justify-center text-text-secondary hover:text-primary py-1 active:bg-slate-50 dark:active:bg-slate-700 rounded transition-colors group">
+                     <button onPointerDown={(e)=>e.stopPropagation()} onClick={(e)=>{e.stopPropagation(); onActions.qr(item)}} className="flex flex-col items-center justify-center text-text-secondary hover:text-primary py-1 active:bg-slate-50 dark:active:bg-slate-700 rounded transition-colors group">
                          <span className="material-symbols-outlined text-[18px] group-hover:scale-110 transition-transform" aria-hidden="true">print</span>
                          <span className="text-[9px] mt-0.5 font-medium">QR</span>
                      </button>
                 </div>
-             </div>
+             </motion.div>
         </div>
     );
 });
