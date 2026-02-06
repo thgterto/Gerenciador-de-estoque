@@ -13,7 +13,17 @@ export const RISK_CONFIG: Record<keyof RiskFlags, { label: string, color: string
     E: { label: 'Explosivo (Explosive)', color: 'bg-orange-500', icon: 'warning', textColor: 'text-orange-500' },
     N: { label: 'Perigoso ao Meio Ambiente', color: 'bg-emerald-500', icon: 'forest', textColor: 'text-emerald-500' },
     Xi: { label: 'Irritante (Irritant)', color: 'bg-slate-400', icon: 'close', textColor: 'text-slate-500' },
-    Xn: { label: 'Nocivo (Harmful)', color: 'bg-slate-400', icon: 'close', textColor: 'text-slate-500' },
+        Xn: { label: 'Nocivo (Harmful)', color: 'bg-slate-400', icon: 'close', textColor: 'text-slate-500' },
+    // GHS Standard
+    GHS01: { label: 'Explosivo (Explosive)', color: 'bg-orange-500', icon: 'explosion', textColor: 'text-orange-500' },
+    GHS02: { label: 'Inflamável (Flammable)', color: 'bg-red-500', icon: 'local_fire_department', textColor: 'text-red-500' },
+    GHS03: { label: 'Oxidante (Oxidizing)', color: 'bg-yellow-400', icon: 'trip_origin', textColor: 'text-yellow-500' },
+    GHS04: { label: 'Gás Comprimido (Gas Cylinder)', color: 'bg-blue-400', icon: 'propane', textColor: 'text-blue-500' },
+    GHS05: { label: 'Corrosivo (Corrosive)', color: 'bg-gray-400', icon: 'science', textColor: 'text-gray-600' },
+    GHS06: { label: 'Tóxico (Toxic)', color: 'bg-purple-600', icon: 'skull', textColor: 'text-purple-600' },
+    GHS07: { label: 'Nocivo / Irritante (Harmful)', color: 'bg-slate-400', icon: 'warning', textColor: 'text-slate-500' },
+    GHS08: { label: 'Perigo à Saúde (Health Hazard)', color: 'bg-purple-400', icon: 'coronavirus', textColor: 'text-purple-500' },
+    GHS09: { label: 'Perigo ao Meio Ambiente', color: 'bg-emerald-500', icon: 'forest', textColor: 'text-emerald-500' }
 };
 
 export const GHS_OPTIONS = (Object.keys(RISK_CONFIG) as Array<keyof RiskFlags>).map(key => ({

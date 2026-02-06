@@ -34,7 +34,17 @@ export interface RiskFlags {
   Xn: boolean;     // Nocivo / Harmful
   Xi: boolean;     // Irritante / Irritant
   F: boolean;      // Inflamável / Flammable
-  F_PLUS: boolean; // Extremamente Inflamável / Extremely Flammable
+    F_PLUS: boolean; // Extremamente Inflamável / Extremely Flammable
+  // GHS Standard
+  GHS01?: boolean; // Explosive
+  GHS02?: boolean; // Flammable
+  GHS03?: boolean; // Oxidizing
+  GHS04?: boolean; // Compressed Gas
+  GHS05?: boolean; // Corrosive
+  GHS06?: boolean; // Toxic
+  GHS07?: boolean; // Harmful / Irritant
+  GHS08?: boolean; // Health Hazard
+  GHS09?: boolean; // Environmental Hazard
 }
 
 export type ItemType = 'REAGENT' | 'GLASSWARE' | 'EQUIPMENT' | 'CONSUMABLE' | 'SPARE_PART';

@@ -36,7 +36,10 @@ interface ItemFormProps {
     onGenerateQR?: (itemData: Partial<InventoryItem>) => void;
 }
 
-const INITIAL_RISKS: RiskFlags = { O: false, T: false, T_PLUS: false, C: false, E: false, N: false, Xn: false, Xi: false, F: false, F_PLUS: false };
+const INITIAL_RISKS: RiskFlags = {
+    O: false, T: false, T_PLUS: false, C: false, E: false, N: false, Xn: false, Xi: false, F: false, F_PLUS: false,
+    GHS01: false, GHS02: false, GHS03: false, GHS04: false, GHS05: false, GHS06: false, GHS07: false, GHS08: false, GHS09: false
+};
 
 export const ItemForm: React.FC<ItemFormProps> = ({ 
     initialData, 
