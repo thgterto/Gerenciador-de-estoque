@@ -5,6 +5,13 @@
 
 declare global {
   const echarts: any;
+  interface Window {
+    electronAPI?: {
+      getAppVersion: () => Promise<string>;
+      request: (action: string, payload?: any) => Promise<any>;
+    };
+  }
+
 }
 
 export type UUID = string;

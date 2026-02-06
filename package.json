@@ -15,7 +15,8 @@
     "electron:dev": "concurrently \"cross-env BROWSER=none npm run dev\" \"wait-on http://localhost:5173 && cross-env NODE_ENV=development electron .\"",
     "electron:build": "npm run build && electron-builder",
     "pack": "npm run build && electron-builder --dir",
-    "test": "vitest"
+    "test": "vitest",
+    "postinstall": "electron-builder install-app-deps"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
@@ -24,6 +25,7 @@
     "@mui/icons-material": "^7.3.7",
     "@mui/material": "^7.3.7",
     "apexcharts": "^5.3.6",
+    "better-sqlite3": "^12.6.2",
     "dexie": "^4.0.1",
     "echarts": "^5.5.0",
     "framer-motion": "^12.31.2",
