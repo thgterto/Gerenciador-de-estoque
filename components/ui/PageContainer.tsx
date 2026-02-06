@@ -1,14 +1,9 @@
-
 import React from 'react';
+import { Box, Container } from '@mui/material';
 
 interface PageContainerProps {
     children: React.ReactNode;
     className?: string;
-    /**
-     * Define o comportamento de rolagem:
-     * - true: A página inteira rola (Dashboard, Settings, Forms).
-     * - false: A página tem altura fixa e o conteúdo interno deve gerenciar o scroll (Tabelas Virtualizadas, Matrizes).
-     */
     scrollable?: boolean; 
 }
 
@@ -18,17 +13,22 @@ export const PageContainer: React.FC<PageContainerProps> = ({
     scrollable = false 
 }) => {
     return (
-        <div 
-            className={`
-                flex flex-col w-full mx-auto px-4 md:px-6 max-w-[1600px]
-                ${scrollable 
-                    ? 'h-full overflow-y-auto overflow-x-hidden custom-scrollbar py-6 overscroll-contain' // Scroll na página
-                    : 'h-full min-h-0 overflow-hidden py-4'          // Altura travada
-                } 
-                ${className}
-            `}
+        <Box
+            component="div"
+            sx={{
+                width: '100%',
+                height: '100%',
+                display: 'flex',
+                flexDirection: 'column',
+                mx: 'auto',
+                maxWidth: 1600, // Matches max-w-[1600px]
+                overflowY: scrollable ? 'auto' : 'hidden',
+                overflowX: 'hidden',
+                p: { xs: 2, md: 3 },
+            }}
+            className={className} // Keep support for custom classes if needed via Tailwind or emotion
         >
             {children}
-        </div>
+        </Box>
     );
 };

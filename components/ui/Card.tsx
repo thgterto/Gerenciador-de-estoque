@@ -1,8 +1,9 @@
 import React from 'react';
+import { Card as MuiCard, CardContent, CardHeader, Box, Typography, SxProps, Theme } from '@mui/material';
 import { Icon } from './Icon';
 import { Badge } from './Badge';
 
-export type CardVariant = 'default' | 'metric' | 'item' | 'interactive' | 'flat';
+export type CardVariant = 'default' | 'metric' | 'item' | 'interactive' | 'flat' | 'outlined';
 export type ColorScheme = 'neutral' | 'primary' | 'warning' | 'danger' | 'success' | 'info';
 
 interface CardProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'title'> {
@@ -19,6 +20,7 @@ interface CardProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'title'> 
     action?: React.ReactNode;
     onClick?: () => void;
     delay?: number;
+    sx?: SxProps<Theme>;
 }
 
 export const Card: React.FC<CardProps> = ({ 
@@ -29,73 +31,81 @@ export const Card: React.FC<CardProps> = ({
     className = '',
     noBorder = false,
     badge, action, onClick, delay,
+    sx,
     ...props
 }) => {
     
-    // Metric Card Layout - Soft Modern
+    // Metric Card Layout
     if (variant === 'metric') {
         return (
-            <div
+            <MuiCard
                 onClick={onClick}
-                className={`bg-surface rounded-xl shadow-sm border border-border-light ${padding} relative transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 cursor-default ${onClick ? 'cursor-pointer' : ''} ${className}`}
-                style={delay ? { animationDelay: `${delay}ms` } : {}}
-                {...props}
+                sx={{
+                    height: '100%',
+                    cursor: onClick ? 'pointer' : 'default',
+                    position: 'relative',
+                    border: '1px solid',
+                    borderColor: 'divider',
+                    bgcolor: 'background.paper',
+                    transition: 'box-shadow 0.3s',
+                    '&:hover': onClick ? { boxShadow: 4 } : {},
+                    ...sx
+                }}
+                elevation={0}
+                className={className}
+                {...(props as any)}
             >
-                <div className="flex justify-between items-start mb-3">
-                    {title && <h3 className="text-sm font-semibold text-text-secondary tracking-wide uppercase opacity-90">{title}</h3>}
-                    {icon && (
-                        <div className="p-2 bg-primary/10 text-primary rounded-lg">
-                            <Icon name={icon} size={20} />
-                        </div>
-                    )}
-                </div>
-
-                <div className="flex flex-col gap-1">
-                    <span className="text-3xl font-bold text-text-main tracking-tight font-sans">
-                        {value}
-                    </span>
-                    {subtitle && (
-                        <p className="text-xs font-medium text-text-light">
-                            {subtitle}
-                        </p>
-                    )}
-                </div>
-            </div>
+                <CardContent>
+                    <Box display="flex" justifyContent="space-between" alignItems="start" mb={1}>
+                        {title && <Typography variant="overline" color="text.secondary" fontWeight="bold">{title}</Typography>}
+                        {icon && (
+                            <Box p={1} borderRadius={1} bgcolor={`${colorScheme}.light`} color={`${colorScheme}.main`}>
+                                <Icon name={icon} size={20} />
+                            </Box>
+                        )}
+                    </Box>
+                    <Typography variant="h4" fontWeight="bold">{value}</Typography>
+                    {subtitle && <Typography variant="caption" color="text.secondary">{subtitle}</Typography>}
+                </CardContent>
+            </MuiCard>
         );
     }
 
-    // Default/Item Layout - Soft Modern
-    const baseClasses = 'bg-surface rounded-xl shadow-sm border border-border-light transition-all duration-300';
-    const hoverClasses = onClick ? 'hover:shadow-md hover:-translate-y-0.5 cursor-pointer' : '';
-    const paddingClasses = padding === 'p-0' ? '' : padding;
-
+    // Default Layout
     return (
-        <div
+        <MuiCard
             onClick={onClick}
-            className={`${baseClasses} ${hoverClasses} ${paddingClasses} ${className}`}
-            style={delay ? { animationDelay: `${delay}ms` } : {}}
-            {...props}
+            sx={{
+                cursor: onClick ? 'pointer' : 'default',
+                transition: 'box-shadow 0.3s',
+                '&:hover': onClick ? { boxShadow: 4 } : {},
+                border: (noBorder || variant === 'outlined') ? 'none' : '1px solid',
+                borderColor: 'divider',
+                height: '100%',
+                ...sx
+            }}
+            variant={variant === 'outlined' ? 'outlined' : 'elevation'}
+            elevation={0}
+            className={className}
+            {...(props as any)}
         >
             {(title || subtitle || action || icon || badge) && (
-                 <div className="flex items-center justify-between mb-5 border-b border-gray-100 dark:border-gray-700 pb-4">
-                     <div className="flex items-center gap-4">
-                         {icon && (
-                            <div className="p-2.5 bg-gray-50 text-gray-700 rounded-lg border border-gray-100 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700">
-                                <Icon name={icon} size={20} />
-                            </div>
-                         )}
-                         <div className="flex flex-col">
-                             {title && <h2 className="text-lg font-bold text-text-main leading-snug">{title}</h2>}
-                             {subtitle && <p className="text-xs text-text-secondary mt-0.5 font-medium">{subtitle}</p>}
-                         </div>
-                     </div>
-                     <div className="flex items-center gap-3">
-                         {badge && <Badge variant={badge.color as any}>{badge.label}</Badge>}
-                         {action && <div>{action}</div>}
-                     </div>
-                 </div>
+                 <CardHeader
+                    title={title}
+                    subheader={subtitle}
+                    avatar={icon ? <Box p={1} bgcolor="action.hover" borderRadius={1}><Icon name={icon} /></Box> : null}
+                    action={
+                        <Box display="flex" alignItems="center" gap={1}>
+                            {badge && <Badge variant={badge.color as any}>{badge.label}</Badge>}
+                            {action}
+                        </Box>
+                    }
+                    titleTypographyProps={{ variant: 'h6', fontWeight: 'bold' }}
+                 />
             )}
-            {children}
-        </div>
+            <CardContent className={padding === 'p-0' ? '!p-0' : ''}>
+                {children}
+            </CardContent>
+        </MuiCard>
     );
 };

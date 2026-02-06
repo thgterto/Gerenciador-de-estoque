@@ -5,6 +5,8 @@ import { QRScannerModal } from './Modals';
 import { Button } from './ui/Button';
 import { QRCodeDataDTO, CreateItemDTO } from '../types';
 import { ItemForm } from './ItemForm';
+import { Box, Paper, Typography } from '@mui/material';
+import QrCodeScannerIcon from '@mui/icons-material/QrCodeScanner';
 
 interface Props {
   onCancel: () => void;
@@ -66,7 +68,6 @@ export const AddItem: React.FC<Props> = ({ onCancel, initialData }) => {
           } else {
              // Lógica de Campo Específico
              let val = decodedText;
-             // Se for um JSON complexo mas estamos escaneando campo único, tenta extrair
              if (scanTarget === 'sapCode' && data.s) val = data.s;
              if (scanTarget === 'lotNumber' && data.l) val = data.l;
              
@@ -75,7 +76,7 @@ export const AddItem: React.FC<Props> = ({ onCancel, initialData }) => {
           }
 
       } catch (e) {
-          // Fallback para texto plano (Códigos de Barras comuns)
+          // Fallback para texto plano
           if (scanTarget === 'FULL') {
                setFormData(prev => ({ ...prev, sapCode: decodedText }));
                addToast('Código de Barras', 'info', 'Código inserido no campo SAP/SKU.');
@@ -88,38 +89,36 @@ export const AddItem: React.FC<Props> = ({ onCancel, initialData }) => {
 
   return (
     <>
-        <div className="flex flex-col gap-6 animate-slide-up">
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, pb: 4 }}>
             {!initialData && (
-                <div className="bg-primary/5 p-4 rounded-xl flex items-center gap-4 border border-primary/10">
-                    <div className="bg-surface-light dark:bg-slate-800 p-2 rounded-full shadow-sm text-primary border border-border-light dark:border-border-dark">
-                        <span className="material-symbols-outlined">qr_code_scanner</span>
-                    </div>
-                    <div className="flex-1">
-                        <h3 className="font-bold text-sm text-text-main dark:text-white">Leitura Rápida</h3>
-                        <p className="text-xs text-text-secondary dark:text-gray-400">Escaneie um código para preencher os dados.</p>
-                    </div>
+                <Paper variant="outlined" sx={{ p: 2, display: 'flex', alignItems: 'center', gap: 2, bgcolor: 'primary.lighter', borderColor: 'primary.light' }}>
+                    <Box sx={{ p: 1, borderRadius: '50%', bgcolor: 'background.paper', color: 'primary.main', display: 'flex' }}>
+                        <QrCodeScannerIcon />
+                    </Box>
+                    <Box sx={{ flex: 1 }}>
+                        <Typography variant="subtitle2" fontWeight="bold">Leitura Rápida</Typography>
+                        <Typography variant="caption" color="text.secondary">Escaneie um código para preencher os dados.</Typography>
+                    </Box>
                     <Button 
                         type="button"
                         onClick={() => handleScanClick('FULL')}
                         variant="primary"
                         size="sm"
-                        icon="photo_camera"
+                        icon="qr_code_scanner"
                     >
                         Escanear
                     </Button>
-                </div>
+                </Paper>
             )}
 
-            <div className="bg-surface-light dark:bg-surface-dark">
-                <ItemForm 
-                    initialData={formData || initialData} 
-                    onSubmit={handleSubmit} 
-                    onCancel={onCancel}
-                    submitLabel="Confirmar Cadastro"
-                    onScan={(field) => handleScanClick(field)}
-                />
-            </div>
-        </div>
+            <ItemForm
+                initialData={formData || initialData}
+                onSubmit={handleSubmit}
+                onCancel={onCancel}
+                submitLabel="Confirmar Cadastro"
+                onScan={(field) => handleScanClick(field)}
+            />
+        </Box>
 
         <QRScannerModal 
             isOpen={showScanner} 

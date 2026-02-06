@@ -1,15 +1,25 @@
-
 import React from 'react';
 import { motion, PanInfo, useAnimation } from 'framer-motion';
 import { InventoryItem } from '../types';
 import { InventoryGroup } from '../hooks/useInventoryFilters';
 import { getItemStatus } from '../utils/businessRules';
 import { StatusBadge } from './ui/StatusBadge';
-import { Badge } from './ui/Badge';
-import { Tooltip } from './Tooltip';
 import { formatDate } from '../utils/formatters';
+import {
+    Box, Checkbox, Typography, IconButton, Tooltip, Chip, Stack
+} from '@mui/material';
+import { useTheme } from '@mui/material/styles';
 
-// Polaris-like Grid Template (Must match InventoryTable header exactly)
+// Icons
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import EditIcon from '@mui/icons-material/Edit';
+import SwapHorizIcon from '@mui/icons-material/SwapHoriz';
+import QrCode2Icon from '@mui/icons-material/QrCode2';
+import LocationOnIcon from '@mui/icons-material/LocationOn';
+import ChevronRightIcon from '@mui/icons-material/ChevronRight';
+import WarehouseIcon from '@mui/icons-material/Warehouse';
+import PrintIcon from '@mui/icons-material/Print';
+
 const GRID_TEMPLATE = "40px minmax(240px, 3fr) 120px minmax(180px, 1.5fr) 100px 100px 130px 110px";
 
 interface ChildRowProps {
@@ -31,8 +41,6 @@ interface ChildRowProps {
     isLast: boolean;
 }
 
-// --- DESKTOP COMPONENTS ---
-
 export const InventoryChildRow = React.memo(({ 
     item, 
     style,
@@ -43,118 +51,102 @@ export const InventoryChildRow = React.memo(({
 }: ChildRowProps) => {
     const status = getItemStatus(item);
     
-    // Lógica de Exibição Contextual
     let validityContent = formatDate(item.expiryDate);
-    let validityClass = status.isExpired ? 'text-danger font-bold' : 'text-text-secondary dark:text-slate-400';
+    let validityColor = status.isExpired ? 'error.main' : 'text.secondary';
     let validityTooltip = "Validade";
 
     if (item.itemType === 'EQUIPMENT' && item.maintenanceDate) {
         validityContent = `Manut: ${formatDate(item.maintenanceDate)}`;
-        validityClass = 'text-blue-600 dark:text-blue-400 font-medium';
+        validityColor = 'info.main';
         validityTooltip = "Próxima Manutenção";
     } else if (item.itemType === 'GLASSWARE' && item.glassVolume) {
         validityContent = item.glassVolume;
-        validityClass = 'text-text-secondary dark:text-slate-400 font-mono';
+        validityColor = 'text.secondary';
         validityTooltip = "Volume Nominal";
     }
 
     return (
-        <div style={style} className="w-full">
-            <div className={`
-                relative group border-b border-border-light dark:border-border-dark transition-colors 
-                ${isSelected ? 'bg-primary/5' : 'bg-surface-light dark:bg-surface-dark hover:bg-background-light dark:hover:bg-slate-800/50'}
-                ${isLast ? 'border-b-0' : ''}
-            `}>
-                {/* Linhas de conexão visual da árvore (Tree Structure) */}
-                <div className="absolute left-[20px] top-0 bottom-1/2 w-px border-l border-dashed border-border-light dark:border-slate-600 group-hover:border-primary/30 transition-colors"></div>
-                <div className="absolute left-[20px] top-1/2 w-[24px] h-px border-t border-dashed border-border-light dark:border-slate-600 group-hover:border-primary/30 transition-colors"></div>
+        <div style={style}>
+            <Box
+                sx={{
+                    height: '100%',
+                    position: 'relative',
+                    borderBottom: isLast ? 0 : 1,
+                    borderColor: 'divider',
+                    bgcolor: isSelected ? 'action.selected' : 'background.paper',
+                    '&:hover': { bgcolor: 'action.hover' },
+                    transition: 'background-color 0.2s'
+                }}
+            >
+                <Box sx={{ position: 'absolute', left: 20, top: 0, bottom: '50%', width: 1, borderLeft: '1px dashed', borderColor: 'divider' }} />
+                <Box sx={{ position: 'absolute', left: 20, top: '50%', width: 24, height: 1, borderTop: '1px dashed', borderColor: 'divider' }} />
 
-                {/* Grid Container */}
-                <div className="grid h-full items-center text-sm py-0 px-4" style={{ gridTemplateColumns: GRID_TEMPLATE }}>
+                <Box sx={{ display: 'grid', gridTemplateColumns: GRID_TEMPLATE, alignItems: 'center', height: '100%', px: 2 }}>
                     
-                    {/* Col 1 (40px): Checkbox placeholder */}
-                    <div></div>
+                    <Box />
 
-                    {/* Col 2 (Produto): Lote / ID */}
-                    <div className="px-2 flex items-center gap-3 overflow-hidden pl-6">
-                         <div className="flex flex-col gap-0.5 min-w-0">
-                             <div className="flex items-center gap-2">
-                                <span className="material-symbols-outlined text-[16px] text-text-light group-hover:text-primary transition-colors">qr_code_2</span>
-                                <Tooltip content={`Lote: ${item.lotNumber}`} position="top">
-                                    <span 
-                                        className="font-mono text-xs font-bold text-text-main dark:text-slate-300 cursor-copy hover:text-primary transition-colors bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded border border-transparent group-hover:border-primary/20"
-                                        onClick={() => copyToClipboard(item.lotNumber, 'Lote')}
-                                    >
-                                        {item.lotNumber}
-                                    </span>
-                                </Tooltip>
-                                {item.isGhost && <Badge variant="neutral">Legado</Badge>}
-                             </div>
-                         </div>
-                    </div>
-
-                    {/* Col 3: Category Placeholder */}
-                    <div className="px-2"></div>
-
-                    {/* Col 4: Location */}
-                    <div className="px-2 truncate text-text-secondary dark:text-slate-400 text-xs flex items-center gap-1">
-                        <span className="material-symbols-outlined text-[14px] opacity-70">location_on</span>
-                        <span className="truncate">{item.location.warehouse} {item.location.cabinet ? `› ${item.location.cabinet}` : ''}</span>
-                    </div>
-
-                    {/* Col 5: Qty */}
-                    <div className="px-2 text-right font-medium text-text-main dark:text-white tabular-nums">
-                        {item.quantity}
-                    </div>
-
-                    {/* Col 6: Validade */}
-                    <div className={`px-2 text-right text-xs tabular-nums ${validityClass}`}>
-                        <Tooltip content={validityTooltip}>
-                            {validityContent}
+                    <Box sx={{ px: 1, pl: 3, display: 'flex', alignItems: 'center', gap: 1.5, overflow: 'hidden' }}>
+                        <QrCode2Icon color="action" fontSize="small" />
+                        <Tooltip title={`Lote: ${item.lotNumber}`}>
+                            <Typography
+                                variant="caption"
+                                fontFamily="monospace"
+                                fontWeight="bold"
+                                sx={{
+                                    bgcolor: 'action.hover',
+                                    px: 0.5,
+                                    borderRadius: 0.5,
+                                    cursor: 'pointer',
+                                    '&:hover': { color: 'primary.main' }
+                                }}
+                                onClick={() => copyToClipboard(item.lotNumber, 'Lote')}
+                            >
+                                {item.lotNumber}
+                            </Typography>
                         </Tooltip>
-                    </div>
+                        {item.isGhost && <Chip label="Legado" size="small" variant="outlined" />}
+                    </Box>
 
-                    {/* Col 7: Status Badge */}
-                    <div className="px-2 flex justify-center">
+                    <Box />
+
+                    <Box sx={{ px: 1, display: 'flex', alignItems: 'center', gap: 0.5, color: 'text.secondary' }}>
+                        <LocationOnIcon fontSize="inherit" />
+                        <Typography variant="caption" noWrap>
+                            {item.location.warehouse} {item.location.cabinet ? `› ${item.location.cabinet}` : ''}
+                        </Typography>
+                    </Box>
+
+                    <Box sx={{ px: 1, textAlign: 'right' }}>
+                        <Typography variant="body2" fontWeight="medium">{item.quantity}</Typography>
+                    </Box>
+
+                    <Box sx={{ px: 1, textAlign: 'right' }}>
+                        <Tooltip title={validityTooltip}>
+                            <Typography variant="caption" sx={{ color: validityColor, fontWeight: status.isExpired ? 'bold' : 'normal' }}>
+                                {validityContent}
+                            </Typography>
+                        </Tooltip>
+                    </Box>
+
+                    <Box sx={{ px: 1, display: 'flex', justifyContent: 'center' }}>
                         {(status.isExpired || status.isLowStock) && (
                             <StatusBadge status={status} compact showIcon={false} />
                         )}
-                    </div>
+                    </Box>
 
-                    {/* Col 8: Ações */}
-                    <div className="px-2 text-right">
-                        <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                             <Tooltip content="Novo Lote (Clonar)">
-                                <button
-                                    onClick={()=>onActions.clone(item)}
-                                    className="p-1.5 hover:bg-white dark:hover:bg-slate-700 rounded text-text-secondary hover:text-primary transition-colors shadow-sm"
-                                    aria-label="Clonar lote"
-                                >
-                                    <span className="material-symbols-outlined text-[16px]" aria-hidden="true">content_copy</span>
-                                </button>
-                             </Tooltip>
-                             <Tooltip content="Editar">
-                                <button
-                                    onClick={()=>onActions.edit(item)}
-                                    className="p-1.5 hover:bg-white dark:hover:bg-slate-700 rounded text-text-secondary hover:text-primary transition-colors shadow-sm"
-                                    aria-label="Editar lote"
-                                >
-                                    <span className="material-symbols-outlined text-[16px]" aria-hidden="true">edit</span>
-                                </button>
-                             </Tooltip>
-                             <Tooltip content="Movimentar">
-                                <button
-                                    onClick={()=>onActions.move(item)}
-                                    className="p-1.5 hover:bg-white dark:hover:bg-slate-700 rounded text-text-secondary hover:text-primary transition-colors shadow-sm"
-                                    aria-label="Movimentar lote"
-                                >
-                                    <span className="material-symbols-outlined text-[16px]" aria-hidden="true">swap_horiz</span>
-                                </button>
-                             </Tooltip>
-                        </div>
-                    </div>
-                </div>
-            </div>
+                    <Box sx={{ px: 1, textAlign: 'right', display: 'flex', justifyContent: 'flex-end', opacity: 0, transition: 'opacity 0.2s', '.MuiBox-root:hover &': { opacity: 1 } }}>
+                        <Tooltip title="Clonar">
+                            <IconButton size="small" onClick={() => onActions.clone(item)}><ContentCopyIcon fontSize="small" /></IconButton>
+                        </Tooltip>
+                        <Tooltip title="Editar">
+                            <IconButton size="small" onClick={() => onActions.edit(item)}><EditIcon fontSize="small" /></IconButton>
+                        </Tooltip>
+                        <Tooltip title="Movimentar">
+                            <IconButton size="small" onClick={() => onActions.move(item)}><SwapHorizIcon fontSize="small" /></IconButton>
+                        </Tooltip>
+                    </Box>
+                </Box>
+            </Box>
         </div>
     );
 });
@@ -183,110 +175,103 @@ export const InventoryGroupRow = React.memo(({
     const { primaryItem, totalQuantity, aggregatedStatus, items } = group;
     const allSelected = items.every(i => selectedChildIds.has(i.id));
     const someSelected = items.some(i => selectedChildIds.has(i.id));
-    const indeterminate = someSelected && !allSelected;
 
     return (
-        <div style={style} className="w-full">
-            <div className={`
-                h-full border-b border-border-light dark:border-border-dark transition-colors cursor-pointer group
-                ${isExpanded ? 'bg-background-light dark:bg-slate-800/50' : 'bg-surface-light dark:bg-surface-dark hover:bg-background-light dark:hover:bg-slate-800/20'}
-            `} onClick={toggleExpand}>
-                <div className="grid h-full items-center px-4 text-sm py-0" style={{ gridTemplateColumns: GRID_TEMPLATE }}>
+        <div style={style}>
+            <Box
+                sx={{
+                    height: '100%',
+                    borderBottom: 1,
+                    borderColor: 'divider',
+                    cursor: 'pointer',
+                    bgcolor: isExpanded ? 'action.selected' : 'background.paper',
+                    '&:hover': { bgcolor: 'action.hover' }
+                }}
+                onClick={toggleExpand}
+            >
+                <Box sx={{ display: 'grid', gridTemplateColumns: GRID_TEMPLATE, alignItems: 'center', height: '100%', px: 2 }}>
                     
-                    {/* Checkbox */}
-                    <div className="flex items-center justify-center" onClick={(e) => e.stopPropagation()}>
-                        <input 
-                            ref={input => { if (input) input.indeterminate = indeterminate; }}
-                            className="w-4 h-4 text-primary bg-white dark:bg-slate-800 border-border-light dark:border-border-dark rounded focus:ring-primary cursor-pointer transition-colors" 
-                            type="checkbox"
+                    <Box sx={{ display: 'flex', justifyContent: 'center' }} onClick={(e) => e.stopPropagation()}>
+                        <Checkbox
+                            size="small"
                             checked={allSelected}
+                            indeterminate={someSelected && !allSelected}
                             onChange={(e) => onSelectGroup(items.map(i => i.id), e.target.checked)}
                         />
-                    </div>
+                    </Box>
 
-                    {/* Product Name */}
-                    <div className="px-2 overflow-hidden">
-                        <div className="flex items-center gap-3">
-                             <div className={`
-                                p-1.5 rounded-lg border transition-all duration-200
-                                ${isExpanded 
-                                    ? 'bg-white dark:bg-slate-700 text-primary border-primary/30 shadow-sm' 
-                                    : 'bg-background-light dark:bg-slate-800 text-text-secondary border-transparent group-hover:bg-white dark:group-hover:bg-slate-700'} 
-                             `}>
-                                <span className="material-symbols-outlined text-[20px]">{getCategoryIcon(primaryItem.category)}</span>
-                             </div>
-                             <div className="flex flex-col min-w-0">
-                                 <div 
-                                    className="font-bold text-text-main dark:text-white truncate text-sm"
-                                    title={primaryItem.name}
-                                 >
+                    <Box sx={{ px: 1, overflow: 'hidden' }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                             <Box sx={{
+                                 p: 0.5, borderRadius: 1, display: 'flex',
+                                 bgcolor: isExpanded ? 'primary.main' : 'action.hover',
+                                 color: isExpanded ? 'primary.contrastText' : 'text.secondary'
+                             }}>
+                                 <span className="material-symbols-outlined" style={{ fontSize: 20 }}>{getCategoryIcon(primaryItem.category)}</span>
+                             </Box>
+                             <Box sx={{ minWidth: 0 }}>
+                                 <Typography variant="body2" fontWeight="bold" noWrap title={primaryItem.name}>
                                      {primaryItem.name}
-                                 </div>
-                                 <div className="flex items-center gap-2 mt-0.5">
-                                    <span 
-                                        className="text-[10px] font-mono text-text-secondary dark:text-slate-400 cursor-copy hover:text-primary transition-colors bg-background-light dark:bg-slate-700/50 px-1.5 rounded border border-transparent hover:border-primary/20"
+                                 </Typography>
+                                 <Stack direction="row" spacing={1} alignItems="center">
+                                     <Typography
+                                        variant="caption"
+                                        fontFamily="monospace"
+                                        color="text.secondary"
                                         onClick={(e) => { e.stopPropagation(); copyToClipboard(primaryItem.sapCode, 'SKU'); }}
-                                    >
-                                        {primaryItem.sapCode || 'N/A'}
-                                    </span>
-                                    {items.length > 1 && (
-                                        <span className="text-[10px] px-1.5 py-px rounded-full bg-border-light dark:bg-slate-700 text-text-secondary dark:text-slate-300 font-bold border border-border-light dark:border-slate-600">
-                                            {items.length} lotes
-                                        </span>
-                                    )}
-                                 </div>
-                             </div>
-                        </div>
-                    </div>
+                                        sx={{ cursor: 'copy', '&:hover': { color: 'primary.main' } }}
+                                     >
+                                         {primaryItem.sapCode || 'N/A'}
+                                     </Typography>
+                                     {items.length > 1 && (
+                                         <Chip label={`${items.length} lotes`} size="small" variant="outlined" sx={{ height: 16, fontSize: '0.6rem' }} />
+                                     )}
+                                 </Stack>
+                             </Box>
+                        </Box>
+                    </Box>
 
-                    {/* Category */}
-                    <div className="px-2">
-                         <Badge variant="neutral">{primaryItem.category}</Badge>
-                    </div>
+                    <Box sx={{ px: 1 }}>
+                         <Chip label={primaryItem.category} size="small" />
+                    </Box>
 
-                    {/* Locations */}
-                    <div className="px-2 text-xs text-text-secondary dark:text-slate-400 truncate" title={group.locations.join(', ')}>
-                        {group.locations.length === 1 ? group.locations[0] : `${group.locations.length} locais`}
-                    </div>
+                    <Box sx={{ px: 1 }}>
+                        <Tooltip title={group.locations.join(', ')}>
+                            <Typography variant="caption" color="text.secondary" noWrap display="block">
+                                {group.locations.length === 1 ? group.locations[0] : `${group.locations.length} locais`}
+                            </Typography>
+                        </Tooltip>
+                    </Box>
 
-                    {/* Total Quantity */}
-                    <div className="px-2 text-right">
-                         <span className="font-bold text-text-main dark:text-white tabular-nums">
-                            {totalQuantity.toLocaleString('pt-BR')}
-                         </span>
-                         <span className="text-xs text-text-secondary ml-1 lowercase">{primaryItem.baseUnit}</span>
-                    </div>
+                    <Box sx={{ px: 1, textAlign: 'right' }}>
+                         <Typography variant="body2" fontWeight="bold">
+                            {totalQuantity.toLocaleString('pt-BR')} <Typography component="span" variant="caption" color="text.secondary">{primaryItem.baseUnit}</Typography>
+                         </Typography>
+                    </Box>
 
-                    {/* Validity Info */}
-                    <div className="px-2 text-right text-xs">
+                    <Box sx={{ px: 1, textAlign: 'right' }}>
                         {aggregatedStatus.isExpired ? (
-                             <span className="text-danger-text font-bold bg-danger-bg dark:bg-danger/10 px-2 py-0.5 rounded-full border border-danger/20">Vencidos</span>
+                             <Chip label="Vencidos" color="error" size="small" sx={{ height: 20, fontSize: '0.7rem' }} />
                         ) : (
-                             <span className="text-text-light opacity-50">--</span>
+                             <Typography variant="caption" color="text.disabled">--</Typography>
                         )}
-                    </div>
+                    </Box>
 
-                    {/* Status */}
-                    <div className="px-2 flex justify-center">
+                    <Box sx={{ px: 1, display: 'flex', justifyContent: 'center' }}>
                         <StatusBadge status={aggregatedStatus} compact />
-                    </div>
+                    </Box>
 
-                    {/* Expand Icon */}
-                    <div className="px-2 text-right">
-                         <span className={`
-                            material-symbols-outlined text-text-light transition-transform duration-200 
-                            ${isExpanded ? 'rotate-90 text-primary' : 'group-hover:text-text-secondary'}
-                         `}>
-                             chevron_right
-                         </span>
-                    </div>
-                </div>
-            </div>
+                    <Box sx={{ px: 1, textAlign: 'right' }}>
+                         <ChevronRightIcon
+                            color={isExpanded ? 'primary' : 'action'}
+                            sx={{ transform: isExpanded ? 'rotate(90deg)' : 'none', transition: 'transform 0.2s' }}
+                        />
+                    </Box>
+                </Box>
+            </Box>
         </div>
     );
 });
-
-// --- MOBILE COMPONENTS ---
 
 export const InventoryMobileGroupRow = React.memo(({ 
     group, 
@@ -298,66 +283,52 @@ export const InventoryMobileGroupRow = React.memo(({
     const { primaryItem, totalQuantity, aggregatedStatus, items } = group;
 
     return (
-        <div style={style} className="w-full px-4 pt-4 pb-1">
-             <div 
-                className={`
-                    rounded-xl border shadow-sm transition-all duration-200 overflow-hidden
-                    ${isExpanded 
-                        ? 'bg-white dark:bg-slate-800 border-primary ring-1 ring-primary/20' 
-                        : 'bg-surface-light dark:bg-surface-dark border-border-light dark:border-border-dark active:scale-[0.98]'
-                    }
-                `}
+        <div style={style} className="px-2 pt-2 pb-1">
+            <Box
                 onClick={toggleExpand}
+                sx={{
+                    bgcolor: 'background.paper',
+                    borderRadius: 2,
+                    border: 1,
+                    borderColor: isExpanded ? 'primary.main' : 'divider',
+                    boxShadow: 1,
+                    overflow: 'hidden'
+                }}
             >
-                <div className="p-3 flex items-start gap-3">
-                    {/* Icon Box */}
-                    <div className={`
-                        shrink-0 size-11 rounded-lg flex items-center justify-center border shadow-sm
-                        ${isExpanded 
-                            ? 'bg-primary text-white border-primary' 
-                            : 'bg-background-light dark:bg-slate-700 text-text-secondary dark:text-slate-300 border-border-light dark:border-slate-600'}
-                    `}>
+                <Box sx={{ p: 1.5, display: 'flex', gap: 2 }}>
+                    <Box sx={{
+                        width: 40, height: 40, borderRadius: 1, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        bgcolor: isExpanded ? 'primary.main' : 'action.selected',
+                        color: isExpanded ? 'primary.contrastText' : 'text.secondary'
+                    }}>
                         <span className="material-symbols-outlined">{getCategoryIcon(primaryItem.category)}</span>
-                    </div>
-                    
-                    {/* Content */}
-                    <div className="flex-1 min-w-0">
-                        <div className="flex justify-between items-start">
-                             <h3 className="font-bold text-text-main dark:text-white truncate text-sm pr-2 leading-tight">
-                                 {primaryItem.name}
-                             </h3>
-                             {items.length > 1 && (
-                                 <span className="text-[10px] font-bold bg-slate-100 dark:bg-slate-700 px-1.5 py-0.5 rounded text-text-secondary border border-slate-200 dark:border-slate-600">
-                                     {items.length}
-                                 </span>
-                             )}
-                        </div>
-                        
-                        <div className="flex items-center gap-2 mt-1.5">
-                             <span className="text-[10px] font-mono text-text-secondary bg-slate-100 dark:bg-slate-900/50 px-1.5 rounded border border-slate-200 dark:border-slate-700">
+                    </Box>
+                    <Box sx={{ flex: 1, minWidth: 0 }}>
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                             <Typography variant="subtitle2" noWrap>{primaryItem.name}</Typography>
+                             {items.length > 1 && <Chip label={items.length} size="small" sx={{ height: 20 }} />}
+                        </Box>
+                        <Stack direction="row" spacing={1} alignItems="center" mt={0.5}>
+                             <Typography variant="caption" fontFamily="monospace" sx={{ bgcolor: 'action.hover', px: 0.5, borderRadius: 0.5 }}>
                                  {primaryItem.sapCode || 'S/ SAP'}
-                             </span>
+                             </Typography>
                              {(aggregatedStatus.isExpired || aggregatedStatus.isLowStock) && (
-                                <StatusBadge status={aggregatedStatus} compact className="!text-[9px]" />
+                                <StatusBadge status={aggregatedStatus} compact />
                              )}
-                        </div>
-                    </div>
-                </div>
+                        </Stack>
+                    </Box>
+                </Box>
 
-                {/* Footer Strip */}
-                <div className={`
-                    px-3 py-2 border-t border-dashed flex justify-between items-center text-xs
-                    ${isExpanded ? 'border-primary/20 bg-primary/5' : 'border-border-light dark:border-slate-700 bg-gray-50 dark:bg-slate-800/50'}
-                `}>
-                    <div className="flex items-center gap-1 text-text-secondary dark:text-slate-400">
-                        <span className="material-symbols-outlined text-[14px]">warehouse</span>
-                        <span className="max-w-[140px] truncate">{group.locations.join(', ')}</span>
-                    </div>
-                    <div className="font-bold text-text-main dark:text-white bg-white dark:bg-slate-700 px-2 py-0.5 rounded border border-slate-100 dark:border-slate-600">
-                        {totalQuantity} <span className="font-normal text-text-light text-[10px]">{primaryItem.baseUnit}</span>
-                    </div>
-                </div>
-            </div>
+                <Box sx={{ px: 1.5, py: 1, bgcolor: isExpanded ? 'primary.light' : 'action.hover', borderTop: 1, borderColor: 'divider', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, color: 'text.secondary' }}>
+                        <WarehouseIcon fontSize="small" />
+                        <Typography variant="caption" noWrap sx={{ maxWidth: 120 }}>{group.locations.join(', ')}</Typography>
+                    </Box>
+                    <Typography variant="body2" fontWeight="bold">
+                        {totalQuantity} <Typography component="span" variant="caption">{primaryItem.baseUnit}</Typography>
+                    </Typography>
+                </Box>
+            </Box>
         </div>
     );
 });
@@ -370,45 +341,35 @@ export const InventoryMobileChildRow = React.memo(({
     const status = getItemStatus(item);
     const controls = useAnimation();
     
-    // Lógica Contextual Mobile
     let validityInfo = formatDate(item.expiryDate);
     if (item.itemType === 'EQUIPMENT' && item.maintenanceDate) validityInfo = `Manut: ${formatDate(item.maintenanceDate)}`;
     else if (item.itemType === 'GLASSWARE' && item.glassVolume) validityInfo = item.glassVolume;
 
     const handleDragEnd = async ( _event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
         const offset = info.offset.x;
-        const velocity = info.velocity.x;
-
-        if (offset < -100 || velocity < -500) {
-            // Swipe Left -> Edit
-            await controls.start({ x: -100, transition: { duration: 0.2 } });
+        if (offset < -100) {
+            await controls.start({ x: -100 });
             onActions.edit(item);
-            controls.start({ x: 0 }); // Reset
-        } else if (offset > 100 || velocity > 500) {
-            // Swipe Right -> Move
-            await controls.start({ x: 100, transition: { duration: 0.2 } });
+            controls.start({ x: 0 });
+        } else if (offset > 100) {
+            await controls.start({ x: 100 });
             onActions.move(item);
-            controls.start({ x: 0 }); // Reset
+            controls.start({ x: 0 });
         } else {
-            controls.start({ x: 0, transition: { type: "spring", stiffness: 300, damping: 30 } });
+            controls.start({ x: 0 });
         }
     };
 
     return (
-        <div style={style} className="w-full px-4 pl-8 pb-2 relative overflow-hidden">
-             {/* Tree Lines */}
-             <div className="absolute left-[24px] top-0 bottom-0 w-px border-l border-dashed border-slate-300 dark:border-slate-700"></div>
-             <div className="absolute left-[24px] top-[28px] w-4 h-px border-t border-dashed border-slate-300 dark:border-slate-700"></div>
-
-             {/* Background Actions Layer */}
-             <div className="absolute inset-y-0 right-4 left-8 my-2 rounded-lg flex overflow-hidden pointer-events-none">
-                <div className="w-1/2 bg-blue-500 flex items-center justify-start pl-4 text-white">
-                    <span className="material-symbols-outlined">swap_horiz</span> {/* Right Swipe Action (Move) */}
-                </div>
-                <div className="w-1/2 bg-amber-500 flex items-center justify-end pr-4 text-white">
-                    <span className="material-symbols-outlined">edit</span> {/* Left Swipe Action (Edit) */}
-                </div>
-             </div>
+        <div style={style} className="px-2 pl-4 pb-1">
+             <Box sx={{ position: 'absolute', insetY: 4, left: 16, right: 8, borderRadius: 2, display: 'flex', overflow: 'hidden' }}>
+                <Box sx={{ width: '50%', bgcolor: 'info.main', display: 'flex', alignItems: 'center', pl: 2, color: 'white' }}>
+                    <SwapHorizIcon />
+                </Box>
+                <Box sx={{ width: '50%', bgcolor: 'warning.main', display: 'flex', alignItems: 'center', justifyContent: 'end', pr: 2, color: 'white' }}>
+                    <EditIcon />
+                </Box>
+             </Box>
 
              <motion.div
                 drag="x"
@@ -416,49 +377,37 @@ export const InventoryMobileChildRow = React.memo(({
                 dragElastic={0.2}
                 onDragEnd={handleDragEnd}
                 animate={controls}
-                className="bg-white dark:bg-slate-800 rounded-lg border border-border-light dark:border-slate-700 p-3 shadow-sm relative ml-1 z-10 touch-pan-y"
+                style={{ position: 'relative', zIndex: 10 }}
              >
-                {/* Lote Header */}
-                <div className="flex justify-between items-start mb-2">
-                    <div>
-                        <div className="flex items-center gap-1.5">
-                            <span className="material-symbols-outlined text-[16px] text-primary bg-primary/10 p-0.5 rounded">qr_code_2</span>
-                            <span className="font-mono text-sm font-bold text-text-main dark:text-white tracking-wide">{item.lotNumber}</span>
-                        </div>
-                        <span className="text-[10px] text-text-secondary dark:text-gray-400 block mt-1 ml-0.5 flex items-center gap-1">
-                            <span className="material-symbols-outlined text-[12px]">location_on</span>
-                            {item.location.warehouse} {item.location.cabinet ? `• ${item.location.cabinet}` : ''}
-                        </span>
-                    </div>
-                    <div className="text-right">
-                         <div className="font-bold text-text-main dark:text-white text-sm">
-                             {item.quantity} <span className="text-xs font-normal text-text-secondary">{item.baseUnit}</span>
-                         </div>
-                         <div className={`text-[10px] font-medium mt-0.5 ${status.isExpired ? 'text-red-500 font-bold' : 'text-text-light'}`}>
-                             {validityInfo}
-                         </div>
-                    </div>
-                </div>
+                <Box sx={{ bgcolor: 'background.paper', borderRadius: 2, p: 1.5, border: 1, borderColor: 'divider', boxShadow: 1 }}>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+                        <Box>
+                            <Stack direction="row" spacing={1} alignItems="center">
+                                <QrCode2Icon color="primary" fontSize="small" />
+                                <Typography variant="body2" fontFamily="monospace" fontWeight="bold">{item.lotNumber}</Typography>
+                            </Stack>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 0.5, color: 'text.secondary' }}>
+                                <LocationOnIcon fontSize="inherit" />
+                                <Typography variant="caption">{item.location.warehouse} {item.location.cabinet ? `• ${item.location.cabinet}` : ''}</Typography>
+                            </Box>
+                        </Box>
+                        <Box sx={{ textAlign: 'right' }}>
+                             <Typography variant="body2" fontWeight="bold">
+                                 {item.quantity} <Typography component="span" variant="caption">{item.baseUnit}</Typography>
+                             </Typography>
+                             <Typography variant="caption" color={status.isExpired ? 'error' : 'text.secondary'} display="block">
+                                 {validityInfo}
+                             </Typography>
+                        </Box>
+                    </Box>
 
-                {/* Actions Toolbar */}
-                <div className="grid grid-cols-4 gap-2 mt-3 pt-2 border-t border-dashed border-slate-100 dark:border-slate-700">
-                     <button onPointerDown={(e)=>e.stopPropagation()} onClick={(e)=>{e.stopPropagation(); onActions.move(item)}} className="flex flex-col items-center justify-center text-text-secondary hover:text-primary py-1 active:bg-slate-50 dark:active:bg-slate-700 rounded transition-colors group">
-                         <span className="material-symbols-outlined text-[20px] group-hover:scale-110 transition-transform" aria-hidden="true">swap_horiz</span>
-                         <span className="text-[9px] mt-0.5 font-medium">Mover</span>
-                     </button>
-                     <button onPointerDown={(e)=>e.stopPropagation()} onClick={(e)=>{e.stopPropagation(); onActions.clone(item)}} className="flex flex-col items-center justify-center text-text-secondary hover:text-primary py-1 active:bg-slate-50 dark:active:bg-slate-700 rounded transition-colors group">
-                         <span className="material-symbols-outlined text-[18px] group-hover:scale-110 transition-transform" aria-hidden="true">content_copy</span>
-                         <span className="text-[9px] mt-0.5 font-medium">Clonar</span>
-                     </button>
-                     <button onPointerDown={(e)=>e.stopPropagation()} onClick={(e)=>{e.stopPropagation(); onActions.edit(item)}} className="flex flex-col items-center justify-center text-text-secondary hover:text-primary py-1 active:bg-slate-50 dark:active:bg-slate-700 rounded transition-colors group">
-                         <span className="material-symbols-outlined text-[18px] group-hover:scale-110 transition-transform" aria-hidden="true">edit</span>
-                         <span className="text-[9px] mt-0.5 font-medium">Editar</span>
-                     </button>
-                     <button onPointerDown={(e)=>e.stopPropagation()} onClick={(e)=>{e.stopPropagation(); onActions.qr(item)}} className="flex flex-col items-center justify-center text-text-secondary hover:text-primary py-1 active:bg-slate-50 dark:active:bg-slate-700 rounded transition-colors group">
-                         <span className="material-symbols-outlined text-[18px] group-hover:scale-110 transition-transform" aria-hidden="true">print</span>
-                         <span className="text-[9px] mt-0.5 font-medium">QR</span>
-                     </button>
-                </div>
+                    <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 1, pt: 1, borderTop: 1, borderColor: 'divider' }}>
+                        <IconButton size="small" onClick={(e) => { e.stopPropagation(); onActions.move(item); }}><SwapHorizIcon /></IconButton>
+                        <IconButton size="small" onClick={(e) => { e.stopPropagation(); onActions.clone(item); }}><ContentCopyIcon /></IconButton>
+                        <IconButton size="small" onClick={(e) => { e.stopPropagation(); onActions.edit(item); }}><EditIcon /></IconButton>
+                        <IconButton size="small" onClick={(e) => { e.stopPropagation(); onActions.qr(item); }}><PrintIcon /></IconButton>
+                    </Box>
+                </Box>
              </motion.div>
         </div>
     );

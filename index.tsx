@@ -1,9 +1,8 @@
-
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
 import { ErrorBoundary } from './components/ErrorBoundary';
-import '@shopify/polaris/build/esm/styles.css';
+// Polaris styles removed
 import './index.css';
 
 const rootElement = document.getElementById('root');

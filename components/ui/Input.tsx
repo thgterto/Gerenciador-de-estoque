@@ -1,8 +1,7 @@
 import React, { InputHTMLAttributes, forwardRef } from 'react';
-import { TextField, Icon } from '@shopify/polaris';
-import { getIcon } from '../../utils/iconMapper';
+import { TextField, InputAdornment, CircularProgress } from '@mui/material';
 
-interface InputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'onChange' | 'value'> {
+interface InputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'onChange' | 'value' | 'size' | 'color'> {
     label?: string;
     icon?: string;
     error?: string;
@@ -12,6 +11,10 @@ interface InputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'onChan
     helpText?: string;
     value?: string;
     onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    inputProps?: any;
+    InputLabelProps?: any;
+    size?: 'small' | 'medium';
+    color?: 'primary' | 'secondary' | 'error' | 'info' | 'success' | 'warning';
 }
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(({ 
@@ -27,47 +30,55 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(({
     onChange,
     value,
     type,
+    inputProps,
+    InputLabelProps,
+    size = 'small',
+    color,
     ...props 
-}, _) => {
+}, ref) => {
 
-    // Adapt onChange
-    const handleChange = (newValue: string) => {
-        if (onChange) {
-            // Mock event object for compatibility with existing code
-            const event = {
-                target: { value: newValue, name: props.name || '', type: type || 'text' },
-                currentTarget: { value: newValue, name: props.name || '', type: type || 'text' },
-                preventDefault: () => {},
-                stopPropagation: () => {}
-            } as unknown as React.ChangeEvent<HTMLInputElement>;
-            onChange(event);
-        }
-    };
+    const startAdornment = icon ? (
+        <InputAdornment position="start">
+            <span className="material-symbols-outlined text-[20px] text-gray-500">{icon}</span>
+        </InputAdornment>
+    ) : null;
 
-    // Prefix icon handling - Softened style
-    const polarisIcon = getIcon(icon);
-    const prefix = polarisIcon ? <Icon source={polarisIcon} tone="subdued" /> : (icon ? <span className="material-symbols-outlined text-[18px] text-gray-400">{icon}</span> : null);
-
-    // Suffix handling
-    const suffix = isLoading ? <span className="material-symbols-outlined animate-spin text-[18px] text-primary">progress_activity</span> : rightElement;
+    const endAdornment = isLoading ? (
+        <InputAdornment position="end">
+            <CircularProgress size={20} />
+        </InputAdornment>
+    ) : rightElement ? (
+        <InputAdornment position="end">
+            {rightElement}
+        </InputAdornment>
+    ) : null;
 
     return (
-        <div className={`${containerClassName} input-soft-wrapper`}>
+        <div className={containerClassName}>
             <TextField
-                label={label || ''}
-                value={value}
-                onChange={handleChange}
-                error={error}
-                helpText={helpText}
-                prefix={prefix}
-                suffix={suffix}
-                type={type as any}
+                inputRef={ref}
+                label={label}
+                value={value || ''}
+                onChange={onChange}
+                error={!!error}
+                helperText={error || helpText}
+                fullWidth
+                type={type}
                 disabled={props.disabled}
                 placeholder={props.placeholder}
                 name={props.name}
                 id={id}
-                autoComplete={props.autoComplete as string}
-                readOnly={props.readOnly}
+                autoComplete={props.autoComplete}
+                InputProps={{
+                    startAdornment,
+                    endAdornment,
+                    ...inputProps
+                }}
+                InputLabelProps={InputLabelProps}
+                variant="outlined"
+                size={size}
+                color={color}
+                {...props}
             />
         </div>
     );
