@@ -98,9 +98,9 @@ function safeJsonParse(str) {
 
 function readFullDB() {
     return {
-        catalog: db.prepare('SELECT * FROM catalog').all(),
-        batches: db.prepare('SELECT * FROM batches').all(),
-        balances: db.prepare('SELECT * FROM balances WHERE status != "DELETED"').all(),
+        catalog: db.prepare("SELECT * FROM catalog").all(),
+        batches: db.prepare("SELECT * FROM batches").all(),
+        balances: db.prepare("SELECT * FROM balances WHERE status != 'DELETED'").all(),
         view: getDenormalizedInventory()
     };
 }

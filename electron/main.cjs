@@ -2,8 +2,8 @@ const { app, BrowserWindow, ipcMain, shell } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const db = require('./db.cjs');
-const InventoryController = require('./controllers/InventoryController.js');
-const ImportController = require('./controllers/ImportController.js');
+const InventoryController = require('./controllers/InventoryController.cjs');
+const ImportController = require('./controllers/ImportController.cjs');
 
 // --- PORTABLE DATA CONFIGURATION ---
 const isDev = process.env.NODE_ENV === 'development';
