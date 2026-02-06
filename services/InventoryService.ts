@@ -104,21 +104,21 @@ export const InventoryService = {
       const locations = await db.rawDb.storage_locations.bulkGet(locIds) as (StorageLocationEntity | undefined)[];
       const locMap = new Map((locations.filter(Boolean) as StorageLocationEntity[]).map(l => [l.id, l.name])); 
 
+      const batchMap = new Map(batches.map(b => [b.id, b]));
       const results: BatchDetailView[] = [];
       for (const bal of balances) {
-          const batch = batches.find(b => b.id === bal.batchId);
+          const batch = batchMap.get(bal.batchId);
           if (batch && bal.quantity > 0) {
               results.push({
                   batchId: batch.id,
                   lotNumber: batch.lotNumber,
-                  expiryDate: batch.expiryDate || '',
+                  expiryDate: batch.expiryDate || "",
                   quantity: bal.quantity,
-                  locationName: locMap.get(bal.locationId) || 'Local Desconhecido',
+                  locationName: locMap.get(bal.locationId) || "Local Desconhecido",
                   status: batch.status
               });
           }
       }
-
       return results.sort((a, b) => {
           if (!a.expiryDate) return 1;
           if (!b.expiryDate) return -1;
