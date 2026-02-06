@@ -2,39 +2,30 @@ const { app, BrowserWindow, ipcMain, shell } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const db = require('./db.cjs');
+const InventoryController = require('./controllers/InventoryController.js');
+const ImportController = require('./controllers/ImportController.js');
 
 // --- PORTABLE DATA CONFIGURATION ---
-// In production (packaged), store data in a 'labcontrol_data' folder next to the executable.
-// This allows the app to be moved between computers with its data intact.
 const isDev = process.env.NODE_ENV === 'development';
 let portableDataPath = app.getPath('userData'); // Default
 
 if (!isDev) {
   try {
-    // process.execPath is the path to the executable file.
-    // path.dirname gives the folder containing the executable.
     portableDataPath = path.join(path.dirname(process.execPath), 'labcontrol_data');
-
-    // Create the directory if it doesn't exist
     if (!fs.existsSync(portableDataPath)) {
       fs.mkdirSync(portableDataPath, { recursive: true });
     }
-
-    // Redirect Electron's userData (IndexedDB, LocalStorage, Logs, Cache)
     app.setPath('userData', portableDataPath);
-    console.log(`[Portable] UserData path set to: ${portableDataPath}`);
+    console.log('[Portable] UserData path set to:', portableDataPath);
   } catch (error) {
     console.error('[Portable] Failed to set portable data path:', error);
-    // Fallback to default %APPDATA% if write fails (e.g. read-only media)
   }
 }
 
 // Initialize Database
 const dbPath = path.join(portableDataPath, 'labcontrol.db');
-// Ensure db is initialized after app ready might be safer, but here is fine if sync
 db.initDB(dbPath);
 
-// Prevent garbage collection
 let mainWindow;
 
 function createWindow() {
@@ -62,7 +53,6 @@ function createWindow() {
     mainWindow.loadFile(path.join(__dirname, '../dist/index.html'));
   }
 
-  // Handle external links
   mainWindow.webContents.setWindowOpenHandler(({ url }) => {
     if (url.startsWith('https:') || url.startsWith('http:')) {
       shell.openExternal(url);
@@ -92,13 +82,15 @@ app.on('window-all-closed', () => {
   }
 });
 
-// IPC Examples
+// IPC Handlers
 ipcMain.handle('get-app-version', () => app.getVersion());
 
-// Database IPC
 ipcMain.handle('db:ping', () => ({ success: true, message: "Connected to Local SQLite" }));
 ipcMain.handle('db:read-full', () => ({ success: true, data: db.readFullDB() }));
 ipcMain.handle('db:read-inventory', () => ({ success: true, data: db.getDenormalizedInventory() }));
-ipcMain.handle('db:upsert-item', (_, payload) => db.upsertItem(payload.item));
-ipcMain.handle('db:delete-item', (_, payload) => db.deleteItem(payload.id));
-ipcMain.handle('db:log-movement', (_, payload) => db.logMovement(payload.record));
+
+// Transactional Writes via Controllers
+ipcMain.handle('db:upsert-item', (_, payload) => InventoryController.upsertItem(payload.item));
+ipcMain.handle('db:delete-item', (_, payload) => InventoryController.deleteItem(payload.id));
+ipcMain.handle('db:log-movement', (_, payload) => InventoryController.logMovement(payload.record));
+ipcMain.handle('db:sync-transaction', (_, payload) => ImportController.handleSyncTransaction(payload));

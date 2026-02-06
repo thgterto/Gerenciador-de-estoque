@@ -55,3 +55,19 @@ CREATE TABLE IF NOT EXISTS movements (
     lot TEXT,
     unit TEXT
 );
+
+CREATE TABLE IF NOT EXISTS systemConfigs (
+    key TEXT PRIMARY KEY,
+    value TEXT, -- JSON string
+    category TEXT,
+    updatedAt TEXT
+);
+
+CREATE TABLE IF NOT EXISTS syncQueue (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    action TEXT NOT NULL,
+    payload TEXT NOT NULL, -- JSON
+    status TEXT DEFAULT 'PENDING', -- PENDING, FAILED
+    createdAt TEXT,
+    retryCount INTEGER DEFAULT 0
+);

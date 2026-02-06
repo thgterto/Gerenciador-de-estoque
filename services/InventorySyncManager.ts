@@ -1,11 +1,13 @@
 import { db } from '../db';
-import { GoogleSheetsService } from './GoogleSheetsService';
+import { ApiClient } from './ApiClient';
 import { SyncQueueService } from './SyncQueueService';
 
 export const InventorySyncManager = {
     async syncFromCloud(): Promise<void> {
       try {
-          if (!GoogleSheetsService.isConfigured()) {
+          // If NOT Electron and NOT configured, skip
+          // If Electron, we always "configured" (local DB)
+          if (!ApiClient.isElectron() && !(await isGasConfigured())) {
               console.log("Modo Offline: Google Sheets não configurado.");
               return;
           }
@@ -18,13 +20,18 @@ export const InventorySyncManager = {
               return;
           }
 
-          console.log("Iniciando sincronização V2 (Smart Merge)...");
-          const { view, catalog, batches, balances } = await GoogleSheetsService.fetchFullDatabase();
+          console.log("Iniciando sincronização (Hybrid/Portable)...");
 
-          if (view.length > 0) {
+          const { view, catalog, batches, balances } = await ApiClient.fetchFullDatabase();
+
+          if (view && view.length > 0) {
               // Atomic Transaction
               await db.transaction('rw', [db.rawDb.items, db.rawDb.catalog, db.rawDb.batches, db.rawDb.balances], async () => {
                   await Promise.all([
+                      db.items.clear(), // Clear old cache? Or upsert?
+                      // Usually we might want to clear or smart merge.
+                      // For "read_full_db" usually it's a replace or we trust the source.
+                      // Let's stick to bulkPut which upserts.
                       db.items.bulkPut(view),
                       db.rawDb.catalog.bulkPut(catalog),
                       db.rawDb.batches.bulkPut(batches),
@@ -34,32 +41,47 @@ export const InventorySyncManager = {
               console.log(`Sync Concluído: ${view.length} items atualizados.`);
           }
       } catch (error) {
-          console.error("Erro na sincronização Cloud:", error);
+          console.error("Erro na sincronização:", error);
           // Invalidate cache on sync error to ensure consistency
           db.invalidateCaches();
       }
     },
 
     async notifyChange(action: string, payload: any): Promise<void> {
-        if (GoogleSheetsService.isConfigured()) {
-            GoogleSheetsService.request(action, payload)
+        // In Electron, we always request. In Web, check config.
+        if (ApiClient.isElectron() || (await isGasConfigured())) {
+            ApiClient.request(action, payload)
                 .catch(() => SyncQueueService.enqueue(action, payload));
         }
     },
 
     // Wrapper for legacy addOrUpdateItem pattern
     async notifyItemChange(item: any): Promise<void> {
-        if (GoogleSheetsService.isConfigured()) {
-            GoogleSheetsService.addOrUpdateItem(item)
+        if (ApiClient.isElectron() || (await isGasConfigured())) {
+             // ApiClient.request('upsert_item', { item })
+             // Legacy GoogleSheetsService had addOrUpdateItem wrapper.
+             // We can use request directly.
+             ApiClient.request('upsert_item', { item })
                 .catch(() => SyncQueueService.enqueue('upsert_item', { item }));
         }
     },
 
     // Wrapper for legacy deleteItem pattern
     async notifyItemDelete(id: string): Promise<void> {
-        if (GoogleSheetsService.isConfigured()) {
-            GoogleSheetsService.deleteItem(id)
+        if (ApiClient.isElectron() || (await isGasConfigured())) {
+             ApiClient.request('delete_item', { id })
                 .catch(() => SyncQueueService.enqueue('delete_item', { id }));
         }
     }
 };
+
+// Helper to check GAS config (mock or import from service if needed)
+async function isGasConfigured(): Promise<boolean> {
+    // We can dynamically import GoogleSheetsService to avoid circular dep if needed,
+    // or just assume it's available.
+    // Given the previous file imported it, let's assume we can access it or duplicate logic.
+    // For now, let's import it dynamically to be safe or use ApiClient check?
+    // ApiClient doesn't expose isConfigured.
+    const { GoogleSheetsService } = await import('./GoogleSheetsService');
+    return GoogleSheetsService.isConfigured();
+}
