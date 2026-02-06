@@ -192,7 +192,7 @@ const LabControlContent = () => {
                         />
                    } />
 
-                   <Route path="/storage" element={<StorageMatrix items={items} />} />
+                   <Route path="/storage" element={<StorageMatrix items={items} onActions={actions} />} />
                    
                    {/* Legacy Route redirect to modal behavior if accessed directly */}
                    <Route path="/add-item" element={
