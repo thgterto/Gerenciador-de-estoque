@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { InventoryItem } from '../types';
-import { Button } from './ui/Button';
+import { Button, Box, Paper, Snackbar, Alert } from '@mui/material';
 import { PageHeader } from './ui/PageHeader';
 import { PageContainer } from './ui/PageContainer';
 import { useAuth } from '../context/AuthContext';
@@ -10,6 +10,12 @@ import { useInventoryFilters } from '../hooks/useInventoryFilters';
 import { InventoryKPIs } from './inventory/InventoryKPIs';
 import { InventoryFilters } from './inventory/InventoryFilters';
 import { InventoryList } from './inventory/InventoryList';
+
+// Icons
+import AddIcon from '@mui/icons-material/Add';
+import FileDownloadIcon from '@mui/icons-material/FileDownload';
+import DeleteIcon from '@mui/icons-material/Delete';
+import CloseIcon from '@mui/icons-material/Close';
 
 interface Props {
   items: InventoryItem[];
@@ -84,8 +90,10 @@ export const InventoryTable: React.FC<Props> = ({ items, onActions, onAddNew }) 
   
   const handleBulkDelete = async () => {
       if (selectedIds.size === 0) return;
-      const success = await deleteManyItems(Array.from(selectedIds));
-      if (success) setSelectedIds(new Set());
+      if (confirm(`Tem certeza que deseja excluir ${selectedIds.size} itens?`)) {
+          const success = await deleteManyItems(Array.from(selectedIds));
+          if (success) setSelectedIds(new Set());
+      }
   };
 
   const getCategoryIcon = useCallback((cat: string) => {
@@ -110,11 +118,11 @@ export const InventoryTable: React.FC<Props> = ({ items, onActions, onAddNew }) 
             description="Gerencie lotes, reagentes e vidrarias."
             className="mb-4"
         >
-            <Button variant="white" icon="file_download" onClick={() => alert("Use o menu de Configurações para exportar dados completos.")} className="hidden sm:flex">
+            <Button variant="outlined" startIcon={<FileDownloadIcon />} onClick={() => alert("Use o menu de Configurações para exportar dados completos.")} sx={{ display: { xs: 'none', sm: 'flex' } }}>
                 Exportar
             </Button>
             {onAddNew && (
-                <Button variant="primary" icon="add" onClick={onAddNew}>
+                <Button variant="contained" startIcon={<AddIcon />} onClick={onAddNew}>
                     Adicionar
                 </Button>
             )}
@@ -152,33 +160,52 @@ export const InventoryTable: React.FC<Props> = ({ items, onActions, onAddNew }) 
             expandedGroups={expandedGroups}
         />
 
-        {/* Floating Action Bar */}
+        {/* Bulk Actions Snackbar/Floating Bar */}
         {selectedIds.size > 0 && hasRole('ADMIN') && (
-            <div className="absolute bottom-8 left-1/2 -translate-x-1/2 bg-surface-dark text-white px-6 py-3 rounded-full shadow-xl border border-slate-700 flex items-center gap-6 animate-slide-up z-30 w-[90%] md:w-auto justify-between md:justify-start">
-                <div className="flex items-center gap-3 text-sm font-medium">
-                    <span className="bg-primary text-white rounded-full size-6 flex items-center justify-center text-xs font-bold">{selectedIds.size}</span>
+            <Paper
+                elevation={6}
+                sx={{
+                    position: 'fixed',
+                    bottom: 32,
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    bgcolor: 'text.primary',
+                    color: 'background.paper',
+                    px: 3, py: 1.5,
+                    borderRadius: 8,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 3,
+                    zIndex: 1300
+                }}
+            >
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <Box sx={{ bgcolor: 'primary.main', color: 'white', borderRadius: '50%', width: 24, height: 24, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: 'bold' }}>
+                        {selectedIds.size}
+                    </Box>
                     <span className="hidden sm:inline">Itens Selecionados</span>
-                    <span className="sm:hidden">Sel.</span>
-                </div>
-                <div className="h-6 w-px bg-slate-700"></div>
-                <div className="flex items-center gap-2">
+                </Box>
+                <Box sx={{ height: 24, width: 1, bgcolor: 'rgba(255,255,255,0.2)' }} />
+                <Box sx={{ display: 'flex', gap: 1 }}>
                     <Button 
-                        variant="danger" 
-                        size="sm" 
-                        icon="delete" 
+                        variant="contained"
+                        color="error"
+                        size="small"
+                        startIcon={<DeleteIcon />}
                         onClick={handleBulkDelete}
-                        className="rounded-full px-4 h-8"
+                        sx={{ borderRadius: 4 }}
                     >
                         Excluir
                     </Button>
-                    <button 
+                    <Button
+                        size="small"
                         onClick={() => setSelectedIds(new Set())}
-                        className="p-1 rounded-full hover:bg-slate-700 text-slate-400 hover:text-white transition-colors"
+                        sx={{ color: 'rgba(255,255,255,0.7)', minWidth: 0, p: 1, borderRadius: '50%' }}
                     >
-                        <span className="material-symbols-outlined text-[20px]">close</span>
-                    </button>
-                </div>
-            </div>
+                        <CloseIcon />
+                    </Button>
+                </Box>
+            </Paper>
         )}
     </PageContainer>
   );

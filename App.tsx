@@ -1,9 +1,5 @@
-
 import React, { useState, useEffect, useRef, useMemo, Suspense } from 'react';
 import { HashRouter as Router, Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
-import { AppProvider, Frame } from '@shopify/polaris';
-import enTranslations from '@shopify/polaris/locales/en.json';
-import { LinkAdapter } from './components/LinkAdapter';
 import { Layout } from './components/Layout';
 import { AddItem } from './components/AddItem'; 
 import { MovementModal, EditModal, RequestModal, QRGeneratorModal, AddItemModal } from './components/Modals'; 
@@ -144,7 +140,7 @@ const LabControlContent = () => {
   if (loading) return <div className="h-screen flex items-center justify-center bg-background-light text-primary font-bold animate-pulse">Carregando LabControl...</div>;
 
   return (
-    <Frame>
+    <>
        <ToastContainer />
        
        <Layout
@@ -277,22 +273,20 @@ const LabControlContent = () => {
        />
        
        <input type="file" ref={fileInputRef} onChange={handleImport} className="hidden" accept=".xlsx" />
-    </Frame>
+    </>
   );
 };
 
 export default function App() {
     return (
         <Router>
-            <AppProvider i18n={enTranslations} linkComponent={LinkAdapter}>
-                <ThemeProvider>
-                    <AlertProvider>
-                        <AuthProvider>
-                            <LabControlContent />
-                        </AuthProvider>
-                    </AlertProvider>
-                </ThemeProvider>
-            </AppProvider>
+            <ThemeProvider>
+                <AlertProvider>
+                    <AuthProvider>
+                        <LabControlContent />
+                    </AuthProvider>
+                </AlertProvider>
+            </ThemeProvider>
         </Router>
     )
 }

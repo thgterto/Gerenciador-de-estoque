@@ -1,15 +1,32 @@
 import React from 'react';
-import { NavLink } from 'react-router-dom';
-import { Icon } from './ui/Icon';
+import { NavLink, useLocation } from 'react-router-dom';
+import {
+    Box, Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText,
+    Toolbar, Divider, Typography, Avatar, IconButton, Tooltip, Badge
+} from '@mui/material';
+import { useTheme } from '@mui/material/styles';
 import { useAuth } from '../context/AuthContext';
-import { Tooltip } from './Tooltip';
+
+// Icons
+import DashboardIcon from '@mui/icons-material/Dashboard';
+import InventoryIcon from '@mui/icons-material/Inventory2';
+import GridViewIcon from '@mui/icons-material/GridView';
+import HistoryIcon from '@mui/icons-material/History';
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+import BarChartIcon from '@mui/icons-material/BarChart';
+import SettingsIcon from '@mui/icons-material/Settings';
+import ScienceIcon from '@mui/icons-material/Science';
+import SyncIcon from '@mui/icons-material/Sync';
+import LogoutIcon from '@mui/icons-material/Logout';
 
 interface SidebarProps {
     onLogout: () => void;
     notificationsCount: number;
     onSync: () => void;
     isMobileOpen: boolean;
-    closeMobile: () => void;
+    onClose: () => void;
+    onTransitionEnd: () => void;
+    drawerWidth: number;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -17,101 +34,157 @@ export const Sidebar: React.FC<SidebarProps> = ({
     notificationsCount,
     onSync,
     isMobileOpen,
-    closeMobile
+    onClose,
+    onTransitionEnd,
+    drawerWidth
 }) => {
     const { user } = useAuth();
+    const location = useLocation();
+    const theme = useTheme();
 
     const menuItems = [
-        { path: '/', icon: 'dashboard', label: 'Dashboard' },
-        { path: '/inventory', icon: 'inventory_2', label: 'Inventário' },
-        { path: '/storage', icon: 'grid_view', label: 'Armazenamento' },
-        { path: '/history', icon: 'history', label: 'Histórico' },
-        { path: '/purchases', icon: 'shopping_cart', label: 'Compras' },
-        { path: '/reports', icon: 'bar_chart', label: 'Relatórios' },
-        { path: '/settings', icon: 'settings', label: 'Configurações' },
+        { path: '/dashboard', icon: <DashboardIcon />, label: 'Dashboard' },
+        { path: '/inventory', icon: <InventoryIcon />, label: 'Inventário' },
+        { path: '/storage', icon: <GridViewIcon />, label: 'Armazenamento' },
+        { path: '/history', icon: <HistoryIcon />, label: 'Histórico' },
+        { path: '/purchases', icon: <ShoppingCartIcon />, label: 'Compras' },
+        { path: '/reports', icon: <BarChartIcon />, label: 'Relatórios' },
+        { path: '/settings', icon: <SettingsIcon />, label: 'Configurações' },
     ];
 
-    const sidebarClass = isMobileOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0';
+    const drawerContent = (
+        <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+            {/* Header / Logo */}
+            <Toolbar sx={{ display: 'flex', alignItems: 'center', gap: 1.5, px: 3 }}>
+                <Box sx={{
+                    p: 0.5,
+                    borderRadius: 1,
+                    bgcolor: 'primary.main',
+                    color: 'primary.contrastText',
+                    display: 'flex'
+                }}>
+                    <ScienceIcon fontSize="medium" />
+                </Box>
+                <Typography variant="h6" noWrap component="div" sx={{ fontWeight: 'bold' }}>
+                    Lab<Box component="span" sx={{ color: 'secondary.main' }}>Control</Box>
+                </Typography>
+            </Toolbar>
+            <Divider />
+
+            {/* Navigation Items */}
+            <List sx={{ flexGrow: 1, px: 2, py: 2 }}>
+                {menuItems.map((item) => {
+                    const isActive = location.pathname.startsWith(item.path);
+                    return (
+                        <ListItem key={item.path} disablePadding sx={{ mb: 0.5 }}>
+                            <ListItemButton
+                                component={NavLink}
+                                to={item.path}
+                                selected={isActive}
+                                onClick={onClose} // Close drawer on mobile click
+                                sx={{
+                                    borderRadius: 2,
+                                    '&.active': {
+                                        bgcolor: 'primary.main', // Should be primary.light with opacity usually, but 'selected' handles it partially
+                                        color: 'primary.contrastText',
+                                        '& .MuiListItemIcon-root': {
+                                            color: 'inherit',
+                                        },
+                                    },
+                                    // Custom active styling override if needed
+                                    ...(isActive && {
+                                        bgcolor: theme.palette.primary.light + '20', // 20% opacity
+                                        color: theme.palette.primary.main,
+                                        '&:hover': {
+                                             bgcolor: theme.palette.primary.light + '30',
+                                        }
+                                    })
+                                }}
+                            >
+                                <ListItemIcon sx={{ minWidth: 40, color: isActive ? 'inherit' : 'text.secondary' }}>
+                                    {item.label === 'Inventário' && notificationsCount > 0 ? (
+                                        <Badge badgeContent={notificationsCount} color="error" variant="dot">
+                                            {item.icon}
+                                        </Badge>
+                                    ) : (
+                                        item.icon
+                                    )}
+                                </ListItemIcon>
+                                <ListItemText
+                                    primary={item.label}
+                                    primaryTypographyProps={{ fontSize: '0.9rem', fontWeight: isActive ? 600 : 400 }}
+                                />
+                            </ListItemButton>
+                        </ListItem>
+                    );
+                })}
+            </List>
+
+            <Divider />
+
+            {/* Footer Actions */}
+            <Box sx={{ p: 2, bgcolor: 'background.paper' }}>
+                <ListItemButton onClick={onSync} sx={{ borderRadius: 2, mb: 1 }}>
+                    <ListItemIcon sx={{ minWidth: 40 }}><SyncIcon /></ListItemIcon>
+                    <ListItemText primary="Sincronizar" secondary="Backup manual" />
+                </ListItemButton>
+
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mt: 1, p: 1 }}>
+                    <Avatar
+                        src={user?.avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=Aneka'}
+                        alt={user?.name}
+                        sx={{ width: 40, height: 40, border: '2px solid', borderColor: 'divider' }}
+                    />
+                    <Box sx={{ flexGrow: 1, overflow: 'hidden' }}>
+                        <Typography variant="subtitle2" noWrap>{user?.name || 'Usuário'}</Typography>
+                        <Typography variant="caption" color="text.secondary" noWrap sx={{ textTransform: 'capitalize' }}>
+                            {user?.role === 'ADMIN' ? 'Administrator' : 'Operator'}
+                        </Typography>
+                    </Box>
+                    <Tooltip title="Sair">
+                        <IconButton onClick={onLogout} size="small" color="default">
+                            <LogoutIcon fontSize="small" />
+                        </IconButton>
+                    </Tooltip>
+                </Box>
+            </Box>
+        </Box>
+    );
 
     return (
-        <>
-      {/* Sidebar Container */}
-      <aside className={`fixed md:relative z-40 w-64 h-full bg-sidebar border-r border-sidebar-border flex flex-col transition-transform duration-300 ease-in-out shadow-xl md:shadow-none ${sidebarClass}`}>
-
-        {/* Logo Header */}
-        <div className="h-16 flex items-center px-6 border-b border-sidebar-border bg-sidebar shrink-0">
-            <div className="flex items-center gap-3">
-                <div className="p-1.5 bg-gradient-to-br from-primary to-secondary rounded-lg shadow-lg">
-                    <Icon name="science" className="text-white" size={24} />
-                </div>
-                <span className="text-xl font-bold tracking-tight text-white">
-                    Lab<span className="text-secondary">Control</span>
-                </span>
-            </div>
-            <button onClick={closeMobile} className="md:hidden ml-auto text-gray-400 hover:text-white">
-                <Icon name="close" size={24} />
-            </button>
-        </div>
-
-        {/* Navigation */}
-        <nav className="flex-1 overflow-y-auto py-6 px-3 space-y-1 custom-scrollbar">
-            {menuItems.map((item) => (
-                <React.Fragment key={item.path}>
-                    <NavLink
-                        to={item.path}
-                        onClick={closeMobile}
-                        className={({ isActive }) =>
-                            `flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 group ${
-                                isActive
-                                    ? 'bg-white/10 text-white shadow-sm border-l-4 border-secondary pl-3' // Active
-                                    : 'text-gray-400 hover:bg-white/5 hover:text-white hover:pl-5' // Inactive
-                            }`
-                        }
-                    >
-                        <Icon name={item.icon} size={20} className="group-hover:scale-110 transition-transform duration-200" />
-                        <span className="truncate">{item.label}</span>
-                        {item.path === '/inventory' && notificationsCount > 0 && (
-                            <span className="ml-auto bg-accent text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm animate-pulse">
-                                {notificationsCount}
-                            </span>
-                        )}
-                    </NavLink>
-                </React.Fragment>
-            ))}
-        </nav>
-
-        {/* Sync & User Profile Footer */}
-        <div className="p-0 border-t border-sidebar-border shrink-0 bg-sidebar-hover">
-
-            {/* Sync Button Action */}
-            <div
-                className="flex items-center gap-3 px-6 py-3 cursor-pointer hover:bg-white/5 transition-colors border-b border-sidebar-border/50 text-gray-400 hover:text-secondary group"
-                onClick={onSync}
+        <Box
+            component="nav"
+            sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}
+            aria-label="mailbox folders"
+        >
+            {/* Mobile Drawer */}
+            <Drawer
+                variant="temporary"
+                open={isMobileOpen}
+                onTransitionEnd={onTransitionEnd}
+                onClose={onClose}
+                ModalProps={{
+                    keepMounted: true, // Better open performance on mobile.
+                }}
+                sx={{
+                    display: { xs: 'block', sm: 'none' },
+                    '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth },
+                }}
             >
-                <Icon name="sync" className="group-hover:rotate-180 transition-transform duration-500" size={20} />
-                <span className="text-sm font-medium">Sincronizar Dados</span>
-            </div>
+                {drawerContent}
+            </Drawer>
 
-            {/* User Profile */}
-            <div 
-                className="flex items-center gap-3 p-4 cursor-pointer hover:bg-white/5 transition-colors group"
-                onClick={onLogout}
-                role="button"
-                tabIndex={0}
+            {/* Desktop Drawer */}
+            <Drawer
+                variant="permanent"
+                sx={{
+                    display: { xs: 'none', sm: 'block' },
+                    '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth },
+                }}
+                open
             >
-                <div className="size-10 rounded-full bg-cover bg-center border-2 border-gray-600 shadow-sm shrink-0" style={{backgroundImage: `url(${user?.avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=Aneka'})`}}></div>
-                <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
-                    <p className="text-sm font-semibold text-white truncate group-hover:text-secondary transition-colors">{user?.name || 'Usuário'}</p>
-                    <p className="text-xs text-gray-500 truncate capitalize font-mono">{user?.role === 'ADMIN' ? 'Administrator' : 'Operator'}</p>
-                </div>
-                <Tooltip content="Sair" position="top">
-                    <div className="p-2 rounded-full hover:bg-white/10 transition-colors">
-                        <Icon name="logout" className="text-gray-500 group-hover:text-danger transition-colors" size={18} />
-                    </div>
-                </Tooltip>
-            </div>
-        </div>
-      </aside>
-    </>
-  );
+                {drawerContent}
+            </Drawer>
+        </Box>
+    );
 };

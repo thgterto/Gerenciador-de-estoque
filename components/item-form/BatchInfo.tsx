@@ -1,8 +1,11 @@
-
 import React from 'react';
+import { Card, CardContent, Typography, Box, IconButton, Tooltip, Stack } from '@mui/material';
+import { Grid } from '@mui/material';
 import { Input } from '../ui/Input';
-import { Card } from '../ui/Card';
 import { CreateItemDTO, ItemType } from '../../types';
+import LayersIcon from '@mui/icons-material/Layers';
+import AutorenewIcon from '@mui/icons-material/Autorenew';
+import QrCodeScannerIcon from '@mui/icons-material/QrCodeScanner';
 
 interface BatchInfoProps {
     formData: Partial<CreateItemDTO>;
@@ -24,87 +27,86 @@ export const BatchInfo: React.FC<BatchInfoProps> = ({
     onScan
 }) => {
     return (
-        <Card noBorder className="shadow-sm border-2 border-blue-200 dark:border-blue-800 bg-blue-50/20 dark:bg-blue-900/5 relative" padding="p-5">
-                <div className="flex items-center gap-2 mb-4 border-b border-blue-200 dark:border-blue-800 pb-2">
-                <span className="material-symbols-outlined text-blue-600 dark:text-blue-400 text-[20px]">layers</span>
-                <h3 className="text-sm font-bold uppercase tracking-wider text-blue-700 dark:text-blue-300">Lote & Validade</h3>
-            </div>
+        <Card variant="outlined" sx={{ mb: 2 }}>
+            <CardContent>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 3, borderBottom: 1, borderColor: 'divider', pb: 1 }}>
+                    <LayersIcon color="primary" />
+                    <Typography variant="subtitle2" fontWeight="bold" textTransform="uppercase" color="primary">
+                        Lote & Validade
+                    </Typography>
+                </Box>
 
-            <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
+                <Stack spacing={3}>
+                    <Grid container spacing={2}>
+                        <Grid size={{ xs: 12, sm: 6 }}>
+                            <Input
+                                label={itemType === 'EQUIPMENT' ? "Patrimônio/Série" : "Lote / Série"}
+                                value={formData.lotNumber || ''}
+                                onChange={e => onChange('lotNumber', e.target.value)}
+                                error={errors.lotNumber}
+                                placeholder={itemType === 'EQUIPMENT' ? "Ex: PAT-001" : "Vazio p/ auto"}
+                                rightElement={
+                                    <Stack direction="row" spacing={0.5}>
+                                        <Tooltip title="Gerar Lote Interno">
+                                            <IconButton onClick={onGenerateInternalBatch} size="small">
+                                                <AutorenewIcon fontSize="small" />
+                                            </IconButton>
+                                        </Tooltip>
+                                        {onScan && (
+                                            <Tooltip title="Escanear">
+                                                <IconButton onClick={() => onScan('lotNumber')} size="small">
+                                                    <QrCodeScannerIcon fontSize="small" />
+                                                </IconButton>
+                                            </Tooltip>
+                                        )}
+                                    </Stack>
+                                }
+                            />
+                        </Grid>
+                        {itemType !== 'EQUIPMENT' && (
+                            <Grid size={{ xs: 12, sm: 6 }}>
+                                <Input
+                                    label="Validade"
+                                    type="date"
+                                    value={formData.expiryDate || ''}
+                                    onChange={e => onChange('expiryDate', e.target.value)}
+                                    InputLabelProps={{ shrink: true }}
+                                />
+                            </Grid>
+                        )}
+                    </Grid>
+
                     <Input
-                        label={itemType === 'EQUIPMENT' ? "Patrimônio/Série" : "Lote / Série"}
-                        value={formData.lotNumber || ''}
-                        onChange={e => onChange('lotNumber', e.target.value)}
-                        error={errors.lotNumber}
-                        placeholder={itemType === 'EQUIPMENT' ? "Ex: PAT-001 (Vazio p/ auto)" : "Vazio p/ auto"}
-                        className="border-blue-200 focus:border-blue-500 focus:ring-blue-200 pr-16"
-                        rightElement={
-                            <div className="flex items-center gap-1">
-                                    <button
-                                    type="button"
-                                    onClick={onGenerateInternalBatch}
-                                    className="text-text-secondary hover:text-blue-600 transition-colors p-1"
-                                    title="Gerar Lote Interno"
-                                    >
-                                    <span className="material-symbols-outlined">autorenew</span>
-                                    </button>
-                                    {onScan && (
-                                        <button
-                                        type="button"
-                                        onClick={() => onScan('lotNumber')}
-                                        className="text-text-secondary hover:text-primary transition-colors p-1"
-                                        title="Escanear"
-                                        >
-                                        <span className="material-symbols-outlined">qr_code_scanner</span>
-                                        </button>
-                                    )}
-                            </div>
-                        }
+                        label="Fabricante / Fornecedor"
+                        value={formData.supplier || ''}
+                        onChange={e => onChange('supplier', e.target.value)}
                     />
 
-                    {itemType !== 'EQUIPMENT' && (
-                        <Input
-                            label="Validade"
-                            type="date"
-                            value={formData.expiryDate || ''}
-                            onChange={e => onChange('expiryDate', e.target.value)}
-                            className="border-blue-200 focus:border-blue-500 focus:ring-blue-200"
-                        />
-                    )}
-                </div>
-
-                <Input
-                    label="Fabricante / Fornecedor"
-                    value={formData.supplier || ''}
-                    onChange={e => onChange('supplier', e.target.value)}
-                    className="border-blue-200 focus:border-blue-500 focus:ring-blue-200"
-                />
-
-                    <div className="grid grid-cols-2 gap-4">
-                    <Input
-                        label="Qtd Inicial"
-                        type="number"
-                        step="0.001"
-                        min={0}
-                        value={String(formData.quantity ?? 0)}
-                        onChange={e => onChange('quantity', Number(e.target.value))}
-                        error={errors.quantity}
-                        disabled={isEditMode}
-                        helpText={isEditMode ? "Use 'Movimentar' para alterar." : ""}
-                        className="border-blue-200 focus:border-blue-500 focus:ring-blue-200 font-bold"
-                    />
-                    <Input
-                        label="Estoque Mínimo"
-                        type="number"
-                        step="1"
-                        min={0}
-                        value={String(formData.minStockLevel ?? 0)}
-                        onChange={e => onChange('minStockLevel', Number(e.target.value))}
-                        className="border-blue-200 focus:border-blue-500 focus:ring-blue-200"
-                    />
-                </div>
-            </div>
+                    <Grid container spacing={2}>
+                        <Grid size={{ xs: 12, sm: 6 }}>
+                            <Input
+                                label="Qtd Inicial"
+                                type="number"
+                                inputProps={{ step: "0.001", min: 0 }}
+                                value={String(formData.quantity ?? 0)}
+                                onChange={e => onChange('quantity', Number(e.target.value))}
+                                error={errors.quantity}
+                                disabled={isEditMode}
+                                helpText={isEditMode ? "Use 'Movimentar' para alterar." : ""}
+                            />
+                        </Grid>
+                        <Grid size={{ xs: 12, sm: 6 }}>
+                            <Input
+                                label="Estoque Mínimo"
+                                type="number"
+                                inputProps={{ step: "1", min: 0 }}
+                                value={String(formData.minStockLevel ?? 0)}
+                                onChange={e => onChange('minStockLevel', Number(e.target.value))}
+                            />
+                        </Grid>
+                    </Grid>
+                </Stack>
+            </CardContent>
         </Card>
     );
 };

@@ -1,5 +1,7 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link as RouterLink } from 'react-router-dom';
+import { Box, Typography, Breadcrumbs, Link, Stack } from '@mui/material';
+import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 
 interface BreadcrumbItem {
     label: string;
@@ -22,41 +24,64 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
     className = '' 
 }) => {
     return (
-        <div className={`flex flex-col gap-4 mb-8 ${className}`}>
+        <Box sx={{ mb: 4 }} className={className}>
             {breadcrumbs && (
-                <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-text-light">
-                    <Link to="/dashboard" className="hover:text-primary transition-colors">Home</Link>
+                <Breadcrumbs
+                    separator={<NavigateNextIcon fontSize="small" />}
+                    aria-label="breadcrumb"
+                    sx={{ mb: 2 }}
+                >
+                    <Link underline="hover" color="inherit" component={RouterLink} to="/dashboard">
+                        Home
+                    </Link>
                     {breadcrumbs.map((crumb, idx) => (
-                        <React.Fragment key={idx}>
-                            <span>/</span>
-                            {crumb.path ? (
-                                <Link to={crumb.path} className="hover:text-primary transition-colors">{crumb.label}</Link>
-                            ) : (
-                                <span className="font-bold text-text-main">{crumb.label}</span>
-                            )}
-                        </React.Fragment>
+                        crumb.path ? (
+                            <Link
+                                key={idx}
+                                underline="hover"
+                                color="inherit"
+                                component={RouterLink}
+                                to={crumb.path}
+                            >
+                                {crumb.label}
+                            </Link>
+                        ) : (
+                            <Typography key={idx} color="text.primary">
+                                {crumb.label}
+                            </Typography>
+                        )
                     ))}
-                </div>
+                </Breadcrumbs>
             )}
 
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 border-b-4 border-black dark:border-white pb-4">
-                <div className="flex flex-col gap-1">
-                    <h1 className="text-4xl font-black uppercase tracking-tighter text-text-main">
+            <Stack
+                direction={{ xs: 'column', md: 'row' }}
+                justifyContent="space-between"
+                alignItems={{ xs: 'flex-start', md: 'flex-end' }}
+                spacing={2}
+                sx={{
+                    borderBottom: 1,
+                    borderColor: 'divider',
+                    pb: 2
+                }}
+            >
+                <Box>
+                    <Typography variant="h4" component="h1" fontWeight="bold" gutterBottom>
                         {title}
-                    </h1>
+                    </Typography>
                     {description && (
-                        <p className="text-sm text-text-secondary font-medium tracking-wide">
+                        <Typography variant="body1" color="text.secondary">
                             {description}
-                        </p>
+                        </Typography>
                     )}
-                </div>
+                </Box>
 
                 {children && (
-                    <div className="flex items-center gap-3">
+                    <Box sx={{ display: 'flex', gap: 2 }}>
                         {children}
-                    </div>
+                    </Box>
                 )}
-            </div>
-        </div>
+            </Stack>
+        </Box>
     );
 };

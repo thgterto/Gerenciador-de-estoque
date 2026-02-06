@@ -1,5 +1,9 @@
 import React from 'react';
-import { MetricCard } from '../ui/MetricCard';
+import { Card, CardContent, Typography, Box } from '@mui/material';
+import { Grid } from '@mui/material';
+import Inventory2Icon from '@mui/icons-material/Inventory2';
+import WarningIcon from '@mui/icons-material/Warning';
+import EventBusyIcon from '@mui/icons-material/EventBusy';
 
 interface InventoryStats {
     totalItems: number;
@@ -12,32 +16,56 @@ interface InventoryKPIsProps {
 }
 
 export const InventoryKPIs: React.FC<InventoryKPIsProps> = ({ stats }) => {
+    const MetricCard = ({ title, icon, value, subValue, color }: any) => (
+        <Card sx={{ height: '100%' }} variant="outlined">
+            <CardContent sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', p: 2, '&:last-child': { pb: 2 } }}>
+                <Box>
+                    <Typography variant="overline" color="text.secondary" fontWeight="bold">
+                        {title}
+                    </Typography>
+                    <Typography variant="h4" fontWeight="bold">
+                        {value}
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary">
+                        {subValue}
+                    </Typography>
+                </Box>
+                <Box sx={{ p: 1.5, borderRadius: 2, bgcolor: `${color}.light`, color: `${color}.main` }}>
+                    {icon}
+                </Box>
+            </CardContent>
+        </Card>
+    );
+
     return (
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 shrink-0 mb-6">
-             <MetricCard
-                title="Itens Ativos"
-                icon="inventory_2"
-                value={stats.totalItems}
-                subValue="Lotes totais"
-                variant="primary"
-                className="h-24 sm:h-28"
-             />
-             <MetricCard
-                title="Baixo Estoque"
-                icon="warning"
-                value={stats.lowStockCount}
-                subValue="Requer atenção"
-                variant="warning"
-                className="h-24 sm:h-28"
-             />
-             <MetricCard
-                title="Vencidos"
-                icon="event_busy"
-                value={stats.expiredCount}
-                subValue="Descartar"
-                variant="danger"
-                className="h-24 sm:h-28"
-             />
-        </div>
+        <Grid container spacing={2} sx={{ mb: 3 }}>
+             <Grid size={{ xs: 12, sm: 4 }}>
+                 <MetricCard
+                    title="Itens Ativos"
+                    icon={<Inventory2Icon fontSize="large" />}
+                    value={stats.totalItems}
+                    subValue="Lotes totais"
+                    color="primary"
+                 />
+             </Grid>
+             <Grid size={{ xs: 12, sm: 4 }}>
+                 <MetricCard
+                    title="Baixo Estoque"
+                    icon={<WarningIcon fontSize="large" />}
+                    value={stats.lowStockCount}
+                    subValue="Requer atenção"
+                    color="warning"
+                 />
+             </Grid>
+             <Grid size={{ xs: 12, sm: 4 }}>
+                 <MetricCard
+                    title="Vencidos"
+                    icon={<EventBusyIcon fontSize="large" />}
+                    value={stats.expiredCount}
+                    subValue="Descartar"
+                    color="error"
+                 />
+             </Grid>
+        </Grid>
     );
 };

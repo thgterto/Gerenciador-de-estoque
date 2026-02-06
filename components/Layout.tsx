@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
+import { Box, Toolbar, useTheme, useMediaQuery } from '@mui/material';
 import { Sidebar } from './Sidebar';
 import { Header } from './Header';
-import { useTheme } from '../context/ThemeContext';
-import { useLocation } from 'react-router-dom';
+
+const drawerWidth = 260; // Slightly wider for better legibility
 
 interface LayoutProps {
     children: React.ReactNode;
@@ -25,50 +26,62 @@ export const Layout: React.FC<LayoutProps> = ({
     onAddClick,
     onScanClick
 }) => {
-    const { toggleTheme } = useTheme();
-    const location = useLocation();
-    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-    
-    // Close menu on route change
-    React.useEffect(() => {
-        setIsMobileMenuOpen(false);
-    }, [location.pathname]);
+    const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+    const [mobileOpen, setMobileOpen] = useState(false);
+    const [isClosing, setIsClosing] = useState(false);
+
+    const handleDrawerClose = () => {
+        setIsClosing(true);
+        setMobileOpen(false);
+    };
+
+    const handleDrawerTransitionEnd = () => {
+        setIsClosing(false);
+    };
+
+    const handleDrawerToggle = () => {
+        if (!isClosing) {
+            setMobileOpen(!mobileOpen);
+        }
+    };
 
     return (
-        <div className="flex bg-background h-screen w-screen font-sans overflow-hidden transition-colors duration-300">
-            {/* Mobile Overlay - Soft Blur */}
-            {isMobileMenuOpen && (
-                <div 
-                    className="fixed inset-0 bg-gray-900/60 backdrop-blur-sm z-30 md:hidden animate-fade-in"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                />
-            )}
+        <Box sx={{ display: 'flex', minHeight: '100vh', bgcolor: 'background.default' }}>
+            <Header
+                onToggleTheme={() => {}} // Theme toggle is handled inside Header or Context now
+                onBackup={onBackupForce}
+                onAddClick={onAddClick}
+                onScanClick={onScanClick}
+                notificationsCount={alertsCount}
+                onMenuClick={handleDrawerToggle}
+                drawerWidth={drawerWidth}
+            />
 
             <Sidebar 
-                onLogout={onLogout} 
-                notificationsCount={notificationsCount} 
+                onLogout={onLogout}
+                notificationsCount={notificationsCount}
                 onSync={onSync}
-                isMobileOpen={isMobileMenuOpen}
-                closeMobile={() => setIsMobileMenuOpen(false)}
+                isMobileOpen={mobileOpen}
+                onTransitionEnd={handleDrawerTransitionEnd}
+                onClose={handleDrawerClose}
+                drawerWidth={drawerWidth}
             />
-       
-            <main className="flex-1 flex flex-col h-full min-w-0 overflow-hidden relative transition-all bg-gray-50/50 dark:bg-gray-900">
-                <Header 
-                    onToggleTheme={toggleTheme}
-                    onBackup={onBackupForce}
-                    onAddClick={onAddClick}
-                    onScanClick={onScanClick}
-                    notificationsCount={alertsCount}
-                    onMenuClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                />
 
-                <div className="flex-1 flex flex-col min-h-0 overflow-hidden relative">
-                    {/* Content */}
-                    <div className="relative z-10 h-full overflow-y-auto custom-scrollbar p-0 md:p-0">
-                        {children}
-                    </div>
-                </div>
-            </main>
-        </div>
+            <Box
+                component="main"
+                sx={{
+                    flexGrow: 1,
+                    p: { xs: 2, sm: 3 },
+                    width: { sm: `calc(100% - ${drawerWidth}px)` },
+                    minHeight: '100vh',
+                    bgcolor: 'background.default',
+                    overflowX: 'hidden'
+                }}
+            >
+                <Toolbar /> {/* Spacer to push content below AppBar */}
+                {children}
+            </Box>
+        </Box>
     );
 };

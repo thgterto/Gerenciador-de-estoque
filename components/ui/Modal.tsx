@@ -1,49 +1,37 @@
-
 import React from 'react';
-import { Modal as PolarisModal } from '@shopify/polaris';
+import { Dialog, DialogTitle, DialogContent, DialogActions, IconButton, Typography, Box } from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
 
 interface ModalProps {
-  isOpen: boolean;
-  onClose?: () => void;
-  title?: string;
-  children: React.ReactNode;
-  className?: string;
-  hideHeader?: boolean;
-  noPadding?: boolean; 
+    isOpen: boolean;
+    onClose?: () => void;
+    title?: string;
+    children: React.ReactNode;
+    hideHeader?: boolean;
+    noPadding?: boolean;
+    className?: string; // Ignored/Mapped
+    footer?: React.ReactNode;
 }
 
 export const Modal: React.FC<ModalProps> = ({ 
-    isOpen, 
-    onClose, 
-    title, 
-    children, 
-    className = '',
-    hideHeader = false,
-    noPadding = false 
+    isOpen, onClose, title, children, hideHeader, noPadding, footer
 }) => {
-
-  // Map className to Polaris Modal size
-  let size: 'small' | 'large' | 'fullScreen' | undefined;
-  if (className.includes('max-w-4xl') || className.includes('max-w-5xl') || className.includes('max-w-6xl') || className.includes('max-w-7xl')) {
-      size = 'large';
-  } else if (className.includes('max-w-sm') || className.includes('max-w-xs') || className.includes('max-w-md')) {
-      size = 'small';
-  }
-
-  return (
-      <PolarisModal
-          open={isOpen}
-          onClose={onClose || (() => {})}
-          title={hideHeader ? undefined : title}
-          size={size}
-      >
-          {noPadding ? (
-              children
-          ) : (
-              <PolarisModal.Section>
-                    {children}
-              </PolarisModal.Section>
-          )}
-      </PolarisModal>
-  );
+    return (
+        <Dialog open={isOpen} onClose={onClose} fullWidth maxWidth="sm">
+            {!hideHeader && (
+                <DialogTitle sx={{ m: 0, p: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    {title && <Typography variant="h6">{title}</Typography>}
+                    {onClose ? (
+                        <IconButton onClick={onClose} aria-label="close">
+                            <CloseIcon />
+                        </IconButton>
+                    ) : null}
+                </DialogTitle>
+            )}
+            <DialogContent dividers={!hideHeader} sx={{ p: noPadding ? 0 : 2 }}>
+                {children}
+            </DialogContent>
+            {footer && <DialogActions>{footer}</DialogActions>}
+        </Dialog>
+    );
 };

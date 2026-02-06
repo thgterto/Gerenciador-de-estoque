@@ -1,41 +1,61 @@
-
 import React, { useState, useEffect, useMemo } from 'react';
 import { InventoryItem, QRCodeDataDTO, CreateItemDTO } from '../types';
 import * as ReactQRCode from 'react-qr-code';
 const QRCode = (ReactQRCode as any).default || ReactQRCode;
-import { Input } from './ui/Input';
-import { Button } from './ui/Button';
-import { Modal } from './ui/Modal';
+import {
+    Dialog, DialogTitle, DialogContent, DialogActions,
+    TextField, Button, MenuItem, IconButton, Typography, Box,
+    Alert, InputAdornment, Stack, FormControl, InputLabel, Select, CircularProgress
+} from '@mui/material';
+import { useTheme } from '@mui/material/styles';
+
+// Icons
+import Inventory2Icon from '@mui/icons-material/Inventory2';
+import CloseIcon from '@mui/icons-material/Close';
+import QrCodeScannerIcon from '@mui/icons-material/QrCodeScanner';
+import PrintIcon from '@mui/icons-material/Print';
+import DownloadIcon from '@mui/icons-material/Download';
+import SaveIcon from '@mui/icons-material/Save';
+import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
+import VideocamOffIcon from '@mui/icons-material/VideocamOff';
+
 import { ItemForm } from './ItemForm';
 import { AddItem } from './AddItem';
 import { useAlert } from '../context/AlertContext';
 import { useScanner } from '../hooks/useScanner';
-import { Select } from './ui/Select';
 
 interface ItemModalBaseProps {
     isOpen: boolean;
     onClose: () => void;
 }
 
-// --- Componente Auxiliar de Header de Modal ---
-const ModalHeader = ({ title, onClose, subtitle }: { title: string, subtitle?: string, onClose: () => void }) => (
-    <div className="flex items-center justify-between px-6 py-4 border-b border-border-light dark:border-border-dark shrink-0 bg-white dark:bg-surface-dark rounded-t-xl z-10">
-        <div className="flex flex-col">
-            <h3 className="font-bold text-lg text-text-main dark:text-white leading-6">{title}</h3>
-            {subtitle && <span className="text-xs text-text-secondary dark:text-slate-400 font-mono mt-0.5">{subtitle}</span>}
-        </div>
-        <button 
-            onClick={onClose} 
-            className="text-text-secondary hover:text-text-main dark:hover:text-white transition-colors p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700"
-            aria-label="Fechar"
+const BootstrapDialogTitle = (props: { children?: React.ReactNode; onClose: () => void; subtitle?: string }) => {
+  const { children, onClose, subtitle, ...other } = props;
+
+  return (
+    <DialogTitle sx={{ m: 0, p: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'start' }} {...other}>
+      <Box>
+          <Typography variant="h6" component="div" sx={{ fontWeight: 'bold' }}>{children}</Typography>
+          {subtitle && <Typography variant="caption" color="text.secondary" sx={{ fontFamily: 'monospace' }}>{subtitle}</Typography>}
+      </Box>
+      {onClose ? (
+        <IconButton
+          aria-label="close"
+          onClick={onClose}
+          sx={{
+            color: (theme) => theme.palette.grey[500],
+            mt: -0.5
+          }}
         >
-            <span className="material-symbols-outlined text-[20px]">close</span>
-        </button>
-    </div>
-);
+          <CloseIcon />
+        </IconButton>
+      ) : null}
+    </DialogTitle>
+  );
+};
 
 // ============================================================================
-// MODAL: SCANNER QR CODE (Genérico)
+// MODAL: SCANNER QR CODE
 // ============================================================================
 
 interface QRScannerModalProps extends ItemModalBaseProps {
@@ -63,44 +83,44 @@ export const QRScannerModal: React.FC<QRScannerModalProps> = ({ isOpen, onClose,
     }, [isOpen, startScanner, stopScanner]);
 
     return (
-        <Modal isOpen={isOpen} onClose={onClose} hideHeader noPadding className="max-w-md bg-black">
-             <div className="flex flex-col h-full bg-surface-light dark:bg-surface-dark">
-                <ModalHeader title={title} onClose={onClose} />
-                <div className="p-6 flex flex-col items-center gap-4">
-                    <div className="w-full max-w-xs aspect-square relative bg-black rounded-xl overflow-hidden shadow-inner border-2 border-slate-200 dark:border-slate-700">
+        <Dialog open={isOpen} onClose={onClose} maxWidth="xs" fullWidth>
+             <BootstrapDialogTitle onClose={onClose}>{title}</BootstrapDialogTitle>
+             <DialogContent>
+                <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, py: 2 }}>
+                    <Box sx={{
+                        width: '100%', maxWidth: 300, aspectRatio: '1/1', position: 'relative',
+                        bgcolor: 'black', borderRadius: 2, overflow: 'hidden', border: '1px solid #ccc'
+                    }}>
                         {error ? (
-                            <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-6 bg-surface-light dark:bg-surface-dark">
-                                <span className="material-symbols-outlined text-4xl text-red-500 mb-2">videocam_off</span>
-                                <p className="text-sm text-red-600 dark:text-red-400 font-bold mb-2">{error}</p>
-                                <Button variant="outline" size="sm" onClick={() => window.location.reload()}>Recarregar</Button>
-                            </div>
+                            <Box sx={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', p: 3, bgcolor: 'background.paper', textAlign: 'center' }}>
+                                <VideocamOffIcon color="error" sx={{ fontSize: 40, mb: 1 }} />
+                                <Typography color="error" variant="body2" fontWeight="bold" gutterBottom>{error}</Typography>
+                                <Button variant="outlined" size="small" onClick={() => window.location.reload()}>Recarregar</Button>
+                            </Box>
                         ) : (
                             <>
-                                <div id={elementId} className="w-full h-full object-cover"></div>
+                                <div id={elementId} style={{ width: '100%', height: '100%', objectFit: 'cover' }}></div>
                                 {isScanning && (
-                                    <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
-                                        <div className="w-48 h-48 border-2 border-white/60 rounded-lg relative animate-pulse">
-                                            <div className="absolute top-0 left-0 w-4 h-4 border-t-4 border-l-4 border-primary"></div>
-                                            <div className="absolute top-0 right-0 w-4 h-4 border-t-4 border-r-4 border-primary"></div>
-                                            <div className="absolute bottom-0 left-0 w-4 h-4 border-b-4 border-l-4 border-primary"></div>
-                                            <div className="absolute bottom-0 right-0 w-4 h-4 border-b-4 border-r-4 border-primary"></div>
-                                        </div>
-                                    </div>
+                                    <Box sx={{ position: 'absolute', inset: 0, pointerEvents: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                        <Box sx={{ width: '60%', height: '60%', border: '2px solid rgba(255,255,255,0.7)', borderRadius: 2, position: 'relative' }}>
+                                            {/* Corner markers could be added here */}
+                                        </Box>
+                                    </Box>
                                 )}
                                 {!isScanning && !error && (
-                                    <div className="absolute inset-0 flex items-center justify-center bg-black/5">
-                                        <span className="material-symbols-outlined text-4xl text-primary animate-spin">progress_activity</span>
-                                    </div>
+                                    <Box sx={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: 'rgba(0,0,0,0.1)' }}>
+                                        <CircularProgress />
+                                    </Box>
                                 )}
                             </>
                         )}
-                    </div>
-                    <p className="text-sm text-center text-text-secondary dark:text-gray-400 max-w-[280px]">
+                    </Box>
+                    <Typography variant="caption" color="text.secondary" align="center">
                         Posicione o código QR ou de barras dentro da área demarcada.
-                    </p>
-                </div>
-            </div>
-        </Modal>
+                    </Typography>
+                </Box>
+            </DialogContent>
+        </Dialog>
     );
 };
 
@@ -159,6 +179,7 @@ export const QRGeneratorModal: React.FC<QRGeneratorModalProps> = ({ isOpen, onCl
     };
 
     const handlePrint = () => {
+        // ... (Keep existing print logic, it's vanilla JS essentially)
         const printWindow = window.open('', '', 'width=600,height=400');
         if (printWindow) {
             const svgHtml = document.getElementById('qr-code-svg')?.outerHTML || '';
@@ -190,48 +211,47 @@ export const QRGeneratorModal: React.FC<QRGeneratorModalProps> = ({ isOpen, onCl
     };
 
     return (
-        <Modal isOpen={isOpen} onClose={onClose} hideHeader noPadding className="max-w-sm">
-             <div className="flex flex-col bg-surface-light dark:bg-surface-dark">
-                <ModalHeader title="Etiqueta Digital" onClose={onClose} />
-                <div className="p-6 flex flex-col items-center gap-6">
-                    <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-200 flex flex-col items-center">
+        <Dialog open={isOpen} onClose={onClose} maxWidth="xs" fullWidth>
+             <BootstrapDialogTitle onClose={onClose}>Etiqueta Digital</BootstrapDialogTitle>
+             <DialogContent>
+                <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3, py: 2 }}>
+                    <Box sx={{ p: 2, bgcolor: 'white', borderRadius: 2, border: '1px solid', borderColor: 'divider', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                          <QRCode id="qr-code-svg" value={qrString} size={180} level="M" fgColor="#000000" />
-                         <p className="text-[10px] text-gray-500 mt-2 font-mono">{item.id || 'NOVO'}</p>
-                    </div>
-                    <div className="text-center space-y-1">
-                        <h4 className="font-bold text-text-main dark:text-white leading-tight">{item.name}</h4>
-                        <p className="text-xs text-text-secondary dark:text-gray-400 font-mono">
+                         <Typography variant="caption" sx={{ mt: 1, fontFamily: 'monospace', color: 'text.secondary' }}>{item.id || 'NOVO'}</Typography>
+                    </Box>
+                    <Box sx={{ textAlign: 'center' }}>
+                        <Typography variant="subtitle1" fontWeight="bold" gutterBottom>{item.name}</Typography>
+                        <Typography variant="body2" color="text.secondary" sx={{ fontFamily: 'monospace' }}>
                             Lote: {item.lotNumber}
-                        </p>
-                    </div>
-                    <div className="grid grid-cols-2 gap-3 w-full">
-                        <Button variant="white" onClick={handleDownload} icon="download">Salvar</Button>
-                        <Button variant="primary" onClick={handlePrint} icon="print">Imprimir</Button>
-                    </div>
-                </div>
-             </div>
-        </Modal>
+                        </Typography>
+                    </Box>
+                </Box>
+             </DialogContent>
+             <DialogActions sx={{ px: 3, pb: 3, justifyContent: 'center', gap: 2 }}>
+                 <Button variant="outlined" onClick={handleDownload} startIcon={<DownloadIcon />}>Salvar</Button>
+                 <Button variant="contained" onClick={handlePrint} startIcon={<PrintIcon />}>Imprimir</Button>
+             </DialogActions>
+        </Dialog>
     );
 };
 
 // ============================================================================
-// MODAL: ADICIONAR ITEM (Wrapper)
+// MODAL: ADICIONAR ITEM
 // ============================================================================
 
 export const AddItemModal: React.FC<ItemModalBaseProps & { initialData?: Partial<CreateItemDTO> }> = ({ isOpen, onClose, initialData }) => {
     return (
-        <Modal isOpen={isOpen} onClose={onClose} hideHeader noPadding className="max-w-4xl h-[90vh]">
-            <div className="h-full flex flex-col bg-surface-light dark:bg-surface-dark">
-                <ModalHeader 
-                    title={initialData ? 'Clonar Item' : 'Cadastrar Novo Item'} 
-                    subtitle={initialData ? 'Crie um novo lote a partir de um item existente' : 'Preencha os dados do novo material'}
-                    onClose={onClose} 
-                />
-                <div className="flex-1 overflow-y-auto custom-scrollbar p-6">
+        <Dialog open={isOpen} onClose={onClose} maxWidth="md" fullWidth>
+            <BootstrapDialogTitle onClose={onClose} subtitle={initialData ? 'Crie um novo lote a partir de um item existente' : 'Preencha os dados do novo material'}>
+                {initialData ? 'Clonar Item' : 'Cadastrar Novo Item'}
+            </BootstrapDialogTitle>
+            <DialogContent dividers sx={{ p: 0 }}>
+                 {/* Pass onClose to AddItem so it can close the modal on cancel */}
+                 <Box sx={{ p: 3 }}>
                     <AddItem onCancel={onClose} initialData={initialData} />
-                </div>
-            </div>
-        </Modal>
+                 </Box>
+            </DialogContent>
+        </Dialog>
     );
 };
 
@@ -252,7 +272,6 @@ export const EditModal: React.FC<EditModalProps> = ({ isOpen, onClose, item, onS
   const [showQRModal, setShowQRModal] = useState(false);
   const { addToast } = useAlert();
 
-  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { setEditedItem(item); }, [item, isOpen]);
 
   const handleScanSuccess = (decodedText: string) => {
@@ -265,7 +284,7 @@ export const EditModal: React.FC<EditModalProps> = ({ isOpen, onClose, item, onS
               if (activeScanField === 'lotNumber' && obj.l) val = obj.l;
           } catch(e) { /* ignore */ }
           setEditedItem({ ...editedItem, [activeScanField]: val });
-          addToast('Scan Sucesso', 'success', `Campo atualizado.`);
+          addToast('Scan Sucesso', 'success', 'Campo atualizado.');
       }
   };
 
@@ -279,10 +298,10 @@ export const EditModal: React.FC<EditModalProps> = ({ isOpen, onClose, item, onS
 
   return (
     <>
-        <Modal isOpen={isOpen} onClose={onClose} hideHeader noPadding className="max-w-4xl h-[90vh]">
-            <div className="flex flex-col h-full bg-surface-light dark:bg-surface-dark">
-                <ModalHeader title="Editar Item" subtitle={editedItem.id} onClose={onClose} />
-                <div className="p-6 overflow-y-auto custom-scrollbar flex-1">
+        <Dialog open={isOpen} onClose={onClose} maxWidth="md" fullWidth>
+            <BootstrapDialogTitle onClose={onClose} subtitle={editedItem.id}>Editar Item</BootstrapDialogTitle>
+            <DialogContent dividers sx={{ p: 0 }}>
+                <Box sx={{ p: 3 }}>
                     <ItemForm 
                         initialData={editedItem} 
                         onSubmit={handleFormSubmit} 
@@ -292,9 +311,9 @@ export const EditModal: React.FC<EditModalProps> = ({ isOpen, onClose, item, onS
                         onScan={(field) => { setActiveScanField(field); setIsScannerOpen(true); }}
                         onGenerateQR={() => setShowQRModal(true)}
                     />
-                </div>
-            </div>
-        </Modal>
+                </Box>
+            </DialogContent>
+        </Dialog>
         
         <QRScannerModal 
             isOpen={isScannerOpen} 
@@ -328,7 +347,6 @@ export const MovementModal: React.FC<MovementModalProps> = ({ isOpen, onClose, i
 
     useEffect(() => {
         if(isOpen) {
-            // eslint-disable-next-line react-hooks/set-state-in-effect
             setQuantity(1);
             setObservation('');
             setType('SAIDA');
@@ -355,76 +373,72 @@ export const MovementModal: React.FC<MovementModalProps> = ({ isOpen, onClose, i
     if (!item) return null;
 
     return (
-        <Modal isOpen={isOpen} onClose={onClose} hideHeader noPadding className="max-w-md">
-            <div className="flex flex-col h-full bg-surface-light dark:bg-surface-dark">
-                <ModalHeader title="Registrar Movimento" onClose={onClose} />
-                <form onSubmit={handleSubmit} className="flex flex-col flex-1">
-                    <div className="p-6 space-y-6">
-                        <div className="bg-background-light dark:bg-slate-800 p-4 rounded-xl border border-border-light dark:border-border-dark flex items-start gap-3">
-                             <div className="p-2 rounded-lg bg-white dark:bg-slate-700 text-primary shadow-sm">
-                                 <span className="material-symbols-outlined">inventory_2</span>
-                             </div>
-                             <div className="flex-1 min-w-0">
-                                 <h4 className="font-bold text-sm text-text-main dark:text-white truncate">{item.name}</h4>
-                                 <div className="flex items-center justify-between mt-1">
-                                     <span className="text-xs font-mono text-text-secondary dark:text-gray-400">{item.lotNumber}</span>
-                                     <span className="text-xs font-bold text-text-main dark:text-white">Saldo: {item.quantity} {item.baseUnit}</span>
-                                 </div>
-                             </div>
-                        </div>
+        <Dialog open={isOpen} onClose={onClose} maxWidth="sm" fullWidth>
+            <BootstrapDialogTitle onClose={onClose}>Registrar Movimento</BootstrapDialogTitle>
+            <form onSubmit={handleSubmit}>
+                <DialogContent dividers>
+                    <Box sx={{ mb: 3, p: 2, border: '1px solid', borderColor: 'divider', borderRadius: 2, display: 'flex', gap: 2 }}>
+                        <Box sx={{ p: 1, borderRadius: 1, bgcolor: 'background.paper', boxShadow: 1 }}>
+                            <Inventory2Icon color="primary" />
+                        </Box>
+                        <Box>
+                             <Typography variant="subtitle2" fontWeight="bold">{item.name}</Typography>
+                             <Typography variant="caption" display="block" color="text.secondary">Lote: {item.lotNumber}</Typography>
+                             <Typography variant="caption" fontWeight="bold">Saldo: {item.quantity} {item.baseUnit}</Typography>
+                        </Box>
+                    </Box>
 
-                        <div className="space-y-4">
-                            <Select 
-                                label="Tipo de Operação" 
-                                value={type} 
-                                onChange={e => setType(e.target.value as any)}
-                                options={[
-                                    {label: 'Saída / Consumo', value: 'SAIDA'},
-                                    {label: 'Entrada / Devolução', value: 'ENTRADA'},
-                                    {label: 'Ajuste de Inventário', value: 'AJUSTE'}
-                                ]}
-                            />
-                            
-                            <div className="grid grid-cols-2 gap-4">
-                                <Input 
-                                    label="Quantidade" 
-                                    type="number" 
-                                    step="any" 
-                                    min="0.0001"
-                                value={String(quantity)}
-                                    onChange={e => setQuantity(parseFloat(e.target.value))} 
-                                    required 
-                                    autoFocus
-                                    className="font-bold text-lg"
-                                />
-                                <div className="flex items-end pb-3">
-                                    <span className="text-sm font-medium text-text-secondary dark:text-gray-400">{item.baseUnit}</span>
-                                </div>
-                            </div>
-                            
-                            <Input 
-                                label="Justificativa" 
-                                value={observation} 
-                                onChange={e => setObservation(e.target.value)} 
-                                placeholder="Opcional"
-                            />
-                        </div>
-                    </div>
-                    
-                    <div className="p-4 border-t border-border-light dark:border-border-dark bg-gray-50 dark:bg-slate-800/50 flex justify-end gap-3 rounded-b-xl">
-                        <Button variant="ghost" onClick={onClose} type="button" disabled={isSubmitting}>Cancelar</Button>
-                        <Button 
-                            variant={type === 'SAIDA' ? 'danger' : type === 'ENTRADA' ? 'success' : 'warning'} 
-                            type="submit" 
-                            isLoading={isSubmitting}
-                            icon="save"
+                    <Stack spacing={3}>
+                        <TextField
+                            select
+                            label="Tipo de Operação"
+                            value={type}
+                            onChange={(e) => setType(e.target.value as any)}
+                            fullWidth
                         >
-                            Confirmar
-                        </Button>
-                    </div>
-                </form>
-            </div>
-        </Modal>
+                            <MenuItem value="SAIDA">Saída / Consumo</MenuItem>
+                            <MenuItem value="ENTRADA">Entrada / Devolução</MenuItem>
+                            <MenuItem value="AJUSTE">Ajuste de Inventário</MenuItem>
+                        </TextField>
+
+                        <TextField
+                            label="Quantidade"
+                            type="number"
+                            value={quantity}
+                            onChange={(e) => setQuantity(parseFloat(e.target.value))}
+                            required
+                            autoFocus
+                            fullWidth
+                            InputProps={{
+                                endAdornment: <InputAdornment position="end">{item.baseUnit}</InputAdornment>,
+                            }}
+                            inputProps={{ min: 0.0001, step: "any" }}
+                        />
+
+                        <TextField
+                            label="Justificativa (Opcional)"
+                            value={observation}
+                            onChange={(e) => setObservation(e.target.value)}
+                            fullWidth
+                            multiline
+                            rows={2}
+                        />
+                    </Stack>
+                </DialogContent>
+                <DialogActions sx={{ px: 3, pb: 2 }}>
+                    <Button onClick={onClose} disabled={isSubmitting}>Cancelar</Button>
+                    <Button
+                        type="submit"
+                        variant="contained"
+                        color={type === 'SAIDA' ? 'error' : type === 'ENTRADA' ? 'success' : 'warning'}
+                        disabled={isSubmitting}
+                        startIcon={isSubmitting ? <CircularProgress size={20} /> : <SaveIcon />}
+                    >
+                        Confirmar
+                    </Button>
+                </DialogActions>
+            </form>
+        </Dialog>
     );
 };
 
@@ -443,7 +457,6 @@ export const RequestModal: React.FC<RequestModalProps> = ({ isOpen, onClose, onC
     const [searchTerm, setSearchTerm] = useState('');
 
     useEffect(() => {
-        // eslint-disable-next-line react-hooks/set-state-in-effect
         if(isOpen) { setSelectedId(''); setQty(1); setSearchTerm(''); }
     }, [isOpen]);
 
@@ -463,50 +476,62 @@ export const RequestModal: React.FC<RequestModalProps> = ({ isOpen, onClose, onC
     }, [items, searchTerm]);
 
     return (
-        <Modal isOpen={isOpen} onClose={onClose} hideHeader noPadding className="max-w-md">
-            <div className="flex flex-col h-full bg-surface-light dark:bg-surface-dark">
-                <ModalHeader title="Solicitar Compra" onClose={onClose} />
-                <form onSubmit={handleSubmit} className="flex flex-col flex-1 p-6 gap-5">
-                    <Input 
-                        label="Buscar Produto" 
-                        placeholder="Digite para filtrar..." 
-                        value={searchTerm} 
-                        onChange={e => setSearchTerm(e.target.value)} 
-                        icon="search"
-                    />
-                    
-                    <div>
-                        <label className="text-xs font-bold text-text-secondary uppercase mb-1.5 block">Selecione o Item</label>
-                        <select 
-                            className="w-full h-10 rounded-lg border border-border-light dark:border-border-dark bg-white dark:bg-slate-900 text-sm px-3 focus:ring-primary focus:border-primary"
-                            value={selectedId}
-                            onChange={e => setSelectedId(e.target.value)}
+        <Dialog open={isOpen} onClose={onClose} maxWidth="sm" fullWidth>
+            <BootstrapDialogTitle onClose={onClose}>Solicitar Compra</BootstrapDialogTitle>
+            <form onSubmit={handleSubmit}>
+                <DialogContent dividers>
+                    <Stack spacing={3}>
+                        <TextField
+                            label="Buscar Produto"
+                            placeholder="Digite para filtrar..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            fullWidth
+                            InputProps={{
+                                startAdornment: <InputAdornment position="start"><QrCodeScannerIcon /></InputAdornment>, // Using QR icon as generic search/scan here or just search
+                            }}
+                        />
+
+                        <FormControl fullWidth required>
+                            <InputLabel id="select-item-label">Selecione o Item</InputLabel>
+                            <Select
+                                labelId="select-item-label"
+                                value={selectedId}
+                                label="Selecione o Item"
+                                onChange={(e) => setSelectedId(e.target.value)}
+                                native={false} // Use MUI Select
+                            >
+                                {filteredItems.map(item => (
+                                    <MenuItem key={item.id} value={item.id}>
+                                        {item.name} ({item.quantity} {item.baseUnit})
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
+
+                        <TextField
+                            label="Quantidade Necessária"
+                            type="number"
+                            value={qty}
+                            onChange={(e) => setQty(parseInt(e.target.value))}
                             required
-                            size={5}
-                        >
-                            {filteredItems.map(item => (
-                                <option key={item.id} value={item.id}>
-                                    {item.name} ({item.quantity} {item.baseUnit})
-                                </option>
-                            ))}
-                        </select>
-                    </div>
-
-                    <Input 
-                        label="Quantidade Necessária" 
-                        type="number" 
-                        min="1" 
-                        value={String(qty)}
-                        onChange={e => setQty(parseInt(e.target.value))} 
-                        required 
-                    />
-
-                    <div className="mt-auto pt-4 flex justify-end gap-2">
-                        <Button variant="ghost" onClick={onClose} type="button">Cancelar</Button>
-                        <Button variant="primary" type="submit" disabled={!selectedId} icon="add_shopping_cart">Adicionar</Button>
-                    </div>
-                </form>
-            </div>
-        </Modal>
+                            fullWidth
+                            inputProps={{ min: 1 }}
+                        />
+                    </Stack>
+                </DialogContent>
+                <DialogActions sx={{ px: 3, pb: 2 }}>
+                    <Button onClick={onClose}>Cancelar</Button>
+                    <Button
+                        type="submit"
+                        variant="contained"
+                        disabled={!selectedId}
+                        startIcon={<AddShoppingCartIcon />}
+                    >
+                        Adicionar
+                    </Button>
+                </DialogActions>
+            </form>
+        </Dialog>
     );
 };

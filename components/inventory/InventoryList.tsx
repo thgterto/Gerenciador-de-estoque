@@ -1,5 +1,5 @@
 import React, { useCallback, useRef, useMemo, useEffect } from 'react';
-import { Card } from '../ui/Card';
+import { Card, Box, Checkbox, Typography } from '@mui/material';
 import { EmptyState } from '../ui/EmptyState';
 import {
     InventoryChildRow,
@@ -164,30 +164,45 @@ export const InventoryList: React.FC<InventoryListProps> = ({
     }), [flatList, isMobile, selectedIds, handleSelectGroup, handleSelectRow, onActions, toggleGroupExpand, copyToClipboard, getCategoryIcon, hasRole]);
 
     return (
-        <Card padding="p-0" className={`flex-1 min-h-0 flex flex-col ${isMobile ? 'bg-transparent border-none shadow-none' : 'bg-surface-light dark:bg-surface-dark'} relative overflow-hidden`}>
+        <Card
+            elevation={0}
+            sx={{
+                flexGrow: 1,
+                display: 'flex',
+                flexDirection: 'column',
+                minHeight: 0,
+                border: isMobile ? 'none' : 1,
+                borderColor: 'divider',
+                bgcolor: isMobile ? 'transparent' : 'background.paper'
+            }}
+        >
              {!isMobile && (
-                 <div className="bg-background-light dark:bg-slate-800/50 border-b border-border-light dark:border-border-dark text-xs font-bold uppercase tracking-wider text-text-secondary dark:text-slate-400 shrink-0 z-10">
-                    <div className="grid items-center px-4" style={{ gridTemplateColumns: GRID_TEMPLATE }}>
-                        <div className="flex items-center justify-center">
-                            <input
-                                className="w-4 h-4 text-primary bg-surface-light dark:bg-slate-800 border-border-light dark:border-border-dark rounded focus:ring-primary cursor-pointer transition-colors"
-                                type="checkbox"
+                 <Box sx={{
+                     bgcolor: 'background.default',
+                     borderBottom: 1,
+                     borderColor: 'divider',
+                     py: 1.5
+                 }}>
+                    <Box sx={{ display: 'grid', gridTemplateColumns: GRID_TEMPLATE, px: 2, alignItems: 'center' }}>
+                        <Box display="flex" justifyContent="center">
+                            <Checkbox
+                                size="small"
                                 checked={filteredItemsCount > 0 && selectedIds.size === filteredItemsCount}
                                 onChange={(e) => handleSelectAll(e.target.checked)}
                             />
-                        </div>
-                        <div className="px-2 py-3">Produto / SKU</div>
-                        <div className="px-2 py-3">Categoria</div>
-                        <div className="px-2 py-3">Locais</div>
-                        <div className="px-2 py-3 text-right">Qtd. Total</div>
-                        <div className="px-2 py-3 text-right">Validade</div>
-                        <div className="px-2 py-3 text-center">Status</div>
-                        <div className="px-2 py-3 text-right"></div>
-                    </div>
-                 </div>
+                        </Box>
+                        <Box px={1}><Typography variant="caption" fontWeight="bold">PRODUTO / SKU</Typography></Box>
+                        <Box px={1}><Typography variant="caption" fontWeight="bold">CATEGORIA</Typography></Box>
+                        <Box px={1}><Typography variant="caption" fontWeight="bold">LOCAIS</Typography></Box>
+                        <Box px={1} textAlign="right"><Typography variant="caption" fontWeight="bold">QTD. TOTAL</Typography></Box>
+                        <Box px={1} textAlign="right"><Typography variant="caption" fontWeight="bold">VALIDADE</Typography></Box>
+                        <Box px={1} textAlign="center"><Typography variant="caption" fontWeight="bold">STATUS</Typography></Box>
+                        <Box />
+                    </Box>
+                 </Box>
              )}
 
-             <div className="flex-1 w-full relative">
+             <Box sx={{ flexGrow: 1, position: 'relative' }}>
                 {flatList.length > 0 ? (
                     <AutoSizer>
                         {({ height, width }: { height: number; width: number }) => {
@@ -200,7 +215,6 @@ export const InventoryList: React.FC<InventoryListProps> = ({
                                         itemSize={130}
                                         itemKey={itemKey}
                                         width={width}
-                                        className="custom-scrollbar overflow-y-auto"
                                         itemData={itemData}
                                     >
                                         {InventoryRow}
@@ -215,7 +229,6 @@ export const InventoryList: React.FC<InventoryListProps> = ({
                                     itemSize={getItemSize}
                                     itemKey={itemKey}
                                     width={width}
-                                    className="custom-scrollbar overflow-y-auto"
                                     itemData={itemData}
                                 >
                                     {InventoryRow}
@@ -231,13 +244,13 @@ export const InventoryList: React.FC<InventoryListProps> = ({
                         onAction={onAddNew}
                     />
                 )}
-             </div>
+             </Box>
 
              {!isMobile && (
-                 <div className="bg-background-light dark:bg-slate-800/50 px-6 py-3 border-t border-border-light dark:border-border-dark text-xs text-text-secondary dark:text-slate-400 flex justify-between shrink-0 font-medium">
-                     <span>{totalGroups} Produtos • {filteredItemsCount} Lotes Individuais</span>
-                     <span>{hideZeroStock ? 'Ocultando itens sem estoque' : 'Exibindo todos os itens'}</span>
-                 </div>
+                 <Box sx={{ bgcolor: 'background.default', px: 2, py: 1.5, borderTop: 1, borderColor: 'divider', display: 'flex', justifyContent: 'space-between' }}>
+                     <Typography variant="caption" color="text.secondary">{totalGroups} Produtos • {filteredItemsCount} Lotes Individuais</Typography>
+                     <Typography variant="caption" color="text.secondary">{hideZeroStock ? 'Ocultando itens sem estoque' : 'Exibindo todos os itens'}</Typography>
+                 </Box>
              )}
         </Card>
     );

@@ -1,15 +1,26 @@
 import React, { useState } from 'react';
+import {
+    Card, CardContent, CardHeader, Typography, Box,
+    Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
+    Button, Chip, Divider, IconButton, useTheme
+} from '@mui/material';
+import { Grid } from '@mui/material';
 import { PageContainer } from './ui/PageContainer';
 import { PageHeader } from './ui/PageHeader';
-import { Card } from './ui/Card';
-import { Button } from './ui/Button';
 import { useDashboardAnalytics } from '../hooks/useDashboardAnalytics';
 import Chart from 'react-apexcharts';
 import { useNavigate } from 'react-router-dom';
-import { Icon } from './ui/Icon';
 import { InventoryItem, MovementRecord } from '../types';
 import { formatDate, formatDateTime } from '../utils/formatters';
-import { motion, Variants } from 'framer-motion';
+
+// Icons
+import Inventory2Icon from '@mui/icons-material/Inventory2';
+import PaymentsIcon from '@mui/icons-material/Payments';
+import WarningIcon from '@mui/icons-material/Warning';
+import EventBusyIcon from '@mui/icons-material/EventBusy';
+import HistoryIcon from '@mui/icons-material/History';
+import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
 
 interface DashboardProps {
   items: InventoryItem[];
@@ -30,43 +41,41 @@ export const Dashboard: React.FC<DashboardProps> = ({ items, history, onAddToPur
   } = useDashboardAnalytics(items, history);
   
   const navigate = useNavigate();
-  const [selectedItemId] = useState<string | null>(null);
+  const theme = useTheme();
 
-  // --- CHART CONFIGURATIONS (High Contrast / Brutalist) ---
+  // Chart Configuration
   const commonChartOptions: ApexCharts.ApexOptions = {
     chart: {
         toolbar: { show: false },
         background: 'transparent',
-        fontFamily: '"Space Grotesk", sans-serif'
+        fontFamily: theme.typography.fontFamily
     },
-    colors: ['#525252'],
+    colors: [theme.palette.primary.main, theme.palette.secondary.main],
     grid: {
-        borderColor: '#e5e5e5',
-        strokeDashArray: 0,
-        xaxis: { lines: { show: true } },
-        yaxis: { lines: { show: true } }
+        borderColor: theme.palette.divider,
+        strokeDashArray: 4,
     },
-    tooltip: { theme: 'dark' }
+    tooltip: { theme: theme.palette.mode }
   };
 
   const paretoOptions: ApexCharts.ApexOptions = {
     ...commonChartOptions,
     chart: { ...commonChartOptions.chart, type: 'line' },
-    colors: ['#CCFF00', '#000000'], // Acid Green & Black
-    stroke: { width: [0, 3], curve: 'stepline' as const },
+    colors: [theme.palette.primary.main, theme.palette.text.primary],
+    stroke: { width: [0, 3], curve: 'smooth' },
     plotOptions: {
-      bar: { columnWidth: '60%', borderRadius: 0 } // Sharp corners
+      bar: { columnWidth: '60%', borderRadius: 4 }
     },
     dataLabels: { enabled: false },
     xaxis: {
         categories: paretoData.map((d: any) => d.category),
-        labels: { style: { fontWeight: 700, fontSize: '10px' } }
+        labels: { style: { colors: theme.palette.text.secondary } }
     },
     yaxis: [
-      { title: { text: 'Valor Total', style: { fontWeight: 700 } } },
-      { opposite: true, title: { text: 'Acumulado %', style: { fontWeight: 700 } }, max: 100 }
+      { title: { text: 'Valor Total' } },
+      { opposite: true, title: { text: 'Acumulado %' }, max: 100 }
     ],
-    legend: { position: 'top', fontWeight: 700 }
+    legend: { position: 'top' }
   };
 
   const paretoSeries = [
@@ -74,25 +83,38 @@ export const Dashboard: React.FC<DashboardProps> = ({ items, history, onAddToPur
     { name: '% Acumulado', type: 'line', data: paretoData.map((d: any) => d.accumulatedPercentage) }
   ];
 
-  // Animation Variants
-  const containerVariants: Variants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.05
-      }
-    }
-  };
-
-  const itemVariants: Variants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { type: 'spring', stiffness: 50, damping: 15 }
-    }
-  };
+  const MetricCard = ({ title, value, icon, color, onClick, subtitle }: any) => (
+      <Card
+        sx={{ height: '100%', cursor: onClick ? 'pointer' : 'default', position: 'relative' }}
+        onClick={onClick}
+        elevation={2}
+      >
+          <CardContent sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <Box>
+                  <Typography color="textSecondary" gutterBottom variant="overline">
+                      {title}
+                  </Typography>
+                  <Typography variant="h4" component="div" fontWeight="bold">
+                      {value}
+                  </Typography>
+                  {subtitle && (
+                      <Typography variant="caption" color="error">
+                          {subtitle}
+                      </Typography>
+                  )}
+              </Box>
+              <Box sx={{
+                  bgcolor: `${color}.light`,
+                  color: `${color}.main`,
+                  p: 1.5,
+                  borderRadius: '50%',
+                  display: 'flex'
+              }}>
+                  {icon}
+              </Box>
+          </CardContent>
+      </Card>
+  );
 
   return (
     <PageContainer scrollable>
@@ -101,205 +123,186 @@ export const Dashboard: React.FC<DashboardProps> = ({ items, history, onAddToPur
           description="Visão Geral Operacional"
       />
 
-      {/* FRAGMENTED GRID LAYOUT (MAESTRO STYLE) */}
-      <motion.div
-        className="grid grid-cols-12 gap-6 pb-12"
-        variants={containerVariants}
-        initial="hidden"
-        animate="visible"
-      >
-        
-        {/* ROW 1: KPIs (Staggered / Asymmetrical) */}
-        <motion.div className="col-span-12 lg:col-span-3" variants={itemVariants}>
-             <Card variant="metric" title="Total de Itens" value={totalItems} icon="inventory_2"
-                   className="bg-white border-black h-full"
-                   onClick={() => navigate('/inventory')}
+      <Grid container spacing={3} sx={{ mb: 4 }}>
+        {/* Metrics */}
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+             <MetricCard
+                title="Total de Itens"
+                value={totalItems}
+                icon={<Inventory2Icon />}
+                color="primary"
+                onClick={() => navigate('/inventory')}
              />
-        </motion.div>
-        <motion.div className="col-span-12 lg:col-span-3" variants={itemVariants}>
-             <Card variant="metric" title="Valor em Estoque" value={`R$ ${totalValue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`} icon="payments"
-                   className="bg-white border-black h-full"
+        </Grid>
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+             <MetricCard
+                title="Valor em Estoque"
+                value={`R$ ${totalValue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`}
+                icon={<PaymentsIcon />}
+                color="success"
              />
-        </motion.div>
-        <motion.div className="col-span-12 lg:col-span-3" variants={itemVariants}>
-             <Card variant="metric" title="Baixo Estoque" value={lowStockItems.length} subtitle={outOfStockItems.length > 0 ? `${outOfStockItems.length} zerados` : undefined} icon="warning"
-                   colorScheme={lowStockItems.length > 0 ? 'warning' : 'neutral'}
-                   className={lowStockItems.length > 0 ? 'bg-warning-bg border-warning' : 'bg-white border-black'}
+        </Grid>
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+             <MetricCard
+                title="Baixo Estoque"
+                value={lowStockItems.length}
+                subtitle={outOfStockItems.length > 0 ? `${outOfStockItems.length} zerados` : undefined}
+                icon={<WarningIcon />}
+                color="warning"
              />
-        </motion.div>
-        <motion.div className="col-span-12 lg:col-span-3" variants={itemVariants}>
-             <Card variant="metric" title="A Vencer" value={expiringItems.length} icon="event_busy"
-                   colorScheme={expiringItems.length > 0 ? 'danger' : 'neutral'}
-                   className={expiringItems.length > 0 ? 'bg-danger-bg border-danger' : 'bg-white border-black'}
+        </Grid>
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+             <MetricCard
+                title="A Vencer"
+                value={expiringItems.length}
+                icon={<EventBusyIcon />}
+                color="error"
              />
-        </motion.div>
+        </Grid>
 
-        {/* ROW 2: MAIN CONTENT & SIDEBAR */}
-
-        {/* Main Content Area (Transactions) */}
-        <motion.div className="col-span-12 lg:col-span-8 flex flex-col gap-6" variants={itemVariants}>
-            <Card title="Movimentações Recentes" icon="history" className="min-h-[400px]" padding="p-0">
-                <div className="overflow-x-auto">
-                    <table className="w-full text-left text-sm">
-                        <thead className="bg-black text-white uppercase text-xs font-bold tracking-wider">
-                            <tr>
-                                <th className="px-6 py-4">Tipo</th>
-                                <th className="px-6 py-4">Item</th>
-                                <th className="px-6 py-4 text-right">Qtd</th>
-                                <th className="px-6 py-4 text-right">Data</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-gray-200">
+        {/* Recent Transactions */}
+        <Grid size={{ xs: 12, lg: 8 }}>
+            <Card sx={{ height: '100%' }}>
+                <CardHeader
+                    title="Movimentações Recentes"
+                    avatar={<HistoryIcon color="action" />}
+                    action={
+                        <Button size="small" endIcon={<ArrowForwardIcon />} onClick={() => navigate('/history')}>
+                            Ver Tudo
+                        </Button>
+                    }
+                />
+                <Divider />
+                <TableContainer>
+                    <Table size="small">
+                        <TableHead>
+                            <TableRow>
+                                <TableCell>Tipo</TableCell>
+                                <TableCell>Item</TableCell>
+                                <TableCell align="right">Qtd</TableCell>
+                                <TableCell align="right">Data</TableCell>
+                            </TableRow>
+                        </TableHead>
+                        <TableBody>
                             {recentTransactions.map((tx) => (
-                                <tr key={tx.id} className="hover:bg-gray-50 transition-colors">
-                                    <td className="px-6 py-4">
-                                        <span className={`
-                                            px-2 py-1 text-[10px] font-bold uppercase tracking-wide border
-                                            ${tx.type === 'ENTRADA'
-                                                ? 'bg-success-bg text-success border-success'
-                                                : tx.type === 'SAIDA'
-                                                    ? 'bg-neutral-100 text-neutral-800 border-neutral-300'
-                                                    : 'bg-warning-bg text-warning border-warning'}
-                                        `}>
-                                            {tx.type}
-                                        </span>
-                                    </td>
-                                    <td className="px-6 py-4 font-bold text-text-main truncate max-w-[200px]" title={tx.productName}>
-                                        {tx.productName}
-                                        <div className="text-[10px] text-text-light font-mono mt-0.5">Lote: {tx.lot}</div>
-                                    </td>
-                                    <td className="px-6 py-4 text-right font-mono font-bold text-text-main">
-                                        {tx.quantity} <span className="text-[10px] text-text-light font-sans font-normal uppercase">{tx.unit}</span>
-                                    </td>
-                                    <td className="px-6 py-4 text-right text-text-secondary text-[10px] font-mono">
-                                        {formatDateTime(tx.date)}
-                                    </td>
-                                </tr>
+                                <TableRow key={tx.id} hover>
+                                    <TableCell>
+                                        <Chip
+                                            label={tx.type}
+                                            size="small"
+                                            color={tx.type === 'ENTRADA' ? 'success' : tx.type === 'SAIDA' ? 'default' : 'warning'}
+                                            variant="outlined"
+                                        />
+                                    </TableCell>
+                                    <TableCell>
+                                        <Typography variant="body2" fontWeight="medium">{tx.productName}</Typography>
+                                        <Typography variant="caption" color="textSecondary">Lote: {tx.lot}</Typography>
+                                    </TableCell>
+                                    <TableCell align="right">
+                                        <Typography variant="body2" fontWeight="bold">
+                                            {tx.quantity} <Typography component="span" variant="caption">{tx.unit}</Typography>
+                                        </Typography>
+                                    </TableCell>
+                                    <TableCell align="right">
+                                        <Typography variant="caption">{formatDateTime(tx.date)}</Typography>
+                                    </TableCell>
+                                </TableRow>
                             ))}
                             {recentTransactions.length === 0 && (
-                                <tr>
-                                    <td colSpan={4} className="py-12 text-center text-text-secondary italic">
-                                        Nenhuma movimentação recente.
-                                    </td>
-                                </tr>
+                                <TableRow>
+                                    <TableCell colSpan={4} align="center">
+                                        <Typography variant="body2" color="textSecondary" sx={{ py: 3 }}>
+                                            Nenhuma movimentação recente.
+                                        </Typography>
+                                    </TableCell>
+                                </TableRow>
                             )}
-                        </tbody>
-                    </table>
-                </div>
+                        </TableBody>
+                    </Table>
+                </TableContainer>
             </Card>
-        </motion.div>
+        </Grid>
 
-        {/* Side Panel (Action Items & Charts) */}
-        <motion.div className="col-span-12 lg:col-span-4 flex flex-col gap-6" variants={itemVariants}>
-
-            {/* Action Required Panel - Brutalist Alert Style */}
-            <Card className="flex flex-col border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]" padding="p-0">
-                <div className="flex items-center justify-between px-6 py-4 border-b-2 border-black bg-primary">
-                    <h3 className="text-lg font-black uppercase tracking-tight text-black flex items-center gap-2">
-                        Ação Necessária
-                        {(lowStockItems.length + expiringItems.length) > 0 && (
-                            <span className="bg-black text-primary text-[10px] px-2 py-0.5 font-mono font-bold">
-                                {lowStockItems.length + expiringItems.length}
-                            </span>
-                        )}
-                    </h3>
-                </div>
+        {/* Action Required & Charts */}
+        <Grid size={{ xs: 12, lg: 4 }}>
+            <Grid container spacing={3} direction="column">
                 
-                <div className="flex flex-col gap-4 flex-1 overflow-y-auto max-h-[400px] custom-scrollbar p-6 bg-white">
-                    
-                    {/* Low Stock Items */}
-                    {lowStockItems.slice(0, 3).map(item => (
-                        <div key={item.id} className="p-4 bg-warning-bg border-2 border-black transition-transform hover:-translate-y-1 hover:shadow-sm">
-                            <div className="flex justify-between items-start mb-2">
-                                <div className="flex items-center gap-2 min-w-0">
-                                    <Icon name="warning" className="text-warning" size={20} />
-                                    <div className="min-w-0">
-                                        <h4 className="font-bold text-sm text-black truncate uppercase leading-tight" title={item.name}>{item.name}</h4>
-                                        <div className="font-mono text-[10px] text-text-secondary mt-1">SAP: {item.sapCode || 'N/A'}</div>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div className="flex items-center justify-between mt-3 pt-3 border-t border-black/10">
-                                <div className="flex flex-col">
-                                     <div className="text-[10px] uppercase font-bold text-text-light tracking-wide">Estoque</div>
-                                     <div className="text-xs font-bold text-black font-mono">
-                                        <span className="text-warning">{item.quantity}</span>
-                                        <span className="text-text-light mx-1">/</span> 
-                                        <span>{item.minStockLevel} {item.baseUnit}</span>
-                                     </div>
-                                </div>
-                                <Button 
-                                    onClick={() => onAddToPurchase(item, 'LOW_STOCK')}
-                                    variant="warning"
-                                    size="sm"
-                                    className="text-[10px]"
-                                >
-                                    COMPRAR
-                                </Button>
-                            </div>
-                        </div>
-                    ))}
+                {/* Action Items */}
+                <Grid size={{ xs: 12 }}>
+                    <Card sx={{ borderLeft: 4, borderColor: 'warning.main' }}>
+                        <CardHeader
+                            title="Ação Necessária"
+                            action={
+                                (lowStockItems.length + expiringItems.length) > 0 &&
+                                <Chip label={lowStockItems.length + expiringItems.length} color="error" size="small" />
+                            }
+                        />
+                        <CardContent sx={{ pt: 0, maxHeight: 400, overflowY: 'auto' }}>
+                             {/* Low Stock */}
+                             {lowStockItems.slice(0, 3).map(item => (
+                                <Box key={item.id} sx={{ mb: 2, p: 1.5, bgcolor: 'warning.light', borderRadius: 1, color: 'warning.contrastText' }}>
+                                    <Box display="flex" justifyContent="space-between" alignItems="center">
+                                        <Typography variant="subtitle2" noWrap sx={{ maxWidth: '70%' }}>{item.name}</Typography>
+                                        <Typography variant="caption" fontWeight="bold">{item.quantity} / {item.minStockLevel} {item.baseUnit}</Typography>
+                                    </Box>
+                                    <Button
+                                        size="small"
+                                        variant="contained"
+                                        color="warning"
+                                        fullWidth
+                                        sx={{ mt: 1 }}
+                                        onClick={() => onAddToPurchase(item, 'LOW_STOCK')}
+                                        startIcon={<AddShoppingCartIcon />}
+                                    >
+                                        Repor Estoque
+                                    </Button>
+                                </Box>
+                             ))}
 
-                    {/* Expiring Items */}
-                    {expiringItems.slice(0, 3).map(item => (
-                        <div key={item.id} className="p-4 bg-danger-bg border-2 border-black transition-transform hover:-translate-y-1 hover:shadow-sm">
-                             <div className="flex justify-between items-start mb-2">
-                                <div className="flex items-center gap-2 min-w-0">
-                                    <Icon name="event_busy" className="text-danger" size={20} />
-                                    <div className="min-w-0">
-                                        <h4 className="font-bold text-sm text-black truncate uppercase leading-tight" title={item.name}>{item.name}</h4>
-                                        <div className="font-mono text-[10px] text-text-secondary mt-1">Lote: {item.lotNumber}</div>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div className="flex items-center justify-between mt-3 pt-3 border-t border-black/10">
-                                <div className="flex flex-col">
-                                     <div className="text-[10px] uppercase font-bold text-text-light tracking-wide">Vence em</div>
-                                     <div className="text-xs font-bold text-danger font-mono">
-                                        {formatDate(item.expiryDate)}
-                                     </div>
-                                </div>
-                                <Button 
-                                    onClick={() => onAddToPurchase(item, 'EXPIRING')}
-                                    variant="danger"
-                                    size="sm"
-                                    className="text-[10px]"
-                                >
-                                    REPOR
-                                </Button>
-                            </div>
-                        </div>
-                    ))}
+                             {/* Expiring */}
+                             {expiringItems.slice(0, 3).map(item => (
+                                <Box key={item.id} sx={{ mb: 2, p: 1.5, bgcolor: 'error.light', borderRadius: 1, color: 'error.contrastText' }}>
+                                    <Box display="flex" justifyContent="space-between" alignItems="center">
+                                        <Typography variant="subtitle2" noWrap sx={{ maxWidth: '70%' }}>{item.name}</Typography>
+                                        <Typography variant="caption" fontWeight="bold">Vence: {formatDate(item.expiryDate)}</Typography>
+                                    </Box>
+                                    <Button
+                                        size="small"
+                                        variant="contained"
+                                        color="error"
+                                        fullWidth
+                                        sx={{ mt: 1 }}
+                                        onClick={() => onAddToPurchase(item, 'EXPIRING')}
+                                        startIcon={<AddShoppingCartIcon />}
+                                    >
+                                        Repor (Vencimento)
+                                    </Button>
+                                </Box>
+                             ))}
 
-                    {(lowStockItems.length === 0 && expiringItems.length === 0) && (
-                        <div className="text-center py-8 text-text-secondary italic">
-                            Tudo certo! Nenhuma ação pendente.
-                        </div>
-                    )}
-                </div>
-            </Card>
+                             {(lowStockItems.length === 0 && expiringItems.length === 0) && (
+                                <Typography variant="body2" color="textSecondary" align="center">
+                                    Tudo certo! Nenhuma ação pendente.
+                                </Typography>
+                             )}
+                        </CardContent>
+                    </Card>
+                </Grid>
 
-            {/* PARETO CHART - Brutalist Style */}
-            {!selectedItemId && (
-                <Card padding="p-0" className="flex flex-col min-h-[300px]">
-                    <div className="px-6 py-4 border-b-2 border-black bg-black text-white">
-                        <h3 className="text-lg font-bold uppercase tracking-widest">Top Categorias</h3>
-                    </div>
-                    <div className="flex-1 p-4 relative bg-white">
-                        {paretoData.length > 0 ? (
-                            <Chart options={paretoOptions} series={paretoSeries} type="line" height="100%" />
-                        ) : (
-                            <div className="h-full flex items-center justify-center text-sm text-text-secondary italic">
-                                Sem dados suficientes.
-                            </div>
-                        )}
-                    </div>
-                </Card>
-            )}
-        </motion.div>
-      </motion.div>
+                {/* Pareto Chart */}
+                <Grid size={{ xs: 12 }}>
+                    <Card>
+                        <CardHeader title="Top Categorias (Pareto)" />
+                        <CardContent>
+                            <Box sx={{ height: 300 }}>
+                                <Chart options={paretoOptions} series={paretoSeries} type="line" height="100%" />
+                            </Box>
+                        </CardContent>
+                    </Card>
+                </Grid>
+            </Grid>
+        </Grid>
+      </Grid>
     </PageContainer>
   );
 };
