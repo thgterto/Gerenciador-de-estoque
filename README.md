@@ -1,39 +1,36 @@
-
 # LabControl - Sistema de Gestão Laboratorial
 
 ![Version](https://img.shields.io/badge/version-1.8.2-blue)
-![Architecture](https://img.shields.io/badge/Architecture-Offline--First-success)
+![Architecture](https://img.shields.io/badge/Architecture-Portable--Electron-success)
 ![Stack](https://img.shields.io/badge/Stack-React_19_|_TypeScript_|_Tailwind-903A40)
-![Storage](https://img.shields.io/badge/Storage-IndexedDB_via_Dexie-293141)
+![Storage](https://img.shields.io/badge/Storage-SQLite_via_Better--Sqlite3-293141)
 
-O **LabControl** é uma plataforma de missão crítica para gestão de inventário laboratorial. Operando sob uma filosofia **Offline-First**, o sistema garante integridade de dados (Rastreabilidade de Lotes), alta performance via arquitetura híbrida e conformidade com normas de segurança (GHS).
+O **LabControl** é uma plataforma de missão crítica para gestão de inventário laboratorial. Agora operando como uma **Aplicação Desktop Portátil (Electron)**, o sistema garante integridade de dados localmente (SQLite), eliminando a necessidade de conexão com internet ou servidores externos.
 
 ---
 
-## 🚀 Versão 1.8.2 (Estável)
+## 🚀 Versão 1.8.2 (Portátil)
 
-Esta versão traz melhorias significativas no motor de dados e integridade:
+Esta versão migra o backend para uma arquitetura local e portátil:
 
-*   **Motor de Importação Inteligente:** Detecção automática de tabelas dentro de planilhas Excel desorganizadas com suporte a colunas GHS (T, T+, O, etc).
-*   **Smart Merge (Mesclagem Não-Destrutiva):** Atualiza saldos via planilha sem apagar dados enriquecidos manualmente (como Links CAS, Fórmulas e Classificações de Risco).
-*   **Identidade Determinística:** O sistema agora gera IDs baseados no conteúdo (Hash) para importações de histórico e saldos, prevenindo duplicação de registros se a mesma planilha for carregada duas vezes.
+*   **Execução Local (Portable):** O sistema roda diretamente do executável, armazenando dados em uma pasta `labcontrol_data` adjacente ao aplicativo. Isso permite transportar o sistema e seus dados em um pendrive.
+*   **Backend SQLite:** Substituição do Google Apps Script por um backend Node.js embutido usando SQLite, garantindo transações ACID e alta performance.
+*   **Smart Merge & Importação:** Mantém as capacidades de importação inteligente e detecção de duplicatas.
 *   **React 19 Core:** Atualização completa do core e remoção de APIs depreciadas.
 
 ---
 
-## 🧠 Arquitetura de Engenharia (V2 Híbrida)
+## 🧠 Arquitetura de Engenharia (Portable)
 
-O sistema utiliza uma arquitetura de "Dupla Camada" para balancear UX e Contabilidade:
+O sistema utiliza uma arquitetura baseada em Electron com persistência em SQLite:
 
-### 1. Camada de Persistência Híbrida (`HybridStorageManager`)
-Wrapper sobre o IndexedDB que implementa o padrão **L1/L3 Cache**:
-*   **L1 (Memory Cache):** Mantém dados "quentes" para renderização síncrona do React (Zero Flickering).
-*   **L3 (Transactional Persistence):** Dexie.js garante escritas ACID no disco.
+### 1. Backend Embutido (Electron Main Process)
+*   **Controladores:** Lógica de negócio (Upsert, Delete, Import) reside em `electron/controllers`, executando no processo principal.
+*   **IPC Bridge:** Comunicação segura entre a UI (Renderer) e o Banco de Dados via `preload.cjs` e `ipcRenderer.invoke`.
 
-### 2. Integridade: Snapshot vs. Ledger
-*   **Snapshot (V1):** Tabela `items`. Contém o saldo atual consolidado. Usado pela UI.
-*   **Ledger (V2):** Tabelas `history` e `balances`. A fonte da verdade contábil.
-*   **Auditoria Automática:** O sistema possui uma ferramenta (`InventoryService.runLedgerAudit`) que recalcula o V1 baseado na soma do V2 para corrigir desvios (Drift).
+### 2. Camada de Persistência (SQLite)
+*   **Better-SQLite3:** Biblioteca de alta performance para acesso síncrono/assíncrono ao banco de dados.
+*   **Transações Atômicas:** Todas as operações críticas (Importação, Movimentação) são executadas dentro de transações para garantir consistência.
 
 ---
 
@@ -47,21 +44,42 @@ Para um detalhamento completo de todas as funcionalidades, incluindo Matriz de A
 
 ## 🛠️ Stack Tecnológico
 
+*   **Runtime:** Electron 34 (Chromium + Node.js).
 *   **Core:** React 19, TypeScript 5, Vite 6.
-*   **Dados:** Dexie.js (IndexedDB), Algoritmos de Hashing (SHA-like) para deduplicação.
-*   **UI:** Tailwind CSS, React Window (Virtualização de listas longas).
-*   **Integração:** SheetJS (Excel), CAS Common Chemistry API.
+*   **Dados:** SQLite3 (Persistência Local Relacional).
+*   **UI:** Tailwind CSS, React Window (Virtualização).
+*   **Empacotamento:** Electron Builder.
 
-## 🚀 Instalação
+## 🚀 Instalação e Execução
+
+### Modo de Desenvolvimento
+
+Para rodar o ambiente de desenvolvimento com Hot Reload (Frontend) e Backend Electron:
 
 1.  **Instalar dependências:**
     ```bash
     npm install
     ```
-2.  **Rodar servidor de desenvolvimento:**
+
+2.  **Rodar App (Dev Mode):**
     ```bash
-    npm run dev
+    npm run electron:dev
     ```
+    *Isso iniciará o Vite em paralelo com o Electron.*
+
+### Gerar Executável (Build)
+
+Para criar o executável portátil para distribuição (Windows/Linux/Mac):
+
+1.  **Compilar e Empacotar:**
+    ```bash
+    npm run electron:build
+    ```
+    *O executável será gerado na pasta `release/`.*
+
+2.  **Modo Portátil:**
+    *   Ao executar o aplicativo gerado (ex: `LabControl UMV.exe`), uma pasta `labcontrol_data` será criada automaticamente ao lado do executável.
+    *   Para mover o sistema (backup ou outro PC), basta copiar o executável e a pasta `labcontrol_data` juntos.
 
 ## 🧪 Testes
 
