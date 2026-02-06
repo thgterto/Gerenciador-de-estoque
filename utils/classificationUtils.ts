@@ -11,6 +11,14 @@ const CATEGORY_KEYWORDS: Record<string, string[]> = {
     'MATERIAL DE LIMPEZA': ['RODO', 'VASSOURA', 'DETERGENTE', 'SABAO', 'DESINFETANTE', 'PANO', 'ESPONJA', 'SACO DE LIXO', 'LIXEIRA', 'BALDE']
 };
 
+// Pre-compute normalized keywords to improve performance in loops
+const NORMALIZED_CATEGORY_KEYWORDS: Record<string, string[]> = Object.fromEntries(
+    Object.entries(CATEGORY_KEYWORDS).map(([category, keywords]) => [
+        category,
+        keywords.map(k => normalizeStr(k).toUpperCase())
+    ])
+);
+
 // Dicionário de Sugestões de CAS (Nome Comum -> CAS)
 const COMMON_CAS_NUMBERS: Record<string, string> = {
     'ACETONA': '67-64-1',
@@ -43,8 +51,8 @@ const COMMON_CAS_NUMBERS: Record<string, string> = {
 export const identifyCategory = (itemName: string): string => {
     const cleanName = normalizeStr(itemName).toUpperCase(); // normalizeStr remove espaços e caracteres especiais
 
-    for (const [category, keywords] of Object.entries(CATEGORY_KEYWORDS)) {
-        if (keywords.some(k => cleanName.includes(normalizeStr(k).toUpperCase()))) {
+    for (const [category, keywords] of Object.entries(NORMALIZED_CATEGORY_KEYWORDS)) {
+        if (keywords.some(k => cleanName.includes(k))) {
             return category;
         }
     }
