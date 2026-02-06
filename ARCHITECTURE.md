@@ -1,89 +1,83 @@
+# Arquitetura do LabControl (V3 Portable)
 
-# Arquitetura do LabControl (V2 Híbrida)
+O LabControl evoluiu para uma aplicação Desktop Standalone (Portátil), utilizando o **Electron** como runtime e **SQLite** embarcado como fonte única de verdade.
 
-Este documento descreve a arquitetura de engenharia do LabControl, projetada para combinar a performance de UI necessária para operações diárias com a integridade de dados exigida por normas laboratoriais.
+## 1. Filosofia: Portable & Local-First
 
-## 1. Filosofia: Híbrida (Snapshot + Ledger)
+A arquitetura foi redesenhada para operar 100% offline, sem dependência de serviços externos (Google Sheets/Apps Script). O banco de dados viaja junto com a aplicação, permitindo que a pasta do software seja movida entre computadores sem perda de dados (quando configurado em modo portátil).
 
-Para resolver o dilema entre *Velocidade de Leitura* (necessária para filtros em tempo real e listas virtuais) e *Integridade Contábil* (necessária para auditoria e rastreabilidade), o sistema opera com dois modelos de dados simultâneos:
+### 1.1 Backend: Electron Main Process
+*   **Runtime:** Node.js (via Electron).
+*   **Banco de Dados:** SQLite3 (via `better-sqlite3`).
+*   **Comunicação:** IPC (Inter-Process Communication) nativo.
+*   **Benefício:** Latência zero, suporte a transações ACID robustas, sem dependência de internet.
 
-### 1.1 Modelo V1: O Snapshot (Leitura Rápida)
-*   **Tabela:** `items` (IndexedDB) + Cache em Memória (L1).
-*   **Estrutura:** Denormalizada (Flat). O objeto `InventoryItem` contém todos os dados necessários para renderizar uma linha na tabela (Nome, Lote, Localização, Saldo Total).
-*   **Uso:** Alimentação de UI, Busca Rápida, Dashboards.
-*   **Performance:** Leitura O(1) via cache L1.
-
-### 1.2 Modelo V2: O Ledger Relacional (Fonte da Verdade)
-*   **Tabelas:** `catalog`, `batches`, `balances`, `history`, `partners`, `storage_locations`.
-*   **Estrutura:** Altamente normalizada (3NF). Separa a definição do produto (Catálogo) da instância física (Lote) e da sua distribuição espacial (Saldos).
-*   **Uso:** Auditoria, Rastreabilidade, Relatórios Legais, Controle de Qualidade.
-*   **Integridade:** Garante que o saldo total seja sempre a soma das partes.
+### 1.2 Frontend: React + IPC Bridge
+*   **Camada de Serviço:** `GoogleSheetsService` foi adaptado para atuar como um *Gateway Agnostic*. Se detectar o ambiente Electron (`window.electronAPI`), ele roteia as requisições para o processo local via IPC. Caso contrário (Web mode), mantém o fallback para HTTP (se configurado).
+*   **Interface:** A UI permanece em React 19, consumindo dados assincronamente.
 
 ---
 
-## 2. Esquema de Dados V2 (Schema)
+## 2. Esquema de Dados V3 (SQLite)
+
+O esquema relacional (3NF) foi portado do conceito lógico V2 para tabelas físicas SQL.
 
 ### 2.1 Catálogo (`catalog`)
-Define "O Que" é o item.
-*   `id`: `CAT-{HASH}` (Gerado via SAP+Nome)
-*   `sapCode`: Código de material corporativo.
-*   `casNumber`: Identificador químico único.
-*   `risks`: Matriz de riscos GHS (Inflamável, Tóxico, etc).
+Tabela Mestre de Produtos.
+*   `id`: PK (TEXT).
+*   `name`, `sapCode`, `casNumber`, `risks` (JSON).
 
-### 2.2 Lotes Físicos (`batches`)
-Define "Qual" instância do item estamos tratando.
-*   `id`: `BAT-{UUID}`
-*   `catalogId`: FK para Catálogo.
-*   `lotNumber`: Número do lote do fabricante.
-*   `expiryDate`: Validade crítica.
-*   `qaStatus`: Status de qualidade (Aprovado, Quarentena).
+### 2.2 Lotes (`batches`)
+Instâncias físicas dos produtos.
+*   `id`: PK (TEXT).
+*   `catalogId`: FK -> catalog.id.
+*   `lotNumber`, `expiryDate`, `status`.
 
-### 2.3 Saldos Distribuídos (`balances`)
-Define "Onde" e "Quanto" existe de cada lote.
-*   `id`: `BAL-{HASH}`
-*   `batchId`: FK para Lote.
-*   `locationId`: FK para Localização.
-*   `quantity`: Quantidade decimal exata neste local específico.
+### 2.3 Saldos (`balances`)
+Quantificação e localização.
+*   `id`: PK (TEXT).
+*   `batchId`: FK -> batches.id.
+*   `quantity`, `locationId`.
+*   *Soft Delete:* Registros deletados recebem status 'DELETED'.
 
----
-
-## 3. Padrões de Projeto (Design Patterns)
-
-### 3.1 Escrita Dupla Atômica (Atomic Dual-Write)
-Toda operação de modificação de estoque (Entrada/Saída/Ajuste) deve passar pelo `InventoryService.processTransaction`. Este método executa uma transação ACID no Dexie.js que atualiza simultaneamente:
-1.  O registro denormalizado em `items` (para a UI atualizar instantaneamente).
-2.  O registro imutável em `history` (Log de auditoria).
-3.  O registro de saldo em `balances` (Contabilidade V2).
-
-Se qualquer uma das escritas falhar, a transação inteira é revertida, garantindo que o V1 nunca diverja do V2.
-
-### 3.2 Camada de Persistência Híbrida (`HybridStorageManager`)
-Wrapper sobre o Dexie.js que intercepta chamadas de leitura/escrita.
-*   **L1 Cache (Memória):** Mantém arrays de objetos JS simples para acesso instantâneo pelo React.
-*   **L3 Storage (IndexedDB):** Persistência durável.
-*   **Optimistic UI:** Ao salvar, o L1 é atualizado antes da Promise do IDB resolver. Se o IDB falhar, o L1 sofre rollback silencioso e o usuário é notificado.
-
-### 3.3 Estratégia de Normalização de Importação (Lazy Normalization)
-Para suportar cargas massivas via Excel (que são inerentemente "planas"), o sistema utiliza uma estratégia no `ImportEngine`:
-1.  O usuário carrega uma planilha plana (Nome, Lote, Qtd).
-2.  O sistema gera Hashes determinísticos para `CatalogID` (baseado no nome/SAP) e `BatchID` (baseado no lote).
-3.  Durante a transação de salvamento, o sistema verifica se esses IDs já existem no Ledger V2.
-    *   Se não existirem, cria os registros de Catálogo e Lote.
-    *   Se existirem, atualiza apenas o Saldo (`balances`).
-
-### 3.4 Identidade Determinística (Idempotência)
-Para evitar duplicação de dados ao re-importar planilhas ou sincronizar dados:
-*   **IDs de Histórico:** Gerados via Hash do conteúdo (`Data + Tipo + Item + Lote + Qtd`). Se a mesma linha for importada duas vezes, o Hash será idêntico e o banco de dados ignorará a segunda inserção (ou atualizará se necessário), garantindo idempotência.
-*   **IDs de Saldos:** `BAL-{Hash(BatchID + LocationID)}`. Garante que só exista um registro de saldo para um lote em um local específico.
+### 2.4 Movimentações (`movements`)
+Log de auditoria imutável (Append-Only).
+*   `id`: PK (TEXT).
+*   `itemId`, `type` (ENTRADA/SAIDA), `quantity`, `date`.
+*   Dados denormalizados (snapshot) do item no momento da ação para preservação histórica.
 
 ---
 
-## 4. Fluxo de Dados (Data Flow)
+## 3. Padrões de Implementação
 
-1.  **Usuário** clica em "Registrar Saída".
-2.  **Component** (`MovementModal`) chama `InventoryService.registerMovement`.
-3.  **Service** valida regras de negócio (ex: estoque negativo).
-4.  **Service** constrói objetos V1 e V2.
-5.  **Service** chama `db.transaction`.
-6.  **HybridStorage** atualiza cache L1 e notifica `useInventoryData` (React re-renderiza).
-7.  **Dexie** comita dados no IndexedDB em background.
+### 3.1 IPC Bridge Pattern
+O arquivo `electron/preload.cjs` expõe uma API segura (`window.electronAPI`) para o contexto de renderização. O Frontend não acessa o `better-sqlite3` diretamente (segurança); ele envia "mensagens" solicitando ações (`upsert-item`, `read-full`).
+
+### 3.2 Transactional Upsert
+A operação de salvar item (`upsertItem`) é atômica. O SQLite garante que a atualização do Catálogo, Criação do Lote e Atualização do Saldo ocorram todas ou nenhuma.
+
+### 3.3 Portable Data Path
+No modo produção, o banco de dados `labcontrol.db` é criado em uma pasta `labcontrol_data` adjacente ao executável, em vez de usar o diretório de dados do usuário do sistema operacional (%APPDATA%). Isso facilita backups manuais e portabilidade (Pen Drives).
+
+---
+
+## 4. Estrutura de Diretórios Backend
+
+```
+electron/
+├── main.cjs        # Entry Point. Configura Janela e IPC.
+├── preload.cjs     # Bridge de Segurança.
+├── db.cjs          # Camada de Acesso a Dados (DAO). Gerencia SQLite.
+└── db/
+    └── schema.sql  # Definição DDL das tabelas.
+```
+
+## 5. Fluxo de Dados (Data Flow)
+
+1.  **UI:** Usuário salva um item.
+2.  **Service:** `GoogleSheetsService.addOrUpdateItem(item)` é chamado.
+3.  **Gateway:** Verifica `window.electronAPI`. Chama `request('upsert_item', ...)` .
+4.  **IPC:** Electron Main recebe evento `db:upsert-item`.
+5.  **Controller:** Invoca `db.upsertItem(item)` em `electron/db.cjs`.
+6.  **DB:** `better-sqlite3` abre transação, executa SQLs, comita.
+7.  **Response:** Retorna `{ success: true }` para a UI.

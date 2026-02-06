@@ -1,76 +1,76 @@
+# LabControl - Sistema de Gestão Laboratorial (Portable Edition)
 
-# LabControl - Sistema de Gestão Laboratorial
+![Version](https://img.shields.io/badge/version-1.8.3-blue)
+![Architecture](https://img.shields.io/badge/Architecture-Portable_SQLite-success)
+![Stack](https://img.shields.io/badge/Stack-Electron_|_React_19_|_SQLite-903A40)
 
-![Version](https://img.shields.io/badge/version-1.8.2-blue)
-![Architecture](https://img.shields.io/badge/Architecture-Offline--First-success)
-![Stack](https://img.shields.io/badge/Stack-React_19_|_TypeScript_|_Tailwind-903A40)
-![Storage](https://img.shields.io/badge/Storage-IndexedDB_via_Dexie-293141)
-
-O **LabControl** é uma plataforma de missão crítica para gestão de inventário laboratorial. Operando sob uma filosofia **Offline-First**, o sistema garante integridade de dados (Rastreabilidade de Lotes), alta performance via arquitetura híbrida e conformidade com normas de segurança (GHS).
+O **LabControl** é uma plataforma de gestão de inventário laboratorial. Esta versão **Portable Edition** opera de forma totalmente independente, utilizando um banco de dados SQLite embarcado, eliminando a necessidade de conexão com internet ou configurações de nuvem.
 
 ---
 
-## 🚀 Versão 1.8.2 (Estável)
+## 🚀 Novidades da Versão 1.8.3 (Portable)
 
-Esta versão traz melhorias significativas no motor de dados e integridade:
-
-*   **Motor de Importação Inteligente:** Detecção automática de tabelas dentro de planilhas Excel desorganizadas com suporte a colunas GHS (T, T+, O, etc).
-*   **Smart Merge (Mesclagem Não-Destrutiva):** Atualiza saldos via planilha sem apagar dados enriquecidos manualmente (como Links CAS, Fórmulas e Classificações de Risco).
-*   **Identidade Determinística:** O sistema agora gera IDs baseados no conteúdo (Hash) para importações de histórico e saldos, prevenindo duplicação de registros se a mesma planilha for carregada duas vezes.
-*   **React 19 Core:** Atualização completa do core e remoção de APIs depreciadas.
+*   **Backend Local (SQLite):** Substituição do Google Sheets/Apps Script por SQLite local.
+*   **Portabilidade Total:** O banco de dados (`labcontrol.db`) reside na pasta da aplicação (em modo produção), permitindo transportar o software em Pen Drives sem perda de dados.
+*   **Performance:** Operações de leitura e escrita instantâneas via IPC nativo.
+*   **Segurança:** Transações ACID garantem integridade dos dados mesmo em caso de falha de energia.
 
 ---
 
-## 🧠 Arquitetura de Engenharia (V2 Híbrida)
+## 🧠 Arquitetura de Engenharia (V3 Portable)
 
-O sistema utiliza uma arquitetura de "Dupla Camada" para balancear UX e Contabilidade:
+O sistema utiliza o **Electron** para orquestrar o Frontend (React) e o Backend (Node.js/SQLite):
 
-### 1. Camada de Persistência Híbrida (`HybridStorageManager`)
-Wrapper sobre o IndexedDB que implementa o padrão **L1/L3 Cache**:
-*   **L1 (Memory Cache):** Mantém dados "quentes" para renderização síncrona do React (Zero Flickering).
-*   **L3 (Transactional Persistence):** Dexie.js garante escritas ACID no disco.
+1.  **Frontend (Renderer):** React 19 + TypeScript.
+2.  **Backend (Main):** Node.js com `better-sqlite3`.
+3.  **Comunicação:** IPC Bridge seguro.
 
-### 2. Integridade: Snapshot vs. Ledger
-*   **Snapshot (V1):** Tabela `items`. Contém o saldo atual consolidado. Usado pela UI.
-*   **Ledger (V2):** Tabelas `history` e `balances`. A fonte da verdade contábil.
-*   **Auditoria Automática:** O sistema possui uma ferramenta (`InventoryService.runLedgerAudit`) que recalcula o V1 baseado na soma do V2 para corrigir desvios (Drift).
+Para detalhes técnicos profundos, consulte:
+
+👉 **[LER A ARQUITETURA TÉCNICA (ARCHITECTURE.md)](./ARCHITECTURE.md)**
 
 ---
 
 ## 📚 Documentação Funcional
 
-Para um detalhamento completo de todas as funcionalidades, incluindo Matriz de Armazenamento e Integração CAS, consulte o guia de features:
+Para um detalhamento das funcionalidades de negócio:
 
 👉 **[LER O MANUAL DE FUNCIONALIDADES (FEATURES.md)](./FEATURES.md)**
 
 ---
 
-## 🛠️ Stack Tecnológico
+## 🛠️ Instalação e Desenvolvimento
 
-*   **Core:** React 19, TypeScript 5, Vite 6.
-*   **Dados:** Dexie.js (IndexedDB), Algoritmos de Hashing (SHA-like) para deduplicação.
-*   **UI:** Tailwind CSS, React Window (Virtualização de listas longas).
-*   **Integração:** SheetJS (Excel), CAS Common Chemistry API.
+### Pré-requisitos
+*   Node.js 18+
+*   Python (para compilação de dependências nativas, se necessário)
 
-## 🚀 Instalação
+### 1. Instalação
+O projeto utiliza `electron-builder` para gerenciar dependências nativas (`better-sqlite3`).
 
-1.  **Instalar dependências:**
-    ```bash
-    npm install
-    ```
-2.  **Rodar servidor de desenvolvimento:**
-    ```bash
-    npm run dev
-    ```
+```bash
+npm install
+# O script 'postinstall' rodará automaticamente para compilar o SQLite para o Electron
+```
 
-## 🧪 Testes
+Se houver problemas com módulos nativos:
+```bash
+npm run postinstall
+```
 
-O projeto utiliza **Vitest** + **React Testing Library**.
+### 2. Rodar em Desenvolvimento
+Inicia o React (Vite) e o Electron simultaneamente.
 
-1.  **Rodar testes unitários:**
-    ```bash
-    npm test
-    ```
+```bash
+npm run electron:dev
+```
+
+### 3. Compilar para Produção (Portable)
+Gera um executável portátil na pasta `dist/win-unpacked` (ou equivalente conforme o OS).
+
+```bash
+npm run electron:build
+```
 
 ---
 **Licença:** Proprietária / Uso Interno.
