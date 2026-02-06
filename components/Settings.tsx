@@ -531,7 +531,7 @@ export const Settings: React.FC = () => {
                 <ImportWizard 
                     isOpen={wizardOpen} 
                     onClose={() => setWizardOpen(false)} 
-                    mode={wizardMode} 
+                    initialMode={wizardMode}
                 />
 
                 {/* Secure Reset Modal */}

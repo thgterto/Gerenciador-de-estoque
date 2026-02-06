@@ -1,311 +1,277 @@
-
-import React, { useState, useRef, useEffect, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import { InventoryItem, MovementRecord } from '../types';
-import { PageContainer } from './ui/PageContainer';
 import { PageHeader } from './ui/PageHeader';
-import { Card } from './ui/Card';
-import { Button } from './ui/Button';
+import { PageContainer } from './ui/PageContainer';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui/Table';
-import { useReportsAnalytics } from '../hooks/useReportsAnalytics';
-import { useECharts } from '../hooks/useECharts';
-import { formatDate } from '../utils/formatters';
 import { Badge } from './ui/Badge';
+import { Button } from './ui/Button';
+import { Card } from './ui/Card';
+import { Box, Tabs, Tab, Typography, Grid, Paper, Stack } from '@mui/material';
+import Chart from 'react-apexcharts';
 
-interface Props {
+// Icons
+import AssessmentIcon from '@mui/icons-material/Assessment';
+import TimelineIcon from '@mui/icons-material/Timeline';
+import ScienceIcon from '@mui/icons-material/Science';
+import EventBusyIcon from '@mui/icons-material/EventBusy';
+import WarningIcon from '@mui/icons-material/Warning';
+import PrintIcon from '@mui/icons-material/Print';
+import SignalCellularNodataIcon from "@mui/icons-material/SignalCellularNodata";
+
+interface ReportsProps {
   items: InventoryItem[];
   history: MovementRecord[];
 }
 
-// Chart Components
-const ABCChart = React.memo(({ dataA, dataB, dataC }: { dataA: number, dataB: number, dataC: number }) => {
-    const chartRef = useRef<HTMLDivElement>(null);
-    const chart = useECharts(chartRef);
-
-    useEffect(() => {
-        if (chart) {
-            const option = {
-                tooltip: { trigger: 'item' },
-                legend: { top: '5%', left: 'center' },
-                series: [
-                    {
-                        name: 'Classificação ABC',
-                        type: 'pie',
-                        radius: ['40%', '70%'],
-                        avoidLabelOverlap: false,
-                        itemStyle: { borderRadius: 10, borderColor: '#fff', borderWidth: 2 },
-                        label: { show: false, position: 'center' },
-                        emphasis: { label: { show: true, fontSize: 20, fontWeight: 'bold' } },
-                        data: [
-                            { value: dataA, name: 'Classe A (80% Consumo)', itemStyle: { color: '#10B981' } },
-                            { value: dataB, name: 'Classe B (15% Consumo)', itemStyle: { color: '#F59E0B' } },
-                            { value: dataC, name: 'Classe C (5% Consumo)', itemStyle: { color: '#EF4444' } }
-                        ]
-                    }
-                ]
-            };
-            chart.setOption(option);
-        }
-    }, [chart, dataA, dataB, dataC]);
-
-    return <div ref={chartRef} className="w-full h-[250px]"></div>;
-});
-
-const FlowChart = React.memo(({ labels, dataIn, dataOut }: { labels: string[], dataIn: number[], dataOut: number[] }) => {
-    const chartRef = useRef<HTMLDivElement>(null);
-    const chart = useECharts(chartRef);
-
-    useEffect(() => {
-        if (chart) {
-            const option = {
-                tooltip: {
-                    trigger: 'axis',
-                    axisPointer: { type: 'shadow' }
-                },
-                legend: {
-                    data: ['Entradas', 'Saídas'],
-                    bottom: 0
-                },
-                grid: {
-                    left: '3%', right: '4%', bottom: '10%', top: '3%', containLabel: true
-                },
-                xAxis: {
-                    type: 'category',
-                    data: labels,
-                    axisLine: { show: false },
-                    axisTick: { show: false }
-                },
-                yAxis: {
-                    type: 'value',
-                    splitLine: { lineStyle: { type: 'dashed', color: '#E2E8F0' } }
-                },
-                series: [
-                    {
-                        name: 'Entradas',
-                        type: 'bar',
-                        data: dataIn,
-                        itemStyle: { color: '#10B981', borderRadius: [4, 4, 0, 0] },
-                        barMaxWidth: 30
-                    },
-                    {
-                        name: 'Saídas',
-                        type: 'bar',
-                        data: dataOut,
-                        itemStyle: { color: '#EF4444', borderRadius: [4, 4, 0, 0] },
-                        barMaxWidth: 30
-                    }
-                ]
-            };
-            chart.setOption(option);
-        }
-    }, [chart, labels, dataIn, dataOut]);
-
-    return <div ref={chartRef} className="w-full h-[350px]"></div>;
-});
-
-export const Reports: React.FC<Props> = ({ items, history }) => {
-    const [activeTab, setActiveTab] = useState<'ABC' | 'COST' | 'CONTROLLED' | 'EXPIRY' | 'FLOW'>('ABC');
-    const { abcAnalysis, controlledReport, expiryRisk, costAnalysis, monthlyFlow } = useReportsAnalytics(items, history);
-    
-    const chartData = useMemo(() => {
-        if (activeTab !== 'ABC') return { A: 0, B: 0, C: 0 };
-        return {
-            A: abcAnalysis.filter(i => i.class === 'A').reduce((acc, i) => acc + i.consumption, 0),
-            B: abcAnalysis.filter(i => i.class === 'B').reduce((acc, i) => acc + i.consumption, 0),
-            C: abcAnalysis.filter(i => i.class === 'C').reduce((acc, i) => acc + i.consumption, 0)
-        };
-    }, [abcAnalysis, activeTab]);
+const FlowChart: React.FC<{ labels: string[], dataIn: number[], dataOut: number[] }> = ({ labels, dataIn, dataOut }) => {
+    const options: any = {
+        chart: {
+            id: 'flow-chart',
+            toolbar: { show: false },
+            fontFamily: 'inherit',
+            background: 'transparent'
+        },
+        colors: ['#10b981', '#ef4444'],
+        stroke: { curve: 'smooth', width: 3 },
+        xaxis: {
+            categories: labels,
+            axisBorder: { show: false },
+            axisTicks: { show: false },
+        },
+        grid: {
+            borderColor: '#f1f5f9',
+            strokeDashArray: 4,
+        },
+        dataLabels: { enabled: false },
+        tooltip: { theme: 'dark' },
+        legend: { position: 'top' }
+    };
 
     return (
-        <PageContainer scrollable={true}>
-            <PageHeader 
-                title="Relatórios Gerenciais" 
-                description="Análise estratégica de estoque, consumo e conformidade."
-            >
-                <div className="flex bg-surface-light dark:bg-surface-dark p-1 rounded-lg border border-border-light dark:border-border-dark overflow-x-auto no-scrollbar">
-                    {[
-                        { id: 'ABC', label: 'Curva ABC', icon: 'analytics' },
-                        { id: 'COST', label: 'Financeiro', icon: 'attach_money' },
-                        { id: 'FLOW', label: 'Fluxo', icon: 'swap_vert' },
-                        { id: 'CONTROLLED', label: 'Controlados', icon: 'verified_user' },
-                        { id: 'EXPIRY', label: 'Validade', icon: 'event_busy' }
-                    ].map(tab => (
-                        <button
-                            key={tab.id}
-                            onClick={() => setActiveTab(tab.id as any)}
-                            className={`
-                                flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all whitespace-nowrap
-                                ${activeTab === tab.id 
-                                    ? 'bg-primary text-white shadow-sm' 
-                                    : 'text-text-secondary hover:text-text-main dark:text-gray-400 dark:hover:text-white hover:bg-background-light dark:hover:bg-slate-700'
-                                }
-                            `}
-                        >
-                            <span className="material-symbols-outlined text-[18px]">{tab.icon}</span>
-                            <span className="hidden sm:inline">{tab.label}</span>
-                        </button>
-                    ))}
-                </div>
-            </PageHeader>
+        <Chart
+            options={options}
+            series={[
+                { name: 'Entradas', data: dataIn },
+                { name: 'Saídas', data: dataOut }
+            ]}
+            type="area"
+            height={320}
+        />
+    );
+};
 
-            {/* TAB CONTENT: COST ANALYSIS */}
-            {activeTab === 'COST' && (
-                <div className="flex flex-col gap-6 animate-fade-in">
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                         <Card padding="p-6" className="bg-primary/5 border-primary/20">
-                             <h3 className="text-sm font-bold text-primary uppercase tracking-wide">Valor Total em Estoque</h3>
-                             <p className="text-3xl font-black text-text-main dark:text-white mt-2">
-                                 {costAnalysis.totalValue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
-                             </p>
-                         </Card>
-                         <Card padding="p-6">
-                             <h3 className="text-sm font-bold text-text-secondary uppercase tracking-wide">Item Mais Valioso</h3>
-                             {costAnalysis.items.length > 0 ? (
-                                 <div className="mt-2">
-                                     <p className="text-xl font-bold text-text-main dark:text-white truncate" title={costAnalysis.items[0].name}>{costAnalysis.items[0].name}</p>
-                                     <p className="text-sm text-text-secondary">{costAnalysis.items[0].totalValue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</p>
-                                 </div>
-                             ) : <p className="mt-2 text-text-secondary italic">--</p>}
-                         </Card>
-                    </div>
+export const Reports: React.FC<ReportsProps> = ({ items, history }) => {
+    const [activeTab, setActiveTab] = useState<'GENERAL' | 'FLOW' | 'CONTROLLED' | 'EXPIRY'>('GENERAL');
 
-                    <Card padding="p-0" className="flex flex-col overflow-hidden">
-                        <div className="px-6 py-4 border-b border-border-light dark:border-border-dark bg-background-light/50 dark:bg-slate-800/50 flex justify-between items-center">
-                            <h3 className="font-bold text-text-main dark:text-white">Detalhamento de Custos</h3>
-                        </div>
+    const abcAnalysis = useMemo(() => {
+        const sorted = [...items]
+            .map(i => ({ ...i, value: i.quantity * i.unitCost }))
+            .sort((a, b) => b.value - a.value);
+
+        const totalValue = sorted.reduce((sum, i) => sum + i.value, 0);
+        let accumulatedValue = 0;
+
+        return sorted.map(i => {
+            accumulatedValue += i.value;
+            const percentage = (accumulatedValue / totalValue) * 100;
+            let classification = 'C';
+            if (percentage <= 80) classification = 'A';
+            else if (percentage <= 95) classification = 'B';
+
+            return { ...i, class: classification, percentage };
+        }).filter(i => i.class === 'A' || i.class === 'B').slice(0, 50);
+    }, [items]);
+
+    const monthlyFlow = useMemo(() => {
+        const months = [];
+        const dataIn = [];
+        const dataOut = [];
+        const now = new Date();
+
+        for (let i = 11; i >= 0; i--) {
+            const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+            const monthLabel = d.toLocaleDateString('pt-BR', { month: 'short', year: '2-digit' });
+            months.push(monthLabel);
+
+            const start = new Date(d.getFullYear(), d.getMonth(), 1);
+            const end = new Date(d.getFullYear(), d.getMonth() + 1, 0);
+
+            const monthRecords = history.filter(r => {
+                const rDate = new Date(r.date);
+                return rDate >= start && rDate <= end;
+            });
+
+            const entrySum = monthRecords.filter(r => r.type === 'ENTRADA').reduce((acc, r) => acc + r.quantity, 0);
+            const exitSum = monthRecords.filter(r => r.type === 'SAIDA').reduce((acc, r) => acc + r.quantity, 0);
+
+            dataIn.push(entrySum);
+            dataOut.push(exitSum);
+        }
+
+        return { labels: months, dataIn, dataOut };
+    }, [history]);
+
+    const controlledReport = useMemo(() => {
+        return items
+            .filter(i => i.isControlled)
+            .map(i => {
+                const itemHistory = history.filter(h => h.itemId === i.id || h.productName === i.name);
+                const totalEntry = itemHistory.filter(h => h.type === 'ENTRADA').reduce((a, b) => a + b.quantity, 0);
+                const totalExit = itemHistory.filter(h => h.type === 'SAIDA').reduce((a, b) => a + b.quantity, 0);
+                return { ...i, totalEntry, totalExit };
+            });
+    }, [items, history]);
+
+    const expiryRisk = useMemo(() => {
+        const now = new Date();
+        const ninetyDays = new Date();
+        ninetyDays.setDate(now.getDate() + 90);
+
+        return items
+            .filter(i => i.expiryDate && new Date(i.expiryDate) <= ninetyDays)
+            .sort((a, b) => new Date(a.expiryDate).getTime() - new Date(b.expiryDate).getTime());
+    }, [items]);
+
+    const formatDate = (dateStr: string) => {
+        return new Date(dateStr).toLocaleDateString('pt-BR');
+    };
+
+    return (
+        <PageContainer scrollable>
+            <PageHeader
+                title="Relatórios & Inteligência"
+                description="Análise detalhada de movimentação, riscos e curva ABC."
+            />
+
+            <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
+                <Tabs value={activeTab} onChange={(_, v) => setActiveTab(v)} aria-label="report tabs">
+                    <Tab label="Visão Geral (ABC)" value="GENERAL" icon={<AssessmentIcon />} iconPosition="start" />
+                    <Tab label="Fluxo de Movimento" value="FLOW" icon={<TimelineIcon />} iconPosition="start" />
+                    <Tab label="Controlados (Mapa)" value="CONTROLLED" icon={<ScienceIcon />} iconPosition="start" />
+                    <Tab label="Risco Validade" value="EXPIRY" icon={<EventBusyIcon />} iconPosition="start" />
+                </Tabs>
+            </Box>
+
+            {activeTab === 'GENERAL' && (
+                <Stack spacing={3}>
+                    <Grid container spacing={2}>
+                        <Grid  xs={12} md={4}>
+                            <Paper sx={{ p: 3, bgcolor: 'primary.light', color: 'primary.contrastText' }}>
+                                <Typography variant="subtitle2" textTransform="uppercase" fontWeight="bold">Itens Classe A</Typography>
+                                <Typography variant="h3" fontWeight="bold" my={1}>{abcAnalysis.filter(i => i.class === 'A').length}</Typography>
+                                <Typography variant="body2">Representam 80% do valor de estoque</Typography>
+                            </Paper>
+                        </Grid>
+                        <Grid  xs={12} md={4}>
+                            <Paper sx={{ p: 3, bgcolor: 'warning.light', color: 'warning.contrastText' }}>
+                                <Typography variant="subtitle2" textTransform="uppercase" fontWeight="bold">Itens Classe B</Typography>
+                                <Typography variant="h3" fontWeight="bold" my={1}>{abcAnalysis.filter(i => i.class === 'B').length}</Typography>
+                                <Typography variant="body2">Representam 15% do valor de estoque</Typography>
+                            </Paper>
+                        </Grid>
+                        <Grid  xs={12} md={4}>
+                            <Paper sx={{ p: 3, bgcolor: 'info.light', color: 'info.contrastText' }}>
+                                <Typography variant="subtitle2" textTransform="uppercase" fontWeight="bold">Valor Total Analisado</Typography>
+                                <Typography variant="h4" fontWeight="bold" my={1}>
+                                    R$ {items.reduce((a, b) => a + (b.unitCost * b.quantity), 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                </Typography>
+                                <Typography variant="body2">Custo total atual do inventário</Typography>
+                            </Paper>
+                        </Grid>
+                    </Grid>
+
+                    <Card padding="p-0">
+                        <Box sx={{ p: 2, borderBottom: 1, borderColor: 'divider', bgcolor: 'background.paper' }}>
+                            <Typography variant="h6" fontWeight="bold">Curva ABC - Itens de Maior Valor</Typography>
+                        </Box>
                         <Table>
                             <TableHeader>
                                 <TableRow>
+                                    <TableHead>Classificação</TableHead>
                                     <TableHead>Produto</TableHead>
-                                    <TableHead className="text-right">Qtd</TableHead>
+                                    <TableHead className="text-right">Estoque</TableHead>
                                     <TableHead className="text-right">Custo Unit.</TableHead>
-                                    <TableHead className="text-right font-bold">Total</TableHead>
+                                    <TableHead className="text-right">Valor Total</TableHead>
+                                    <TableHead className="text-right">Status</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {costAnalysis.items.slice(0, 50).map(item => (
+                                {abcAnalysis.map((item) => (
                                     <TableRow key={item.id}>
                                         <TableCell>
-                                            <div className="font-medium">{item.name}</div>
-                                            <div className="text-xs text-text-secondary">{item.lotNumber}</div>
+                                            <Badge variant={item.class === 'A' ? 'success' : 'warning'}>
+                                                Classe {item.class}
+                                            </Badge>
                                         </TableCell>
-                                        <TableCell className="text-right font-mono">{item.quantity} {item.baseUnit}</TableCell>
-                                        <TableCell className="text-right font-mono text-text-secondary">
-                                            {item.unitCost ? item.unitCost.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) : '-'}
+                                        <TableCell>
+                                            <Typography variant="body2" fontWeight="bold">{item.name}</Typography>
+                                            <Typography variant="caption" color="text.secondary">SAP: {item.sapCode}</Typography>
                                         </TableCell>
-                                        <TableCell className="text-right font-bold">
-                                            {item.totalValue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                                        <TableCell className="text-right">{item.quantity} {item.baseUnit}</TableCell>
+                                        <TableCell className="text-right">R$ {item.unitCost.toFixed(2)}</TableCell>
+                                        <TableCell className="text-right font-bold">R$ {item.value.toFixed(2)}</TableCell>
+                                        <TableCell className="text-right">
+                                            <Badge
+                                                variant={item.class === 'A' ? 'success' : item.class === 'B' ? 'warning' : 'danger'}
+                                            >
+                                                Classe {item.class}
+                                            </Badge>
                                         </TableCell>
                                     </TableRow>
                                 ))}
-                                {costAnalysis.items.length === 0 && (
-                                    <TableRow>
-                                        <TableCell colSpan={4} className="text-center text-text-secondary opacity-60 py-12">
-                                            Sem dados de custo registrados.
-                                        </TableCell>
-                                    </TableRow>
-                                )}
                             </TableBody>
                         </Table>
                     </Card>
-                </div>
+                </Stack>
             )}
 
-            {/* TAB CONTENT: CURVA ABC */}
-            {activeTab === 'ABC' && (
-                <div className="flex flex-col gap-6 animate-fade-in">
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                        <Card padding="p-6" className="lg:col-span-1 min-h-[300px]">
-                            <h3 className="font-bold text-text-main dark:text-white mb-4">Distribuição de Consumo</h3>
-                            {abcAnalysis.length > 0 ? (
-                                <ABCChart dataA={chartData.A} dataB={chartData.B} dataC={chartData.C} />
-                            ) : (
-                                <div className="h-full flex items-center justify-center text-text-secondary italic">
-                                    Sem dados de movimentação suficientes.
-                                </div>
-                            )}
-                        </Card>
-                        <Card padding="p-0" className="lg:col-span-2 flex flex-col overflow-hidden">
-                            <div className="px-6 py-4 border-b border-border-light dark:border-border-dark bg-background-light/50 dark:bg-slate-800/50">
-                                <h3 className="font-bold text-text-main dark:text-white">Top Itens (Classe A)</h3>
-                            </div>
-                            <Table>
-                                <TableHeader>
-                                    <TableRow>
-                                        <TableHead>Item</TableHead>
-                                        <TableHead className="text-right">Consumo Total</TableHead>
-                                        <TableHead className="text-right">% Acumulado</TableHead>
-                                        <TableHead className="text-center">Classe</TableHead>
-                                    </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                    {abcAnalysis.slice(0, 10).map((item) => (
-                                        <TableRow key={item.id}>
-                                            <TableCell className="font-medium">{item.name}</TableCell>
-                                            <TableCell className="text-right font-mono">{item.consumption.toFixed(2)}</TableCell>
-                                            <TableCell className="text-right font-mono text-text-secondary">{item.cumulative.toFixed(1)}%</TableCell>
-                                            <TableCell className="text-center">
-                                                <Badge 
-                                                    variant={item.class === 'A' ? 'success' : item.class === 'B' ? 'warning' : 'danger'}
-                                                >
-                                                    Classe {item.class}
-                                                </Badge>
-                                            </TableCell>
-                                        </TableRow>
-                                    ))}
-                                </TableBody>
-                            </Table>
-                        </Card>
-                    </div>
-                </div>
-            )}
-
-            {/* TAB CONTENT: FLUXO */}
             {activeTab === 'FLOW' && (
-                 <div className="flex flex-col gap-6 animate-fade-in">
-                    <Card padding="p-6" className="min-h-[400px]">
-                        <div className="flex justify-between items-center mb-6">
-                            <div>
-                                <h3 className="font-bold text-text-main dark:text-white text-lg">Fluxo de Movimentação</h3>
-                                <p className="text-sm text-text-secondary dark:text-gray-400">Entradas vs. Saídas (Últimos 12 meses)</p>
-                            </div>
-                        </div>
+                 <Stack spacing={3}>
+                    <Card padding="p-6">
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+                            <Box>
+                                <Typography variant="h6" fontWeight="bold">Fluxo de Movimentação</Typography>
+                                <Typography variant="body2" color="text.secondary">Entradas vs. Saídas (Últimos 12 meses)</Typography>
+                            </Box>
+                        </Box>
                         {history.length > 0 ? (
                             <FlowChart labels={monthlyFlow.labels} dataIn={monthlyFlow.dataIn} dataOut={monthlyFlow.dataOut} />
                         ) : (
-                            <div className="h-[300px] flex items-center justify-center text-text-secondary">
-                                <div className="text-center">
-                                    <span className="material-symbols-outlined text-4xl opacity-50 mb-2">bar_chart_off</span>
-                                    <p>Nenhuma movimentação registrada.</p>
-                                </div>
-                            </div>
+                            <Box sx={{ height: 300, display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', color: 'text.secondary' }}>
+                                <SignalCellularNodataIcon sx={{ fontSize: 48, opacity: 0.5, mb: 1 }} />
+                                <Typography>Nenhuma movimentação registrada.</Typography>
+                            </Box>
                         )}
                     </Card>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="p-4 rounded-xl bg-emerald-50 dark:bg-emerald-900/10 border border-emerald-100 dark:border-emerald-900/30">
-                            <h4 className="text-sm font-bold text-emerald-800 dark:text-emerald-300 uppercase tracking-wide">Total Entradas (Ano)</h4>
-                            <p className="text-2xl font-black text-emerald-600 dark:text-emerald-400 mt-1">
-                                {monthlyFlow.dataIn.reduce((a, b) => a + b, 0).toLocaleString()} <span className="text-sm font-medium opacity-70">unidades</span>
-                            </p>
-                        </div>
-                        <div className="p-4 rounded-xl bg-red-50 dark:bg-red-900/10 border border-red-100 dark:border-red-900/30">
-                            <h4 className="text-sm font-bold text-red-800 dark:text-red-300 uppercase tracking-wide">Total Saídas (Ano)</h4>
-                            <p className="text-2xl font-black text-red-600 dark:text-red-400 mt-1">
-                                {monthlyFlow.dataOut.reduce((a, b) => a + b, 0).toLocaleString()} <span className="text-sm font-medium opacity-70">unidades</span>
-                            </p>
-                        </div>
-                    </div>
-                 </div>
+                    <Grid container spacing={2}>
+                        <Grid  xs={12} md={6}>
+                            <Paper sx={{ p: 2, bgcolor: 'success.lighter', borderColor: 'success.light', border: 1 }}>
+                                <Typography variant="subtitle2" color="success.dark" fontWeight="bold" textTransform="uppercase">Total Entradas (Ano)</Typography>
+                                <Typography variant="h4" color="success.main" fontWeight="black" mt={1}>
+                                    {monthlyFlow.dataIn.reduce((a, b) => a + b, 0).toLocaleString()} <Typography component="span" variant="caption" fontWeight="medium">unidades</Typography>
+                                </Typography>
+                            </Paper>
+                        </Grid>
+                        <Grid  xs={12} md={6}>
+                            <Paper sx={{ p: 2, bgcolor: 'error.lighter', borderColor: 'error.light', border: 1 }}>
+                                <Typography variant="subtitle2" color="error.dark" fontWeight="bold" textTransform="uppercase">Total Saídas (Ano)</Typography>
+                                <Typography variant="h4" color="error.main" fontWeight="black" mt={1}>
+                                    {monthlyFlow.dataOut.reduce((a, b) => a + b, 0).toLocaleString()} <Typography component="span" variant="caption" fontWeight="medium">unidades</Typography>
+                                </Typography>
+                            </Paper>
+                        </Grid>
+                    </Grid>
+                 </Stack>
             )}
 
-            {/* TAB CONTENT: CONTROLLED */}
             {activeTab === 'CONTROLLED' && (
-                <div className="flex flex-col gap-6 animate-fade-in">
-                     <Card padding="p-0" className="flex flex-col overflow-hidden">
-                        <div className="px-6 py-4 border-b border-border-light dark:border-border-dark bg-background-light/50 dark:bg-slate-800/50 flex justify-between items-center">
-                            <h3 className="font-bold text-text-main dark:text-white">Mapa de Produtos Controlados</h3>
-                            <Button variant="outline" size="sm" icon="print" onClick={() => window.print()}>Imprimir</Button>
-                        </div>
+                <Stack spacing={3}>
+                     <Card padding="p-0">
+                        <Box sx={{ px: 3, py: 2, borderBottom: 1, borderColor: 'divider', bgcolor: 'background.paper', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <Typography variant="h6" fontWeight="bold">Mapa de Produtos Controlados</Typography>
+                            <Button variant="outline" size="sm" startIcon={<PrintIcon />} onClick={() => window.print()}>Imprimir</Button>
+                        </Box>
                         <Table>
                             <TableHeader>
                                 <TableRow>
@@ -321,19 +287,19 @@ export const Reports: React.FC<Props> = ({ items, history }) => {
                                 {controlledReport.map(item => (
                                     <TableRow key={item.id}>
                                         <TableCell>
-                                            <div className="font-medium">{item.name}</div>
-                                            <div className="text-xs text-text-secondary font-mono">{item.sapCode}</div>
+                                            <Typography variant="body2" fontWeight="medium">{item.name}</Typography>
+                                            <Typography variant="caption" fontFamily="monospace" color="text.secondary">{item.sapCode}</Typography>
                                         </TableCell>
                                         <TableCell className="font-mono text-text-secondary">{item.casNumber || '-'}</TableCell>
                                         <TableCell className="text-right text-text-secondary">{(item.quantity - item.totalEntry + item.totalExit).toFixed(3)} {item.baseUnit}</TableCell>
-                                        <TableCell className="text-right text-emerald-600 font-medium">{item.totalEntry.toFixed(3)}</TableCell>
-                                        <TableCell className="text-right text-red-600 font-medium">{item.totalExit.toFixed(3)}</TableCell>
-                                        <TableCell className="text-right font-bold bg-primary/5">{item.quantity.toFixed(3)} {item.baseUnit}</TableCell>
+                                        <TableCell sx={{ color: 'success.main', fontWeight: 'medium', textAlign: 'right' }}>{item.totalEntry.toFixed(3)}</TableCell>
+                                        <TableCell sx={{ color: 'error.main', fontWeight: 'medium', textAlign: 'right' }}>{item.totalExit.toFixed(3)}</TableCell>
+                                        <TableCell sx={{ fontWeight: 'bold', textAlign: 'right', bgcolor: 'action.hover' }}>{item.quantity.toFixed(3)} {item.baseUnit}</TableCell>
                                     </TableRow>
                                 ))}
                                 {controlledReport.length === 0 && (
                                     <TableRow>
-                                        <TableCell colSpan={6} className="text-center text-text-secondary opacity-60 py-12">
+                                        <TableCell colSpan={6} align="center" sx={{ py: 6, color: 'text.secondary' }}>
                                             Nenhum produto marcado como "Controlado" no inventário.
                                         </TableCell>
                                     </TableRow>
@@ -341,16 +307,15 @@ export const Reports: React.FC<Props> = ({ items, history }) => {
                             </TableBody>
                         </Table>
                     </Card>
-                </div>
+                </Stack>
             )}
 
-             {/* TAB CONTENT: EXPIRY RISK */}
              {activeTab === 'EXPIRY' && (
-                <div className="flex flex-col gap-6 animate-fade-in">
-                    <Card padding="p-0" className="flex flex-col overflow-hidden">
-                         <div className="px-6 py-4 border-b border-border-light dark:border-border-dark bg-background-light/50 dark:bg-slate-800/50">
-                            <h3 className="font-bold text-text-main dark:text-white">Risco de Vencimento (Próximos 90 Dias)</h3>
-                        </div>
+                <Stack spacing={3}>
+                    <Card padding="p-0">
+                         <Box sx={{ px: 3, py: 2, borderBottom: 1, borderColor: 'divider', bgcolor: 'background.paper' }}>
+                            <Typography variant="h6" fontWeight="bold">Risco de Vencimento (Próximos 90 Dias)</Typography>
+                        </Box>
                         <Table>
                             <TableHeader>
                                 <TableRow>
@@ -366,23 +331,31 @@ export const Reports: React.FC<Props> = ({ items, history }) => {
                                     const days = Math.ceil((new Date(item.expiryDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
                                     return (
                                         <TableRow key={item.id}>
-                                            <TableCell className="font-medium">{item.name}</TableCell>
-                                            <TableCell className="font-mono text-text-secondary">{item.lotNumber}</TableCell>
-                                            <TableCell className="font-bold text-text-main dark:text-gray-300">{formatDate(item.expiryDate)}</TableCell>
-                                            <TableCell className="text-center">
+                                            <TableCell>
+                                                <Typography variant="body2" fontWeight="medium">{item.name}</Typography>
+                                            </TableCell>
+                                            <TableCell>
+                                                <Typography variant="body2" fontFamily="monospace" color="text.secondary">{item.lotNumber}</Typography>
+                                            </TableCell>
+                                            <TableCell>
+                                                <Typography variant="body2" fontWeight="bold">{formatDate(item.expiryDate)}</Typography>
+                                            </TableCell>
+                                            <TableCell align="center">
                                                 {days < 0 ? (
                                                     <Badge variant="danger">Vencido</Badge>
                                                 ) : (
                                                     <Badge variant="warning">Vence em {days} dias</Badge>
                                                 )}
                                             </TableCell>
-                                            <TableCell className="text-right font-mono">{item.quantity} {item.baseUnit}</TableCell>
+                                            <TableCell align="right">
+                                                <Typography variant="body2" fontFamily="monospace">{item.quantity} {item.baseUnit}</Typography>
+                                            </TableCell>
                                         </TableRow>
                                     );
                                 })}
                                 {expiryRisk.length === 0 && (
                                     <TableRow>
-                                         <TableCell colSpan={5} className="text-center text-text-secondary opacity-60 py-12">
+                                         <TableCell colSpan={5} align="center" sx={{ py: 6, color: 'text.secondary' }}>
                                             Nenhum item vencendo nos próximos 90 dias.
                                         </TableCell>
                                     </TableRow>
@@ -390,7 +363,7 @@ export const Reports: React.FC<Props> = ({ items, history }) => {
                             </TableBody>
                         </Table>
                     </Card>
-                </div>
+                </Stack>
              )}
         </PageContainer>
     );
