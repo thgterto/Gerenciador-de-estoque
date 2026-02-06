@@ -1,4 +1,3 @@
-
 import { GOOGLE_CONFIG } from '../config/apiConfig';
 import { InventoryItem, MovementRecord, CatalogProduct, InventoryBatch, StockBalance } from '../types';
 
@@ -25,6 +24,10 @@ export const GoogleSheetsService = {
     },
 
     isConfigured() {
+        // If running in Electron, we are always "configured" via local DB
+        if (typeof window !== 'undefined' && window.electronAPI) {
+            return true;
+        }
         return !!GOOGLE_CONFIG.getWebUrl();
     },
 
@@ -44,6 +47,18 @@ export const GoogleSheetsService = {
     },
 
     async request(action: string, payload: any = {}): Promise<GasResponse> {
+        // 1. Electron IPC Priority
+        if (typeof window !== 'undefined' && window.electronAPI) {
+            try {
+                const response = await window.electronAPI.request(action, payload);
+                return response;
+            } catch (error: any) {
+                console.error(`[Electron] Error in ${action}:`, error);
+                return { success: false, error: error.toString() };
+            }
+        }
+
+        // 2. Google Sheets Fallback
         if (!this.isConfigured()) {
             // Silenciosamente ignora requisições se não estiver configurado
             // Retorna falso sucesso para não quebrar a UI

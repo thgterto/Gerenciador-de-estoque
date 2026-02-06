@@ -1,17 +1,19 @@
 const { app, BrowserWindow, ipcMain, shell } = require('electron');
 const path = require('path');
 const fs = require('fs');
+const db = require('./db.cjs');
 
 // --- PORTABLE DATA CONFIGURATION ---
 // In production (packaged), store data in a 'labcontrol_data' folder next to the executable.
 // This allows the app to be moved between computers with its data intact.
 const isDev = process.env.NODE_ENV === 'development';
+let portableDataPath = app.getPath('userData'); // Default
 
 if (!isDev) {
   try {
     // process.execPath is the path to the executable file.
     // path.dirname gives the folder containing the executable.
-    const portableDataPath = path.join(path.dirname(process.execPath), 'labcontrol_data');
+    portableDataPath = path.join(path.dirname(process.execPath), 'labcontrol_data');
 
     // Create the directory if it doesn't exist
     if (!fs.existsSync(portableDataPath)) {
@@ -26,6 +28,11 @@ if (!isDev) {
     // Fallback to default %APPDATA% if write fails (e.g. read-only media)
   }
 }
+
+// Initialize Database
+const dbPath = path.join(portableDataPath, 'labcontrol.db');
+// Ensure db is initialized after app ready might be safer, but here is fine if sync
+db.initDB(dbPath);
 
 // Prevent garbage collection
 let mainWindow;
@@ -85,5 +92,13 @@ app.on('window-all-closed', () => {
   }
 });
 
-// IPC Examples (if needed for printing or file system)
+// IPC Examples
 ipcMain.handle('get-app-version', () => app.getVersion());
+
+// Database IPC
+ipcMain.handle('db:ping', () => ({ success: true, message: "Connected to Local SQLite" }));
+ipcMain.handle('db:read-full', () => ({ success: true, data: db.readFullDB() }));
+ipcMain.handle('db:read-inventory', () => ({ success: true, data: db.getDenormalizedInventory() }));
+ipcMain.handle('db:upsert-item', (_, payload) => db.upsertItem(payload.item));
+ipcMain.handle('db:delete-item', (_, payload) => db.deleteItem(payload.id));
+ipcMain.handle('db:log-movement', (_, payload) => db.logMovement(payload.record));
