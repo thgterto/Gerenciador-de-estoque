@@ -26,7 +26,7 @@ export const TypeSelector: React.FC<TypeSelectorProps> = ({ currentType, onChang
             <ToggleButtonGroup
                 value={currentType}
                 exclusive
-                onChange={(e, val) => val && onChange(val)}
+                onChange={(_e, val) => val && onChange(val)}
                 aria-label="item type"
                 size="small"
                 fullWidth

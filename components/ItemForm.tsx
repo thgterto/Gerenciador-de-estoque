@@ -15,7 +15,7 @@ import { RiskSelector } from './item-form/RiskSelector';
 import { BatchInfo } from './item-form/BatchInfo';
 import { StorageInfo } from './item-form/StorageInfo';
 import { CasApiService } from '../services/CasApiService';
-import { Box, Typography, Stack, Paper, List, ListItemButton, ListItemText, InputAdornment, IconButton, Tooltip } from '@mui/material';
+import { Box, Typography, Stack, Paper, List, ListItemButton, ListItemText, IconButton } from '@mui/material';
 import { Grid } from '@mui/material';
 import Inventory2Icon from '@mui/icons-material/Inventory2';
 import ScienceIcon from '@mui/icons-material/Science';

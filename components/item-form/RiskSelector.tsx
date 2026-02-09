@@ -1,7 +1,7 @@
 import React from 'react';
 import { RiskFlags } from '../../types';
 import { GHS_OPTIONS } from '../../utils/businessRules';
-import { Tooltip, IconButton, Stack, Typography, Box } from '@mui/material';
+import { Tooltip, Stack, Typography, Box } from '@mui/material';
 
 interface RiskSelectorProps {
     risks: RiskFlags;

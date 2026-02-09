@@ -3,7 +3,6 @@ import {
     TextField, MenuItem, FormControlLabel, Switch, Chip, Stack, Card, InputAdornment, ToggleButton, ToggleButtonGroup, Box, Typography
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
-import FilterListIcon from '@mui/icons-material/FilterList';
 
 interface InventoryFiltersProps {
     term: string;
@@ -29,7 +28,6 @@ export const InventoryFilters: React.FC<InventoryFiltersProps> = ({
     hideZeroStock, setHideZeroStock,
     uniqueLocations,
     uniqueCategories,
-    getCategoryIcon
 }) => {
     return (
         <Card variant="outlined" sx={{ p: 2, mb: 3 }}>
@@ -51,7 +49,7 @@ export const InventoryFilters: React.FC<InventoryFiltersProps> = ({
                     <ToggleButtonGroup
                         value={statusFilter}
                         exclusive
-                        onChange={(e, val) => val && setStatusFilter(val)}
+                        onChange={(_e, val) => val && setStatusFilter(val)}
                         size="small"
                         sx={{ height: 40 }}
                     >

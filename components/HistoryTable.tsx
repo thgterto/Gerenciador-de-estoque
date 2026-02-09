@@ -2,10 +2,9 @@ import React, { useMemo } from 'react';
 import { MovementRecord } from '../types';
 import {
     Box, Chip, Typography, TextField, MenuItem, Button, Card, CardContent,
-    IconButton, Tooltip, Stack, Select, FormControl, InputLabel
+    Tooltip, Stack, Select, FormControl, InputLabel
 } from '@mui/material';
 import { Grid } from '@mui/material';
-import { useTheme } from '@mui/material/styles';
 import { FixedSizeList as List } from 'react-window';
 import AutoSizer from 'react-virtualized-auto-sizer';
 import { useHistoryFilters } from '../hooks/useHistoryFilters';

@@ -5,9 +5,8 @@ const QRCode = (ReactQRCode as any).default || ReactQRCode;
 import {
     Dialog, DialogTitle, DialogContent, DialogActions,
     TextField, Button, MenuItem, IconButton, Typography, Box,
-    Alert, InputAdornment, Stack, FormControl, InputLabel, Select, CircularProgress
+    InputAdornment, Stack, FormControl, InputLabel, Select, CircularProgress
 } from '@mui/material';
-import { useTheme } from '@mui/material/styles';
 
 // Icons
 import Inventory2Icon from '@mui/icons-material/Inventory2';

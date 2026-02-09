@@ -8,7 +8,6 @@ import { formatDate } from '../utils/formatters';
 import {
     Box, Checkbox, Typography, IconButton, Tooltip, Chip, Stack
 } from '@mui/material';
-import { useTheme } from '@mui/material/styles';
 
 // Icons
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
