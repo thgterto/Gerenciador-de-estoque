@@ -96,11 +96,36 @@ export class QStockDB extends Dexie {
 
     // Schema Version 5 (Migration Fix Trigger)
     (this as any).version(5).stores({});
+
+    // Schema Version 6 (Performance Optimization - Composite Indices)
+    (this as any).version(6).stores({
+        items: 'id, sapCode, lotNumber, name, category, supplier, expiryDate, itemStatus, location.warehouse, molecularFormula, batchId, catalogId, [category+itemStatus], [location.warehouse+category], [expiryDate+itemStatus]'
+    });
   }
 }
 
 // Initialize Dexie
 const rawDb = new QStockDB();
+
+// --- Integrity Hooks (Soft Foreign Keys) ---
+
+// 1. Prevent Catalog Deletion if Batches Exist
+rawDb.catalog.hook('deleting', function (primKey, _obj, transaction) {
+    // Checks if any batch is linked to this catalog product
+    // @ts-ignore
+    return transaction.table('batches').where('catalogId').equals(primKey).count().then(count => {
+        if (count > 0) {
+            throw new Error(`Integrity Error: Cannot delete Catalog Product because ${count} batches depend on it.`);
+        }
+    });
+});
+
+// 2. Cascade Delete Balances when Batch is Deleted
+rawDb.batches.hook('deleting', function (primKey, _obj, transaction) {
+    // Automatically delete orphaned balances to maintain clean state
+    // @ts-ignore
+    transaction.table('balances').where('batchId').equals(primKey).delete();
+});
 
 // Export Hybrid Manager (L1 Cache + L3 Persistence)
 export const db = new HybridStorageManager(rawDb);
