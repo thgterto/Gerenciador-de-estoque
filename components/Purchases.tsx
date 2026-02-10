@@ -68,7 +68,7 @@ export const Purchases: React.FC<PurchasesProps> = ({
     const totalQuantity = purchaseList.reduce((acc, curr) => acc + curr.requestedQty, 0);
 
     return (
-        <PageContainer scrollable={true}>
+        <PageContainer scrollable>
             <PageHeader 
                 title="Planejamento de Compras" 
                 description="Gerencie necessidades de reposição e gere pedidos de compra."

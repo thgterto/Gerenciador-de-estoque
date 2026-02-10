@@ -408,6 +408,7 @@ export const MovementModal: React.FC<MovementModalProps> = ({ isOpen, onClose, i
 
                         <TextField
                             label="Quantidade"
+                            aria-label="Quantidade"
                             type="number"
                             value={quantity}
                             onChange={(e) => setQuantity(parseFloat(e.target.value))}
@@ -521,6 +522,7 @@ export const RequestModal: React.FC<RequestModalProps> = ({ isOpen, onClose, onC
 
                         <TextField
                             label="Quantidade Necessária"
+                            aria-label="Quantidade Necessária"
                             type="number"
                             value={qty}
                             onChange={(e) => setQty(parseInt(e.target.value))}

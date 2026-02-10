@@ -173,6 +173,7 @@ export const ItemForm: React.FC<ItemFormProps> = ({
                                         <Box position="relative" ref={suggestionsRef}>
                                             <Input
                                                 label="Nome do Item"
+                                                aria-label="Nome do Item"
                                                 required
                                                 value={formData.name || ''}
                                                 onChange={e => handleNameChange(e.target.value)}
