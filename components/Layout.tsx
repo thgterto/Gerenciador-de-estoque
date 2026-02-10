@@ -68,6 +68,8 @@ export const Layout: React.FC<LayoutProps> = ({
 
             <Box
                 component="main"
+                id="main-content"
+                tabIndex={-1} // Allow programmatic focus
                 sx={{
                     flexGrow: 1,
                     // Remove padding from here to let PageContainer control it or use it as a flex container

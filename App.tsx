@@ -16,6 +16,8 @@ import { Login } from './components/Login';
 import { SyncQueueService } from './services/SyncQueueService';
 import { PageContainer } from './components/ui/PageContainer';
 import { PageHeader } from './components/ui/PageHeader';
+import { AnimatePresence } from 'framer-motion';
+import { AnimatedPage } from './components/ui/AnimatedPage';
 
 // Hooks Personalizados
 import { useInventoryData } from './hooks/useInventoryData';
@@ -159,69 +161,93 @@ const LabControlContent = () => {
             onScanClick={() => setModalType('SCANNER')}
        >
            <Suspense fallback={<PageLoader />}>
-               <Routes>
-                   <Route path="/" element={<Navigate to="/dashboard" />} />
-                   
-                   <Route path="/dashboard" element={
-                        <Dashboard 
-                            items={items} 
-                            history={history} 
-                            onAddToPurchase={addToPurchaseList} 
-                            onAddStock={(item) => { setSelectedItem(item); setModalType('MOVE'); }}
-                        />
-                   } />
+               <AnimatePresence mode="wait">
+                   <Routes location={location} key={location.pathname}>
+                       <Route path="/" element={<Navigate to="/dashboard" />} />
 
-                   <Route path="/inventory" element={
-                        <InventoryTable 
-                            items={items} 
-                            onActions={actions} 
-                            onAddNew={() => { setCloneData(undefined); setModalType('ADD'); }}
-                        />
-                   } />
+                       <Route path="/dashboard" element={
+                            <AnimatedPage>
+                                <Dashboard
+                                    items={items}
+                                    history={history}
+                                    onAddToPurchase={addToPurchaseList}
+                                    onAddStock={(item) => { setSelectedItem(item); setModalType('MOVE'); }}
+                                />
+                            </AnimatedPage>
+                       } />
 
-                   <Route path="/history" element={
-                        <HistoryTable 
-                            // history prop removida - componente agora gerencia sua própria busca
-                            preselectedItemId={historyFilterId} 
-                            preselectedBatchId={historyBatchId}
-                            onClearFilter={() => { setHistoryFilterId(null); setHistoryBatchId(null); }}
-                        />
-                   } />
+                       <Route path="/inventory" element={
+                            <AnimatedPage>
+                                <InventoryTable
+                                    items={items}
+                                    onActions={actions}
+                                    onAddNew={() => { setCloneData(undefined); setModalType('ADD'); }}
+                                />
+                            </AnimatedPage>
+                       } />
 
-                   <Route path="/storage" element={<StorageMatrix items={items} onActions={actions} />} />
-                   
-                   {/* Legacy Route redirect to modal behavior if accessed directly */}
-                   <Route path="/add-item" element={
-                        <PageContainer scrollable={true}>
-                            <PageHeader
-                                title="Adicionar Novo Item"
-                                description="Preencha os dados abaixo para cadastrar um novo item no inventário."
-                                breadcrumbs={[{ label: 'Inventário', path: '/inventory' }, { label: 'Novo Item' }]}
-                            />
-                            <AddItem onCancel={() => navigate('/inventory')} />
-                        </PageContainer>
-                   } />
+                       <Route path="/history" element={
+                            <AnimatedPage>
+                                <HistoryTable
+                                    // history prop removida - componente agora gerencia sua própria busca
+                                    preselectedItemId={historyFilterId}
+                                    preselectedBatchId={historyBatchId}
+                                    onClearFilter={() => { setHistoryFilterId(null); setHistoryBatchId(null); }}
+                                />
+                            </AnimatedPage>
+                       } />
 
-                   <Route path="/purchases" element={
-                        <Purchases 
-                            items={items}
-                            purchaseList={purchaseList}
-                            onRemove={removeFromPurchaseList}
-                            onUpdateQuantity={updatePurchaseQuantity}
-                            onSubmit={submitOrder}
-                            onAdd={(item) => addToPurchaseList(item, 'MANUAL')}
-                        />
-                   } />
+                       <Route path="/storage" element={
+                            <AnimatedPage>
+                                <StorageMatrix items={items} onActions={actions} />
+                            </AnimatedPage>
+                       } />
 
-                   <Route path="/settings" element={
-                       hasRole('ADMIN') ? <Settings /> : <Navigate to="/dashboard" />
-                   } />
-                   
-                   <Route path="/reports" element={<Reports items={items} history={history} />} />
-                   <Route path="/users" element={<Navigate to="/dashboard" />} />
+                       {/* Legacy Route redirect to modal behavior if accessed directly */}
+                       <Route path="/add-item" element={
+                            <AnimatedPage>
+                                <PageContainer scrollable={true}>
+                                    <PageHeader
+                                        title="Adicionar Novo Item"
+                                        description="Preencha os dados abaixo para cadastrar um novo item no inventário."
+                                        breadcrumbs={[{ label: 'Inventário', path: '/inventory' }, { label: 'Novo Item' }]}
+                                    />
+                                    <AddItem onCancel={() => navigate('/inventory')} />
+                                </PageContainer>
+                            </AnimatedPage>
+                       } />
 
-                   <Route path="*" element={<Navigate to="/dashboard" />} />
-               </Routes>
+                       <Route path="/purchases" element={
+                            <AnimatedPage>
+                                <Purchases
+                                    items={items}
+                                    purchaseList={purchaseList}
+                                    onRemove={removeFromPurchaseList}
+                                    onUpdateQuantity={updatePurchaseQuantity}
+                                    onSubmit={submitOrder}
+                                    onAdd={(item) => addToPurchaseList(item, 'MANUAL')}
+                                />
+                            </AnimatedPage>
+                       } />
+
+                       <Route path="/settings" element={
+                           hasRole('ADMIN') ? (
+                                <AnimatedPage>
+                                    <Settings />
+                                </AnimatedPage>
+                           ) : <Navigate to="/dashboard" />
+                       } />
+
+                       <Route path="/reports" element={
+                            <AnimatedPage>
+                                <Reports items={items} history={history} />
+                            </AnimatedPage>
+                       } />
+                       <Route path="/users" element={<Navigate to="/dashboard" />} />
+
+                       <Route path="*" element={<Navigate to="/dashboard" />} />
+                   </Routes>
+               </AnimatePresence>
            </Suspense>
        </Layout>
 

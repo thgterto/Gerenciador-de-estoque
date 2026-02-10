@@ -44,9 +44,27 @@
             -ms-overflow-style: none;  /* IE and Edge */
             scrollbar-width: none;  /* Firefox */
         }
+
+        /* Accessibility Skip Link */
+        .skip-link {
+            position: absolute;
+            top: -100px;
+            left: 0;
+            background: #005a7e;
+            color: white;
+            padding: 8px;
+            z-index: 9999;
+            text-decoration: none;
+            font-weight: bold;
+            transition: top 0.3s;
+        }
+        .skip-link:focus {
+            top: 0;
+        }
     </style>
 </head>
 <body class="bg-background-light dark:bg-background-dark text-text-main font-sans antialiased overflow-hidden">
+    <a href="#main-content" class="skip-link">Pular para o conteúdo principal</a>
     <div id="root"></div>
     <script type="module" src="/index.tsx"></script>
 </body>
