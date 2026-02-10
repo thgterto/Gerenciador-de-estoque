@@ -62,7 +62,9 @@ export const processLimsData = async (sourceData: any) => {
                 // Batch Props
                 lotNumber: batch.lotNumber,
                 expiryDate: batch.expiryDate || '',
-                dateAcquired: batch.createdAt || new Date().toISOString(),
+                // Fix: Prefer batch.createdAt, fallback to bal.createdAt, then now.
+                // Using now() implies "newly acquired", which is wrong for historical data.
+                dateAcquired: batch.createdAt || bal.createdAt || new Date().toISOString(),
                 unitCost: batch.unitCost,
                 currency: batch.currency || 'BRL',
                 itemStatus: (batch.status === 'ACTIVE' ? 'Ativo' : batch.status) as any,
@@ -70,7 +72,8 @@ export const processLimsData = async (sourceData: any) => {
                 // Balance Props
                 quantity: bal.quantity,
                 location: storageAddress,
-                lastUpdated: bal.updatedAt || new Date().toISOString(),
+                // Fix: Prefer actual update time
+                lastUpdated: bal.updatedAt || bal.createdAt || new Date().toISOString(),
                 // Audit
                 createdAt: bal.createdAt,
                 updatedAt: bal.updatedAt
@@ -178,14 +181,23 @@ export const seedDatabase = async (force: boolean = false, customData?: any, upd
               db.rawDb.items, db.rawDb.history, db.rawDb.catalog, db.rawDb.batches, db.rawDb.partners, 
               db.rawDb.storage_locations, db.rawDb.balances, db.rawDb.stock_movements, db.rawDb.locations, db.rawDb.suppliers
           ], async () => {
+              // Explicitly clear all tables to prevent duplicates during seeding
               await Promise.all([
-                  db.rawDb.items.clear(), db.rawDb.history.clear(), db.rawDb.catalog.clear(),
-                  db.rawDb.batches.clear(), db.rawDb.partners.clear(), db.rawDb.storage_locations.clear(),
-                  db.rawDb.balances.clear(), db.rawDb.stock_movements.clear()
+                  db.rawDb.items.clear(),
+                  db.rawDb.history.clear(),
+                  db.rawDb.catalog.clear(),
+                  db.rawDb.batches.clear(),
+                  db.rawDb.partners.clear(),
+                  db.rawDb.storage_locations.clear(),
+                  db.rawDb.balances.clear(),
+                  db.rawDb.stock_movements.clear(),
+                  // Clear legacy containers too
+                  db.rawDb.locations.clear(),
+                  db.rawDb.suppliers.clear()
               ]);
               
-              if (flatItems.length > 0) await db.rawDb.items.bulkPut(flatItems); // Use bulkPut for safety
-              if (historyItems.length > 0) await db.rawDb.history.bulkPut(historyItems);
+              if (flatItems.length > 0) await db.rawDb.items.bulkAdd(flatItems); // Use bulkAdd to catch duplicates
+              if (historyItems.length > 0) await db.rawDb.history.bulkAdd(historyItems);
               
               // Popula tabelas V2 para Integridade do Ledger
               if (v2Data.catalog && v2Data.catalog.length > 0) await db.rawDb.catalog.bulkPut(v2Data.catalog as CatalogProduct[]);

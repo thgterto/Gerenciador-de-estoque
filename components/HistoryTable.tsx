@@ -128,7 +128,7 @@ export const HistoryTable: React.FC<Props> = ({ preselectedItemId, preselectedBa
   const itemData = useMemo(() => ({ filtered }), [filtered]);
 
   return (
-    <PageContainer>
+    <PageContainer scrollable={true}>
         <PageHeader 
             title="Histórico de Movimentações" 
             description="Auditoria completa de entradas, saídas e ajustes de inventário."

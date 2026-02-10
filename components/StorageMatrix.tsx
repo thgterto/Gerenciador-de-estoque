@@ -25,8 +25,11 @@ interface Props {
   };
 }
 
-const ROWS = ['A', 'B', 'C', 'D', 'E', 'F'];
-const COLS = [1, 2, 3, 4, 5, 6, 7, 8];
+const STANDARD_ROWS = ['A', 'B', 'C', 'D', 'E', 'F'];
+const STANDARD_COLS = [1, 2, 3, 4, 5, 6, 7, 8];
+
+const CHEMICAL_ROWS = ['A', 'B', 'C'];
+const CHEMICAL_COLS = [1, 2, 3];
 
 interface StorageCellProps {
     cellId: string;
@@ -162,6 +165,15 @@ export const StorageMatrix: React.FC<Props> = ({ items, onActions }) => {
         });
         return groups;
     }, [items]);
+
+    const isChemicalStorage = useMemo(() => {
+        if (!selectedLocKey) return false;
+        const [warehouse] = selectedLocKey.split(' > ');
+        return normalizeStr(warehouse).includes('quimico') || normalizeStr(warehouse).includes('corrosivo');
+    }, [selectedLocKey]);
+
+    const activeRows = isChemicalStorage ? CHEMICAL_ROWS : STANDARD_ROWS;
+    const activeCols = isChemicalStorage ? CHEMICAL_COLS : STANDARD_COLS;
 
     const locationStats = useMemo(() => {
         const stats: Record<string, ReturnType<typeof analyzeLocation>> = {};
@@ -317,19 +329,25 @@ export const StorageMatrix: React.FC<Props> = ({ items, onActions }) => {
                                 <div className="bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl shadow-sm p-6 overflow-auto custom-scrollbar flex-1 flex flex-col justify-center relative">
                                     <div className="min-w-[600px] flex flex-col items-center">
                                         <div className="flex mb-3 ml-8 w-full max-w-4xl gap-3">
-                                            {COLS.map(col => (
+                                            {activeCols.map(col => (
                                                 <div key={col} className="flex-1 text-center text-xs font-bold text-text-secondary dark:text-gray-500 uppercase tracking-widest">{col}</div>
                                             ))}
                                         </div>
                                         <div className="flex w-full max-w-4xl relative gap-3">
                                             <div className="flex flex-col justify-around w-6 gap-3">
-                                                {ROWS.map(row => (
+                                                {activeRows.map(row => (
                                                     <div key={row} className="h-full flex items-center justify-center text-xs font-bold text-text-secondary dark:text-gray-500 uppercase">{row}</div>
                                                 ))}
                                             </div>
-                                            <div className="flex-1 grid grid-cols-8 grid-rows-6 gap-3 h-[500px]">
-                                                {ROWS.map(row => (
-                                                    COLS.map(col => {
+                                            <div
+                                                className="flex-1 grid gap-3 h-[500px]"
+                                                style={{
+                                                    gridTemplateColumns: `repeat(${activeCols.length}, minmax(0, 1fr))`,
+                                                    gridTemplateRows: `repeat(${activeRows.length}, minmax(0, 1fr))`
+                                                }}
+                                            >
+                                                {activeRows.map(row => (
+                                                    activeCols.map(col => {
                                                         const cellId = `${row}${col}`;
                                                         return (
                                                             <StorageCell 
@@ -457,9 +475,31 @@ export const StorageMatrix: React.FC<Props> = ({ items, onActions }) => {
                                             </div>
                                             {/* Actions for Desktop/Tablet where swipe isn't primary */}
                                             {!isMobile && onActions && (
-                                                <div className="grid grid-cols-2 gap-2">
-                                                    <Button variant="white" onClick={() => onActions.move(selectedItem)} icon="swap_horiz">Mover</Button>
-                                                    <Button variant="white" onClick={() => onActions.edit(selectedItem)} icon="edit">Editar</Button>
+                                                <div className="flex flex-col gap-2">
+                                                    <div className="grid grid-cols-2 gap-2">
+                                                        <Button
+                                                            variant="success"
+                                                            onClick={() => {
+                                                                // Hack: Use move with type override if supported or just open generic move modal
+                                                                // Ideally onActions should support explicit entry/exit
+                                                                onActions.move(selectedItem);
+                                                            }}
+                                                            icon="add_circle"
+                                                        >
+                                                            Entrada
+                                                        </Button>
+                                                        <Button
+                                                            variant="danger"
+                                                            onClick={() => onActions.move(selectedItem)}
+                                                            icon="remove_circle"
+                                                        >
+                                                            Saída
+                                                        </Button>
+                                                    </div>
+                                                    <div className="grid grid-cols-2 gap-2">
+                                                        <Button variant="white" onClick={() => onActions.move(selectedItem)} icon="swap_horiz">Mover</Button>
+                                                        <Button variant="white" onClick={() => onActions.edit(selectedItem)} icon="edit">Editar</Button>
+                                                    </div>
                                                 </div>
                                             )}
                                         </div>
