@@ -37,7 +37,7 @@ function upsertItem(item) {
             baseUnit: item.baseUnit,
             categoryId: item.category,
             risks: JSON.stringify(item.risks || {}),
-            updatedAt: new Date().toISOString()
+            updatedAt: item.lastUpdated || new Date().toISOString()
         });
 
         // 3. Upsert Batch
@@ -55,7 +55,7 @@ function upsertItem(item) {
             lotNumber: item.lotNumber,
             expiryDate: item.expiryDate,
             status: item.itemStatus === 'Ativo' ? 'ACTIVE' : 'BLOCKED',
-            updatedAt: new Date().toISOString()
+            updatedAt: item.lastUpdated || new Date().toISOString()
         });
 
         // 4. Upsert Balance
@@ -72,7 +72,7 @@ function upsertItem(item) {
             batchId: batchId,
             locationId: item.location ? item.location.warehouse : '',
             quantity: item.quantity,
-            lastMovementAt: new Date().toISOString()
+            lastMovementAt: item.lastUpdated || new Date().toISOString()
         });
     });
 

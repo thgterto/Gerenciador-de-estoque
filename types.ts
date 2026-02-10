@@ -283,7 +283,8 @@ export interface StockTransactionDTO {
   itemId: string;
   type: 'ENTRADA' | 'SAIDA' | 'AJUSTE' | 'TRANSFERENCIA';
   quantity: number; 
-  date: DateISOString; 
+  date: DateISOString; // @deprecated use createdAt
+  createdAt?: DateISOString;
   observation?: string;
   userId?: string;
   fromLocationId?: string;
