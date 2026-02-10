@@ -47,6 +47,7 @@ export const Login: React.FC = () => {
                 <form onSubmit={handleSubmit} className="p-8 space-y-6 bg-surface-light dark:bg-surface-dark">
                     <Input 
                         label="Usuário"
+                        aria-label="Usuário"
                         icon="person"
                         placeholder="Digite seu usuário"
                         value={username}
@@ -56,6 +57,7 @@ export const Login: React.FC = () => {
 
                     <Input 
                         label="Senha"
+                        aria-label="Senha"
                         icon="lock"
                         type="password"
                         placeholder="Digite sua senha"

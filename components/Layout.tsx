@@ -70,6 +70,7 @@ export const Layout: React.FC<LayoutProps> = ({
                 component="main"
                 id="main-content"
                 tabIndex={-1} // Allow programmatic focus
+                className="bg-background-light dark:bg-background-dark shadow-soft-lg" // Added shadow
                 sx={{
                     flexGrow: 1,
                     // Remove padding from here to let PageContainer control it or use it as a flex container
@@ -80,7 +81,9 @@ export const Layout: React.FC<LayoutProps> = ({
                     width: { sm: `calc(100% - ${drawerWidth}px)` },
                     height: '100vh',
                     bgcolor: 'background.default',
-                    overflow: 'hidden'
+                    overflow: 'hidden',
+                    position: 'relative',
+                    zIndex: 1
                 }}
             >
                 <Toolbar /> {/* Spacer to push content below AppBar */}

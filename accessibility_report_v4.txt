@@ -1,0 +1,64 @@
+
+============================================================
+[ACCESSIBILITY CHECKER] WCAG Compliance Audit
+============================================================
+Project: /app
+Time: 2026-02-10 19:37:18
+------------------------------------------------------------
+Found 50 HTML/JSX/TSX files
+
+============================================================
+ACCESSIBILITY ISSUES
+============================================================
+
+App.tsx:
+  - Input without label or aria-label
+  - Missing lang attribute on <html>
+
+ItemForm.tsx:
+  - Input without label or aria-label
+  - Missing lang attribute on <html>
+  - onClick without keyboard handler (onKeyDown)
+
+QuickScanModal.tsx:
+  - onClick without keyboard handler (onKeyDown)
+
+ImportWizard.tsx:
+  - Input without label or aria-label
+  - Missing lang attribute on <html>
+  - onClick without keyboard handler (onKeyDown)
+
+AddItem.tsx:
+  - onClick without keyboard handler (onKeyDown)
+
+Modals.tsx:
+  - Input without label or aria-label
+  - Missing lang attribute on <html>
+  - Consider adding skip-to-main-content link
+  - onClick without keyboard handler (onKeyDown)
+
+HistoryTable.tsx:
+  - Input without label or aria-label
+  - onClick without keyboard handler (onKeyDown)
+
+DatabaseSetupModal.tsx:
+  - onClick without keyboard handler (onKeyDown)
+
+Settings.tsx:
+  - Input without label or aria-label
+  - onClick without keyboard handler (onKeyDown)
+
+Reports.tsx:
+  - Missing lang attribute on <html>
+  - onClick without keyboard handler (onKeyDown)
+
+... and 17 more files with issues
+
+{
+  "script": "accessibility_checker",
+  "project": "/app",
+  "files_checked": 50,
+  "files_with_issues": 27,
+  "issues_found": 44,
+  "passed": false
+}
