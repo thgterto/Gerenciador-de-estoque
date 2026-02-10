@@ -224,10 +224,6 @@ export const ImportWizard: React.FC<Props> = ({ isOpen, onClose, mode }) => {
                     if (processedIds.has(id)) return; 
                     processedIds.add(id);
 
-                    // REGRA DE NEGÓCIO: Dados mestres importados via planilha começam com Qtd 0 na definição.
-                    // A quantidade que veio na planilha (se houver) é usada para criar um registro de Histórico de Entrada.
-                    const qtyFromSheet = Number(d.quantity) || 0;
-                    
                     const finalRisks: RiskFlags = d.risks || { O: false, T: false, T_PLUS: false, C: false, E: false, N: false, Xn: false, Xi: false, F: false, F_PLUS: false };
 
                     itemsToSave.push({
@@ -257,25 +253,6 @@ export const ImportWizard: React.FC<Props> = ({ isOpen, onClose, mode }) => {
                         batchId: `BAT-${id}`,
                         catalogId: `CAT-${id}`
                     });
-
-                    // Se a planilha tinha quantidade, criamos o histórico de carga inicial
-                    if (qtyFromSheet > 0) {
-                        const histHash = generateHash(`INIT-${id}-${qtyFromSheet}-${d.date || ''}`);
-                        initialHistoryRecords.push({
-                            id: `INIT-${histHash}`,
-                            itemId: id,
-                            date: new Date().toISOString(),
-                            type: 'ENTRADA',
-                            productName: d.name,
-                            sapCode: d.sapCode || '',
-                            lot: d.lotNumber || 'GEN',
-                            quantity: qtyFromSheet,
-                            unit: d.baseUnit || 'UN',
-                            location_warehouse: d.warehouse || 'Central',
-                            supplier: d.supplier,
-                            observation: 'Carga Inicial (Importação)'
-                        });
-                    }
                 });
 
                 // ETAPA 3: MERGING & PERSISTÊNCIA
