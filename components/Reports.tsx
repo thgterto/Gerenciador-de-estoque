@@ -116,7 +116,7 @@ export const Reports: React.FC<Props> = ({ items, history }) => {
     }, [abcAnalysis, activeTab]);
 
     return (
-        <PageContainer scrollable>
+        <PageContainer scrollable={true}>
             <PageHeader 
                 title="Relatórios Gerenciais" 
                 description="Análise estratégica de estoque, consumo e conformidade."

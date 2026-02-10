@@ -276,7 +276,7 @@ export const Settings: React.FC = () => {
 
     return (
         <PageContainer scrollable={true} className="pb-20">
-            <div className="flex flex-col gap-8 max-w-6xl mx-auto w-full">
+            <div className="flex flex-col gap-8 w-full">
                 <div className="flex flex-col gap-2 border-b border-border-light dark:border-border-dark pb-6">
                     <h1 className="text-3xl font-black tracking-tight text-text-main dark:text-white">Configurações e Sistema</h1>
                     <p className="text-text-secondary dark:text-gray-400 text-base max-w-2xl">

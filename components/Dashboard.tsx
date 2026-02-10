@@ -84,7 +84,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ items, history, onAddToPur
   ];
 
   return (
-    <PageContainer scrollable>
+    <PageContainer scrollable={true}>
       <PageHeader
           title="Dashboard"
           description="Visão Geral Operacional"
