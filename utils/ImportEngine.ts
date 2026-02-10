@@ -98,7 +98,6 @@ const MASTER_SCHEMA: ColumnDefinition[] = [
   { key: 'name', label: 'Produto / Descrição', required: true, regex: [/nome/i, /produto/i, /descricao/i, /descri/i, /material/i, /item/i, /desc\./i, /denominacao/i, /description/i], type: 'string' },
   { key: 'sapCode', label: 'Código SAP / SKU', required: false, regex: [/sap/i, /sku/i, /cod/i, /cód/i, /artigo/i, /part.*number/i, /ref/i, /^cdsap$/i, /^id$/i], type: 'string' },
   { key: 'lotNumber', label: 'Lote / Série', required: false, regex: [/^lote$/i, /batch/i, /serie/i, /série/i, /lot/i, /n_lote/i, /control/i], type: 'string' },
-  { key: 'quantity', label: 'Quantidade', required: false, regex: [/qtd/i, /quant/i, /saldo/i, /estoque/i, /atual/i, /total/i, /amount/i, /on_hand/i], type: 'number', validator: (v) => typeof v === 'number' && v >= 0 },
   { key: 'baseUnit', label: 'Unidade (UN/L/Kg)', required: false, regex: [/un/i, /medida/i, /emb/i, /unit/i, /u\.m/i, /unidade/i, /uom/i], type: 'string' },
   { key: 'expiryDate', label: 'Validade', required: false, regex: [/val/i, /venc/i, /vcto/i, /exp/i, /shelf/i, /validade/i, /data.*val/i], type: 'date' },
   { key: 'category', label: 'Categoria', required: false, regex: [/cat/i, /grupo/i, /tipo/i, /fam/i, /classe/i], type: 'string' },
