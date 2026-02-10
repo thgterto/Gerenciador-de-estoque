@@ -1,5 +1,5 @@
 import { Table, TransactionMode } from 'dexie';
-import { InventoryItem, MovementRecord, StockBalance } from '../types';
+import { InventoryItem, MovementRecord, StockBalance, CatalogProduct, InventoryBatch, BusinessPartner, StorageLocationEntity, StockMovement } from '../types';
 import type { QStockDB } from '../db';
 
 // --- Interfaces & Types ---
