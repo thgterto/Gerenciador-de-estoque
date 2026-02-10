@@ -178,15 +178,17 @@ export const useDashboardAnalytics = (items: InventoryItem[], history: MovementR
             .sort((a, b) => b[1] - a[1]);
 
         const totalParetoValue = sortedCategories.reduce((acc, curr) => acc + curr[1], 0);
-        let accumulatedValue = 0;
 
-        const paretoData = sortedCategories.slice(0, 10).map(([category, value]) => {
+        let accumulatedValue = 0;
+        const paretoData: any[] = [];
+
+        sortedCategories.slice(0, 10).forEach(([category, value]) => {
             accumulatedValue += value;
-            return {
+            paretoData.push({
                 category,
                 value,
                 accumulatedPercentage: totalParetoValue > 0 ? Math.round((accumulatedValue / totalParetoValue) * 100) : 0
-            };
+            });
         });
 
         return {

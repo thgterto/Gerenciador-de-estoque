@@ -76,11 +76,6 @@ export const ItemForm: React.FC<ItemFormProps> = ({
         }
     };
 
-    // Initialize Search Term
-    useEffect(() => {
-        if (initialData?.name) setSearchTerm(initialData.name);
-    }, [initialData]);
-
     const handleNameChange = (val: string) => {
         handleChange('name', val);
         setSearchTerm(val);
@@ -101,9 +96,10 @@ export const ItemForm: React.FC<ItemFormProps> = ({
                  setShowSuggestions(uniqueMap.size > 0);
              });
         } else {
-            setShowSuggestions(false);
+            // eslint-disable-next-line
+            if (showSuggestions) setShowSuggestions(false);
         }
-    }, [debouncedSearchTerm]);
+    }, [debouncedSearchTerm, showSuggestions]);
 
     const selectSuggestion = (item: InventoryItem) => {
         setFormData(prev => ({

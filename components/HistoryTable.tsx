@@ -127,24 +127,6 @@ export const HistoryTable: React.FC<Props> = ({ preselectedItemId, preselectedBa
   const sampleBatch = filtered.length > 0 ? filtered[0] : null;
   const itemData = useMemo(() => ({ filtered }), [filtered]);
 
-  const StatCard = ({ title, icon, value, subValue, color }: any) => (
-      <Card variant="outlined">
-          <CardContent sx={{ display: 'flex', alignItems: 'center', gap: 2, py: 2 }}>
-              <Box sx={{ p: 1, borderRadius: 1, bgcolor: `${color}.light`, color: `${color}.main` }}>
-                  {icon}
-              </Box>
-              <Box>
-                  <Typography variant="caption" color="text.secondary" fontWeight="bold" textTransform="uppercase">
-                      {title}
-                  </Typography>
-                  <Typography variant="h5" fontWeight="bold">
-                      {value} <Typography component="span" variant="caption" color="text.secondary">{subValue}</Typography>
-                  </Typography>
-              </Box>
-          </CardContent>
-      </Card>
-  );
-
   return (
     <PageContainer>
         <PageHeader 
@@ -317,3 +299,21 @@ export const HistoryTable: React.FC<Props> = ({ preselectedItemId, preselectedBa
     </PageContainer>
   )
 };
+
+const StatCard = ({ title, icon, value, subValue, color }: any) => (
+    <Card variant="outlined">
+        <CardContent sx={{ display: 'flex', alignItems: 'center', gap: 2, py: 2 }}>
+            <Box sx={{ p: 1, borderRadius: 1, bgcolor: `${color}.light`, color: `${color}.main` }}>
+                {icon}
+            </Box>
+            <Box>
+                <Typography variant="caption" color="text.secondary" fontWeight="bold" textTransform="uppercase">
+                    {title}
+                </Typography>
+                <Typography variant="h5" fontWeight="bold">
+                    {value} <Typography component="span" variant="caption" color="text.secondary">{subValue}</Typography>
+                </Typography>
+            </Box>
+        </CardContent>
+    </Card>
+);

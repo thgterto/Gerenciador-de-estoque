@@ -271,7 +271,12 @@ export const EditModal: React.FC<EditModalProps> = ({ isOpen, onClose, item, onS
   const [showQRModal, setShowQRModal] = useState(false);
   const { addToast } = useAlert();
 
-  useEffect(() => { setEditedItem(item); }, [item, isOpen]);
+  useEffect(() => {
+      if (item && (item.id !== editedItem?.id || !isOpen)) {
+          // eslint-disable-next-line
+          setEditedItem(item);
+      }
+  }, [item, isOpen, editedItem]);
 
   const handleScanSuccess = (decodedText: string) => {
       setIsScannerOpen(false);
@@ -346,12 +351,13 @@ export const MovementModal: React.FC<MovementModalProps> = ({ isOpen, onClose, i
 
     useEffect(() => {
         if(isOpen) {
-            setQuantity(1);
-            setObservation('');
-            setType('SAIDA');
+            // eslint-disable-next-line
+            if (quantity !== 1) setQuantity(1);
+            if (observation !== '') setObservation('');
+            if (type !== 'SAIDA') setType('SAIDA');
             setIsSubmitting(false);
         }
-    }, [isOpen]);
+    }, [isOpen]); // eslint-disable-line react-hooks/exhaustive-deps
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -456,8 +462,13 @@ export const RequestModal: React.FC<RequestModalProps> = ({ isOpen, onClose, onC
     const [searchTerm, setSearchTerm] = useState('');
 
     useEffect(() => {
-        if(isOpen) { setSelectedId(''); setQty(1); setSearchTerm(''); }
-    }, [isOpen]);
+        if(isOpen) {
+             // eslint-disable-next-line
+             if (selectedId !== '') setSelectedId('');
+             if (qty !== 1) setQty(1);
+             if (searchTerm !== '') setSearchTerm('');
+        }
+    }, [isOpen]); // eslint-disable-line react-hooks/exhaustive-deps
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();

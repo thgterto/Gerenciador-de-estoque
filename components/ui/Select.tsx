@@ -34,7 +34,7 @@ export const Select: React.FC<SelectProps> = ({
     ...props 
 }) => {
 
-    let finalOptions: SelectOption[] = options;
+    const finalOptions: SelectOption[] = options;
 
     // Backward compatibility for children <option> extraction
     // (Simplified best-effort or just fallback to rendering children inside Select if passed directly)

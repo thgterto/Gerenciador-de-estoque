@@ -16,27 +16,6 @@ interface InventoryKPIsProps {
 }
 
 export const InventoryKPIs: React.FC<InventoryKPIsProps> = ({ stats }) => {
-    const MetricCard = ({ title, icon, value, subValue, color }: any) => (
-        <Card sx={{ height: '100%' }} variant="outlined">
-            <CardContent sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', p: 2, '&:last-child': { pb: 2 } }}>
-                <Box>
-                    <Typography variant="overline" color="text.secondary" fontWeight="bold">
-                        {title}
-                    </Typography>
-                    <Typography variant="h4" fontWeight="bold">
-                        {value}
-                    </Typography>
-                    <Typography variant="caption" color="text.secondary">
-                        {subValue}
-                    </Typography>
-                </Box>
-                <Box sx={{ p: 1.5, borderRadius: 2, bgcolor: `${color}.light`, color: `${color}.main` }}>
-                    {icon}
-                </Box>
-            </CardContent>
-        </Card>
-    );
-
     return (
         <Grid container spacing={2} sx={{ mb: 3 }}>
              <Grid size={{ xs: 12, sm: 4 }}>
@@ -69,3 +48,24 @@ export const InventoryKPIs: React.FC<InventoryKPIsProps> = ({ stats }) => {
         </Grid>
     );
 };
+
+const MetricCard = ({ title, icon, value, subValue, color }: any) => (
+    <Card sx={{ height: '100%' }} variant="outlined">
+        <CardContent sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', p: 2, '&:last-child': { pb: 2 } }}>
+            <Box>
+                <Typography variant="overline" color="text.secondary" fontWeight="bold">
+                    {title}
+                </Typography>
+                <Typography variant="h4" fontWeight="bold">
+                    {value}
+                </Typography>
+                <Typography variant="caption" color="text.secondary">
+                    {subValue}
+                </Typography>
+            </Box>
+            <Box sx={{ p: 1.5, borderRadius: 2, bgcolor: `${color}.light`, color: `${color}.main` }}>
+                {icon}
+            </Box>
+        </CardContent>
+    </Card>
+);

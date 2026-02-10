@@ -83,39 +83,6 @@ export const Dashboard: React.FC<DashboardProps> = ({ items, history, onAddToPur
     { name: '% Acumulado', type: 'line', data: paretoData.map((d: any) => d.accumulatedPercentage) }
   ];
 
-  const MetricCard = ({ title, value, icon, color, onClick, subtitle }: any) => (
-      <Card
-        sx={{ height: '100%', cursor: onClick ? 'pointer' : 'default', position: 'relative' }}
-        onClick={onClick}
-        elevation={2}
-      >
-          <CardContent sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <Box>
-                  <Typography color="textSecondary" gutterBottom variant="overline">
-                      {title}
-                  </Typography>
-                  <Typography variant="h4" component="div" fontWeight="bold">
-                      {value}
-                  </Typography>
-                  {subtitle && (
-                      <Typography variant="caption" color="error">
-                          {subtitle}
-                      </Typography>
-                  )}
-              </Box>
-              <Box sx={{
-                  bgcolor: `${color}.light`,
-                  color: `${color}.main`,
-                  p: 1.5,
-                  borderRadius: '50%',
-                  display: 'flex'
-              }}>
-                  {icon}
-              </Box>
-          </CardContent>
-      </Card>
-  );
-
   return (
     <PageContainer scrollable>
       <PageHeader
@@ -306,3 +273,36 @@ export const Dashboard: React.FC<DashboardProps> = ({ items, history, onAddToPur
     </PageContainer>
   );
 };
+
+const MetricCard = ({ title, value, icon, color, onClick, subtitle }: any) => (
+    <Card
+      sx={{ height: '100%', cursor: onClick ? 'pointer' : 'default', position: 'relative' }}
+      onClick={onClick}
+      elevation={2}
+    >
+        <CardContent sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <Box>
+                <Typography color="textSecondary" gutterBottom variant="overline">
+                    {title}
+                </Typography>
+                <Typography variant="h4" component="div" fontWeight="bold">
+                    {value}
+                </Typography>
+                {subtitle && (
+                    <Typography variant="caption" color="error">
+                        {subtitle}
+                    </Typography>
+                )}
+            </Box>
+            <Box sx={{
+                bgcolor: `${color}.light`,
+                color: `${color}.main`,
+                p: 1.5,
+                borderRadius: '50%',
+                display: 'flex'
+            }}>
+                {icon}
+            </Box>
+        </CardContent>
+    </Card>
+);
