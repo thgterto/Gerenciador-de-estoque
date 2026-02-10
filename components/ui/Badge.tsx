@@ -12,7 +12,7 @@ interface BadgeProps {
     withDot?: boolean;
 }
 
-export const Badge: React.FC<BadgeProps> = ({ children, variant = 'neutral', icon, className = '', withDot }) => {
+export const Badge: React.FC<BadgeProps> = ({ children, variant = 'neutral', icon, className = '' }) => {
 
     let color: 'default' | 'primary' | 'secondary' | 'error' | 'info' | 'success' | 'warning' = 'default';
 

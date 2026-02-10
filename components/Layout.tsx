@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Box, Toolbar, useTheme, useMediaQuery } from '@mui/material';
+import { Box, Toolbar } from '@mui/material';
 import { Sidebar } from './Sidebar';
 import { Header } from './Header';
 
@@ -26,8 +26,6 @@ export const Layout: React.FC<LayoutProps> = ({
     onAddClick,
     onScanClick
 }) => {
-    const theme = useTheme();
-    const isMobile = useMediaQuery(theme.breakpoints.down('md'));
     const [mobileOpen, setMobileOpen] = useState(false);
     const [isClosing, setIsClosing] = useState(false);
 

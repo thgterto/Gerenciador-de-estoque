@@ -1,6 +1,6 @@
 import React, { useRef, useEffect } from 'react';
 import {
-    AppBar, Toolbar, IconButton, Typography, InputBase, Box, Badge, Tooltip
+    AppBar, Toolbar, IconButton, InputBase, Box, Badge, Tooltip
 } from '@mui/material';
 import { styled, alpha } from '@mui/material/styles';
 import { useTheme } from '../context/ThemeContext';
@@ -67,7 +67,6 @@ interface HeaderProps {
 }
 
 export const Header: React.FC<HeaderProps> = ({ 
-    onToggleTheme, 
     onBackup, 
     onAddClick,
     onScanClick, 

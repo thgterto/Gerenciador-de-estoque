@@ -15,7 +15,7 @@ import { RiskSelector } from './item-form/RiskSelector';
 import { BatchInfo } from './item-form/BatchInfo';
 import { StorageInfo } from './item-form/StorageInfo';
 import { CasApiService } from '../services/CasApiService';
-import { Box, Typography, Stack, Paper, List, ListItemButton, ListItemText, InputAdornment, IconButton, Tooltip } from '@mui/material';
+import { Box, Typography, Stack, Paper, List, ListItemButton, ListItemText, IconButton } from '@mui/material';
 import { Grid } from '@mui/material';
 import Inventory2Icon from '@mui/icons-material/Inventory2';
 import ScienceIcon from '@mui/icons-material/Science';
@@ -76,11 +76,6 @@ export const ItemForm: React.FC<ItemFormProps> = ({
         }
     };
 
-    // Initialize Search Term
-    useEffect(() => {
-        if (initialData?.name) setSearchTerm(initialData.name);
-    }, [initialData]);
-
     const handleNameChange = (val: string) => {
         handleChange('name', val);
         setSearchTerm(val);
@@ -101,9 +96,10 @@ export const ItemForm: React.FC<ItemFormProps> = ({
                  setShowSuggestions(uniqueMap.size > 0);
              });
         } else {
-            setShowSuggestions(false);
+            // eslint-disable-next-line
+            if (showSuggestions) setShowSuggestions(false);
         }
-    }, [debouncedSearchTerm]);
+    }, [debouncedSearchTerm, showSuggestions]);
 
     const selectSuggestion = (item: InventoryItem) => {
         setFormData(prev => ({

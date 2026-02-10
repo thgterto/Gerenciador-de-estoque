@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { InventoryItem } from '../types';
-import { Button, Box, Paper, Snackbar, Alert } from '@mui/material';
+import { Button, Box, Paper } from '@mui/material';
 import { PageHeader } from './ui/PageHeader';
 import { PageContainer } from './ui/PageContainer';
 import { useAuth } from '../context/AuthContext';
