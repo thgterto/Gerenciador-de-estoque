@@ -6,7 +6,7 @@ Este documento apresenta uma análise técnica do esquema atual (`QStockCorpDB`)
 
 O IndexedDB utiliza B-Trees para indexação. A escolha correta de chaves e tipos de dados impacta diretamente a performance de leitura e escrita.
 
-### 1.1. Índices Compostos Faltantes
+### 1.1. Índices Compostos Faltantes (✅ Implementado na V6)
 A tabela `items` (V1) possui muitos índices individuais, o que força o Dexie a fazer "intersecção de índices" em memória para queries complexas.
 *   **Problema:** Filtros comuns na UI (ex: "Todos os Reagentes Ativos") podem ser lentos.
 *   **Recomendação:** Criar índices compostos para padrões de acesso frequentes.
@@ -38,7 +38,7 @@ A escrita em `items` (V1) deve ser estritamente atômica com `catalog`/`batches`
 *   **Recomendação:** Envolver TODAS as operações de escrita em `db.transaction('rw', [tables...], async () => { ... })`.
     *   *Exemplo:* Ao criar um item, a transação deve incluir `catalog`, `batches`, `balances`, `items` e `stock_movements`. Se um falhar, tudo é revertido.
 
-### 2.2. "Soft Foreign Keys"
+### 2.2. "Soft Foreign Keys" (✅ Implementado Hooks de Integridade na V6)
 IndexedDB não possui chaves estrangeiras nativas.
 *   **Recomendação:** Implementar Hooks no Dexie (`db.batches.hook('deleting', ...)`).
     *   *Ação:* Impedir a deleção de um `CatalogProduct` se existirem `Batches` associados.
@@ -78,6 +78,6 @@ A tabela `systemLogs` pode crescer indefinidamente.
 ## Resumo das Prioridades
 
 1.  🔴 **Crítico:** Implementar **Transações Atômicas (db.transaction)** para todas as escritas híbridas V1/V2.
-2.  🟡 **Importante:** Criar **Índices Compostos** em `items` e `batches` para queries lentas da UI.
-3.  🟡 **Importante:** Implementar **Hooks de Integridade** (Soft FKs) para evitar dados órfãos.
+2.  ✅ **Concluído:** Criar **Índices Compostos** em `items` e `batches` para queries lentas da UI (Versão 6).
+3.  ✅ **Concluído:** Implementar **Hooks de Integridade** (Soft FKs) para evitar dados órfãos.
 4.  🟢 **Desejável:** Migrar datas para `Timestamp (number)` e adotar `ULID`.

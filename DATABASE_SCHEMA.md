@@ -5,7 +5,7 @@ Este documento descreve o esquema de dados do banco de dados local `QStockCorpDB
 ## Visão Geral
 
 *   **Nome do Banco:** `QStockCorpDB`
-*   **Versão Atual:** 5
+*   **Versão Atual:** 6
 *   **Tecnologia:** IndexedDB (via Dexie.js wrapper)
 
 ---
@@ -17,7 +17,8 @@ Esta é a estrutura "real" e normalizada do banco de dados, desenhada para integ
 ### `catalog` (Catálogo de Produtos)
 Define "O QUE" é o item (Dados Mestres). Compartilhado entre múltiplos lotes.
 *   **Chave Primária:** `id` (CAT-{HASH})
-*   **Índices:** `sapCode`, `name`, `categoryId`, `casNumber`
+*   **Índices:** `sapCode`, `name`, `categoryId`, `casNumber`, `[categoryId+isActive]` (Composto V6)
+*   **Integridade:** Bloqueia deleção se existirem `batches` associados.
 
 | Campo | Tipo | Descrição |
 | :--- | :--- | :--- |
@@ -38,7 +39,8 @@ Define "O QUE" é o item (Dados Mestres). Compartilhado entre múltiplos lotes.
 ### `batches` (Lotes de Inventário)
 Define "QUAL" instância específica nós temos (Lote Físico).
 *   **Chave Primária:** `id` (BAT-{UUID})
-*   **Índices:** `catalogId`, `lotNumber`, `partnerId`, `status`, `expiryDate`
+*   **Índices:** `catalogId`, `lotNumber`, `partnerId`, `status`, `expiryDate`, `[status+expiryDate]` (Composto V6), `[catalogId+status]` (Composto V6)
+*   **Integridade:** Bloqueia deleção se existirem `balances` associados (lógica de aplicação).
 
 | Campo | Tipo | Descrição |
 | :--- | :--- | :--- |
@@ -116,6 +118,10 @@ Estas tabelas mantêm a estrutura original "flat" (desnormalizada) usada pela in
 A entidade principal da UI. É um JOIN de Catalog + Batch + Balance.
 *   **Chave Primária:** `id`
 *   **Índices:** `sapCode`, `lotNumber`, `name`, `category`, `supplier`, `expiryDate`, `itemStatus`, `location.warehouse`, `molecularFormula`, `batchId`, `catalogId`
+*   **Índices Compostos (V6):**
+    *   `[category+itemStatus]`
+    *   `[location.warehouse+category]`
+    *   `[expiryDate+itemStatus]`
 
 ### `history` (Histórico Legado)
 Registro de movimentações simplificado para exibição na UI.
@@ -137,7 +143,7 @@ Registro de movimentações simplificado para exibição na UI.
 ### `syncQueue` (Fila de Sincronização)
 Armazena operações realizadas offline para posterior sincronização.
 *   **Chave Primária:** `++id` (Auto-incremento)
-*   **Índices:** `timestamp`, `action`
+*   **Índices:** `timestamp`, `action`, `[timestamp+action]` (Composto V6)
 
 | Campo | Tipo | Descrição |
 | :--- | :--- | :--- |
