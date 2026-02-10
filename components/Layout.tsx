@@ -45,7 +45,7 @@ export const Layout: React.FC<LayoutProps> = ({
     };
 
     return (
-        <Box sx={{ display: 'flex', minHeight: '100vh', bgcolor: 'background.default' }}>
+        <Box sx={{ display: 'flex', height: '100vh', overflow: 'hidden', bgcolor: 'background.default' }}>
             <Header
                 onToggleTheme={() => {}} // Theme toggle is handled inside Header or Context now
                 onBackup={onBackupForce}
@@ -70,15 +70,21 @@ export const Layout: React.FC<LayoutProps> = ({
                 component="main"
                 sx={{
                     flexGrow: 1,
-                    p: { xs: 2, sm: 3 },
+                    // Remove padding from here to let PageContainer control it or use it as a flex container
+                    // But we keep it if children expect it. PageContainer has its own padding.
+                    // To prevent double scrolling, we make this a flex column.
+                    display: 'flex',
+                    flexDirection: 'column',
                     width: { sm: `calc(100% - ${drawerWidth}px)` },
-                    minHeight: '100vh',
+                    height: '100vh',
                     bgcolor: 'background.default',
-                    overflowX: 'hidden'
+                    overflow: 'hidden'
                 }}
             >
                 <Toolbar /> {/* Spacer to push content below AppBar */}
-                {children}
+                <Box sx={{ flexGrow: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+                    {children}
+                </Box>
             </Box>
         </Box>
     );
