@@ -21,6 +21,7 @@ import { PageHeader } from './components/ui/PageHeader';
 import { useInventoryData } from './hooks/useInventoryData';
 import { useStockOperations } from './hooks/useStockOperations';
 import { usePurchaseManager } from './hooks/usePurchaseManager';
+import { seedDatabase } from './utils/seeder';
 
 // --- Code Splitting (Lazy Loading) ---
 const Dashboard = React.lazy(() => import('./components/Dashboard').then(m => ({ default: m.Dashboard })));
@@ -65,6 +66,7 @@ const LabControlContent = () => {
   // Initialize Sync Service with Cleanup
   useEffect(() => {
       SyncQueueService.startAutoSync();
+      seedDatabase();
       return () => {
           SyncQueueService.stopAutoSync();
       };

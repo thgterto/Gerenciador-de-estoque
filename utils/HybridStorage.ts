@@ -210,6 +210,14 @@ export class HybridStorageManager {
   public items: HybridTableWrapper<InventoryItem, string>;
   public history: HybridTableWrapper<MovementRecord, string>;
   public balances: HybridTableWrapper<StockBalance, string>;
+
+  // V2 Tables
+  public catalog: HybridTableWrapper<CatalogProduct, string>;
+  public batches: HybridTableWrapper<InventoryBatch, string>;
+  public partners: HybridTableWrapper<BusinessPartner, string>;
+  public storage_locations: HybridTableWrapper<StorageLocationEntity, string>;
+  public stock_movements: HybridTableWrapper<StockMovement, string>;
+
   private listeners: Listener[] = [];
   private notifyTimeout: any = null;
 
@@ -219,6 +227,13 @@ export class HybridStorageManager {
     this.items = new HybridTableWrapper<InventoryItem, string>('items', this.db.items, 'id', notify);
     this.history = new HybridTableWrapper<MovementRecord, string>('history', this.db.history, 'id', notify);
     this.balances = new HybridTableWrapper<StockBalance, string>('balances', this.db.balances, 'id', notify);
+
+    // Initialize V2 Tables
+    this.catalog = new HybridTableWrapper<CatalogProduct, string>('catalog', this.db.catalog, 'id', notify);
+    this.batches = new HybridTableWrapper<InventoryBatch, string>('batches', this.db.batches, 'id', notify);
+    this.partners = new HybridTableWrapper<BusinessPartner, string>('partners', this.db.partners, 'id', notify);
+    this.storage_locations = new HybridTableWrapper<StorageLocationEntity, string>('storage_locations', this.db.storage_locations, 'id', notify);
+    this.stock_movements = new HybridTableWrapper<StockMovement, string>('stock_movements', this.db.stock_movements, 'id', notify);
   }
 
   get rawDb() { return this.db; }
@@ -271,7 +286,8 @@ export class HybridStorageManager {
           this.db.batches,
           this.db.partners,
           this.db.storage_locations,
-          this.db.balances
+          this.db.balances,
+          this.db.stock_movements
       ], async () => {
           await Promise.all([
               this.db.items.clear(),
@@ -286,7 +302,8 @@ export class HybridStorageManager {
               this.db.batches.clear(),
               this.db.partners.clear(),
               this.db.storage_locations.clear(),
-              this.db.balances.clear()
+              this.db.balances.clear(),
+              this.db.stock_movements.clear()
           ]);
       });
       
