@@ -1,9 +1,11 @@
-import React from 'react';
-import { Card, CardContent, Typography, Box } from '@mui/material';
+import React, { useState } from 'react';
+import { Card, CardContent, Typography, Box, Collapse, Button } from '@mui/material';
 import { Grid } from '@mui/material';
 import Inventory2Icon from '@mui/icons-material/Inventory2';
 import WarningIcon from '@mui/icons-material/Warning';
 import EventBusyIcon from '@mui/icons-material/EventBusy';
+import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
+import BarChartIcon from '@mui/icons-material/BarChart';
 
 interface InventoryStats {
     totalItems: number;
@@ -16,36 +18,53 @@ interface InventoryKPIsProps {
 }
 
 export const InventoryKPIs: React.FC<InventoryKPIsProps> = ({ stats }) => {
+    const [isVisible, setIsVisible] = useState(true);
+
     return (
-        <Grid container spacing={2} sx={{ mb: 3 }}>
-             <Grid size={{ xs: 12, sm: 4 }}>
-                 <MetricCard
-                    title="Itens Ativos"
-                    icon={<Inventory2Icon fontSize="large" />}
-                    value={stats.totalItems}
-                    subValue="Lotes totais"
-                    color="primary"
-                 />
-             </Grid>
-             <Grid size={{ xs: 12, sm: 4 }}>
-                 <MetricCard
-                    title="Baixo Estoque"
-                    icon={<WarningIcon fontSize="large" />}
-                    value={stats.lowStockCount}
-                    subValue="Requer atenção"
-                    color="warning"
-                 />
-             </Grid>
-             <Grid size={{ xs: 12, sm: 4 }}>
-                 <MetricCard
-                    title="Vencidos"
-                    icon={<EventBusyIcon fontSize="large" />}
-                    value={stats.expiredCount}
-                    subValue="Descartar"
-                    color="error"
-                 />
-             </Grid>
-        </Grid>
+        <Box sx={{ mb: 3 }}>
+            <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 1 }}>
+                <Button
+                    size="small"
+                    onClick={() => setIsVisible(!isVisible)}
+                    startIcon={isVisible ? <KeyboardArrowUpIcon /> : <BarChartIcon />}
+                    sx={{ textTransform: 'none', color: 'text.secondary', fontSize: '0.75rem' }}
+                >
+                    {isVisible ? 'Ocultar Resumo' : 'Mostrar Resumo'}
+                </Button>
+            </Box>
+
+            <Collapse in={isVisible}>
+                <Grid container spacing={2}>
+                    <Grid size={{ xs: 12, sm: 4 }}>
+                        <MetricCard
+                            title="Itens Ativos"
+                            icon={<Inventory2Icon fontSize="large" />}
+                            value={stats.totalItems}
+                            subValue="Lotes totais"
+                            color="primary"
+                        />
+                    </Grid>
+                    <Grid size={{ xs: 12, sm: 4 }}>
+                        <MetricCard
+                            title="Baixo Estoque"
+                            icon={<WarningIcon fontSize="large" />}
+                            value={stats.lowStockCount}
+                            subValue="Requer atenção"
+                            color="warning"
+                        />
+                    </Grid>
+                    <Grid size={{ xs: 12, sm: 4 }}>
+                        <MetricCard
+                            title="Vencidos"
+                            icon={<EventBusyIcon fontSize="large" />}
+                            value={stats.expiredCount}
+                            subValue="Descartar"
+                            color="error"
+                        />
+                    </Grid>
+                </Grid>
+            </Collapse>
+        </Box>
     );
 };
 
