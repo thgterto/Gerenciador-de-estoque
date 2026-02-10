@@ -253,7 +253,7 @@ export const StorageMatrix: React.FC<Props> = ({ items, onActions }) => {
     }, [addToast]);
 
     return (
-        <PageContainer scrollable={false} className="animate-fade-in">
+        <PageContainer scrollable={isMobile} className="animate-fade-in">
             <div className="pb-4 border-b border-border-light dark:border-border-dark mb-4">
                  <PageHeader 
                     title={selectedLocKey ? (selectedLocKey.split(' > ')[1] || selectedLocKey) : "Locais de Armazenamento"}
@@ -288,9 +288,9 @@ export const StorageMatrix: React.FC<Props> = ({ items, onActions }) => {
                  </PageHeader>
             </div>
             
-            <div className="flex-1 overflow-hidden relative">
+            <div className={`flex-1 relative ${isMobile ? '' : 'overflow-hidden'}`}>
                 {!selectedLocKey ? (
-                    <div className="overflow-y-auto h-full pr-2 pb-10 custom-scrollbar">
+                    <div className={`${isMobile ? '' : 'overflow-y-auto h-full pr-2 pb-10 custom-scrollbar'}`}>
                         {Object.keys(locations).length === 0 ? (
                             <div className="flex flex-col items-center justify-center h-64 text-text-secondary opacity-60">
                                 <span className="material-symbols-outlined text-6xl mb-4 text-border-DEFAULT">shelves</span>

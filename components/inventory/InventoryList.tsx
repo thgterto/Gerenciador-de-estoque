@@ -93,6 +93,7 @@ const InventoryRow = React.memo(({ index, style, data }: { index: number, style:
 interface InventoryListProps {
     flatList: any[];
     isMobile: boolean;
+    useNativeScroll?: boolean;
     selectedIds: Set<string>;
     handleSelectGroup: (groupIds: string[], checked: boolean) => void;
     handleSelectRow: (id: string) => void;
@@ -129,7 +130,8 @@ export const InventoryList: React.FC<InventoryListProps> = ({
     filteredItemsCount,
     hideZeroStock,
     handleSelectAll,
-    expandedGroups
+    expandedGroups,
+    useNativeScroll = false
 }) => {
     const listRef = useRef<any>(null);
 
@@ -162,6 +164,30 @@ export const InventoryList: React.FC<InventoryListProps> = ({
         getCategoryIcon,
         hasRole
     }), [flatList, isMobile, selectedIds, handleSelectGroup, handleSelectRow, onActions, toggleGroupExpand, copyToClipboard, getCategoryIcon, hasRole]);
+
+    if (useNativeScroll) {
+        return (
+            <Box sx={{ pb: 10 }}>
+                {flatList.length > 0 ? (
+                    flatList.map((_item, index) => (
+                        <InventoryRow
+                            key={itemKey(index)}
+                            index={index}
+                            style={{}}
+                            data={itemData}
+                        />
+                    ))
+                ) : (
+                    <EmptyState
+                        title="Nenhum item encontrado"
+                        description="Tente ajustar os filtros ou adicionar um novo item ao inventário."
+                        actionLabel="Adicionar Item"
+                        onAction={onAddNew}
+                    />
+                )}
+            </Box>
+        );
+    }
 
     return (
         <Card

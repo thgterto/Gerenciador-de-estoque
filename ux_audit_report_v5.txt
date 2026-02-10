@@ -1,0 +1,32 @@
+
+[UX AUDIT] 53 files checked
+--------------------------------------------------
+[!] ISSUES (10):
+  - [Cognitive Load] App.tsx: Form inputs without labels. Use <label> for accessibility and clarity.
+  - [Cognitive Load] index.css: Form inputs without labels. Use <label> for accessibility and clarity.
+  - [Cognitive Load] StorageMatrix.tsx: Form inputs without labels. Use <label> for accessibility and clarity.
+  - [Cognitive Load] PurchaseAlertCard.tsx: Form inputs without labels. Use <label> for accessibility and clarity.
+  - [Cognitive Load] Reports.tsx: Form inputs without labels. Use <label> for accessibility and clarity.
+  - [Cognitive Load] Dashboard.tsx: Form inputs without labels. Use <label> for accessibility and clarity.
+  - [Cognitive Load] InventoryKPIs.tsx: Form inputs without labels. Use <label> for accessibility and clarity.
+  - [Cognitive Load] InventoryList.tsx: Form inputs without labels. Use <label> for accessibility and clarity.
+  - [Cognitive Load] Card.tsx: Form inputs without labels. Use <label> for accessibility and clarity.
+  - [Cognitive Load] MetricCard.tsx: Form inputs without labels. Use <label> for accessibility and clarity.
+[*] WARNINGS (230):
+  - [Trust] App.tsx: Form without security indicators. Add 'SSL Secure' or lock icon.
+  - [Persuasion] App.tsx: Social proof without specific numbers. Use 'Join 10,000+' format.
+  - [Typography] App.tsx: No line length constraint (45-75ch). Use max-w-prose or max-w-[65ch].
+  - [Typography] App.tsx: Text elements found without line-height. Body: 1.4-1.6, Headings: 1.1-1.3
+  - [Typography] App.tsx: Large display text without tracking-tight. Big text needs -1% to -4% spacing.
+  - [Typography] App.tsx: Fixed font sizes without clamp(). Consider fluid typography: clamp(MIN, PREFERRED, MAX)
+  - [Visual] App.tsx: Flat design with no depth. Consider shadows or subtle gradients for hierarchy.
+  - [Performance] index.html: Animating expensive properties (height, width, top, padding, left). Use transform/opacity where possible.
+  - [Accessibility] index.html: Animations found without prefers-reduced-motion check
+  - [Color] index.html: Color variables without HSL. Consider HSL for easier palette adjustment (Hue, Saturation, Lightness).
+  - [Typography] index.css: Fixed font sizes without clamp(). Consider fluid typography: clamp(MIN, PREFERRED, MAX)
+  - [Color] index.css: 9 distinct colors. Consider 60-30-10 rule: dominant (60%), secondary (30%), accent (10%).
+  - [Color] index.css: Possible low-contrast combination detected. Verify WCAG AA (4.5:1 for text).
+  - [Color] index.css: Color variables without HSL. Consider HSL for easier palette adjustment (Hue, Saturation, Lightness).
+  - [Persuasion] AuthContext.tsx: Social proof without specific numbers. Use 'Join 10,000+' format.
+[+] PASSED CHECKS: 22
+STATUS: FAIL
