@@ -256,7 +256,7 @@ function upsertData(sheetName, headers, items, idField = 'id') {
 
   items.forEach(item => {
     // Map item object to array based on headers order
-    const row = headers.map(h => {
+    const rawRow = headers.map(h => {
         // Mapping logic
         if (h === 'ID') return item.id;
         if (h === 'Name') return item.name;
@@ -285,6 +285,9 @@ function upsertData(sheetName, headers, items, idField = 'id') {
         
         return '';
     });
+
+    // Sanitize for CSV/Formula Injection
+    const row = rawRow.map(cell => sanitizeForSheets(cell));
 
     if (row.length > maxCols) maxCols = row.length;
 
@@ -455,6 +458,18 @@ function getDenormalizedInventory() {
     });
   }
   return items;
+}
+
+function sanitizeForSheets(value) {
+  if (typeof value !== 'string') return value;
+  // Prevent CSV/Formula Injection
+  if (value.startsWith('=') ||
+      value.startsWith('+') ||
+      value.startsWith('-') ||
+      value.startsWith('@')) {
+    return "'" + value;
+  }
+  return value;
 }
 
 function safeJsonParse(str) {
