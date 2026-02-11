@@ -13,6 +13,58 @@ import { UserRole } from '../../types';
 
 const GRID_TEMPLATE = "40px minmax(240px, 3fr) 120px minmax(180px, 1.5fr) 100px 100px 130px 110px";
 
+// Custom comparison to prevent re-rendering ALL rows when just one is selected
+const arePropsEqual = (prevProps: any, nextProps: any) => {
+    const { index: prevIndex, style: prevStyle, data: prevData } = prevProps;
+    const { index: nextIndex, style: nextStyle, data: nextData } = nextProps;
+
+    if (prevIndex !== nextIndex) return false;
+
+    // Style check (shallow compare)
+    if (prevStyle !== nextStyle) {
+        if (prevStyle.height !== nextStyle.height ||
+            prevStyle.width !== nextStyle.width ||
+            prevStyle.top !== nextStyle.top ||
+            prevStyle.left !== nextStyle.left) {
+            return false;
+        }
+    }
+
+    // Data reference check
+    if (prevData === nextData) return true;
+
+    // Specific data checks
+    if (prevData.isMobile !== nextData.isMobile) return false;
+
+    // Check if flatList item changed
+    if (prevData.flatList !== nextData.flatList) {
+        const prevItem = prevData.flatList[prevIndex];
+        const nextItem = nextData.flatList[nextIndex];
+        // If the item itself changed (e.g. expansion, or filtered list changed content at this index)
+        if (prevItem !== nextItem) return false;
+    }
+
+    // Check Selection
+    const item = nextData.flatList[nextIndex];
+    if (item && !nextData.isMobile) {
+        if (item.type === 'GROUP') {
+             if (prevData.selectedIds !== nextData.selectedIds) {
+                 const groupItems = item.data.items;
+                 for (const child of groupItems) {
+                     if (prevData.selectedIds.has(child.id) !== nextData.selectedIds.has(child.id)) {
+                         return false;
+                     }
+                 }
+             }
+        } else {
+            const id = item.data.id;
+            if (prevData.selectedIds.has(id) !== nextData.selectedIds.has(id)) return false;
+        }
+    }
+
+    return true;
+};
+
 // Row Component
 const InventoryRow = React.memo(({ index, style, data }: { index: number, style: React.CSSProperties, data: any }) => {
     const {
@@ -88,7 +140,7 @@ const InventoryRow = React.memo(({ index, style, data }: { index: number, style:
             />
         );
     }
-});
+}, arePropsEqual);
 
 interface InventoryListProps {
     flatList: any[];
