@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { InventoryItem } from '../types';
-import { Button, Box, Paper } from '@mui/material';
+import { Button, Box, Paper, Grow } from '@mui/material';
 import { PageHeader } from './ui/PageHeader';
 import { PageContainer } from './ui/PageContainer';
 import { useAuth } from '../context/AuthContext';
@@ -161,8 +161,10 @@ export const InventoryTable: React.FC<Props> = ({ items, onActions, onAddNew }) 
         />
 
         {/* Bulk Actions Snackbar/Floating Bar */}
-        {selectedIds.size > 0 && hasRole('ADMIN') && (
+        <Grow in={selectedIds.size > 0 && hasRole('ADMIN')}>
             <Paper
+                role="region"
+                aria-label="Ações em massa"
                 elevation={6}
                 sx={{
                     position: 'fixed',
@@ -198,15 +200,16 @@ export const InventoryTable: React.FC<Props> = ({ items, onActions, onAddNew }) 
                         Excluir
                     </Button>
                     <Button
+                        aria-label="Cancelar seleção"
                         size="small"
                         onClick={() => setSelectedIds(new Set())}
                         sx={{ color: 'rgba(255,255,255,0.7)', minWidth: 0, p: 1, borderRadius: '50%' }}
                     >
-                        <CloseIcon />
+                        <CloseIcon aria-hidden="true" />
                     </Button>
                 </Box>
             </Paper>
-        )}
+        </Grow>
     </PageContainer>
   );
 };
