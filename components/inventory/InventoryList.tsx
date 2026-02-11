@@ -1,5 +1,5 @@
-import React, { useCallback, useRef, useMemo, useEffect } from 'react';
-import { Card, Box, Checkbox, Typography } from '@mui/material';
+import React, { useCallback, useRef, useMemo, useEffect, useState } from 'react';
+import { Card, Box, Checkbox, Typography, Button } from '@mui/material';
 import { EmptyState } from '../ui/EmptyState';
 import {
     InventoryChildRow,
@@ -7,7 +7,7 @@ import {
     InventoryMobileGroupRow,
     InventoryMobileChildRow
 } from '../InventoryRows';
-import { VariableSizeList, FixedSizeList } from 'react-window';
+import { VariableSizeList } from 'react-window';
 import AutoSizer from 'react-virtualized-auto-sizer';
 import { UserRole } from '../../types';
 
@@ -90,6 +90,81 @@ const InventoryRow = React.memo(({ index, style, data }: { index: number, style:
     }
 });
 
+// Mobile Native List Component
+const MobileNativeList = ({
+    flatList,
+    onActions,
+    hasRole,
+    handleSelectRow,
+    toggleGroupExpand,
+    selectedIds,
+    handleSelectGroup,
+    getCategoryIcon,
+    copyToClipboard
+}: any) => {
+    const [visibleCount, setVisibleCount] = useState(50);
+
+    // Reset visible count when list changes significantly (e.g. filters)
+    useEffect(() => {
+        setVisibleCount(50);
+    }, [flatList.length]);
+
+    const visibleItems = flatList.slice(0, visibleCount);
+
+    return (
+        <Box sx={{ pb: 10 }}>
+            {visibleItems.map((rowItem: any) => {
+                const isSelected = rowItem.type !== 'GROUP' && selectedIds.has(rowItem.data.id);
+
+                // Wrapper style to simulate the list
+                const style = { width: '100%' };
+
+                if (rowItem.type === 'GROUP') {
+                    return (
+                        <InventoryMobileGroupRow
+                            key={rowItem.data.groupKey}
+                            group={rowItem.data}
+                            style={style}
+                            isExpanded={rowItem.expanded}
+                            toggleExpand={() => toggleGroupExpand(rowItem.data.groupKey)}
+                            selectedChildIds={selectedIds}
+                            onSelectGroup={handleSelectGroup}
+                            getCategoryIcon={getCategoryIcon}
+                            copyToClipboard={copyToClipboard}
+                        />
+                    );
+                } else {
+                    return (
+                        <InventoryMobileChildRow
+                            key={rowItem.data.id}
+                            item={rowItem.data}
+                            style={style}
+                            isSelected={isSelected}
+                            isAdmin={hasRole('ADMIN')}
+                            onSelect={handleSelectRow}
+                            onActions={onActions}
+                            copyToClipboard={copyToClipboard}
+                            isLast={rowItem.isLast}
+                        />
+                    );
+                }
+            })}
+
+            {visibleCount < flatList.length && (
+                <Box sx={{ p: 2, display: 'flex', justifyContent: 'center' }}>
+                    <Button
+                        variant="outlined"
+                        onClick={() => setVisibleCount(prev => prev + 50)}
+                        fullWidth
+                    >
+                        Carregar Mais ({flatList.length - visibleCount} restantes)
+                    </Button>
+                </Box>
+            )}
+        </Box>
+    );
+};
+
 interface InventoryListProps {
     flatList: any[];
     isMobile: boolean;
@@ -141,12 +216,9 @@ export const InventoryList: React.FC<InventoryListProps> = ({
 
     const getItemSize = useCallback((index: number) => {
         const item = flatList[index];
-        if (isMobile) {
-            if (item.type === 'GROUP') return item.expanded ? 110 : 100;
-            return 130;
-        }
+        // Note: Mobile size not used in variable list anymore, but kept for logic safety
         return item.type === 'GROUP' ? 64 : 48;
-    }, [flatList, isMobile]);
+    }, [flatList]);
 
     const itemKey = useCallback((index: number) => flatList[index]?.id || index, [flatList]);
 
@@ -204,24 +276,23 @@ export const InventoryList: React.FC<InventoryListProps> = ({
 
              <Box sx={{ flexGrow: 1, position: 'relative' }}>
                 {flatList.length > 0 ? (
-                    <AutoSizer>
-                        {({ height, width }: { height: number; width: number }) => {
-                            if (isMobile) {
-                                return (
-                                    <FixedSizeList
-                                        ref={listRef}
-                                        height={height}
-                                        itemCount={flatList.length}
-                                        itemSize={130}
-                                        itemKey={itemKey}
-                                        width={width}
-                                        itemData={itemData}
-                                    >
-                                        {InventoryRow}
-                                    </FixedSizeList>
-                                );
-                            }
-                            return (
+                    isMobile ? (
+                        /* Mobile: Native Scroll List with Pagination */
+                        <MobileNativeList
+                            flatList={flatList}
+                            onActions={onActions}
+                            hasRole={hasRole}
+                            handleSelectRow={handleSelectRow}
+                            toggleGroupExpand={toggleGroupExpand}
+                            selectedIds={selectedIds}
+                            handleSelectGroup={handleSelectGroup}
+                            getCategoryIcon={getCategoryIcon}
+                            copyToClipboard={copyToClipboard}
+                        />
+                    ) : (
+                        /* Desktop: Virtualized List */
+                        <AutoSizer>
+                            {({ height, width }: { height: number; width: number }) => (
                                 <VariableSizeList
                                     ref={listRef}
                                     height={height}
@@ -233,9 +304,9 @@ export const InventoryList: React.FC<InventoryListProps> = ({
                                 >
                                     {InventoryRow}
                                 </VariableSizeList>
-                            );
-                        }}
-                    </AutoSizer>
+                            )}
+                        </AutoSizer>
+                    )
                 ) : (
                     <EmptyState
                         title="Nenhum item encontrado"

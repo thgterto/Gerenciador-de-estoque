@@ -16,9 +16,6 @@ import AddIcon from '@mui/icons-material/Add';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import DeleteIcon from '@mui/icons-material/Delete';
 import CloseIcon from '@mui/icons-material/Close';
-import FilterListIcon from '@mui/icons-material/FilterList';
-import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
-// import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 
 interface Props {
   items: InventoryItem[];
@@ -39,14 +36,9 @@ export const InventoryTable: React.FC<Props> = ({ items, onActions, onAddNew }) 
   const { deleteManyItems } = useStockOperations();
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
-  const [showControls, setShowControls] = useState(false);
 
   useEffect(() => {
-    const handleResize = () => {
-        const mobile = window.innerWidth < 768;
-        setIsMobile(mobile);
-        if (!mobile) setShowControls(true);
-    };
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
@@ -120,49 +112,34 @@ export const InventoryTable: React.FC<Props> = ({ items, onActions, onAddNew }) 
   }, []);
 
   return (
-    <PageContainer>
+    <PageContainer scrollable={isMobile}>
         <PageHeader 
             title="Inventário" 
             description="Gerencie lotes, reagentes e vidrarias."
             className="mb-4"
         >
-            <Box sx={{ display: 'flex', gap: 1 }}>
-                {isMobile && (
-                    <Button
-                        variant="outlined"
-                        size="small"
-                        onClick={() => setShowControls(!showControls)}
-                        startIcon={showControls ? <KeyboardArrowUpIcon /> : <FilterListIcon />}
-                    >
-                        {showControls ? 'Ocultar Filtros' : 'Filtros & Stats'}
-                    </Button>
-                )}
-                <Button variant="outlined" startIcon={<FileDownloadIcon />} onClick={() => alert("Use o menu de Configurações para exportar dados completos.")} sx={{ display: { xs: 'none', sm: 'flex' } }}>
-                    Exportar
+            <Button variant="outlined" startIcon={<FileDownloadIcon />} onClick={() => alert("Use o menu de Configurações para exportar dados completos.")} sx={{ display: { xs: 'none', sm: 'flex' } }}>
+                Exportar
+            </Button>
+            {onAddNew && (
+                <Button variant="contained" startIcon={<AddIcon />} onClick={onAddNew}>
+                    Adicionar
                 </Button>
-                {onAddNew && (
-                    <Button variant="contained" startIcon={<AddIcon />} onClick={onAddNew}>
-                        Adicionar
-                    </Button>
-                )}
-            </Box>
+            )}
         </PageHeader>
 
-        {(!isMobile || showControls) && (
-            <Box sx={{ mb: isMobile ? 2 : 0 }}>
-                <InventoryKPIs stats={stats} />
-                <InventoryFilters
-                    term={term} setTerm={setTerm}
-                    catFilter={catFilter} setCatFilter={setCatFilter}
-                    locationFilter={locationFilter} setLocationFilter={setLocationFilter}
-                    statusFilter={statusFilter} setStatusFilter={setStatusFilter}
-                    hideZeroStock={hideZeroStock} setHideZeroStock={setHideZeroStock}
-                    uniqueLocations={uniqueLocations}
-                    uniqueCategories={uniqueCategories}
-                    getCategoryIcon={getCategoryIcon}
-                />
-            </Box>
-        )}
+        <InventoryKPIs stats={stats} />
+
+        <InventoryFilters
+            term={term} setTerm={setTerm}
+            catFilter={catFilter} setCatFilter={setCatFilter}
+            locationFilter={locationFilter} setLocationFilter={setLocationFilter}
+            statusFilter={statusFilter} setStatusFilter={setStatusFilter}
+            hideZeroStock={hideZeroStock} setHideZeroStock={setHideZeroStock}
+            uniqueLocations={uniqueLocations}
+            uniqueCategories={uniqueCategories}
+            getCategoryIcon={getCategoryIcon}
+        />
 
         <InventoryList
             flatList={flatList}
