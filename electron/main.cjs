@@ -109,3 +109,24 @@ ipcMain.handle('db:backup', async () => {
 
     return await db.backupDB(filePath);
 });
+
+// Import Excel Handler
+ipcMain.handle('db:import-excel', async (_, payload) => {
+    // If payload has path, use it. If not, open dialog.
+    let filePath = payload ? payload.path : null;
+
+    if (!filePath) {
+        const { canceled, filePaths } = await dialog.showOpenDialog(mainWindow, {
+            title: 'Importar Planilha Excel',
+            filters: [{ name: 'Excel Files', extensions: ['xlsx', 'xls'] }],
+            properties: ['openFile']
+        });
+
+        if (canceled || filePaths.length === 0) {
+            return { success: false, error: 'Cancelled by user' };
+        }
+        filePath = filePaths[0];
+    }
+
+    return ImportController.processExcelImport(filePath);
+});

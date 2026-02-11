@@ -1,9 +1,7 @@
 const db = require('../db.cjs');
+const XLSX = require('xlsx');
 
 function handleSyncTransaction(payload) {
-    // Expected payload: { catalog: [], batches: [], balances: [], movements: [] }
-    // We execute this in a single transaction
-
     db.runTransaction(() => {
         if (payload.catalog && Array.isArray(payload.catalog)) {
             const stmt = db.prepare('INSERT INTO catalog (id, name, sapCode, casNumber, baseUnit, categoryId, risks, updatedAt) VALUES (@id, @name, @sapCode, @casNumber, @baseUnit, @categoryId, @risks, @updatedAt) ON CONFLICT(id) DO UPDATE SET name=excluded.name, sapCode=excluded.sapCode, casNumber=excluded.casNumber, baseUnit=excluded.baseUnit, categoryId=excluded.categoryId, risks=excluded.risks, updatedAt=excluded.updatedAt');
@@ -14,7 +12,7 @@ function handleSyncTransaction(payload) {
                     sapCode: item.sapCode,
                     casNumber: item.casNumber,
                     baseUnit: item.baseUnit,
-                    categoryId: item.categoryId || item.category, // Handle variation
+                    categoryId: item.categoryId || item.category,
                     risks: typeof item.risks === 'string' ? item.risks : JSON.stringify(item.risks || {}),
                     updatedAt: item.updatedAt || new Date().toISOString()
                 });
@@ -51,17 +49,8 @@ function handleSyncTransaction(payload) {
         }
 
         if (payload.movements && Array.isArray(payload.movements)) {
-             const stmt = db.prepare('INSERT INTO movements (id, date, type, batchId, quantity, userId, observation) VALUES (@id, @date, @type, @batchId, @quantity, @userId, @observation)'); // Note: Schema might vary slightly, adapting to 3NF movement log if needed, but current schema has itemId/batchId
-             // The GAS implementation uses 'Movements' with headers ['ID', 'Date', 'Type', 'BatchID', 'Quantity', 'User', 'Observation']
-             // Our SQLite schema has: id, itemId, batchId, ...
-             // Let's stick to the schema defined in db.cjs or make sure it matches.
-             // Looking at db.cjs logMovement: it uses itemId, type, quantity...
-             // GAS uses BatchID. We should probably support both or standardize.
-             // For now, let's assume the payload matches the DB columns or do best effort mapping.
-
+             const stmt = db.prepare('INSERT INTO movements (id, date, type, batchId, quantity, userId, observation) VALUES (@id, @date, @type, @batchId, @quantity, @userId, @observation)');
              for (const item of payload.movements) {
-                 // Check if ID exists to avoid PK violation or use INSERT OR IGNORE
-                 // Movements are usually append-only.
                  try {
                      stmt.run({
                         id: item.id,
@@ -73,7 +62,6 @@ function handleSyncTransaction(payload) {
                         observation: item.observation || item.Observation
                      });
                  } catch (e) {
-                     // Ignore duplicates or errors in individual movement logs during bulk sync
                      console.warn('Failed to insert movement:', item, e);
                  }
              }
@@ -83,6 +71,28 @@ function handleSyncTransaction(payload) {
     return { success: true };
 }
 
+function processExcelImport(filePath) {
+    try {
+        console.log(`[ImportController] Processing Excel: ${filePath}`);
+        // Read file using XLSX - Ensure we handle large files via streaming if possible,
+        // but 'readFile' loads into memory. For now, it's okay for typical files.
+        const workbook = XLSX.readFile(filePath);
+        const sheetName = workbook.SheetNames[0];
+        const sheet = workbook.Sheets[sheetName];
+
+        // Convert to JSON (Header: 1 ensures array of arrays for custom parsing, or object array)
+        const rawData = XLSX.utils.sheet_to_json(sheet);
+
+        console.log(`[ImportController] Read ${rawData.length} rows`);
+
+        return { success: true, data: rawData, count: rawData.length };
+    } catch (error) {
+        console.error('[ImportController] Excel processing failed:', error);
+        return { success: false, error: error.message };
+    }
+}
+
 module.exports = {
-    handleSyncTransaction
+    handleSyncTransaction,
+    processExcelImport
 };
