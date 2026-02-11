@@ -7,6 +7,7 @@ import { GoogleSheetsService } from '../services/GoogleSheetsService';
 import { seedDatabase } from '../services/DatabaseSeeder'; 
 import { GOOGLE_CONFIG } from '../config/apiConfig';
 import { useAlert } from '../context/AlertContext';
+import { ApiClient } from '../services/ApiClient';
 import { ImportWizard } from './ImportWizard';
 import { ImportMode } from '../utils/ImportEngine';
 import { Card } from './ui/Card'; 
@@ -19,6 +20,7 @@ import { ExportEngine } from '../utils/ExportEngine';
 export const Settings: React.FC = () => {
     const { addToast } = useAlert();
     const [loading, setLoading] = useState(false);
+    const isElectron = ApiClient.isElectron();
     
     // Cloud Config
     const [googleUrl, setGoogleUrl] = useState('');
@@ -143,6 +145,23 @@ export const Settings: React.FC = () => {
         } catch (e) {
             console.error(e);
             addToast('Erro', 'error', 'Falha ao gerar arquivo de seed.');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handlePortableBackup = async () => {
+        setLoading(true);
+        try {
+            const res = await ApiClient.backupDatabase();
+            if (res.success) {
+                addToast('Backup Completo', 'success', `Banco de dados salvo em: ${res.data?.path || 'Pasta selecionada'}`);
+            } else if (res.error !== 'Cancelled by user') {
+                addToast('Erro no Backup', 'error', res.error || 'Falha desconhecida');
+            }
+        } catch (e) {
+            console.error(e);
+            addToast('Erro', 'error', 'Falha ao executar backup.');
         } finally {
             setLoading(false);
         }
@@ -430,17 +449,29 @@ export const Settings: React.FC = () => {
                                             className="w-full text-sm"
                                             icon="download"
                                         >
-                                            Backup (.xlsx)
+                                            Exportar (.xlsx)
                                         </Button>
-                                        <Button
-                                            onClick={handleDownloadSeed}
-                                            disabled={loading}
-                                            variant="outline"
-                                            className="w-full text-sm"
-                                            icon="code"
-                                        >
-                                            Baixar Seed
-                                        </Button>
+                                        {isElectron ? (
+                                            <Button
+                                                onClick={handlePortableBackup}
+                                                disabled={loading}
+                                                variant="primary"
+                                                className="w-full text-sm"
+                                                icon="save"
+                                            >
+                                                Backup Full (.db)
+                                            </Button>
+                                        ) : (
+                                            <Button
+                                                onClick={handleDownloadSeed}
+                                                disabled={loading}
+                                                variant="outline"
+                                                className="w-full text-sm"
+                                                icon="code"
+                                            >
+                                                Baixar Seed
+                                            </Button>
+                                        )}
                                     </div>
                                 </div>
 

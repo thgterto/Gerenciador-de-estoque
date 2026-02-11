@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, shell } = require('electron');
+const { app, BrowserWindow, ipcMain, shell, dialog } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const db = require('./db.cjs');
@@ -94,3 +94,18 @@ ipcMain.handle('db:upsert-item', (_, payload) => InventoryController.upsertItem(
 ipcMain.handle('db:delete-item', (_, payload) => InventoryController.deleteItem(payload.id));
 ipcMain.handle('db:log-movement', (_, payload) => InventoryController.logMovement(payload.record));
 ipcMain.handle('db:sync-transaction', (_, payload) => ImportController.handleSyncTransaction(payload));
+
+// Backup Handler
+ipcMain.handle('db:backup', async () => {
+    const { canceled, filePath } = await dialog.showSaveDialog(mainWindow, {
+        title: 'Salvar Backup do Sistema',
+        defaultPath: `LabControl_Backup_${new Date().toISOString().split('T')[0]}.db`,
+        filters: [{ name: 'SQLite Database', extensions: ['db'] }]
+    });
+
+    if (canceled || !filePath) {
+        return { success: false, error: 'Cancelled by user' };
+    }
+
+    return await db.backupDB(filePath);
+});

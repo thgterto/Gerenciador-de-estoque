@@ -63,6 +63,15 @@ CREATE TABLE IF NOT EXISTS systemConfigs (
     updatedAt TEXT
 );
 
+CREATE TABLE IF NOT EXISTS systemLogs (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    timestamp INTEGER,
+    level TEXT,
+    module TEXT,
+    message TEXT,
+    metadata TEXT -- JSON
+);
+
 CREATE TABLE IF NOT EXISTS syncQueue (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     action TEXT NOT NULL,
