@@ -132,6 +132,18 @@ function processOfflineQueue() {
     console.log("Processing offline queue (not implemented yet)");
 }
 
+// BACKUP FUNCTIONALITY
+async function backupDB(destinationPath) {
+    if (!db) throw new Error("DB not initialized");
+    try {
+        await db.backup(destinationPath);
+        return { success: true, path: destinationPath };
+    } catch (error) {
+        console.error("Backup failed:", error);
+        return { success: false, error: error.message };
+    }
+}
+
 module.exports = {
     initDB,
     runTransaction,
@@ -143,5 +155,6 @@ module.exports = {
     readFullDB,
     getSystemConfig,
     setSystemConfig,
-    processOfflineQueue
+    processOfflineQueue,
+    backupDB
 };

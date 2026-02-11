@@ -45,5 +45,13 @@ export const ApiClient = {
         } else {
             return GoogleSheetsService.fetchFullDatabase();
         }
+    },
+
+    async backupDatabase(): Promise<ApiResponse> {
+        if (this.isElectron()) {
+            return this.request('db:backup');
+        } else {
+             return { success: false, error: "Backup completo disponível apenas na versão Desktop/Portátil." };
+        }
     }
 };

@@ -6,6 +6,7 @@ import { MigrationV2 } from '../utils/MigrationV2';
 import { InventorySyncManager } from './InventorySyncManager';
 import { InventoryExportService } from './InventoryExportService';
 import { InventoryAuditService } from './InventoryAuditService';
+import { LogService } from './LogService';
 import { 
     InventoryItem, 
     MovementRecord, 
@@ -39,6 +40,8 @@ export const InventoryService = {
   async initialize() {
       // Auto-migrate on startup if needed
       await MigrationV2.runMigration();
+      // Purge old logs (keep last 30 days)
+      await LogService.purgeOldLogs(30);
   },
   
   async syncFromCloud(): Promise<void> {
@@ -179,49 +182,70 @@ export const InventoryService = {
         }
     }
     
-    // 1. EXECUTE LEDGER TRANSACTION (Atomic)
-    // This throws if stock is insufficient or invalid.
-    const movement = await LedgerService.registerMovement({
-        batchId,
-        type,
-        quantity: ledgerQuantity,
-        fromLocationId: effectiveFrom,
-        toLocationId: effectiveTo,
-        userId: payload.userId || 'USER',
-        observation: observation,
-        date: date
-    });
+    let historyRecord: MovementRecord | null = null;
 
-    // 2. ASYNC SNAPSHOT UPDATE (The "Worker")
-    // Re-calculates the V1 Item View based on the new Ledger State
-    await SnapshotService.updateItemSnapshot(batchId);
+    try {
+        // GLOBAL ATOMIC TRANSACTION
+        // Wraps Ledger (V2), Snapshot (V1), and History (Legacy) updates in a single failure domain.
+        await db.transaction('rw', [
+            db.rawDb.items,
+            db.rawDb.history,
+            db.rawDb.stock_movements,
+            db.rawDb.balances,
+            db.rawDb.batches,
+            db.rawDb.catalog,
+            db.rawDb.storage_locations
+        ], async () => {
+            // 1. EXECUTE LEDGER TRANSACTION (Atomic)
+            // This throws if stock is insufficient or invalid.
+            const movement = await LedgerService.registerMovement({
+                batchId,
+                type,
+                quantity: ledgerQuantity,
+                fromLocationId: effectiveFrom,
+                toLocationId: effectiveTo,
+                userId: payload.userId || 'USER',
+                observation: observation,
+                date: date
+            });
 
-    // 3. Legacy Audit Trail (Keep 'history' table for existing UI charts/grids)
-    // We duplicate this logic briefly to support the old chart view until it's refactored
-    const historyRecord: MovementRecord = {
-        id: movement.id,
-        itemId: item.id,
-        date: movement.createdAt,
-        type: type,
-        batchId: batchId,
-        fromLocationId: movement.fromLocationId,
-        toLocationId: movement.toLocationId,
-        productName: item.name,
-        sapCode: item.sapCode,
-        lot: item.lotNumber,
-        quantity: quantity,
-        unit: item.baseUnit,
-        location_warehouse: item.location.warehouse,
-        supplier: item.supplier,
-        observation: observation || ''
-    };
-    await db.history.add(historyRecord);
+            // 2. ASYNC SNAPSHOT UPDATE (The "Worker")
+            // Re-calculates the V1 Item View based on the new Ledger State
+            await SnapshotService.updateItemSnapshot(batchId);
 
-    // 4. Cloud Sync
-    const syncPayload = {
-        movements: [historyRecord]
-    };
-    InventorySyncManager.notifyChange('sync_transaction', syncPayload);
+            // 3. Legacy Audit Trail (Keep 'history' table for existing UI charts/grids)
+            // We duplicate this logic briefly to support the old chart view until it's refactored
+            historyRecord = {
+                id: movement.id,
+                itemId: item.id,
+                date: movement.createdAt,
+                type: type,
+                batchId: batchId,
+                fromLocationId: movement.fromLocationId,
+                toLocationId: movement.toLocationId,
+                productName: item.name,
+                sapCode: item.sapCode,
+                lot: item.lotNumber,
+                quantity: quantity,
+                unit: item.baseUnit,
+                location_warehouse: item.location.warehouse,
+                supplier: item.supplier,
+                observation: observation || ''
+            };
+            await db.history.add(historyRecord);
+        });
+    } catch (e) {
+        db.invalidateCaches(); // Invalidate L1 cache on transaction failure
+        throw e;
+    }
+
+    // 4. Cloud Sync (Outside transaction)
+    if (historyRecord) {
+        const syncPayload = {
+            movements: [historyRecord]
+        };
+        InventorySyncManager.notifyChange('sync_transaction', syncPayload);
+    }
   },
 
   async registerMovement(item: InventoryItem, type: 'ENTRADA'|'SAIDA'|'AJUSTE', quantity: number, date: string, obs: string) {
