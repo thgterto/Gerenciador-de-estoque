@@ -28,53 +28,68 @@ db.initDB(dbPath);
 
 let mainWindow;
 
-function createWindow() {
-  mainWindow = new BrowserWindow({
-    width: 1280,
-    height: 800,
-    minWidth: 1024,
-    minHeight: 768,
-    title: "LabControl - UMV",
-    icon: path.join(__dirname, '../public/icon.png'),
-    webPreferences: {
-      nodeIntegration: false,
-      contextIsolation: true,
-      preload: path.join(__dirname, 'preload.cjs'),
-      sandbox: true,
-      webSecurity: true
-    },
-    autoHideMenuBar: true
+// --- SINGLE INSTANCE LOCK ---
+const hasLock = app.requestSingleInstanceLock();
+
+if (!hasLock) {
+  app.quit();
+} else {
+  app.on('second-instance', (event, commandLine, workingDirectory) => {
+    // Someone tried to run a second instance, we should focus our window.
+    if (mainWindow) {
+      if (mainWindow.isMinimized()) mainWindow.restore();
+      mainWindow.focus();
+    }
   });
 
-  if (isDev) {
-    mainWindow.loadURL('http://localhost:5173');
-    mainWindow.webContents.openDevTools();
-  } else {
-    mainWindow.loadFile(path.join(__dirname, '../dist/index.html'));
+  function createWindow() {
+    mainWindow = new BrowserWindow({
+      width: 1280,
+      height: 800,
+      minWidth: 1024,
+      minHeight: 768,
+      title: "LabControl - UMV",
+      icon: path.join(__dirname, '../public/icon.png'),
+      webPreferences: {
+        nodeIntegration: false,
+        contextIsolation: true,
+        preload: path.join(__dirname, 'preload.cjs'),
+        sandbox: true,
+        webSecurity: true
+      },
+      autoHideMenuBar: true
+    });
+
+    if (isDev) {
+      mainWindow.loadURL('http://localhost:5173');
+      mainWindow.webContents.openDevTools();
+    } else {
+      mainWindow.loadFile(path.join(__dirname, '../dist/index.html'));
+    }
+
+    mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+      if (url.startsWith('https:') || url.startsWith('http:')) {
+        shell.openExternal(url);
+        return { action: 'deny' };
+      }
+      return { action: 'allow' };
+    });
+
+    mainWindow.on('closed', () => {
+      mainWindow = null;
+    });
   }
 
-  mainWindow.webContents.setWindowOpenHandler(({ url }) => {
-    if (url.startsWith('https:') || url.startsWith('http:')) {
-      shell.openExternal(url);
-      return { action: 'deny' };
-    }
-    return { action: 'allow' };
-  });
+  app.whenReady().then(() => {
+    createWindow();
 
-  mainWindow.on('closed', () => {
-    mainWindow = null;
+    app.on('activate', () => {
+      if (BrowserWindow.getAllWindows().length === 0) {
+        createWindow();
+      }
+    });
   });
 }
-
-app.whenReady().then(() => {
-  createWindow();
-
-  app.on('activate', () => {
-    if (BrowserWindow.getAllWindows().length === 0) {
-      createWindow();
-    }
-  });
-});
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
@@ -129,4 +144,19 @@ ipcMain.handle('db:import-excel', async (_, payload) => {
     }
 
     return ImportController.processExcelImport(filePath);
+});
+
+// Log Export Handler
+ipcMain.handle('db:export-logs', async () => {
+    const { canceled, filePath } = await dialog.showSaveDialog(mainWindow, {
+        title: 'Exportar Logs do Sistema',
+        defaultPath: `LabControl_Logs_${new Date().toISOString().split('T')[0]}.txt`,
+        filters: [{ name: 'Log File', extensions: ['txt'] }]
+    });
+
+    if (canceled || !filePath) {
+        return { success: false, error: 'Cancelled by user' };
+    }
+
+    return await db.exportLogs(filePath);
 });

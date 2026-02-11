@@ -344,6 +344,19 @@ export interface ImportResult {
     ignored: number;
 }
 
+export interface ImportRow {
+    'Código SAP'?: string;
+    'Nome'?: string;
+    'Lote'?: string;
+    'Unidade'?: string;
+    'Quantidade'?: number | string;
+    'Fabricante'?: string;
+    'Validade'?: string;
+    'Categoria'?: string;
+    'Local'?: string;
+    [key: string]: any;
+}
+
 // Offline Sync Types
 export interface SyncQueueItem {
     id?: number;

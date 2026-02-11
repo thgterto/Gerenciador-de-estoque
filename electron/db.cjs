@@ -144,6 +144,23 @@ async function backupDB(destinationPath) {
     }
 }
 
+// LOG EXPORT FUNCTIONALITY
+async function exportLogs(destinationPath) {
+    if (!db) throw new Error("DB not initialized");
+    try {
+        const logs = db.prepare("SELECT * FROM systemLogs ORDER BY timestamp DESC LIMIT 1000").all();
+        const logContent = logs.map(l =>
+            `[${new Date(l.timestamp).toISOString()}] [${l.level}] [${l.module}] ${l.message} ${l.metadata || ''}`
+        ).join('\n');
+
+        fs.writeFileSync(destinationPath, logContent, 'utf8');
+        return { success: true, path: destinationPath };
+    } catch (error) {
+        console.error("Log export failed:", error);
+        return { success: false, error: error.message };
+    }
+}
+
 module.exports = {
     initDB,
     runTransaction,
@@ -156,5 +173,6 @@ module.exports = {
     getSystemConfig,
     setSystemConfig,
     processOfflineQueue,
-    backupDB
+    backupDB,
+    exportLogs
 };

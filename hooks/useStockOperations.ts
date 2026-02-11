@@ -4,7 +4,6 @@ import { InventoryService } from '../services/InventoryService';
 import { ImportService } from '../services/ImportService';
 import { InventoryItem } from '../types';
 import { useAlert } from '../context/AlertContext';
-import * as XLSX from 'xlsx';
 
 export const useStockOperations = () => {
     const { addToast } = useAlert();
@@ -80,53 +79,13 @@ export const useStockOperations = () => {
     }, [addToast]);
 
     const importLegacyExcel = useCallback(async (file: File) => {
-        return new Promise<void>((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onload = async (evt) => {
-                try {
-                    const data = new Uint8Array(evt.target?.result as ArrayBuffer);
-                    const workbook = XLSX.read(data, { type: 'array' });
-                    const sheetName = workbook.SheetNames[0];
-                    const rows: any[] = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
-                    
-                    const newItems: InventoryItem[] = rows.map((r) => {
-                        const newUuid = crypto.randomUUID();
-                        return {
-                            id: newUuid,
-                            sapCode: r['Código SAP'] || '',
-                            name: r['Nome'] || 'Item Importado',
-                            lotNumber: r['Lote'] || 'GEN',
-                            type: 'ROH',
-                            materialGroup: 'GERAL',
-                            baseUnit: r['Unidade'] || 'UN',
-                            category: 'Geral',
-                            itemStatus: 'Ativo',
-                            quantity: Number(r['Quantidade']) || 0,
-                            minStockLevel: 0,
-                            supplier: r['Fabricante'] || '',
-                            expiryDate: r['Validade'] || '',
-                            risks: { O: false, T: false, T_PLUS: false, C: false, E: false, N: false, Xn: false, Xi: false, F: false, F_PLUS: false },
-                            location: { warehouse: 'Central', cabinet: '', shelf: '', position: '' },
-                            isControlled: false,
-                            lastUpdated: new Date().toISOString(),
-                            dateAcquired: new Date().toISOString(),
-                            unitCost: 0,
-                            currency: 'BRL',
-                            batchId: `BAT-${newUuid}`,
-                            catalogId: `CAT-${newUuid}`
-                        };
-                    });
-
-                    await ImportService.importBulk(newItems);
-                    addToast('Importação Concluída', 'success', `${newItems.length} itens importados.`);
-                    resolve();
-                } catch (error) {
-                    addToast('Erro na Importação', 'error', 'Verifique o formato do arquivo.');
-                    reject(error);
-                }
-            };
-            reader.readAsArrayBuffer(file);
-        });
+        try {
+            const result = await ImportService.importFromExcel(file);
+            addToast('Importação Concluída', 'success', `${result.total} itens processados.`);
+        } catch (error) {
+            console.error("Import error:", error);
+            addToast('Erro na Importação', 'error', (error as Error).message);
+        }
     }, [addToast]);
 
     return {

@@ -53,5 +53,13 @@ export const ApiClient = {
         } else {
              return { success: false, error: "Backup completo disponível apenas na versão Desktop/Portátil." };
         }
+    },
+
+    async exportLogs(): Promise<ApiResponse> {
+        if (this.isElectron()) {
+            return this.request('db:export-logs');
+        } else {
+            return { success: false, error: "Exportação de logs de sistema disponível apenas na versão Desktop/Portátil." };
+        }
     }
 };

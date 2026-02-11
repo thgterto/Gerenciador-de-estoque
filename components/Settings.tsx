@@ -122,6 +122,23 @@ export const Settings: React.FC = () => {
         }
     };
 
+    const handleExportLogs = async () => {
+        setLoading(true);
+        try {
+            const res = await ApiClient.exportLogs();
+            if (res.success) {
+                addToast('Logs Exportados', 'success', `Arquivo salvo em: ${res.data?.path || 'Pasta selecionada'}`);
+            } else if (res.error !== 'Cancelled by user') {
+                addToast('Erro na Exportação', 'error', res.error || 'Falha desconhecida');
+            }
+        } catch (e) {
+            console.error(e);
+            addToast('Erro', 'error', 'Falha ao exportar logs.');
+        } finally {
+            setLoading(false);
+        }
+    };
+
     const handleExportExcel = async (isTemplate = false) => {
         setLoading(true);
         setTimeout(async () => {
@@ -452,15 +469,26 @@ export const Settings: React.FC = () => {
                                             Exportar (.xlsx)
                                         </Button>
                                         {isElectron ? (
-                                            <Button
-                                                onClick={handlePortableBackup}
-                                                disabled={loading}
-                                                variant="primary"
-                                                className="w-full text-sm"
-                                                icon="save"
-                                            >
-                                                Backup Full (.db)
-                                            </Button>
+                                            <>
+                                                <Button
+                                                    onClick={handlePortableBackup}
+                                                    disabled={loading}
+                                                    variant="primary"
+                                                    className="w-full text-sm"
+                                                    icon="save"
+                                                >
+                                                    Backup Full (.db)
+                                                </Button>
+                                                <Button
+                                                    onClick={handleExportLogs}
+                                                    disabled={loading}
+                                                    variant="outline"
+                                                    className="w-full text-sm col-span-2"
+                                                    icon="text_snippet"
+                                                >
+                                                    Exportar Logs de Sistema
+                                                </Button>
+                                            </>
                                         ) : (
                                             <Button
                                                 onClick={handleDownloadSeed}

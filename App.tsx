@@ -10,7 +10,7 @@ import { db } from './db';
 import { InventoryItem } from './types';
 import { AlertProvider, useAlert } from './context/AlertContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
-import { ThemeProvider } from './context/ThemeContext';
+import { ThemeProvider, useTheme } from './context/ThemeContext';
 import { ToastContainer } from './components/Toast';
 import { Login } from './components/Login';
 import { SyncQueueService } from './services/SyncQueueService';
@@ -60,6 +60,9 @@ const LabControlContent = () => {
   const [cloneData, setCloneData] = useState<Partial<InventoryItem> | undefined>(undefined);
   const [showTutorial, setShowTutorial] = useState(false);
   
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const { toggleTheme } = useTheme();
+
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Initialize Sync Service with Cleanup
@@ -157,6 +160,9 @@ const LabControlContent = () => {
             }}
             onAddClick={() => { setCloneData(undefined); setModalType('ADD'); }}
             onScanClick={() => setModalType('SCANNER')}
+            onToggleTheme={toggleTheme}
+            sidebarOpen={sidebarOpen}
+            setSidebarOpen={setSidebarOpen}
        >
            <Suspense fallback={<PageLoader />}>
                <Routes>

@@ -2,6 +2,15 @@ import { db } from '../db';
 import { ApiClient } from './ApiClient';
 import { SyncQueueService } from './SyncQueueService';
 
+// Custom Event Polyfill for non-browser envs if needed (but we are in browser)
+const emit = (name: string, detail?: any) => {
+    try {
+        window.dispatchEvent(new CustomEvent(name, { detail }));
+    } catch (e) {
+        // Ignore if window not available (test env)
+    }
+};
+
 export const InventorySyncManager = {
     async syncFromCloud(): Promise<void> {
       try {
@@ -21,6 +30,7 @@ export const InventorySyncManager = {
           }
 
           console.log("Iniciando sincronização (Hybrid/Portable)...");
+          emit('labcontrol:sync-start');
 
           const { view, catalog, batches, balances } = await ApiClient.fetchFullDatabase();
 
@@ -40,8 +50,10 @@ export const InventorySyncManager = {
               });
               console.log(`Sync Concluído: ${view.length} items atualizados.`);
           }
+          emit('labcontrol:sync-end');
       } catch (error) {
           console.error("Erro na sincronização:", error);
+          emit('labcontrol:sync-error', error);
           // Invalidate cache on sync error to ensure consistency
           db.invalidateCaches();
       }
@@ -50,38 +62,45 @@ export const InventorySyncManager = {
     async notifyChange(action: string, payload: any): Promise<void> {
         // In Electron, we always request. In Web, check config.
         if (ApiClient.isElectron() || (await isGasConfigured())) {
+            emit('labcontrol:sync-start');
             ApiClient.request(action, payload)
-                .catch(() => SyncQueueService.enqueue(action, payload));
+                .then(() => emit('labcontrol:sync-end'))
+                .catch((e) => {
+                    emit('labcontrol:sync-error', e);
+                    SyncQueueService.enqueue(action, payload);
+                });
         }
     },
 
     // Wrapper for legacy addOrUpdateItem pattern
     async notifyItemChange(item: any): Promise<void> {
         if (ApiClient.isElectron() || (await isGasConfigured())) {
-             // ApiClient.request('upsert_item', { item })
-             // Legacy GoogleSheetsService had addOrUpdateItem wrapper.
-             // We can use request directly.
+             emit('labcontrol:sync-start');
              ApiClient.request('upsert_item', { item })
-                .catch(() => SyncQueueService.enqueue('upsert_item', { item }));
+                .then(() => emit('labcontrol:sync-end'))
+                .catch((e) => {
+                    emit('labcontrol:sync-error', e);
+                    SyncQueueService.enqueue('upsert_item', { item });
+                });
         }
     },
 
     // Wrapper for legacy deleteItem pattern
     async notifyItemDelete(id: string): Promise<void> {
         if (ApiClient.isElectron() || (await isGasConfigured())) {
+             emit('labcontrol:sync-start');
              ApiClient.request('delete_item', { id })
-                .catch(() => SyncQueueService.enqueue('delete_item', { id }));
+                .then(() => emit('labcontrol:sync-end'))
+                .catch((e) => {
+                    emit('labcontrol:sync-error', e);
+                    SyncQueueService.enqueue('delete_item', { id });
+                });
         }
     }
 };
 
 // Helper to check GAS config (mock or import from service if needed)
 async function isGasConfigured(): Promise<boolean> {
-    // We can dynamically import GoogleSheetsService to avoid circular dep if needed,
-    // or just assume it's available.
-    // Given the previous file imported it, let's assume we can access it or duplicate logic.
-    // For now, let's import it dynamically to be safe or use ApiClient check?
-    // ApiClient doesn't expose isConfigured.
     const { GoogleSheetsService } = await import('./GoogleSheetsService');
     return GoogleSheetsService.isConfigured();
 }

@@ -27,6 +27,8 @@ interface SidebarProps {
     onClose: () => void;
     onTransitionEnd: () => void;
     drawerWidth: number;
+    onAddClick: () => void;
+    onScanClick: () => void;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -36,7 +38,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
     isMobileOpen,
     onClose,
     onTransitionEnd,
-    drawerWidth
+    drawerWidth,
+    // onAddClick, // Future use for sidebar actions
+    // onScanClick
 }) => {
     const { user } = useAuth();
     const location = useLocation();

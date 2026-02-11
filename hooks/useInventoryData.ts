@@ -27,18 +27,35 @@ export const useInventoryData = () => {
 
     const loadData = useCallback(async (checkAlerts = false) => {
         try {
-            const [fetchedItems, fetchedMetrics] = await Promise.all([
-                InventoryService.getAllItems(),
-                InventoryService.getDashboardMetrics()
-            ]);
+            const fetchedItems = await InventoryService.getAllItems();
+
+            // Calculate metrics in-memory to avoid second DB roundtrip
+            const today = new Date();
+            const next30Days = new Date(today);
+            next30Days.setDate(today.getDate() + 30);
+
+            let expiring = 0;
+            let lowStock = 0;
+
+            for (const i of fetchedItems) {
+                if (i.expiryDate && new Date(i.expiryDate) < next30Days) expiring++;
+                if (i.quantity <= i.minStockLevel && i.minStockLevel > 0) lowStock++;
+            }
+
+            const calculatedMetrics = {
+                totalItems: fetchedItems.length,
+                alertsCount: expiring + lowStock,
+                expiringCount: expiring,
+                lowStockCount: lowStock
+            };
 
             if (isMounted.current) {
                 setItems(fetchedItems);
-                setMetrics(fetchedMetrics);
+                setMetrics(calculatedMetrics);
                 setLoading(false);
             }
 
-            if (checkAlerts && fetchedMetrics.alertsCount > 0) {
+            if (checkAlerts && calculatedMetrics.alertsCount > 0) {
                 // Opcional: Feedback visual discreto
             }
 
