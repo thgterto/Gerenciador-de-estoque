@@ -42,6 +42,44 @@ const getTypeChip = (type: string) => {
     return <Chip icon={<TuneIcon />} label="Ajuste" color="warning" size="small" variant="outlined" />;
 };
 
+const HistoryMobileRow = ({ item }: { item: MovementRecord }) => {
+    const amountColor = item.type === 'ENTRADA' ? 'success.main' : item.type === 'SAIDA' ? 'error.main' : 'warning.main';
+    const sign = item.type === 'ENTRADA' ? '+' : item.type === 'SAIDA' ? '-' : '';
+
+    return (
+        <Box sx={{ p: 2, borderBottom: 1, borderColor: 'divider', bgcolor: 'background.paper' }}>
+            <Box display="flex" justifyContent="space-between" mb={1}>
+                <Box display="flex" alignItems="center" gap={1}>
+                    {getTypeChip(item.type)}
+                    <Typography variant="caption" color="text.secondary">{formatDateTime(item.date)}</Typography>
+                </Box>
+                <Typography variant="body1" fontWeight="bold" fontFamily="monospace" color={amountColor}>
+                    {sign}{item.quantity} {item.unit}
+                </Typography>
+            </Box>
+
+            <Typography variant="body2" fontWeight="bold" noWrap gutterBottom>
+                {item.productName || <span style={{ fontStyle: 'italic', opacity: 0.7 }}>Item Arquivado</span>}
+            </Typography>
+
+            <Stack direction="row" spacing={1} mb={1}>
+                {item.batchId && (
+                    <Chip label={item.batchId.split('-').pop()} size="small" color="primary" variant="outlined" sx={{ height: 20, fontSize: '0.65rem' }} />
+                )}
+                <Typography variant="caption" color="text.secondary" fontFamily="monospace">
+                    Lote: {item.lot || 'GEN'}
+                </Typography>
+            </Stack>
+
+            {item.observation && (
+                <Typography variant="caption" color="text.secondary" sx={{ display: 'block', fontStyle: 'italic', bgcolor: 'action.hover', p: 0.5, borderRadius: 1 }}>
+                    Obs: {item.observation}
+                </Typography>
+            )}
+        </Box>
+    );
+};
+
 const HistoryRow = ({ index, style, data }: { index: number, style: React.CSSProperties, data: { filtered: MovementRecord[] } }) => {
     const h = data.filtered[index];
     if (!h) return null;
@@ -126,6 +164,7 @@ export const HistoryTable: React.FC<Props> = ({ preselectedItemId, preselectedBa
 
   const sampleBatch = filtered.length > 0 ? filtered[0] : null;
   const itemData = useMemo(() => ({ filtered }), [filtered]);
+  const isMobile = window.innerWidth < 768; // Simple check, or use useMediaQuery/hook
 
   return (
     <PageContainer scrollable={true}>
@@ -247,44 +286,54 @@ export const HistoryTable: React.FC<Props> = ({ preselectedItemId, preselectedBa
         </Card>
 
         {/* Table Area */}
-        <Card sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', height: 600 }} variant="outlined">
-             <Box sx={{
-                 display: 'grid',
-                 gridTemplateColumns: GRID_TEMPLATE,
-                 px: 2,
-                 py: 1.5,
-                 bgcolor: 'background.default',
-                 borderBottom: 1,
-                 borderColor: 'divider'
-             }}>
-                <Typography variant="caption" fontWeight="bold">TIPO</Typography>
-                <Typography variant="caption" fontWeight="bold">ITEM / DETALHES</Typography>
-                <Typography variant="caption" fontWeight="bold" align="right" sx={{ pr: 4 }}>QUANTIDADE</Typography>
-                <Typography variant="caption" fontWeight="bold">JUSTIFICATIVA</Typography>
-                <Typography variant="caption" fontWeight="bold" align="right">DATA</Typography>
-             </Box>
+        <Card sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', height: isMobile ? 'auto' : 600, minHeight: 300 }} variant="outlined">
+             {!isMobile && (
+                 <Box sx={{
+                     display: 'grid',
+                     gridTemplateColumns: GRID_TEMPLATE,
+                     px: 2,
+                     py: 1.5,
+                     bgcolor: 'background.default',
+                     borderBottom: 1,
+                     borderColor: 'divider'
+                 }}>
+                    <Typography variant="caption" fontWeight="bold">TIPO</Typography>
+                    <Typography variant="caption" fontWeight="bold">ITEM / DETALHES</Typography>
+                    <Typography variant="caption" fontWeight="bold" align="right" sx={{ pr: 4 }}>QUANTIDADE</Typography>
+                    <Typography variant="caption" fontWeight="bold">JUSTIFICATIVA</Typography>
+                    <Typography variant="caption" fontWeight="bold" align="right">DATA</Typography>
+                 </Box>
+             )}
 
              <Box sx={{ flexGrow: 1 }}>
                 {loading ? (
-                    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
+                    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: 200 }}>
                         <Typography>Carregando...</Typography>
                     </Box>
                 ) : filtered.length > 0 ? (
-                    <AutoSizer>
-                        {({ height, width }: { height: number; width: number }) => (
-                            <List
-                                height={height}
-                                itemCount={filtered.length}
-                                itemSize={72}
-                                width={width}
-                                itemData={itemData}
-                            >
-                                {HistoryRow}
-                            </List>
-                        )}
-                    </AutoSizer>
+                    isMobile ? (
+                        <Box>
+                            {filtered.map((item, index) => (
+                                <HistoryMobileRow key={index} item={item} />
+                            ))}
+                        </Box>
+                    ) : (
+                        <AutoSizer>
+                            {({ height, width }: { height: number; width: number }) => (
+                                <List
+                                    height={height}
+                                    itemCount={filtered.length}
+                                    itemSize={72}
+                                    width={width}
+                                    itemData={itemData}
+                                >
+                                    {HistoryRow}
+                                </List>
+                            )}
+                        </AutoSizer>
+                    )
                 ) : (
-                    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', color: 'text.secondary' }}>
+                    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', minHeight: 200, color: 'text.secondary' }}>
                         <HistoryToggleOffIcon sx={{ fontSize: 60, mb: 2, opacity: 0.5 }} />
                         <Typography variant="h6">Nenhuma movimentação</Typography>
                         <Typography variant="body2">Ajuste os filtros para encontrar registros.</Typography>
@@ -292,9 +341,11 @@ export const HistoryTable: React.FC<Props> = ({ preselectedItemId, preselectedBa
                 )}
              </Box>
              
-             <Box sx={{ p: 1.5, borderTop: 1, borderColor: 'divider', display: 'flex', justifyContent: 'space-between' }}>
-                 <Typography variant="caption" color="text.secondary">Total: {filtered.length} registros</Typography>
-             </Box>
+             {!isMobile && (
+                 <Box sx={{ p: 1.5, borderTop: 1, borderColor: 'divider', display: 'flex', justifyContent: 'space-between' }}>
+                     <Typography variant="caption" color="text.secondary">Total: {filtered.length} registros</Typography>
+                 </Box>
+             )}
         </Card>
     </PageContainer>
   )

@@ -242,8 +242,8 @@ export const StorageMatrix: React.FC<Props> = ({ items, onActions }) => {
     }, [addToast]);
 
     return (
-        <div className="flex flex-col h-full bg-background-light dark:bg-background-dark overflow-hidden animate-fade-in">
-            <div className="px-4 md:px-8 py-5 bg-surface-light/80 dark:bg-surface-dark/80 backdrop-blur-sm sticky top-0 z-10 border-b border-border-light dark:border-border-dark shadow-sm">
+        <div className={`flex flex-col ${isMobile ? 'min-h-full' : 'h-full'} bg-background-light dark:bg-background-dark overflow-hidden animate-fade-in`}>
+            <div className={`px-4 md:px-8 py-5 bg-surface-light/80 dark:bg-surface-dark/80 backdrop-blur-sm sticky top-0 z-10 border-b border-border-light dark:border-border-dark shadow-sm`}>
                  <PageHeader 
                     title={selectedLocKey ? (selectedLocKey.split(' > ')[1] || selectedLocKey) : "Locais de Armazenamento"}
                     description={selectedLocKey ? `${selectedLocKey.split(' > ')[0]}` : "Selecione um local para gerenciar a disposição física."}
@@ -277,9 +277,9 @@ export const StorageMatrix: React.FC<Props> = ({ items, onActions }) => {
                  </PageHeader>
             </div>
             
-            <div className="flex-1 overflow-hidden p-4 md:p-8 relative">
+            <div className={`flex-1 ${isMobile ? 'overflow-visible' : 'overflow-hidden'} p-4 md:p-8 relative`}>
                 {!selectedLocKey ? (
-                    <div className="overflow-y-auto h-full pr-2 pb-10 custom-scrollbar">
+                    <div className={`${isMobile ? '' : 'overflow-y-auto h-full'} pr-2 pb-10 custom-scrollbar`}>
                         {Object.keys(locations).length === 0 ? (
                             <div className="flex flex-col items-center justify-center h-64 text-text-secondary opacity-60">
                                 <span className="material-symbols-outlined text-6xl mb-4 text-border-DEFAULT">shelves</span>
