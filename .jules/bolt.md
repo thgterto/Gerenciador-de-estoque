@@ -13,3 +13,11 @@
 ## 2025-02-14 - IndexedDB Range Queries
 **Learning:** Loading entire collections into memory then filtering with JavaScript (e.g. `collection.toArray().filter()`) is inefficient for large datasets.
 **Action:** Always prefer Dexie's `where().aboveOrEqual()` or `between()` to leverage IndexedDB indices, significantly reducing the amount of data transferred from IDB to JS memory.
+
+## 2025-02-14 - Documentation Strategy
+**Learning:** Documenting performance optimizations in a dedicated  file helps maintain awareness of high-impact patterns and prevents regressions during future refactors.
+**Action:** Maintain a living performance document alongside the codebase.
+
+## 2025-02-14 - Documentation Strategy
+**Learning:** Documenting performance optimizations in a dedicated `docs/PERFORMANCE.md` file helps maintain awareness of high-impact patterns and prevents regressions during future refactors.
+**Action:** Maintain a living performance document alongside the codebase.
