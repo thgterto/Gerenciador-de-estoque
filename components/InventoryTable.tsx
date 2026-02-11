@@ -112,7 +112,7 @@ export const InventoryTable: React.FC<Props> = ({ items, onActions, onAddNew }) 
   }, []);
 
   return (
-    <PageContainer>
+    <PageContainer scrollable={isMobile}>
         <PageHeader 
             title="Inventário" 
             description="Gerencie lotes, reagentes e vidrarias."

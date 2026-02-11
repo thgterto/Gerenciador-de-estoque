@@ -101,3 +101,15 @@ Para evitar duplicação de dados ao re-importar planilhas ou sincronizar dados:
 *   **Tabela:** `localOrders`.
 *   **Uso:** Persistência de rascunhos de pedidos de compra e histórico de solicitações locais.
 *   **Estrutura:** Armazena o pedido completo (DTO) incluindo a lista de itens (`items: PurchaseRequestItem[]`) dentro do objeto do pedido, permitindo recuperação de estado complexo sem múltiplas tabelas relacionais (Document Store Pattern).
+
+---
+
+## 6. Segurança
+
+O sistema adota práticas de defesa em profundidade para mitigar vulnerabilidades comuns em aplicações web/desktop:
+
+### 6.1 Content Security Policy (CSP)
+Para prevenir ataques de Cross-Site Scripting (XSS), uma política de segurança de conteúdo estrita é aplicada via meta tag no `index.html`.
+*   **Scripts:** Permitidos apenas de 'self' (origem local) e CDNs confiáveis (jsDelivr para bibliotecas específicas). Scripts inline (`unsafe-inline`) são bloqueados, com exceção de `unsafe-eval` necessário para ferramentas de desenvolvimento.
+*   **Estilos:** Permitidos de 'self' e Google Fonts. Estilos inline (`unsafe-inline`) são permitidos para compatibilidade com bibliotecas de UI (MUI).
+*   **Conexões:** Restritas a 'self', HTTPS e WebSockets (para Hot Module Replacement durante desenvolvimento).
