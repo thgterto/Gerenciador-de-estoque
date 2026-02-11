@@ -1,10 +1,9 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
     Card, CardContent, CardHeader, Typography, Box,
     Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
     Button, Chip, Divider, useTheme
 } from '@mui/material';
-import { Grid } from '@mui/material';
 import { PageContainer } from './ui/PageContainer';
 import { PageHeader } from './ui/PageHeader';
 import { useDashboardAnalytics } from '../hooks/useDashboardAnalytics';
@@ -13,14 +12,14 @@ import { useNavigate } from 'react-router-dom';
 import { InventoryItem, MovementRecord } from '../types';
 import { formatDate, formatDateTime } from '../utils/formatters';
 
-// Icons
-import Inventory2Icon from '@mui/icons-material/Inventory2';
-import PaymentsIcon from '@mui/icons-material/Payments';
-import WarningIcon from '@mui/icons-material/Warning';
-import EventBusyIcon from '@mui/icons-material/EventBusy';
-import HistoryIcon from '@mui/icons-material/History';
-import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
-import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
+// Icons - Sharp/Filled versions preferred for Brutalist look
+import Inventory2SharpIcon from '@mui/icons-material/Inventory2Sharp';
+import PaymentsSharpIcon from '@mui/icons-material/PaymentsSharp';
+import WarningSharpIcon from '@mui/icons-material/WarningSharp';
+import EventBusySharpIcon from '@mui/icons-material/EventBusySharp';
+import HistorySharpIcon from '@mui/icons-material/HistorySharp';
+import ArrowForwardSharpIcon from '@mui/icons-material/ArrowForwardSharp';
+import AddShoppingCartSharpIcon from '@mui/icons-material/AddShoppingCartSharp';
 
 interface DashboardProps {
   items: InventoryItem[];
@@ -43,111 +42,139 @@ export const Dashboard: React.FC<DashboardProps> = ({ items, history, onAddToPur
   const navigate = useNavigate();
   const theme = useTheme();
 
-  // Chart Configuration
-  const commonChartOptions: ApexCharts.ApexOptions = {
+  // Chart Configuration - Precision Technical
+  const commonChartOptions: ApexCharts.ApexOptions = useMemo(() => ({
     chart: {
         toolbar: { show: false },
         background: 'transparent',
-        fontFamily: theme.typography.fontFamily
+        fontFamily: '"JetBrains Mono", monospace', // Technical font for charts
+        animations: { enabled: true, speed: 800 }
     },
     colors: [theme.palette.primary.main, theme.palette.secondary.main],
     grid: {
         borderColor: theme.palette.divider,
-        strokeDashArray: 4,
+        strokeDashArray: 0, // Solid sharp lines
+        xaxis: { lines: { show: true } }
     },
-    tooltip: { theme: theme.palette.mode }
-  };
+    stroke: {
+        width: 2,
+        curve: 'straight' // No smoothing, raw data
+    },
+    tooltip: {
+        theme: theme.palette.mode,
+        style: { fontFamily: '"JetBrains Mono", monospace' }
+    }
+  }), [theme]);
 
-  const paretoOptions: ApexCharts.ApexOptions = {
+  const paretoOptions: ApexCharts.ApexOptions = useMemo(() => ({
     ...commonChartOptions,
     chart: { ...commonChartOptions.chart, type: 'line' },
-    colors: [theme.palette.primary.main, theme.palette.text.primary],
-    stroke: { width: [0, 3], curve: 'smooth' },
+    colors: [theme.palette.primary.main, theme.palette.secondary.main],
+    stroke: { width: [0, 2], curve: 'straight' },
     plotOptions: {
-      bar: { columnWidth: '60%', borderRadius: 4 }
+      bar: { columnWidth: '50%', borderRadius: 0 } // Sharp bars
     },
     dataLabels: { enabled: false },
     xaxis: {
         categories: paretoData.map((d: any) => d.category),
-        labels: { style: { colors: theme.palette.text.secondary } }
+        labels: {
+            style: {
+                colors: theme.palette.text.secondary,
+                fontFamily: '"JetBrains Mono", monospace'
+            }
+        }
     },
     yaxis: [
-      { title: { text: 'Valor Total' } },
-      { opposite: true, title: { text: 'Acumulado %' }, max: 100 }
+      {
+          title: { text: 'VALOR (R$)', style: { fontFamily: '"Space Grotesk", sans-serif' } },
+          labels: { formatter: (val) => val.toFixed(0) }
+      },
+      {
+          opposite: true,
+          title: { text: 'ACUMULADO %', style: { fontFamily: '"Space Grotesk", sans-serif' } },
+          max: 100
+      }
     ],
-    legend: { position: 'top' }
-  };
+    legend: { position: 'top', fontFamily: '"Space Grotesk", sans-serif' }
+  }), [commonChartOptions, paretoData, theme]);
 
-  const paretoSeries = [
+  const paretoSeries = useMemo(() => [
     { name: 'Valor (R$)', type: 'column', data: paretoData.map((d: any) => d.value) },
     { name: '% Acumulado', type: 'line', data: paretoData.map((d: any) => d.accumulatedPercentage) }
-  ];
+  ], [paretoData]);
 
   return (
     <PageContainer scrollable>
       <PageHeader
-          title="Dashboard"
-          description="Visão Geral Operacional"
+          title="DASHBOARD"
+          description={`STATUS DO SISTEMA: ${items.length > 0 ? 'OPERACIONAL' : 'INICIANDO'}`}
       />
 
-      <Grid container spacing={3} sx={{ mb: 4 }}>
-        {/* Metrics */}
-        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        {/* Metric Cards with Staggered Animation */}
+        <div className="animate-slide-up" style={{ animationDelay: '0ms' }}>
              <MetricCard
-                title="Total de Itens"
+                title="TOTAL DE ITENS"
                 value={totalItems}
-                icon={<Inventory2Icon />}
+                icon={<Inventory2SharpIcon />}
                 color="primary"
                 onClick={() => navigate('/inventory')}
              />
-        </Grid>
-        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+        </div>
+        <div className="animate-slide-up" style={{ animationDelay: '100ms' }}>
              <MetricCard
-                title="Valor em Estoque"
+                title="VALOR EM ESTOQUE"
                 value={`R$ ${totalValue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`}
-                icon={<PaymentsIcon />}
-                color="success"
+                icon={<PaymentsSharpIcon />}
+                color="success" // Emerald
              />
-        </Grid>
-        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+        </div>
+        <div className="animate-slide-up" style={{ animationDelay: '200ms' }}>
              <MetricCard
-                title="Baixo Estoque"
+                title="BAIXO ESTOQUE"
                 value={lowStockItems.length}
-                subtitle={outOfStockItems.length > 0 ? `${outOfStockItems.length} zerados` : undefined}
-                icon={<WarningIcon />}
-                color="warning"
+                subtitle={outOfStockItems.length > 0 ? `${outOfStockItems.length} ZERADOS` : undefined}
+                icon={<WarningSharpIcon />}
+                color="warning" // Amber
              />
-        </Grid>
-        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+        </div>
+        <div className="animate-slide-up" style={{ animationDelay: '300ms' }}>
              <MetricCard
-                title="A Vencer"
+                title="A VENCER"
                 value={expiringItems.length}
-                icon={<EventBusyIcon />}
-                color="error"
+                icon={<EventBusySharpIcon />}
+                color="error" // Red
              />
-        </Grid>
+        </div>
+      </div>
 
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 animate-slide-up" style={{ animationDelay: '400ms' }}>
         {/* Recent Transactions */}
-        <Grid size={{ xs: 12, lg: 8 }}>
-            <Card sx={{ height: '100%' }}>
+        <div className="lg:col-span-2 h-full">
+            <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
                 <CardHeader
-                    title="Movimentações Recentes"
-                    avatar={<HistoryIcon color="action" />}
+                    title={<Typography variant="h6" fontWeight="bold" letterSpacing={1}>MOVIMENTAÇÕES RECENTES</Typography>}
+                    avatar={<HistorySharpIcon color="action" />}
                     action={
-                        <Button size="small" endIcon={<ArrowForwardIcon />} onClick={() => navigate('/history')}>
-                            Ver Tudo
+                        <Button
+                            size="small"
+                            endIcon={<ArrowForwardSharpIcon />}
+                            onClick={() => navigate('/history')}
+                            sx={{ fontFamily: '"JetBrains Mono", monospace' }}
+                        >
+                            VER LOG
                         </Button>
                     }
+                    sx={{ borderBottom: 1, borderColor: 'divider', py: 1.5 }}
                 />
-                <Divider />
-                <TableContainer>
+                <TableContainer sx={{ flexGrow: 1 }}>
                     <Table size="small">
                         <TableHead>
                             <TableRow>
-                                <TableCell>Tipo</TableCell>
-                                <TableCell>Item</TableCell>
-                                <TableCell align="right">Qtd</TableCell>
-                                <TableCell align="right">Data</TableCell>
+                                <TableCell>TIPO</TableCell>
+                                <TableCell>ITEM / LOTE</TableCell>
+                                <TableCell align="right">QTD</TableCell>
+                                <TableCell align="right">DATA/HORA</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
@@ -157,29 +184,31 @@ export const Dashboard: React.FC<DashboardProps> = ({ items, history, onAddToPur
                                         <Chip
                                             label={tx.type}
                                             size="small"
+                                            // Using custom colors or mapping to success/warning/default
                                             color={tx.type === 'ENTRADA' ? 'success' : tx.type === 'SAIDA' ? 'default' : 'warning'}
-                                            variant="outlined"
+                                            variant="filled" // Solid filled chips for brutalist look
+                                            sx={{ borderRadius: 0, fontWeight: 'bold' }}
                                         />
                                     </TableCell>
                                     <TableCell>
-                                        <Typography variant="body2" fontWeight="medium">{tx.productName}</Typography>
-                                        <Typography variant="caption" color="textSecondary">Lote: {tx.lot}</Typography>
+                                        <Typography variant="body2" fontFamily='"Inter", sans-serif' fontWeight={600}>{tx.productName}</Typography>
+                                        <Typography variant="caption" color="textSecondary" fontFamily='"JetBrains Mono", monospace'>ID: {tx.lot}</Typography>
                                     </TableCell>
                                     <TableCell align="right">
-                                        <Typography variant="body2" fontWeight="bold">
+                                        <Typography variant="body2" fontFamily='"JetBrains Mono", monospace' fontWeight="bold">
                                             {tx.quantity} <Typography component="span" variant="caption">{tx.unit}</Typography>
                                         </Typography>
                                     </TableCell>
                                     <TableCell align="right">
-                                        <Typography variant="caption">{formatDateTime(tx.date)}</Typography>
+                                        <Typography variant="caption" fontFamily='"JetBrains Mono", monospace'>{formatDateTime(tx.date)}</Typography>
                                     </TableCell>
                                 </TableRow>
                             ))}
                             {recentTransactions.length === 0 && (
                                 <TableRow>
                                     <TableCell colSpan={4} align="center">
-                                        <Typography variant="body2" color="textSecondary" sx={{ py: 3 }}>
-                                            Nenhuma movimentação recente.
+                                        <Typography variant="body2" color="textSecondary" sx={{ py: 4, fontFamily: '"JetBrains Mono", monospace' }}>
+                                            [SEM DADOS DE LOG]
                                         </Typography>
                                     </TableCell>
                                 </TableRow>
@@ -188,118 +217,129 @@ export const Dashboard: React.FC<DashboardProps> = ({ items, history, onAddToPur
                     </Table>
                 </TableContainer>
             </Card>
-        </Grid>
+        </div>
 
-        {/* Action Required & Charts */}
-        <Grid size={{ xs: 12, lg: 4 }}>
-            <Grid container spacing={3} direction="column">
-                
-                {/* Action Items */}
-                <Grid size={{ xs: 12 }}>
-                    <Card sx={{ borderLeft: 4, borderColor: 'warning.main' }}>
-                        <CardHeader
-                            title="Ação Necessária"
-                            action={
-                                (lowStockItems.length + expiringItems.length) > 0 &&
-                                <Chip label={lowStockItems.length + expiringItems.length} color="error" size="small" />
-                            }
+        {/* Action Items & Charts */}
+        <div className="lg:col-span-1 space-y-6">
+
+            {/* Action Items */}
+            <Card sx={{ borderLeft: 4, borderColor: 'warning.main' }}>
+                <CardHeader
+                    title={<Typography variant="subtitle1" fontWeight="bold">AÇÃO NECESSÁRIA</Typography>}
+                    action={
+                        (lowStockItems.length + expiringItems.length) > 0 &&
+                        <Chip
+                            label={lowStockItems.length + expiringItems.length}
+                            color="error"
+                            size="small"
+                            sx={{ borderRadius: 0 }}
                         />
-                        <CardContent sx={{ pt: 0, maxHeight: 400, overflowY: 'auto' }}>
-                             {/* Low Stock */}
-                             {lowStockItems.slice(0, 3).map(item => (
-                                <Box key={item.id} sx={{ mb: 2, p: 1.5, bgcolor: 'warning.light', borderRadius: 1, color: 'warning.contrastText' }}>
-                                    <Box display="flex" justifyContent="space-between" alignItems="center">
-                                        <Typography variant="subtitle2" noWrap sx={{ maxWidth: '70%' }}>{item.name}</Typography>
-                                        <Typography variant="caption" fontWeight="bold">{item.quantity} / {item.minStockLevel} {item.baseUnit}</Typography>
-                                    </Box>
-                                    <Button
-                                        size="small"
-                                        variant="contained"
-                                        color="warning"
-                                        fullWidth
-                                        sx={{ mt: 1 }}
-                                        onClick={() => onAddToPurchase(item, 'LOW_STOCK')}
-                                        startIcon={<AddShoppingCartIcon />}
-                                    >
-                                        Repor Estoque
-                                    </Button>
-                                </Box>
-                             ))}
-
-                             {/* Expiring */}
-                             {expiringItems.slice(0, 3).map(item => (
-                                <Box key={item.id} sx={{ mb: 2, p: 1.5, bgcolor: 'error.light', borderRadius: 1, color: 'error.contrastText' }}>
-                                    <Box display="flex" justifyContent="space-between" alignItems="center">
-                                        <Typography variant="subtitle2" noWrap sx={{ maxWidth: '70%' }}>{item.name}</Typography>
-                                        <Typography variant="caption" fontWeight="bold">Vence: {formatDate(item.expiryDate)}</Typography>
-                                    </Box>
-                                    <Button
-                                        size="small"
-                                        variant="contained"
-                                        color="error"
-                                        fullWidth
-                                        sx={{ mt: 1 }}
-                                        onClick={() => onAddToPurchase(item, 'EXPIRING')}
-                                        startIcon={<AddShoppingCartIcon />}
-                                    >
-                                        Repor (Vencimento)
-                                    </Button>
-                                </Box>
-                             ))}
-
-                             {(lowStockItems.length === 0 && expiringItems.length === 0) && (
-                                <Typography variant="body2" color="textSecondary" align="center">
-                                    Tudo certo! Nenhuma ação pendente.
-                                </Typography>
-                             )}
-                        </CardContent>
-                    </Card>
-                </Grid>
-
-                {/* Pareto Chart */}
-                <Grid size={{ xs: 12 }}>
-                    <Card>
-                        <CardHeader title="Top Categorias (Pareto)" />
-                        <CardContent>
-                            <Box sx={{ height: 300 }}>
-                                <Chart options={paretoOptions} series={paretoSeries} type="line" height="100%" />
+                    }
+                    sx={{ py: 1 }}
+                />
+                <Divider />
+                <CardContent sx={{ pt: 2, maxHeight: 400, overflowY: 'auto' }}>
+                        {/* Low Stock */}
+                        {lowStockItems.slice(0, 3).map(item => (
+                        <Box key={item.id} sx={{ mb: 2, p: 1.5, bgcolor: 'warning.light', border: '1px solid', borderColor: 'warning.main', color: 'warning.contrastText' }}>
+                            <Box display="flex" justifyContent="space-between" alignItems="center">
+                                <Typography variant="subtitle2" noWrap sx={{ maxWidth: '70%', fontFamily: '"Inter", sans-serif' }}>{item.name}</Typography>
+                                <Typography variant="caption" fontFamily='"JetBrains Mono", monospace' fontWeight="bold">{item.quantity} / {item.minStockLevel} {item.baseUnit}</Typography>
                             </Box>
-                        </CardContent>
-                    </Card>
-                </Grid>
-            </Grid>
-        </Grid>
-      </Grid>
+                            <Button
+                                size="small"
+                                variant="outlined" // Outlined for contrast on colored bg
+                                color="inherit"
+                                fullWidth
+                                sx={{ mt: 1, bgcolor: 'rgba(255,255,255,0.2)' }}
+                                onClick={() => onAddToPurchase(item, 'LOW_STOCK')}
+                                startIcon={<AddShoppingCartSharpIcon />}
+                            >
+                                REPOR ESTOQUE
+                            </Button>
+                        </Box>
+                        ))}
+
+                        {/* Expiring */}
+                        {expiringItems.slice(0, 3).map(item => (
+                        <Box key={item.id} sx={{ mb: 2, p: 1.5, bgcolor: 'error.light', border: '1px solid', borderColor: 'error.main', color: 'error.contrastText' }}>
+                            <Box display="flex" justifyContent="space-between" alignItems="center">
+                                <Typography variant="subtitle2" noWrap sx={{ maxWidth: '70%' }}>{item.name}</Typography>
+                                <Typography variant="caption" fontFamily='"JetBrains Mono", monospace' fontWeight="bold">VENCE: {formatDate(item.expiryDate)}</Typography>
+                            </Box>
+                            <Button
+                                size="small"
+                                variant="outlined"
+                                color="inherit"
+                                fullWidth
+                                sx={{ mt: 1, bgcolor: 'rgba(255,255,255,0.2)' }}
+                                onClick={() => onAddToPurchase(item, 'EXPIRING')}
+                                startIcon={<AddShoppingCartSharpIcon />}
+                            >
+                                REPOR (VENCIMENTO)
+                            </Button>
+                        </Box>
+                        ))}
+
+                        {(lowStockItems.length === 0 && expiringItems.length === 0) && (
+                        <Typography variant="body2" color="textSecondary" align="center" fontFamily='"JetBrains Mono", monospace'>
+                            [SISTEMA OK]
+                        </Typography>
+                        )}
+                </CardContent>
+            </Card>
+
+            {/* Pareto Chart */}
+            <Card>
+                <CardHeader title={<Typography variant="subtitle1" fontWeight="bold">ANÁLISE PARETO (ABC)</Typography>} sx={{ py: 1.5 }} />
+                <Divider />
+                <CardContent>
+                    <Box sx={{ height: 280 }}>
+                        <Chart options={paretoOptions} series={paretoSeries} type="line" height="100%" />
+                    </Box>
+                </CardContent>
+            </Card>
+        </div>
+      </div>
     </PageContainer>
   );
 };
 
 const MetricCard = ({ title, value, icon, color, onClick, subtitle }: any) => (
     <Card
-      sx={{ height: '100%', cursor: onClick ? 'pointer' : 'default', position: 'relative' }}
+      sx={{
+          height: '100%',
+          cursor: onClick ? 'pointer' : 'default',
+          position: 'relative',
+          transition: 'transform 0.2s',
+          '&:hover': onClick ? { transform: 'translateY(-2px)' } : {}
+      }}
       onClick={onClick}
-      elevation={2}
+      elevation={0} // Flat
+      variant="outlined" // Sharp border
     >
-        <CardContent sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <CardContent sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', p: 2 }}>
             <Box>
-                <Typography color="textSecondary" gutterBottom variant="overline">
+                <Typography color="textSecondary" variant="overline" display="block" sx={{ lineHeight: 1.2, mb: 1 }}>
                     {title}
                 </Typography>
-                <Typography variant="h4" component="div" fontWeight="bold">
+                <Typography variant="h4" component="div" fontWeight="bold" fontFamily='"JetBrains Mono", monospace' sx={{ letterSpacing: '-0.05em' }}>
                     {value}
                 </Typography>
                 {subtitle && (
-                    <Typography variant="caption" color="error">
-                        {subtitle}
+                    <Typography variant="caption" color="error" sx={{ mt: 1, display: 'block', fontFamily: '"JetBrains Mono", monospace' }}>
+                        [{subtitle}]
                     </Typography>
                 )}
             </Box>
             <Box sx={{
-                bgcolor: `${color}.light`,
                 color: `${color}.main`,
-                p: 1.5,
-                borderRadius: '50%',
-                display: 'flex'
+                p: 1,
+                border: '1px solid',
+                borderColor: `${color}.light`,
+                bgcolor: `${color}.light`, // Solid background for icon
+                display: 'flex',
+                borderRadius: 0 // Sharp icon box
             }}>
                 {icon}
             </Box>
