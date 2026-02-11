@@ -9,3 +9,7 @@
 ## 2025-02-14 - Date Sorting Optimization
 **Learning:** Sorting arrays of objects by date using `new Date(b.date).getTime() - new Date(a.date).getTime()` is significantly slower (~10-15x) than string comparison `b.date > a.date ? 1 : -1` for ISO date strings, due to the overhead of creating Date objects.
 **Action:** For ISO 8601 date strings, always use lexicographical string comparison instead of parsing to Date objects for sorting.
+
+## 2025-02-14 - IndexedDB Range Queries
+**Learning:** Loading entire collections into memory then filtering with JavaScript (e.g. `collection.toArray().filter()`) is inefficient for large datasets.
+**Action:** Always prefer Dexie's `where().aboveOrEqual()` or `between()` to leverage IndexedDB indices, significantly reducing the amount of data transferred from IDB to JS memory.
