@@ -40,34 +40,43 @@ export const PurchaseAlertCard: React.FC<Props> = React.memo(({ item, onAdd, rea
         };
     }, [item.quantity, item.expiryDate, reason]);
 
+    const handleKeyDown = (e: React.KeyboardEvent) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            onAdd(item);
+        }
+    };
+
     return (
-        <Card
-            variant="item"
-            colorScheme={config.scheme}
-            title={item.name}
-            subtitle={`SAP: ${item.sapCode || 'N/A'}`}
-            badge={{ 
-                label: config.badge, 
-                color: config.badgeColor 
-            }}
-            action={
-                <Button 
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => onAdd(item)}
-                    className="text-primary font-bold hover:bg-primary/10"
-                    icon="add_circle"
-                >
-                    Adicionar
-                </Button>
-            }
-        >
-            <div>
-                <p className="text-sm text-text-secondary dark:text-gray-400">Estoque Atual</p>
-                <p className="text-2xl font-bold text-text-main dark:text-white tracking-tight">
-                    {item.quantity}<span className="text-sm font-normal text-text-secondary ml-0.5">{item.baseUnit}</span>
-                </p>
-            </div>
-        </Card>
+        <div role="button" tabIndex={0} onKeyDown={handleKeyDown}>
+            <Card
+                variant="item"
+                colorScheme={config.scheme}
+                title={item.name}
+                subtitle={`SAP: ${item.sapCode || 'N/A'}`}
+                badge={{
+                    label: config.badge,
+                    color: config.badgeColor
+                }}
+                action={
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={(e) => { e.stopPropagation(); onAdd(item); }}
+                        className="text-primary font-bold hover:bg-primary/10"
+                        icon="add_circle"
+                    >
+                        Adicionar
+                    </Button>
+                }
+            >
+                <div>
+                    <p className="text-sm text-text-secondary dark:text-gray-400">Estoque Atual</p>
+                    <p className="text-2xl font-bold text-text-main dark:text-white tracking-tight">
+                        {item.quantity}<span className="text-sm font-normal text-text-secondary ml-0.5">{item.baseUnit}</span>
+                    </p>
+                </div>
+            </Card>
+        </div>
     );
 });

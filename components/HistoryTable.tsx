@@ -124,11 +124,19 @@ export const HistoryTable: React.FC<Props> = ({ preselectedItemId, preselectedBa
       loading
   } = useHistoryFilters(preselectedItemId, preselectedBatchId);
 
+  const [isMobile, setIsMobile] = React.useState(window.innerWidth < 768);
+
+  React.useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   const sampleBatch = filtered.length > 0 ? filtered[0] : null;
   const itemData = useMemo(() => ({ filtered }), [filtered]);
 
   return (
-    <PageContainer scrollable={true}>
+    <PageContainer scrollable={isMobile}>
         <PageHeader 
             title="Histórico de Movimentações" 
             description="Auditoria completa de entradas, saídas e ajustes de inventário."
@@ -270,19 +278,27 @@ export const HistoryTable: React.FC<Props> = ({ preselectedItemId, preselectedBa
                         <Typography>Carregando...</Typography>
                     </Box>
                 ) : filtered.length > 0 ? (
-                    <AutoSizer>
-                        {({ height, width }: { height: number; width: number }) => (
-                            <List
-                                height={height}
-                                itemCount={filtered.length}
-                                itemSize={72}
-                                width={width}
-                                itemData={itemData}
-                            >
-                                {HistoryRow}
-                            </List>
-                        )}
-                    </AutoSizer>
+                    isMobile ? (
+                        <Box sx={{ pb: 2 }}>
+                            {filtered.map((item, index) => (
+                                <HistoryRow key={item.id || index} index={index} style={{}} data={itemData} />
+                            ))}
+                        </Box>
+                    ) : (
+                        <AutoSizer>
+                            {({ height, width }: { height: number; width: number }) => (
+                                <List
+                                    height={height}
+                                    itemCount={filtered.length}
+                                    itemSize={72}
+                                    width={width}
+                                    itemData={itemData}
+                                >
+                                    {HistoryRow}
+                                </List>
+                            )}
+                        </AutoSizer>
+                    )
                 ) : (
                     <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', color: 'text.secondary' }}>
                         <HistoryToggleOffIcon sx={{ fontSize: 60, mb: 2, opacity: 0.5 }} />

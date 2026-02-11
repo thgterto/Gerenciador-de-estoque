@@ -82,6 +82,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
                                 to={item.path}
                                 selected={isActive}
                                 onClick={onClose} // Close drawer on mobile click
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter' || e.key === ' ') {
+                                        onClose();
+                                    }
+                                }}
                                 sx={{
                                     borderRadius: 2,
                                     '&.active': {

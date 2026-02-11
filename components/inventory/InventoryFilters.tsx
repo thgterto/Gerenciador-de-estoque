@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
-    TextField, MenuItem, FormControlLabel, Switch, Chip, Stack, Card, InputAdornment, ToggleButton, ToggleButtonGroup, Box, Typography
+    TextField, MenuItem, FormControlLabel, Switch, Chip, Stack, Card, InputAdornment, ToggleButton, ToggleButtonGroup, Box, Typography, Collapse, Button
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
+import FilterListIcon from '@mui/icons-material/FilterList';
+import Grid from '@mui/material/Grid';
 
 interface InventoryFiltersProps {
     term: string;
@@ -29,75 +31,102 @@ export const InventoryFilters: React.FC<InventoryFiltersProps> = ({
     uniqueLocations,
     uniqueCategories,
 }) => {
+    const [showAdvanced, setShowAdvanced] = useState(false);
+
     return (
         <Card variant="outlined" sx={{ p: 2, mb: 3 }}>
-             <Stack direction={{ xs: 'column', lg: 'row' }} spacing={3} alignItems="start">
-                <TextField
-                    label="Busca Rápida"
-                    placeholder="Nome, SKU, CAS ou lote..."
-                    value={term}
-                    onChange={e => setTerm(e.target.value)}
-                    fullWidth
-                    InputProps={{
-                        startAdornment: <InputAdornment position="start"><SearchIcon color="action" /></InputAdornment>,
-                    }}
-                    size="small"
-                />
-
-                <Box>
-                    <Typography variant="caption" fontWeight="bold" display="block" mb={0.5} color="text.secondary">STATUS</Typography>
-                    <ToggleButtonGroup
-                        value={statusFilter}
-                        exclusive
-                        onChange={(_e, val) => val && setStatusFilter(val)}
+             <Grid container spacing={2} alignItems="center">
+                {/* Search Bar - Always Visible and takes main space */}
+                <Grid size={{ xs: 12, md: 6, lg: 7 }}>
+                    <TextField
+                        placeholder="Buscar por Nome, SKU, CAS ou lote..."
+                        value={term}
+                        onChange={e => setTerm(e.target.value)}
+                        fullWidth
+                        hiddenLabel
+                        InputProps={{
+                            startAdornment: <InputAdornment position="start"><SearchIcon color="action" /></InputAdornment>,
+                        }}
                         size="small"
-                        sx={{ height: 40 }}
-                    >
-                        <ToggleButton value="ALL">Todos</ToggleButton>
-                        <ToggleButton value="LOW_STOCK">Baixo</ToggleButton>
-                        <ToggleButton value="EXPIRED">Vencidos</ToggleButton>
-                    </ToggleButtonGroup>
-                </Box>
+                        sx={{ bgcolor: 'background.default' }}
+                    />
+                </Grid>
 
-                <TextField
-                    select
-                    label="Localização"
-                    value={locationFilter}
-                    onChange={e => setLocationFilter(e.target.value)}
-                    sx={{ minWidth: 200 }}
-                    size="small"
-                    fullWidth
-                >
-                    <MenuItem value="">Todas Localizações</MenuItem>
-                    {uniqueLocations.map(loc => (
-                        <MenuItem key={loc} value={loc}>{loc}</MenuItem>
-                    ))}
-                </TextField>
-             </Stack>
-
-             <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} alignItems="center" sx={{ mt: 2, pt: 2, borderTop: 1, borderColor: 'divider' }}>
-                <FormControlLabel
-                    control={<Switch checked={hideZeroStock} onChange={(e) => setHideZeroStock(e.target.checked)} />}
-                    label={<Typography variant="body2" color="text.secondary">Ocultar itens sem estoque</Typography>}
-                />
-
-                <Box sx={{ height: 24, width: 1, bgcolor: 'divider', display: { xs: 'none', sm: 'block' } }} />
-
-                <Stack direction="row" spacing={1} alignItems="center" overflow="auto" pb={0.5} sx={{ width: '100%' }}>
-                    <Typography variant="caption" fontWeight="bold" color="text.secondary" noWrap>FILTRO RÁPIDO:</Typography>
-                    {uniqueCategories.map((cat) => (
-                         <Chip
-                            key={cat}
-                            label={cat || 'Todas'}
-                            onClick={() => setCatFilter(cat)}
-                            variant={catFilter === cat ? 'filled' : 'outlined'}
-                            color={catFilter === cat ? 'primary' : 'default'}
+                {/* Mobile Filter Toggle */}
+                <Grid size={{ xs: 12, md: 6, lg: 5 }} container spacing={2} justifyContent="flex-end">
+                     <Grid size={{ xs: 6, sm: 'auto' }}>
+                        <ToggleButtonGroup
+                            value={statusFilter}
+                            exclusive
+                            onChange={(_e, val) => val && setStatusFilter(val)}
                             size="small"
-                            clickable
-                         />
-                    ))}
-                </Stack>
-             </Stack>
+                            sx={{ height: 40, width: '100%' }}
+                        >
+                            <ToggleButton value="ALL" sx={{ flexGrow: 1 }}>Todos</ToggleButton>
+                            <ToggleButton value="LOW_STOCK" sx={{ flexGrow: 1 }}>Baixo</ToggleButton>
+                            <ToggleButton value="EXPIRED" sx={{ flexGrow: 1 }}>Vencidos</ToggleButton>
+                        </ToggleButtonGroup>
+                     </Grid>
+                     <Grid size={{ xs: 6, sm: 'auto' }}>
+                        <Button
+                            variant={showAdvanced ? "contained" : "outlined"}
+                            color="primary"
+                            size="medium"
+                            onClick={() => setShowAdvanced(!showAdvanced)}
+                            startIcon={<FilterListIcon />}
+                            sx={{ height: 40, width: '100%' }}
+                        >
+                            Filtros
+                        </Button>
+                     </Grid>
+                </Grid>
+             </Grid>
+
+             <Collapse in={showAdvanced}>
+                <Box sx={{ mt: 2, pt: 2, borderTop: 1, borderColor: 'divider' }}>
+                    <Grid container spacing={2} alignItems="center">
+                        <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+                            <TextField
+                                select
+                                label="Localização"
+                                value={locationFilter}
+                                onChange={e => setLocationFilter(e.target.value)}
+                                size="small"
+                                fullWidth
+                            >
+                                <MenuItem value="">Todas Localizações</MenuItem>
+                                {uniqueLocations.map(loc => (
+                                    <MenuItem key={loc} value={loc}>{loc}</MenuItem>
+                                ))}
+                            </TextField>
+                        </Grid>
+                        <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+                             <FormControlLabel
+                                control={<Switch checked={hideZeroStock} onChange={(e) => setHideZeroStock(e.target.checked)} />}
+                                label={<Typography variant="body2" color="text.secondary">Ocultar itens sem estoque</Typography>}
+                            />
+                        </Grid>
+                    </Grid>
+
+                    <Box sx={{ mt: 2 }}>
+                        <Typography variant="caption" fontWeight="bold" color="text.secondary" mb={1} display="block">CATEGORIAS:</Typography>
+                        <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap sx={{ mt: 1 }}>
+                            {uniqueCategories.map((cat) => (
+                                <Chip
+                                    key={cat}
+                                    label={cat || 'Todas'}
+                                    onClick={() => setCatFilter(cat)}
+                                    variant={catFilter === cat ? 'filled' : 'outlined'}
+                                    color={catFilter === cat ? 'primary' : 'default'}
+                                    size="small"
+                                    clickable
+                                    sx={{ mb: 1 }}
+                                />
+                            ))}
+                        </Stack>
+                    </Box>
+                </Box>
+             </Collapse>
         </Card>
     );
 };

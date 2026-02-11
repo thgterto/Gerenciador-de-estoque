@@ -361,9 +361,15 @@ export const TutorialModal: React.FC<Props> = ({ isOpen, onClose, setTab }) => {
                     <label className="flex items-center gap-2 cursor-pointer group select-none opacity-80 hover:opacity-100 transition-opacity">
                         <input 
                             type="checkbox" 
+                            aria-label="Não mostrar novamente"
                             className="rounded border-border-light dark:border-gray-600 text-primary focus:ring-primary w-3.5 h-3.5 cursor-pointer dark:bg-slate-800"
                             checked={dontShowAgain}
                             onChange={(e) => setDontShowAgain(e.target.checked)}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                    setDontShowAgain(!dontShowAgain);
+                                }
+                            }}
                         />
                         <span className="text-[11px] font-medium text-text-secondary dark:text-gray-400 group-hover:text-primary transition-colors">
                             Não mostrar novamente

@@ -44,6 +44,7 @@ export const InventoryChildRow = React.memo(({
     item, 
     style,
     isSelected, 
+    onSelect,
     onActions,
     copyToClipboard,
     isLast
@@ -65,8 +66,17 @@ export const InventoryChildRow = React.memo(({
     }
 
     return (
-        <div style={style}>
+        <div style={style} role="row">
             <Box
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        onSelect(item.id);
+                    }
+                }}
+                onClick={() => onSelect(item.id)}
                 sx={{
                     height: '100%',
                     position: 'relative',
@@ -74,7 +84,8 @@ export const InventoryChildRow = React.memo(({
                     borderColor: 'divider',
                     bgcolor: isSelected ? 'action.selected' : 'background.paper',
                     '&:hover': { bgcolor: 'action.hover' },
-                    transition: 'background-color 0.2s'
+                    transition: 'background-color 0.2s',
+                    cursor: 'pointer'
                 }}
             >
                 <Box sx={{ position: 'absolute', left: 20, top: 0, bottom: '50%', width: 1, borderLeft: '1px dashed', borderColor: 'divider' }} />
@@ -176,8 +187,17 @@ export const InventoryGroupRow = React.memo(({
     const someSelected = items.some(i => selectedChildIds.has(i.id));
 
     return (
-        <div style={style}>
+        <div style={style} role="row">
             <Box
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        toggleExpand();
+                    }
+                }}
+                onClick={toggleExpand}
                 sx={{
                     height: '100%',
                     borderBottom: 1,
@@ -186,7 +206,6 @@ export const InventoryGroupRow = React.memo(({
                     bgcolor: isExpanded ? 'action.selected' : 'background.paper',
                     '&:hover': { bgcolor: 'action.hover' }
                 }}
-                onClick={toggleExpand}
             >
                 <Box sx={{ display: 'grid', gridTemplateColumns: GRID_TEMPLATE, alignItems: 'center', height: '100%', px: 2 }}>
                     

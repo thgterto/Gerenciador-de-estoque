@@ -295,7 +295,7 @@ export const Settings: React.FC = () => {
 
     return (
         <PageContainer scrollable={true} className="pb-20">
-            <div className="flex flex-col gap-8 max-w-6xl mx-auto w-full">
+            <div className="flex flex-col gap-8 w-full">
                 <div className="flex flex-col gap-2 border-b border-border-light dark:border-border-dark pb-6">
                     <h1 className="text-3xl font-black tracking-tight text-text-main dark:text-white">Configurações e Sistema</h1>
                     <p className="text-text-secondary dark:text-gray-400 text-base max-w-2xl">
@@ -351,7 +351,7 @@ export const Settings: React.FC = () => {
 
                         <Card padding="p-6">
                             <div className="flex items-center gap-3 mb-4 text-text-main dark:text-white relative z-10">
-                                <div className="p-2 bg-purple-50 dark:bg-purple-900/30 rounded-lg text-purple-600 dark:text-purple-300">
+                                <div className="p-2 bg-teal-50 dark:bg-teal-900/30 rounded-lg text-teal-600 dark:text-teal-300">
                                     <span className="material-symbols-outlined text-xl">fact_check</span>
                                 </div>
                                 <h3 className="text-lg font-bold">Auditoria de Integridade</h3>

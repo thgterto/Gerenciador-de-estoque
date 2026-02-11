@@ -211,6 +211,7 @@ export const QuickScanModal: React.FC<Props> = ({ isOpen, onClose }) => {
                                     <div className="flex-1">
                                          <input 
                                             type="number" 
+                                            aria-label="Quantidade"
                                             value={quantity}
                                             onChange={(e) => setQuantity(e.target.value)}
                                             className="w-full text-center font-bold text-xl bg-transparent border-b border-border-light dark:border-border-dark py-1 focus:outline-none focus:border-primary"
