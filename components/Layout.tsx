@@ -50,7 +50,7 @@ export const Layout: React.FC<LayoutProps> = ({
                     notificationsCount={notificationsCount}
                     onMenuClick={() => setSidebarOpen(true)}
                 />
-                <main className="flex-1 overflow-hidden relative flex flex-col">
+                <main className="flex-1 overflow-auto relative flex flex-col custom-scrollbar">
                     {children}
                 </main>
                 <PersistenceStatus />
