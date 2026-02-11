@@ -1,20 +1,21 @@
 # LabControl - Sistema de Gestão Laboratorial
 
-![Version](https://img.shields.io/badge/version-1.8.2-blue)
+![Version](https://img.shields.io/badge/version-1.8.3-blue)
 ![Architecture](https://img.shields.io/badge/Architecture-Portable--Electron-success)
 ![Stack](https://img.shields.io/badge/Stack-React_19_|_TypeScript_|_Tailwind-903A40)
-![Storage](https://img.shields.io/badge/Storage-SQLite_via_Better--Sqlite3-293141)
+![Storage](https://img.shields.io/badge/Storage-IndexedDB_via_Dexie-293141)
 
-O **LabControl** é uma plataforma de missão crítica para gestão de inventário laboratorial. Agora operando como uma **Aplicação Desktop Portátil (Electron)**, o sistema garante integridade de dados localmente (SQLite), eliminando a necessidade de conexão com internet ou servidores externos.
+O **LabControl** é uma plataforma de missão crítica para gestão de inventário laboratorial. Agora operando como uma **Aplicação Desktop Portátil (Electron)**, o sistema garante integridade de dados localmente (IndexedDB/V2), eliminando a necessidade de conexão com internet ou servidores externos.
 
 ---
 
-## 🚀 Versão 1.8.2 (Portátil)
+## 🚀 Versão 1.8.3 (Portátil)
 
 Esta versão migra o backend para uma arquitetura local e portátil:
 
-*   **Execução Local (Portable):** O sistema roda diretamente do executável, armazenando dados em uma pasta `labcontrol_data` adjacente ao aplicativo. Isso permite transportar o sistema e seus dados em um pendrive.
-*   **Backend SQLite:** Substituição do Google Apps Script por um backend Node.js embutido usando SQLite, garantindo transações ACID e alta performance.
+*   **Execução Local (Portable):** O sistema roda diretamente do executável, armazenando dados localmente. Isso permite transportar o sistema e seus dados em um pendrive.
+*   **Persistência Híbrida (V2):** Substituição do Google Apps Script por um backend local utilizando IndexedDB (via Dexie.js) para armazenamento robusto e suporte offline completo.
+*   **Gerenciador de Compras e Logs:** Persistência local de rascunhos de compras e logs do sistema, garantindo rastreabilidade sem dependência de nuvem.
 *   **Smart Merge & Importação:** Mantém as capacidades de importação inteligente e detecção de duplicatas.
 *   **React 19 Core:** Atualização completa do core e remoção de APIs depreciadas.
 

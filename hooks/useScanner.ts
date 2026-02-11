@@ -16,6 +16,7 @@ export const useScanner = ({ onScan, onError, aspectRatio = 1.0 }: UseScannerPro
     
     const scannerRef = useRef<Html5Qrcode | null>(null);
     const isMounted = useRef(false);
+    const isStarting = useRef(false);
 
     const playBeep = useCallback(() => {
         try {
@@ -56,13 +57,20 @@ export const useScanner = ({ onScan, onError, aspectRatio = 1.0 }: UseScannerPro
     }, []);
 
     const startScanner = useCallback(async () => {
-        // Previne múltiplas inicializações
-        if (isScanning || scannerRef.current) return;
+        // Previne múltiplas inicializações e race conditions
+        if (isScanning || isStarting.current) return;
 
         const element = document.getElementById(elementId);
         if (!element) return;
 
+        isStarting.current = true;
+
         try {
+            // Ensure any previous instance is cleaned
+            if (scannerRef.current) {
+                await cleanup();
+            }
+
             const scanner = new Html5Qrcode(elementId, {
                 formatsToSupport: [
                     Html5QrcodeSupportedFormats.QR_CODE,
@@ -114,21 +122,33 @@ export const useScanner = ({ onScan, onError, aspectRatio = 1.0 }: UseScannerPro
                 if (onError) onError(msg);
             }
             await cleanup();
+        } finally {
+            isStarting.current = false;
         }
     }, [elementId, aspectRatio, onScan, onError, playBeep, cleanup, isScanning]);
 
     // Controle de Ciclo de Vida
     useEffect(() => {
         isMounted.current = true;
+
+        // Pequeno delay para garantir que o DOM foi renderizado
+        // e evitar conflito com strict mode double-invocations imediatas
+        const timer = setTimeout(() => {
+            if (isMounted.current) {
+                 startScanner();
+            }
+        }, 100);
+
         return () => {
             isMounted.current = false;
+            clearTimeout(timer);
             cleanup();
         };
-    }, [cleanup]);
+    }, [startScanner, cleanup]); // cleanup and startScanner are stable via useCallback
 
     return {
         elementId,
-        startScanner,
+        startScanner, // Expose manual retry if needed
         stopScanner: cleanup,
         isScanning,
         error

@@ -87,3 +87,17 @@ Para evitar duplicação de dados ao re-importar planilhas ou sincronizar dados:
 5.  **Service** chama `db.transaction`.
 6.  **HybridStorage** atualiza cache L1 e notifica `useInventoryData` (React re-renderiza).
 7.  **Dexie** comita dados no IndexedDB em background.
+
+---
+
+## 5. Serviços Auxiliares (Persistência Offline)
+
+### 5.1 Sistema de Logs (`systemLogs`)
+*   **Tabela:** `systemLogs`.
+*   **Uso:** Rastreamento de erros, ações críticas e diagnósticos.
+*   **Persistência:** Local (IndexedDB), com expurgo automático configurável (ex: 30 dias).
+
+### 5.2 Gerenciador de Compras (`localOrders`)
+*   **Tabela:** `localOrders`.
+*   **Uso:** Persistência de rascunhos de pedidos de compra e histórico de solicitações locais.
+*   **Estrutura:** Armazena o pedido completo (DTO) incluindo a lista de itens (`items: PurchaseRequestItem[]`) dentro do objeto do pedido, permitindo recuperação de estado complexo sem múltiplas tabelas relacionais (Document Store Pattern).
