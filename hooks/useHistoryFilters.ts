@@ -42,19 +42,6 @@ export const useHistoryFilters = (
                 // 1. Definição do Contexto da Query (Base Collection)
                 let collection;
                 
-                // Prioridade: Lote > Item > Todos
-                if (preselectedBatchId) {
-                    collection = db.rawDb.history.where('batchId').equals(preselectedBatchId);
-                } else if (preselectedItemId) {
-                    collection = db.rawDb.history.where('itemId').equals(preselectedItemId);
-                } else {
-                    // Ordenação padrão por data (índice composto seria ideal, mas 'date' funciona)
-                    collection = db.rawDb.history.orderBy('date');
-                }
-
-                // Sempre reverso (mais recente primeiro)
-                collection = collection.reverse();
-
                 // 2. Filtro de Data (Calculado antes para performance)
                 let minDate: string | null = null;
                 const now = new Date();
@@ -71,6 +58,22 @@ export const useHistoryFilters = (
                     d.setDate(d.getDate() - 30);
                     minDate = d.toISOString();
                 }
+
+                // Prioridade: Lote > Item > Filtro de Data > Todos
+                if (preselectedBatchId) {
+                    collection = db.rawDb.history.where('batchId').equals(preselectedBatchId);
+                } else if (preselectedItemId) {
+                    collection = db.rawDb.history.where('itemId').equals(preselectedItemId);
+                } else if (minDate && !debouncedTerm) {
+                    // Optimized: Use DB index for date range if no search term (which requires full scan unless using compound index)
+                    collection = db.rawDb.history.where('date').aboveOrEqual(minDate);
+                } else {
+                    // Ordenação padrão por data (índice composto seria ideal, mas 'date' funciona)
+                    collection = db.rawDb.history.orderBy('date');
+                }
+
+                // Sempre reverso (mais recente primeiro)
+                collection = collection.reverse();
 
                 // 3. Execução da Query com Filtragem no Worker do Dexie
                 // Nota: Usamos filter() JS dentro da chain do Dexie.

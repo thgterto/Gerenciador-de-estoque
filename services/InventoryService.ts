@@ -56,7 +56,8 @@ export const InventoryService = {
 
   async getHistory(): Promise<MovementRecord[]> {
     const history = await db.history.toArray();
-    return history.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    // Optimization: Use string comparison for ISO dates to avoid expensive Date object creation
+    return history.sort((a, b) => (b.date > a.date ? 1 : -1));
   },
 
   async getDashboardMetrics() {
