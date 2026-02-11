@@ -31,7 +31,7 @@ export const useECharts = (chartRef: MutableRefObject<HTMLDivElement | null>) =>
             if (resizeObserver) resizeObserver.disconnect();
             if (instance) instance.dispose();
         };
-    }, [chartRef]);
+    }, [chartRef]); // Added chartRef to dependencies as requested
 
     return chartInstance;
 };

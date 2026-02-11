@@ -17,15 +17,22 @@ export const BatchList: React.FC<BatchListProps> = ({ itemId, onViewHistory }) =
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
+        let isMounted = true;
+
         const load = async () => {
-            // Don't set loading on updates to avoid flickering
+            // Don't set loading on updates to avoid flickering if already loaded once
+            // But we do want to show loading on initial fetch
             try {
                 const data = await InventoryService.getItemBatchDetails(itemId);
-                setBatches(data);
+                if (isMounted) {
+                    setBatches(data);
+                }
             } catch (e) {
                 console.error("Failed to load batch details", e);
             } finally {
-                setLoading(false);
+                if (isMounted) {
+                    setLoading(false);
+                }
             }
         };
 
@@ -37,7 +44,10 @@ export const BatchList: React.FC<BatchListProps> = ({ itemId, onViewHistory }) =
             const unsubscribe = db.subscribe(() => {
                 load();
             });
-            return () => unsubscribe();
+            return () => {
+                isMounted = false;
+                unsubscribe();
+            };
         }
     }, [itemId]);
 

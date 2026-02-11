@@ -4,7 +4,7 @@
 Este documento rastreia o progresso do desenvolvimento do LabControl rumo à arquitetura V2 completa e funcionalidades avançadas de Gestão.
 
 ## 📊 Status Geral
-*   **Versão Atual:** 1.8.2
+*   **Versão Atual:** 1.8.3
 *   **Fase Atual:** Milestone 3 (Mobile & Field Ops)
 *   **Próxima Release Principal:** 1.9.0 (Previsão: Q3 2025)
 
@@ -18,6 +18,8 @@ Este documento rastreia o progresso do desenvolvimento do LabControl rumo à arq
 *   [x] Modelar Schema V2 (`catalog`, `batches`, `balances`).
 *   [x] Migração Automática V1 -> V2 no boot.
 *   [x] Ferramenta de Auditoria de Ledger (`runLedgerAudit`).
+*   [x] **Persistência de Logs:** Implementação do `LogService` com armazenamento em IndexedDB.
+*   [x] **Gerenciador de Compras Offline:** Persistência de rascunhos de compras (`db.localOrders`).
 
 ### ✅ Milestone 2: Motor de Importação & Migração (CONCLUÍDO)
 *Objetivo: Facilitar a carga de dados legados e planilhas externas.*
@@ -28,7 +30,7 @@ Este documento rastreia o progresso do desenvolvimento do LabControl rumo à arq
 
 ### 🚧 Milestone 3: Mobile & Operação em Campo (EM ANDAMENTO)
 *Objetivo: Otimizar o uso em tablets e celulares dentro do laboratório (PWA).*
-*   [ ] **Scanner Nativo Otimizado:** Melhorar a UX do `QuickScanModal` para leitura contínua (modo "Caixa de Supermercado").
+*   [x] **Scanner Nativo Otimizado:** Melhorias na estabilidade do `QuickScanModal` e `useScanner` (correção de double-mount).
 *   [ ] **Ações de Deslizar (Swipe):** Implementar gestos nas listas mobile para Editar/Mover rapidamente.
 *   [ ] **Modo Offline Robusto:** Implementar `SyncQueue` para enfileirar transações caso a conexão caia durante o uso em zonas mortas do laboratório.
 *   [ ] **Responsividade Avançada:** Refinar o layout da `StorageMatrix` para telas pequenas.
