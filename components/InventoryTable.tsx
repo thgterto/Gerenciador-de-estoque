@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { InventoryItem } from '../types';
-import { Button, Box, Paper } from '@mui/material';
+import { Button, Box, Paper, Tooltip } from '@mui/material';
 import { PageHeader } from './ui/PageHeader';
 import { PageContainer } from './ui/PageContainer';
 import { useAuth } from '../context/AuthContext';
@@ -197,13 +197,16 @@ export const InventoryTable: React.FC<Props> = ({ items, onActions, onAddNew }) 
                     >
                         Excluir
                     </Button>
-                    <Button
-                        size="small"
-                        onClick={() => setSelectedIds(new Set())}
-                        sx={{ color: 'rgba(255,255,255,0.7)', minWidth: 0, p: 1, borderRadius: '50%' }}
-                    >
-                        <CloseIcon />
-                    </Button>
+                    <Tooltip title="Limpar seleção">
+                        <Button
+                            aria-label="Limpar seleção"
+                            size="small"
+                            onClick={() => setSelectedIds(new Set())}
+                            sx={{ color: 'rgba(255,255,255,0.7)', minWidth: 0, p: 1, borderRadius: '50%' }}
+                        >
+                            <CloseIcon aria-hidden="true" />
+                        </Button>
+                    </Tooltip>
                 </Box>
             </Paper>
         )}

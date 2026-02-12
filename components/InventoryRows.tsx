@@ -135,13 +135,13 @@ export const InventoryChildRow = React.memo(({
 
                     <Box sx={{ px: 1, textAlign: 'right', display: 'flex', justifyContent: 'flex-end', opacity: 0, transition: 'opacity 0.2s', '.MuiBox-root:hover &': { opacity: 1 } }}>
                         <Tooltip title="Clonar">
-                            <IconButton size="small" onClick={() => onActions.clone(item)}><ContentCopyIcon fontSize="small" /></IconButton>
+                            <IconButton aria-label="Clonar item" size="small" onClick={() => onActions.clone(item)}><ContentCopyIcon fontSize="small" aria-hidden="true" /></IconButton>
                         </Tooltip>
                         <Tooltip title="Editar">
-                            <IconButton size="small" onClick={() => onActions.edit(item)}><EditIcon fontSize="small" /></IconButton>
+                            <IconButton aria-label="Editar item" size="small" onClick={() => onActions.edit(item)}><EditIcon fontSize="small" aria-hidden="true" /></IconButton>
                         </Tooltip>
                         <Tooltip title="Movimentar">
-                            <IconButton size="small" onClick={() => onActions.move(item)}><SwapHorizIcon fontSize="small" /></IconButton>
+                            <IconButton aria-label="Movimentar item" size="small" onClick={() => onActions.move(item)}><SwapHorizIcon fontSize="small" aria-hidden="true" /></IconButton>
                         </Tooltip>
                     </Box>
                 </Box>
@@ -401,10 +401,18 @@ export const InventoryMobileChildRow = React.memo(({
                     </Box>
 
                     <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 1, pt: 1, borderTop: 1, borderColor: 'divider' }}>
-                        <IconButton size="small" onClick={(e) => { e.stopPropagation(); onActions.move(item); }}><SwapHorizIcon /></IconButton>
-                        <IconButton size="small" onClick={(e) => { e.stopPropagation(); onActions.clone(item); }}><ContentCopyIcon /></IconButton>
-                        <IconButton size="small" onClick={(e) => { e.stopPropagation(); onActions.edit(item); }}><EditIcon /></IconButton>
-                        <IconButton size="small" onClick={(e) => { e.stopPropagation(); onActions.qr(item); }}><PrintIcon /></IconButton>
+                        <Tooltip title="Movimentar">
+                            <IconButton aria-label="Movimentar item" size="small" onClick={(e) => { e.stopPropagation(); onActions.move(item); }}><SwapHorizIcon aria-hidden="true" /></IconButton>
+                        </Tooltip>
+                        <Tooltip title="Clonar">
+                            <IconButton aria-label="Clonar item" size="small" onClick={(e) => { e.stopPropagation(); onActions.clone(item); }}><ContentCopyIcon aria-hidden="true" /></IconButton>
+                        </Tooltip>
+                        <Tooltip title="Editar">
+                            <IconButton aria-label="Editar item" size="small" onClick={(e) => { e.stopPropagation(); onActions.edit(item); }}><EditIcon aria-hidden="true" /></IconButton>
+                        </Tooltip>
+                        <Tooltip title="Imprimir Etiqueta">
+                            <IconButton aria-label="Imprimir etiqueta" size="small" onClick={(e) => { e.stopPropagation(); onActions.qr(item); }}><PrintIcon aria-hidden="true" /></IconButton>
+                        </Tooltip>
                     </Box>
                 </Box>
              </motion.div>
