@@ -23,7 +23,7 @@ export const useDashboardAnalytics = (items: InventoryItem[], history: MovementR
         let totalValue = 0;
 
         for (const item of activeItems) {
-            const status = getItemStatus(item, now);
+            const status = getItemStatus(item, now.getTime());
             if (status.isLowStock) lowStockItems.push(item);
             if (status.isExpired) expiringItems.push(item);
             else if (item.expiryDate) {
