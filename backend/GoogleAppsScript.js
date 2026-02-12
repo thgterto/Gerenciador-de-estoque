@@ -258,30 +258,30 @@ function upsertData(sheetName, headers, items, idField = 'id') {
     // Map item object to array based on headers order
     const row = headers.map(h => {
         // Mapping logic
-        if (h === 'ID') return item.id;
-        if (h === 'Name') return item.name;
-        if (h === 'SAP') return item.sapCode;
-        if (h === 'CAS') return item.casNumber;
-        if (h === 'Unit') return item.baseUnit;
-        if (h === 'Category') return item.categoryId;
+        if (h === 'ID') return sanitizeSheetValue(item.id);
+        if (h === 'Name') return sanitizeSheetValue(item.name);
+        if (h === 'SAP') return sanitizeSheetValue(item.sapCode);
+        if (h === 'CAS') return sanitizeSheetValue(item.casNumber);
+        if (h === 'Unit') return sanitizeSheetValue(item.baseUnit);
+        if (h === 'Category') return sanitizeSheetValue(item.categoryId);
         if (h === 'Risks_JSON') return JSON.stringify(item.risks);
         if (h === 'UpdatedAt') return new Date();
         
-        if (h === 'CatalogID') return item.catalogId;
-        if (h === 'LotNumber') return item.lotNumber;
-        if (h === 'ExpiryDate') return item.expiryDate;
-        if (h === 'PartnerID') return item.partnerId || '';
-        if (h === 'Status') return item.status;
+        if (h === 'CatalogID') return sanitizeSheetValue(item.catalogId);
+        if (h === 'LotNumber') return sanitizeSheetValue(item.lotNumber);
+        if (h === 'ExpiryDate') return sanitizeSheetValue(item.expiryDate);
+        if (h === 'PartnerID') return sanitizeSheetValue(item.partnerId || '');
+        if (h === 'Status') return sanitizeSheetValue(item.status);
         
-        if (h === 'BatchID') return item.batchId;
-        if (h === 'LocationID') return item.locationId;
+        if (h === 'BatchID') return sanitizeSheetValue(item.batchId);
+        if (h === 'LocationID') return sanitizeSheetValue(item.locationId);
         if (h === 'Quantity') return item.quantity;
         
         // History specific
         if (h === 'Date') return item.date;
-        if (h === 'Type') return item.type;
-        if (h === 'User') return item.userId || 'Sistema';
-        if (h === 'Observation') return item.observation;
+        if (h === 'Type') return sanitizeSheetValue(item.type);
+        if (h === 'User') return sanitizeSheetValue(item.userId || 'Sistema');
+        if (h === 'Observation') return sanitizeSheetValue(item.observation);
         
         return '';
     });
@@ -459,4 +459,11 @@ function getDenormalizedInventory() {
 
 function safeJsonParse(str) {
   try { return JSON.parse(str); } catch(e) { return {}; }
+}
+
+function sanitizeSheetValue(value) {
+  if (typeof value === 'string' && (value.startsWith('=') || value.startsWith('+') || value.startsWith('-') || value.startsWith('@'))) {
+    return "'" + value;
+  }
+  return value;
 }
