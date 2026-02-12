@@ -1,5 +1,6 @@
 
 import { useState, useEffect, MutableRefObject } from 'react';
+import * as echarts from 'echarts';
 
 export const useECharts = (chartRef: MutableRefObject<HTMLDivElement | null>) => {
     const [chartInstance, setChartInstance] = useState<any>(null);
@@ -9,10 +10,10 @@ export const useECharts = (chartRef: MutableRefObject<HTMLDivElement | null>) =>
         let resizeObserver: ResizeObserver | null = null;
 
         const initChart = () => {
-            if (chartRef.current && (window as any).echarts) {
-                instance = (window as any).echarts.getInstanceByDom(chartRef.current);
+            if (chartRef.current) {
+                instance = echarts.getInstanceByDom(chartRef.current);
                 if (!instance) {
-                    instance = (window as any).echarts.init(chartRef.current);
+                    instance = echarts.init(chartRef.current);
                 }
                 setChartInstance(instance);
                 
