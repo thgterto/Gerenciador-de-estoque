@@ -109,7 +109,10 @@ function dispatchAction(action, payload) {
       break;
 
     case 'delete_item':
-      deleteItem(payload.id);
+      if (payload.id == null || String(payload.id).trim() === '') {
+          throw new Error("ID inválido para exclusão.");
+      }
+      deleteItem(String(payload.id));
       result.message = "Item deletado";
       break;
 
@@ -380,6 +383,11 @@ function legacyUpsertItem(item) {
 }
 
 function deleteItem(itemId) {
+  // Security: Prevent mass deletion if itemId is empty
+  if (itemId == null || String(itemId).trim() === '') {
+      throw new Error("ID inválido ou vazio para exclusão.");
+  }
+
   // Optimized for large datasets: Soft Delete (Status = 'DELETED')
   const sheet = ensureSheet('Balances', ['ID', 'BatchID', 'LocationID', 'Quantity', 'UpdatedAt', 'Status']);
   let map = getColumnMap(sheet);
