@@ -65,12 +65,30 @@ export const InventoryService = {
     const today = new Date();
     const next30Days = new Date(today);
     next30Days.setDate(today.getDate() + 30);
+    // Optimization: Pre-calculate ISO string for fast comparison
+    const next30DaysStr = next30Days.toISOString();
 
-    const expiring = items.filter(i => i.expiryDate && new Date(i.expiryDate) < next30Days).length;
-    const lowStock = items.filter(i => i.quantity <= i.minStockLevel && i.minStockLevel > 0).length;
+    let expiring = 0;
+    let lowStock = 0;
+    const len = items.length;
+
+    // Optimization: Single pass loop + string comparison avoids expensive Date object creation
+    for (let i = 0; i < len; i++) {
+        const item = items[i];
+
+        // Check Expiry (String comparison works for ISO dates)
+        if (item.expiryDate && item.expiryDate < next30DaysStr) {
+            expiring++;
+        }
+
+        // Check Low Stock
+        if (item.quantity <= item.minStockLevel && item.minStockLevel > 0) {
+            lowStock++;
+        }
+    }
     
     return {
-      totalItems: items.length,
+      totalItems: len,
       alertsCount: expiring + lowStock,
       expiringCount: expiring,
       lowStockCount: lowStock
