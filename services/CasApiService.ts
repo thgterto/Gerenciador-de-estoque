@@ -117,22 +117,36 @@ export const CasApiService = {
         const uniqueCas = Array.from(new Set(casList.filter(c => !!c))); // Deduplicate
         let processed = 0;
 
+        const RATE_LIMIT_DELAY = 600;
+
+        // Chain promises to ensure start times are spaced out
+        let delayChain = Promise.resolve();
+        const promises: Promise<void>[] = [];
+
         for (const cas of uniqueCas) {
-            try {
-                // Rate Limiting: 600ms delay entre chamadas
-                await new Promise(resolve => setTimeout(resolve, 600));
-                
-                const data = await this.fetchChemicalData(cas);
-                if (data) {
-                    results[cas] = data;
+            // Schedule the delay relative to the previous start
+            const delayPromise = delayChain.then(() => new Promise<void>(resolve => setTimeout(resolve, RATE_LIMIT_DELAY)));
+            delayChain = delayPromise;
+
+            // Execute the task after the delay, but don't block the next delay scheduling on the task completion
+            const task = delayPromise.then(async () => {
+                try {
+                    const data = await this.fetchChemicalData(cas);
+                    if (data) {
+                        results[cas] = data;
+                    }
+                } catch (e) {
+                    results[cas] = null;
+                } finally {
+                    processed++;
+                    if (onProgress) onProgress(processed, uniqueCas.length);
                 }
-            } catch (e) {
-                results[cas] = null;
-            } finally {
-                processed++;
-                if (onProgress) onProgress(processed, uniqueCas.length);
-            }
+            });
+
+            promises.push(task);
         }
+
+        await Promise.all(promises);
         return results;
     },
 
