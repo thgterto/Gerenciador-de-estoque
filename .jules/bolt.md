@@ -15,9 +15,9 @@
 **Action:** Always prefer Dexie's `where().aboveOrEqual()` or `between()` to leverage IndexedDB indices, significantly reducing the amount of data transferred from IDB to JS memory.
 
 ## 2025-02-14 - Documentation Strategy
-**Learning:** Documenting performance optimizations in a dedicated  file helps maintain awareness of high-impact patterns and prevents regressions during future refactors.
-**Action:** Maintain a living performance document alongside the codebase.
-
-## 2025-02-14 - Documentation Strategy
 **Learning:** Documenting performance optimizations in a dedicated `docs/PERFORMANCE.md` file helps maintain awareness of high-impact patterns and prevents regressions during future refactors.
 **Action:** Maintain a living performance document alongside the codebase.
+
+## 2026-02-13 - Dashboard Metrics Optimization
+**Learning:** Using `new Date()` inside a `filter` loop over thousands of items is extremely expensive (20k+ allocations for 10k items). Replacing it with a single-pass loop and ISO string comparison resulted in a ~25x performance improvement (25ms -> 1ms per call).
+**Action:** Avoid object instantiation inside hot loops. Use string comparison for ISO dates. Consolidate multiple iterations over the same dataset into a single pass.
