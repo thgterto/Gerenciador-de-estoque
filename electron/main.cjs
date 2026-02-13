@@ -54,11 +54,30 @@ function createWindow() {
   }
 
   mainWindow.webContents.setWindowOpenHandler(({ url }) => {
-    if (url.startsWith('https:') || url.startsWith('http:')) {
+    // 1. External URLs -> System Browser
+    if (url.startsWith('https:') || url.startsWith('http:') || url.startsWith('mailto:')) {
       shell.openExternal(url);
       return { action: 'deny' };
     }
-    return { action: 'allow' };
+
+    // 2. Allowed Internal Popups (e.g. Printing)
+    if (url === 'about:blank') {
+      return {
+        action: 'allow',
+        overrideBrowserWindowOptions: {
+          autoHideMenuBar: true,
+          webPreferences: {
+            nodeIntegration: false,
+            contextIsolation: true,
+            sandbox: true
+          }
+        }
+      };
+    }
+
+    // 3. Block everything else (file://, javascript:, etc.)
+    console.warn('[Security] Blocked popup with URL:', url);
+    return { action: 'deny' };
   });
 
   mainWindow.on('closed', () => {
