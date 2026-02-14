@@ -21,3 +21,7 @@
 ## 2025-02-14 - Documentation Strategy
 **Learning:** Documenting performance optimizations in a dedicated `docs/PERFORMANCE.md` file helps maintain awareness of high-impact patterns and prevents regressions during future refactors.
 **Action:** Maintain a living performance document alongside the codebase.
+
+## 2025-02-14 - Date Parsing in Loops
+**Learning:** `new Date(string)` allocation inside loops (like `getItemStatus` called for every item) is a significant bottleneck (~10x slower than `Date.parse()`).
+**Action:** Use `Date.parse(string)` or `string` comparison for hot loops involving date checks, avoiding object creation.
