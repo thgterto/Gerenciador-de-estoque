@@ -109,6 +109,7 @@ function dispatchAction(action, payload) {
       break;
 
     case 'delete_item':
+      if (!payload.id) throw new Error("Item ID is required for deletion.");
       deleteItem(payload.id);
       result.message = "Item deletado";
       break;
@@ -380,6 +381,11 @@ function legacyUpsertItem(item) {
 }
 
 function deleteItem(itemId) {
+  // CRITICAL SECURITY FIX: Prevent empty string deletion (DoS/Data Loss)
+  if (itemId === null || itemId === undefined || String(itemId).trim() === '') {
+    throw new Error("Invalid Item ID for deletion.");
+  }
+
   // Optimized for large datasets: Soft Delete (Status = 'DELETED')
   const sheet = ensureSheet('Balances', ['ID', 'BatchID', 'LocationID', 'Quantity', 'UpdatedAt', 'Status']);
   let map = getColumnMap(sheet);
