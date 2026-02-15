@@ -21,9 +21,17 @@ export interface InventoryTransactionTable {
   user: string;
 }
 
+export interface UserTable {
+  id: string;
+  username: string;
+  password_hash: string;
+  role: 'ADMIN' | 'USER';
+}
+
 export interface DatabaseSchema {
   products: ProductTable;
   inventory_transactions: InventoryTransactionTable;
+  users: UserTable;
 }
 
 const dbPath = path.resolve(process.cwd(), 'data', 'inventory_ledger.db');
@@ -58,6 +66,13 @@ CREATE TABLE IF NOT EXISTS inventory_transactions (
   timestamp TEXT NOT NULL,
   user TEXT NOT NULL,
   FOREIGN KEY(product_id) REFERENCES products(id)
+);
+
+CREATE TABLE IF NOT EXISTS users (
+  id TEXT PRIMARY KEY,
+  username TEXT UNIQUE NOT NULL,
+  password_hash TEXT NOT NULL,
+  role TEXT CHECK(role IN ('ADMIN', 'USER')) NOT NULL DEFAULT 'USER'
 );
 `;
 

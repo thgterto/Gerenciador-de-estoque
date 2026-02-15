@@ -7,12 +7,13 @@ import { InventoryRepository } from '../../domain/repositories/InventoryReposito
 import { SQLiteInventoryRepository } from '../../infrastructure/database/SQLiteInventoryRepository';
 import { z } from 'zod';
 import { TransactionType } from '../../domain/entities/InventoryTransaction';
+import { FileLogger } from '../../infrastructure/logging/FileLogger';
 
 const logTransactionSchema = z.object({
   productId: z.string().min(1),
   type: z.nativeEnum(TransactionType),
   qty: z.number().int(),
-  user: z.string().min(1),
+  user: z.string().optional(),
 }).refine((data) => {
   if ((data.type === TransactionType.IN || data.type === TransactionType.OUT) && data.qty <= 0) {
     return false;
@@ -33,14 +34,16 @@ const saveProductSchema = z.object({
 
 export class InventoryController {
   private repository: InventoryRepository;
+  private logger: FileLogger;
   private getInventoryUseCase: GetInventory;
   private logTransactionUseCase: LogTransaction;
   private saveProductUseCase: SaveProduct;
 
   constructor() {
     this.repository = new SQLiteInventoryRepository();
+    this.logger = new FileLogger();
     this.getInventoryUseCase = new GetInventory(this.repository);
-    this.logTransactionUseCase = new LogTransaction(this.repository);
+    this.logTransactionUseCase = new LogTransaction(this.repository, this.logger);
     this.saveProductUseCase = new SaveProduct(this.repository);
   }
 
@@ -56,7 +59,13 @@ export class InventoryController {
   async logTransaction(request: FastifyRequest, reply: FastifyReply) {
     try {
       const body = logTransactionSchema.parse(request.body);
-      await this.logTransactionUseCase.execute(body);
+      const user = (request.user as any)?.username || body.user;
+
+      if (!user) {
+        return reply.status(400).send({ error: "User is required" });
+      }
+
+      await this.logTransactionUseCase.execute({ ...body, user });
       return reply.status(201).send({ message: 'Transaction logged successfully' });
     } catch (error) {
       if (error instanceof z.ZodError) {

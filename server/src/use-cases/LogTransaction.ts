@@ -2,6 +2,7 @@
 import { InventoryRepository } from '../domain/repositories/InventoryRepository';
 import { InventoryTransaction, TransactionType } from '../domain/entities/InventoryTransaction';
 import { Product } from '../domain/entities/Product';
+import { FileLogger } from '../infrastructure/logging/FileLogger';
 
 export interface LogTransactionRequest {
   productId: string;
@@ -11,7 +12,10 @@ export interface LogTransactionRequest {
 }
 
 export class LogTransaction {
-  constructor(private inventoryRepository: InventoryRepository) {}
+  constructor(
+    private inventoryRepository: InventoryRepository,
+    private fileLogger: FileLogger
+  ) {}
 
   async execute(request: LogTransactionRequest): Promise<void> {
     await this.inventoryRepository.executeInTransaction(async () => {
@@ -35,6 +39,8 @@ export class LogTransaction {
       );
 
       await this.inventoryRepository.logTransaction(transaction);
+
+      this.fileLogger.log(`TRANSACTION: ${request.user} performed ${request.type} of ${request.qty} on Product ${product.name} (${product.sku})`);
     });
   }
 }
