@@ -1,0 +1,35 @@
+{
+  "name": "estoquenode-server",
+  "version": "1.0.0",
+  "description": "EstoqueNode Corp Portable - Backend",
+  "main": "dist/app.js",
+  "scripts": {
+    "start": "node dist/app.js",
+    "build": "tsc",
+    "package": "npm run build && pkg . --targets node18-win-x64 --output ../EstoqueNode_Corp.exe"
+  },
+  "dependencies": {
+    "fastify": "^4.26.2",
+    "@fastify/static": "^7.0.1",
+    "@fastify/cors": "^9.0.1",
+    "better-sqlite3": "^9.4.3",
+    "kysely": "^0.27.3",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "pkg": "^5.8.1",
+    "typescript": "^5.4.3",
+    "@types/node": "^20.12.2",
+    "@types/better-sqlite3": "^7.6.9"
+  },
+  "bin": "dist/app.js",
+  "pkg": {
+    "scripts": "dist/**/*.js",
+    "assets": [
+      "../dist/**/*"
+    ],
+    "targets": [
+      "node18-win-x64"
+    ]
+  }
+}
