@@ -37,7 +37,7 @@ export const useInventoryFilters = (items: InventoryItem[]) => {
     const baseFilteredItems = useMemo(() => {
         if (!catFilter && !locationFilter && statusFilter === 'ALL' && !hideZeroStock) return items;
 
-        const now = new Date(); // Optimize status check
+        const now = Date.now(); // Optimization: Use timestamp
         return items.filter(i => {
             // Filtro de Estoque Zero
             if (hideZeroStock && (i.quantity || 0) <= 0) return false;
@@ -105,7 +105,7 @@ export const useInventoryFilters = (items: InventoryItem[]) => {
         }
   
         // Processa Status Agregado e Ordenação
-        const now = new Date(); // Reuse date
+        const now = Date.now(); // Optimization: Use timestamp
         const result = Object.values(groups).map(grp => {
             let hasExpired = false;
             let hasLowStock = false;
@@ -175,7 +175,7 @@ export const useInventoryFilters = (items: InventoryItem[]) => {
     const stats = useMemo(() => {
         let expired = 0;
         let low = 0;
-        const now = new Date(); // Reuse
+        const now = Date.now(); // Optimization: Use timestamp
         items.forEach(i => {
             const status = getItemStatus(i, now);
             if (status.isExpired) expired++;
