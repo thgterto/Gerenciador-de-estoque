@@ -39,9 +39,15 @@ export type ItemStatusResult = {
     icon: string;
 };
 
-// Optimization: Accept 'now' Date object to prevent recreation in loops
-export const getItemStatus = (item: InventoryItem, now: Date = new Date()): ItemStatusResult => {
-    const isExpired = !!item.expiryDate && new Date(item.expiryDate) < now;
+// Optimization: Accept 'now' Date object or timestamp to prevent recreation in loops
+export const getItemStatus = (item: InventoryItem, now: Date | number = new Date()): ItemStatusResult => {
+    const nowTime = typeof now === 'number' ? now : now.getTime();
+
+    // Use Date.parse() instead of new Date() to avoid object allocation overhead
+    // Date.parse returns NaN for invalid dates, which is falsy in comparison context (NaN < number is false)
+    const expiryTime = item.expiryDate ? Date.parse(item.expiryDate) : 0;
+    const isExpired = !!expiryTime && expiryTime < nowTime;
+
     const isLowStock = item.quantity <= item.minStockLevel && item.minStockLevel > 0;
 
     if (isExpired) {
@@ -81,7 +87,7 @@ export const analyzeLocation = (locItems: InventoryItem[]) => {
     let conflictMessage: string | null = null;
     let expiredCount = 0;
     let lowStockCount = 0;
-    const now = new Date(); // Created once for loop optimization
+    const now = Date.now(); // Optimization: Use timestamp
 
     locItems.forEach(item => {
         (Object.keys(item.risks) as Array<keyof RiskFlags>).forEach(riskKey => {

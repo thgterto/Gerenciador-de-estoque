@@ -21,3 +21,7 @@
 ## 2025-02-14 - Documentation Strategy
 **Learning:** Documenting performance optimizations in a dedicated `docs/PERFORMANCE.md` file helps maintain awareness of high-impact patterns and prevents regressions during future refactors.
 **Action:** Maintain a living performance document alongside the codebase.
+
+## 2025-02-15 - Date Parsing in Hot Loops
+**Learning:** `new Date(isoString)` creation inside high-frequency loops (like filter/search logic or list rendering) is significantly slower (~2x) than `Date.parse(isoString)` or timestamp comparisons. In `useInventoryFilters`, this caused noticeable lag when filtering large lists.
+**Action:** Avoid `new Date()` inside loops. Prefer passing a pre-calculated `now` timestamp and using `Date.parse()` or string comparison for ISO dates.
