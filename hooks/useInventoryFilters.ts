@@ -57,6 +57,16 @@ export const useInventoryFilters = (items: InventoryItem[]) => {
         });
     }, [items, catFilter, locationFilter, statusFilter, hideZeroStock]);
 
+    // Optimization: Pre-compute search strings to avoid re-normalizing on every search keystroke
+    const searchIndex = useMemo(() => {
+        const index = new Map<string, string>();
+        items.forEach(i => {
+             const itemStr = normalizeStr(`${i.name} ${i.sapCode} ${i.lotNumber} ${i.casNumber || ''}`);
+             index.set(i.id, itemStr);
+        });
+        return index;
+    }, [items]);
+
     // --- 2. Busca Textual (Pesado - Debounced) ---
     // Separamos isso para que mudanças de filtro não esperem o debounce, e busca não trave a UI
     const finalFilteredItems = useMemo(() => {
@@ -68,10 +78,10 @@ export const useInventoryFilters = (items: InventoryItem[]) => {
         if (normalizedTerms.length === 0) return baseFilteredItems;
 
         return baseFilteredItems.filter(i => {
-            const itemStr = normalizeStr(`${i.name} ${i.sapCode} ${i.lotNumber} ${i.casNumber || ''}`);
+            const itemStr = searchIndex.get(i.id) || '';
             return normalizedTerms.every(t => itemStr.includes(t));
         });
-    }, [baseFilteredItems, debouncedTerm]);
+    }, [baseFilteredItems, debouncedTerm, searchIndex]);
 
     // --- 3. Agrupamento (Transformação de Dados) ---
     const groupedInventory = useMemo(() => {
