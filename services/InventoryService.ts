@@ -7,6 +7,7 @@ import { InventorySyncManager } from './InventorySyncManager';
 import { InventoryExportService } from './InventoryExportService';
 import { InventoryAuditService } from './InventoryAuditService';
 import { LogService } from './LogService';
+import { seedDatabase } from './DatabaseSeeder';
 import { 
     InventoryItem, 
     MovementRecord, 
@@ -537,7 +538,6 @@ export const InventoryService = {
   },
 
   async replaceDatabaseWithData(data: any): Promise<void> {
-      const { seedDatabase } = await import('./DatabaseSeeder');
       await seedDatabase(true, data);
   },
   

@@ -1,6 +1,7 @@
 import { db } from '../db';
 import { ApiClient } from './ApiClient';
 import { SyncQueueService } from './SyncQueueService';
+import { GoogleSheetsService } from './GoogleSheetsService';
 
 export const InventorySyncManager = {
     async syncFromCloud(): Promise<void> {
@@ -77,11 +78,5 @@ export const InventorySyncManager = {
 
 // Helper to check GAS config (mock or import from service if needed)
 async function isGasConfigured(): Promise<boolean> {
-    // We can dynamically import GoogleSheetsService to avoid circular dep if needed,
-    // or just assume it's available.
-    // Given the previous file imported it, let's assume we can access it or duplicate logic.
-    // For now, let's import it dynamically to be safe or use ApiClient check?
-    // ApiClient doesn't expose isConfigured.
-    const { GoogleSheetsService } = await import('./GoogleSheetsService');
     return GoogleSheetsService.isConfigured();
 }
