@@ -3,6 +3,7 @@ import Database from 'better-sqlite3';
 import { Kysely, SqliteDialect } from 'kysely';
 import path from 'path';
 import fs from 'fs';
+import { config } from '../../config';
 
 export interface ProductTable {
   id: string;
@@ -34,7 +35,7 @@ export interface DatabaseSchema {
   users: UserTable;
 }
 
-const dbPath = path.resolve(process.cwd(), 'data', 'inventory_ledger.db');
+const dbPath = config.dbPath;
 
 // Ensure data directory exists
 const dir = path.dirname(dbPath);

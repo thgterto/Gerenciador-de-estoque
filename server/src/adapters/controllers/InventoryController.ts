@@ -3,11 +3,8 @@ import { FastifyRequest, FastifyReply } from 'fastify';
 import { GetInventory } from '../../use-cases/GetInventory';
 import { LogTransaction, LogTransactionRequest } from '../../use-cases/LogTransaction';
 import { SaveProduct, SaveProductRequest } from '../../use-cases/SaveProduct';
-import { InventoryRepository } from '../../domain/repositories/InventoryRepository';
-import { SQLiteInventoryRepository } from '../../infrastructure/database/SQLiteInventoryRepository';
 import { z } from 'zod';
 import { TransactionType } from '../../domain/entities/InventoryTransaction';
-import { FileLogger } from '../../infrastructure/logging/FileLogger';
 
 const logTransactionSchema = z.object({
   productId: z.string().min(1),
@@ -33,58 +30,32 @@ const saveProductSchema = z.object({
 });
 
 export class InventoryController {
-  private repository: InventoryRepository;
-  private logger: FileLogger;
-  private getInventoryUseCase: GetInventory;
-  private logTransactionUseCase: LogTransaction;
-  private saveProductUseCase: SaveProduct;
-
-  constructor() {
-    this.repository = new SQLiteInventoryRepository();
-    this.logger = new FileLogger();
-    this.getInventoryUseCase = new GetInventory(this.repository);
-    this.logTransactionUseCase = new LogTransaction(this.repository, this.logger);
-    this.saveProductUseCase = new SaveProduct(this.repository);
-  }
+  constructor(
+    private getInventoryUseCase: GetInventory,
+    private logTransactionUseCase: LogTransaction,
+    private saveProductUseCase: SaveProduct
+  ) {}
 
   async getInventory(request: FastifyRequest, reply: FastifyReply) {
-    try {
-      const inventory = await this.getInventoryUseCase.execute();
-      return reply.send(inventory);
-    } catch (error) {
-      return reply.status(500).send({ error: (error as Error).message });
-    }
+    const inventory = await this.getInventoryUseCase.execute();
+    return reply.send(inventory);
   }
 
   async logTransaction(request: FastifyRequest, reply: FastifyReply) {
-    try {
-      const body = logTransactionSchema.parse(request.body);
-      const user = (request.user as any)?.username || body.user;
+    const body = logTransactionSchema.parse(request.body);
+    const user = (request.user as any)?.username || body.user;
 
-      if (!user) {
-        return reply.status(400).send({ error: "User is required" });
-      }
-
-      await this.logTransactionUseCase.execute({ ...body, user });
-      return reply.status(201).send({ message: 'Transaction logged successfully' });
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        return reply.status(400).send({ error: error.errors });
-      }
-      return reply.status(400).send({ error: (error as Error).message });
+    if (!user) {
+      return reply.status(400).send({ error: "User is required" });
     }
+
+    await this.logTransactionUseCase.execute({ ...body, user });
+    return reply.status(201).send({ message: 'Transaction logged successfully' });
   }
 
   async saveProduct(request: FastifyRequest, reply: FastifyReply) {
-    try {
-      const body = saveProductSchema.parse(request.body);
-      await this.saveProductUseCase.execute(body);
-      return reply.status(201).send({ message: 'Product saved successfully' });
-    } catch (error) {
-       if (error instanceof z.ZodError) {
-        return reply.status(400).send({ error: error.errors });
-      }
-      return reply.status(400).send({ error: (error as Error).message });
-    }
+    const body = saveProductSchema.parse(request.body);
+    await this.saveProductUseCase.execute(body);
+    return reply.status(201).send({ message: 'Product saved successfully' });
   }
 }

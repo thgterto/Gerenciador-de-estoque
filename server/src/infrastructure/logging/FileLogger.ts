@@ -1,17 +1,16 @@
 
 import fs from 'fs';
 import path from 'path';
+import { config } from '../../config';
 
 export class FileLogger {
   private logStream: fs.WriteStream;
 
   constructor() {
-    const logDir = path.resolve(process.cwd(), 'logs');
-    if (!fs.existsSync(logDir)) {
-      fs.mkdirSync(logDir, { recursive: true });
+    if (!fs.existsSync(config.logDir)) {
+      fs.mkdirSync(config.logDir, { recursive: true });
     }
-    const logFilePath = path.join(logDir, 'audit.log');
-    this.logStream = fs.createWriteStream(logFilePath, { flags: 'a' });
+    this.logStream = fs.createWriteStream(config.logPath, { flags: 'a' });
   }
 
   log(message: string): void {

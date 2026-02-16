@@ -7,12 +7,44 @@ import path from 'path';
 import { InventoryController } from './adapters/controllers/InventoryController';
 import { AuthController } from './adapters/controllers/AuthController';
 import { migrate } from './infrastructure/database/database';
+import { errorHandler } from './adapters/ErrorHandler';
+import { config } from './config';
+
+// Infrastructure
+import { SQLiteInventoryRepository } from './infrastructure/database/SQLiteInventoryRepository';
+import { SQLiteUserRepository } from './infrastructure/database/SQLiteUserRepository';
+import { FileLogger } from './infrastructure/logging/FileLogger';
+
+// Use Cases - Inventory
+import { GetInventory } from './use-cases/GetInventory';
+import { LogTransaction } from './use-cases/LogTransaction';
+import { SaveProduct } from './use-cases/SaveProduct';
+
+// Use Cases - Auth
+import { RegisterUser } from './use-cases/RegisterUser';
+import { LoginUser } from './use-cases/LoginUser';
 
 const app = Fastify({ logger: true });
 
-// Setup Controllers
-const inventoryController = new InventoryController();
-const authController = new AuthController();
+// Register Error Handler
+app.setErrorHandler(errorHandler);
+
+// --- COMPOSITION ROOT ---
+// 1. Infrastructure
+const inventoryRepository = new SQLiteInventoryRepository();
+const userRepository = new SQLiteUserRepository();
+const logger = new FileLogger();
+
+// 2. Use Cases
+const getInventory = new GetInventory(inventoryRepository);
+const logTransaction = new LogTransaction(inventoryRepository, logger);
+const saveProduct = new SaveProduct(inventoryRepository);
+const registerUser = new RegisterUser(userRepository);
+const loginUser = new LoginUser(userRepository);
+
+// 3. Controllers
+const inventoryController = new InventoryController(getInventory, logTransaction, saveProduct);
+const authController = new AuthController(registerUser, loginUser);
 
 // Register plugins
 app.register(cors, {
@@ -20,7 +52,7 @@ app.register(cors, {
 });
 
 app.register(jwt, {
-  secret: process.env.JWT_SECRET || 'supersecret_change_me_in_prod'
+  secret: config.jwtSecret
 });
 
 // Serve Frontend Static Files
@@ -73,7 +105,7 @@ const start = async () => {
     await migrate();
 
     // Start server
-    const port = process.env.PORT ? parseInt(process.env.PORT) : 3000;
+    const port = config.port;
     await app.listen({ port, host: '0.0.0.0' });
     console.log(`Server running at http://localhost:${port}`);
   } catch (err) {
