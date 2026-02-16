@@ -259,18 +259,18 @@ function upsertData(sheetName, headers, items, idField = 'id') {
     const row = headers.map(h => {
         // Mapping logic
         if (h === 'ID') return item.id;
-        if (h === 'Name') return item.name;
-        if (h === 'SAP') return item.sapCode;
-        if (h === 'CAS') return item.casNumber;
-        if (h === 'Unit') return item.baseUnit;
+        if (h === 'Name') return sanitizeForSheets(item.name);
+        if (h === 'SAP') return sanitizeForSheets(item.sapCode);
+        if (h === 'CAS') return sanitizeForSheets(item.casNumber);
+        if (h === 'Unit') return sanitizeForSheets(item.baseUnit);
         if (h === 'Category') return item.categoryId;
         if (h === 'Risks_JSON') return JSON.stringify(item.risks);
         if (h === 'UpdatedAt') return new Date();
         
         if (h === 'CatalogID') return item.catalogId;
-        if (h === 'LotNumber') return item.lotNumber;
+        if (h === 'LotNumber') return sanitizeForSheets(item.lotNumber);
         if (h === 'ExpiryDate') return item.expiryDate;
-        if (h === 'PartnerID') return item.partnerId || '';
+        if (h === 'PartnerID') return sanitizeForSheets(item.partnerId || '');
         if (h === 'Status') return item.status;
         
         if (h === 'BatchID') return item.batchId;
@@ -281,7 +281,7 @@ function upsertData(sheetName, headers, items, idField = 'id') {
         if (h === 'Date') return item.date;
         if (h === 'Type') return item.type;
         if (h === 'User') return item.userId || 'Sistema';
-        if (h === 'Observation') return item.observation;
+        if (h === 'Observation') return sanitizeForSheets(item.observation);
         
         return '';
     });
@@ -380,6 +380,12 @@ function legacyUpsertItem(item) {
 }
 
 function deleteItem(itemId) {
+  // Security Check: Prevent deleting all items if ID is empty string
+  if (!itemId || typeof itemId !== 'string' || itemId.trim() === '') {
+    console.error("deleteItem blocked: Invalid or Empty Item ID");
+    return;
+  }
+
   // Optimized for large datasets: Soft Delete (Status = 'DELETED')
   const sheet = ensureSheet('Balances', ['ID', 'BatchID', 'LocationID', 'Quantity', 'UpdatedAt', 'Status']);
   let map = getColumnMap(sheet);
@@ -459,4 +465,17 @@ function getDenormalizedInventory() {
 
 function safeJsonParse(str) {
   try { return JSON.parse(str); } catch(e) { return {}; }
+}
+
+function sanitizeForSheets(value) {
+  if (typeof value !== 'string') return value;
+  // Prevent Formula Injection (CSV Injection)
+  // Prepends a single quote to force treating as string
+  if (value.startsWith('=') ||
+      value.startsWith('+') ||
+      value.startsWith('-') ||
+      value.startsWith('@')) {
+    return "'" + value;
+  }
+  return value;
 }
