@@ -104,12 +104,12 @@ export const Header: React.FC<HeaderProps> = ({
             <Toolbar>
                 <IconButton
                     color="inherit"
-                    aria-label="open drawer"
+                    aria-label="abrir menu"
                     edge="start"
                     onClick={onMenuClick}
                     sx={{ mr: 2, display: { sm: 'none' } }}
                 >
-                    <MenuIcon />
+                    <MenuIcon aria-hidden="true" />
                 </IconButton>
 
                 {/* Mobile Logo */}
@@ -123,7 +123,7 @@ export const Header: React.FC<HeaderProps> = ({
                     </SearchIconWrapper>
                     <StyledInputBase
                         placeholder="Busca global (Ctrl + K)..."
-                        inputProps={{ 'aria-label': 'search' }}
+                        inputProps={{ 'aria-label': 'pesquisar' }}
                         inputRef={searchInputRef}
                     />
                 </Search>
@@ -133,36 +133,36 @@ export const Header: React.FC<HeaderProps> = ({
                 <Box sx={{ display: 'flex' }}>
                      {onAddClick && (
                         <Tooltip title="Adicionar Item">
-                            <IconButton onClick={onAddClick} color="primary" size="large">
-                                <AddIcon />
+                            <IconButton onClick={onAddClick} color="primary" size="large" aria-label="adicionar item">
+                                <AddIcon aria-hidden="true" />
                             </IconButton>
                         </Tooltip>
                     )}
 
                     {onScanClick && (
                          <Tooltip title="Scanner">
-                            <IconButton onClick={onScanClick} color="inherit" size="large">
-                                <QrCodeScannerIcon />
+                            <IconButton onClick={onScanClick} color="inherit" size="large" aria-label="scanner">
+                                <QrCodeScannerIcon aria-hidden="true" />
                             </IconButton>
                         </Tooltip>
                     )}
 
                     <Tooltip title="Sincronizar">
-                        <IconButton onClick={onBackup} color="inherit" size="large">
-                            <CloudSyncIcon />
+                        <IconButton onClick={onBackup} color="inherit" size="large" aria-label="sincronizar">
+                            <CloudSyncIcon aria-hidden="true" />
                         </IconButton>
                     </Tooltip>
 
                     <Tooltip title={theme === 'dark' ? 'Modo Claro' : 'Modo Escuro'}>
-                        <IconButton onClick={toggleTheme} color="inherit" size="large">
-                            {theme === 'dark' ? <LightModeIcon /> : <DarkModeIcon />}
+                        <IconButton onClick={toggleTheme} color="inherit" size="large" aria-label={theme === 'dark' ? 'modo claro' : 'modo escuro'}>
+                            {theme === 'dark' ? <LightModeIcon aria-hidden="true" /> : <DarkModeIcon aria-hidden="true" />}
                         </IconButton>
                     </Tooltip>
 
                     <Tooltip title="Notificações">
-                        <IconButton size="large" color="inherit">
+                        <IconButton size="large" color="inherit" aria-label="notificações">
                             <Badge badgeContent={notificationsCount} color="error">
-                                <NotificationsIcon />
+                                <NotificationsIcon aria-hidden="true" />
                             </Badge>
                         </IconButton>
                     </Tooltip>

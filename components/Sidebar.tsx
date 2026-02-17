@@ -142,8 +142,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
                         </Typography>
                     </Box>
                     <Tooltip title="Sair">
-                        <IconButton onClick={onLogout} size="small" color="default">
-                            <LogoutIcon fontSize="small" />
+                        <IconButton onClick={onLogout} size="small" color="default" aria-label="sair">
+                            <LogoutIcon fontSize="small" aria-hidden="true" />
                         </IconButton>
                     </Tooltip>
                 </Box>
