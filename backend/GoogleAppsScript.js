@@ -257,33 +257,34 @@ function upsertData(sheetName, headers, items, idField = 'id') {
   items.forEach(item => {
     // Map item object to array based on headers order
     const row = headers.map(h => {
+        let val = '';
         // Mapping logic
-        if (h === 'ID') return item.id;
-        if (h === 'Name') return item.name;
-        if (h === 'SAP') return item.sapCode;
-        if (h === 'CAS') return item.casNumber;
-        if (h === 'Unit') return item.baseUnit;
-        if (h === 'Category') return item.categoryId;
-        if (h === 'Risks_JSON') return JSON.stringify(item.risks);
-        if (h === 'UpdatedAt') return new Date();
+        if (h === 'ID') val = item.id;
+        else if (h === 'Name') val = item.name;
+        else if (h === 'SAP') val = item.sapCode;
+        else if (h === 'CAS') val = item.casNumber;
+        else if (h === 'Unit') val = item.baseUnit;
+        else if (h === 'Category') val = item.categoryId;
+        else if (h === 'Risks_JSON') val = JSON.stringify(item.risks);
+        else if (h === 'UpdatedAt') val = new Date();
         
-        if (h === 'CatalogID') return item.catalogId;
-        if (h === 'LotNumber') return item.lotNumber;
-        if (h === 'ExpiryDate') return item.expiryDate;
-        if (h === 'PartnerID') return item.partnerId || '';
-        if (h === 'Status') return item.status;
+        else if (h === 'CatalogID') val = item.catalogId;
+        else if (h === 'LotNumber') val = item.lotNumber;
+        else if (h === 'ExpiryDate') val = item.expiryDate;
+        else if (h === 'PartnerID') val = item.partnerId || '';
+        else if (h === 'Status') val = item.status;
         
-        if (h === 'BatchID') return item.batchId;
-        if (h === 'LocationID') return item.locationId;
-        if (h === 'Quantity') return item.quantity;
+        else if (h === 'BatchID') val = item.batchId;
+        else if (h === 'LocationID') val = item.locationId;
+        else if (h === 'Quantity') val = item.quantity;
         
         // History specific
-        if (h === 'Date') return item.date;
-        if (h === 'Type') return item.type;
-        if (h === 'User') return item.userId || 'Sistema';
-        if (h === 'Observation') return item.observation;
+        else if (h === 'Date') val = item.date;
+        else if (h === 'Type') val = item.type;
+        else if (h === 'User') val = item.userId || 'Sistema';
+        else if (h === 'Observation') val = item.observation;
         
-        return '';
+        return sanitizeForSheet(val);
     });
 
     if (row.length > maxCols) maxCols = row.length;
@@ -459,4 +460,11 @@ function getDenormalizedInventory() {
 
 function safeJsonParse(str) {
   try { return JSON.parse(str); } catch(e) { return {}; }
+}
+
+function sanitizeForSheet(value) {
+  if (typeof value === 'string' && (value.startsWith('=') || value.startsWith('+') || value.startsWith('-') || value.startsWith('@'))) {
+    return "'" + value;
+  }
+  return value;
 }

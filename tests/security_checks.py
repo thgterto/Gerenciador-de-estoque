@@ -28,6 +28,31 @@ def check_no_stack_trace_exposure(filepath):
         print(f"❌ Error: File not found: {filepath}")
         return False
 
+def check_sanitize_for_sheet_usage(filepath):
+    """
+    Checks if sanitizeForSheet is used in the file.
+    """
+    print(f"Scanning {filepath} for sanitizeForSheet usage...")
+    try:
+        with open(filepath, 'r') as f:
+            content = f.read()
+
+        # Check if function is defined
+        if "function sanitizeForSheet(value)" not in content:
+            print(f"❌ SECURITY FAIL: sanitizeForSheet function not defined in {filepath}")
+            return False
+
+        # Check if function is used in upsertData (simple check)
+        if "sanitizeForSheet(" not in content:
+            print(f"❌ SECURITY FAIL: sanitizeForSheet function not used in {filepath}")
+            return False
+
+        print(f"✅ SECURITY PASS: sanitizeForSheet is defined and used in {filepath}")
+        return True
+    except FileNotFoundError:
+        print(f"❌ Error: File not found: {filepath}")
+        return False
+
 if __name__ == "__main__":
     filepath = "backend/GoogleAppsScript.js"
     if not os.path.exists(filepath):
@@ -39,6 +64,9 @@ if __name__ == "__main__":
          sys.exit(1)
 
     if not check_no_stack_trace_exposure(filepath):
+        sys.exit(1)
+
+    if not check_sanitize_for_sheet_usage(filepath):
         sys.exit(1)
 
     sys.exit(0)
