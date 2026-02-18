@@ -72,7 +72,7 @@ export const OrbitalStat: React.FC<OrbitalStatProps> = ({
                 `}>
                      {/* Try to clone, fallback to raw render if simple node */}
                      {React.isValidElement(icon)
-                        ? React.cloneElement(icon as React.ReactElement, { className: 'w-6 h-6' })
+                        ? React.cloneElement(icon as React.ReactElement<any>, { className: 'w-6 h-6' })
                         : icon
                      }
                 </div>

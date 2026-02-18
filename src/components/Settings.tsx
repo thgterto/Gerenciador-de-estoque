@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { db } from '../db';
 import { InventoryService } from '../services/InventoryService';
@@ -10,12 +9,38 @@ import { useAlert } from '../context/AlertContext';
 import { ApiClient } from '../services/ApiClient';
 import { ImportWizard } from './ImportWizard';
 import { ImportMode } from '../utils/ImportEngine';
-import { Card } from './ui/Card'; 
-import { Button } from './ui/Button'; 
-import { Modal } from './ui/Modal'; 
-import { PageContainer } from './ui/PageContainer'; 
-import { Input } from './ui/Input';
 import { ExportEngine } from '../utils/ExportEngine';
+
+// Orbital UI
+import { OrbitalCard } from './ui/orbital/OrbitalCard';
+import { OrbitalButton } from './ui/orbital/OrbitalButton';
+import { OrbitalModal } from './ui/orbital/OrbitalModal';
+import { OrbitalInput } from './ui/orbital/OrbitalInput';
+import { OrbitalPageHeader } from './ui/orbital/OrbitalPageHeader';
+
+// Icons
+import {
+    Upload,
+    History,
+    Sparkles,
+    ClipboardCheck,
+    AlertOctagon,
+    Sheet,
+    Wifi,
+    WifiOff,
+    Save,
+    RefreshCcw,
+    Download,
+    HardDrive,
+    Code,
+    BookmarkPlus,
+    RotateCcw,
+    Trash2,
+    Database,
+    FileSpreadsheet,
+    ShieldAlert,
+    AlertTriangle
+} from 'lucide-react';
 
 export const Settings: React.FC = () => {
     const { addToast } = useAlert();
@@ -220,12 +245,10 @@ export const Settings: React.FC = () => {
         setResetModalOpen(false);
 
         try {
-            // Limpa dados operacionais (db.clearData NÃO apaga systemConfigs, preservando o Custom Seed)
             await db.clearData(); 
 
             localStorage.removeItem('LC_SKIP_AUTO_SEED');
 
-            // Se existir um Custom Seed em systemConfigs, seedDatabase(true) irá usá-lo.
             await seedDatabase(true);
 
             addToast('Reiniciando...', 'success', 'O sistema será recarregado.');
@@ -294,330 +317,293 @@ export const Settings: React.FC = () => {
     };
 
     return (
-        <PageContainer scrollable={true} className="pb-20">
-            <div className="flex flex-col gap-8 max-w-6xl mx-auto w-full">
-                <div className="flex flex-col gap-2 border-b border-border-light dark:border-border-dark pb-6">
-                    <h1 className="text-3xl font-black tracking-tight text-text-main dark:text-white">Configurações e Sistema</h1>
-                    <p className="text-text-secondary dark:text-gray-400 text-base max-w-2xl">
-                        Gerencie importações, integrações com nuvem, backups e redefinições do sistema.
-                    </p>
+        <div className="flex flex-col gap-8 pb-20">
+            <OrbitalPageHeader
+                title="Configurações e Sistema"
+                description="Controle avançado de dados e integrações."
+                breadcrumbs={[{ label: 'Configurações' }]}
+            />
+
+            {/* Grid Layout Responsivo */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+
+                {/* Coluna 1: Operações de Dados */}
+                <div className="flex flex-col gap-6">
+                    <OrbitalCard title="Importação e Carga" action={<Database size={16} className="text-orbital-primary" />}>
+                        <div className="flex flex-col gap-3">
+                            <OrbitalButton onClick={() => openWizard('MASTER')} variant="secondary" size="md" className="w-full justify-start gap-3" startIcon={<Upload size={16} />}>
+                                Importar Inventário (Planilha)
+                            </OrbitalButton>
+                            <OrbitalButton onClick={() => openWizard('HISTORY')} variant="secondary" size="md" className="w-full justify-start gap-3" startIcon={<History size={16} />}>
+                                Importar Histórico
+                            </OrbitalButton>
+                        </div>
+                    </OrbitalCard>
+
+                    <OrbitalCard title="Enriquecimento de Dados" action={<Sparkles size={16} className="text-orbital-accent" />}>
+                        <p className="text-sm text-gray-400 mb-4 font-mono">
+                            // Busca automática de dados CAS (Fórmula, Peso, Riscos) na API Common Chemistry.
+                        </p>
+                        {enriching ? (
+                            <div className="w-full space-y-2">
+                                <div className="w-full bg-gray-800 rounded-full h-1 overflow-hidden">
+                                    <div className="bg-orbital-accent h-full transition-all duration-300 shadow-[0_0_10px_#f59e0b]" style={{ width: `${(enrichProgress/enrichTotal)*100}%` }}></div>
+                                </div>
+                                <p className="text-[10px] font-mono text-center text-orbital-accent uppercase tracking-widest animate-pulse">
+                                    Processando {enrichProgress} / {enrichTotal}
+                                </p>
+                            </div>
+                        ) : (
+                            <OrbitalButton onClick={handleEnrichment} variant="primary" size="md" className="w-full" startIcon={<Sparkles size={16} />}>
+                                Iniciar Enriquecimento CAS
+                            </OrbitalButton>
+                        )}
+                    </OrbitalCard>
+
+                    <OrbitalCard title="Auditoria de Integridade" action={<ClipboardCheck size={16} className="text-orbital-success" />}>
+                        <p className="text-sm text-gray-400 mb-4 font-mono">
+                            // Verifica consistência entre saldo visual e histórico (Ledger).
+                        </p>
+
+                        <div className="flex flex-col sm:flex-row gap-3">
+                            <OrbitalButton onClick={() => handleRunAudit(false)} variant="secondary" disabled={loading} className="flex-1" startIcon={<AlertOctagon size={16} />}>
+                                Verificar
+                            </OrbitalButton>
+                            {auditStats && auditStats.mismatches > 0 && (
+                                <OrbitalButton onClick={() => handleRunAudit(true)} variant="danger" disabled={loading} className="flex-1" startIcon={<RefreshCcw size={16} />}>
+                                    Corrigir ({auditStats.mismatches})
+                                </OrbitalButton>
+                            )}
+                        </div>
+
+                        {auditStats && (
+                            <div className={`mt-4 p-3 rounded border text-sm font-mono ${auditStats.mismatches > 0 ? 'bg-orbital-danger/10 border-orbital-danger text-orbital-danger' : 'bg-orbital-success/10 border-orbital-success text-orbital-success'}`}>
+                                <p className="font-bold flex items-center gap-2 uppercase tracking-wide">
+                                    {auditStats.mismatches > 0 ? 'Divergência Detectada' : 'Sistema Íntegro'}
+                                </p>
+                                <ul className="list-disc pl-6 mt-1 text-xs opacity-90 space-y-1">
+                                    <li>Sincronizados: {auditStats.matches}</li>
+                                    <li>Divergências: {auditStats.mismatches}</li>
+                                    {auditStats.corrections > 0 && <li>Corrigidos: {auditStats.corrections}</li>}
+                                </ul>
+                            </div>
+                        )}
+                    </OrbitalCard>
                 </div>
 
-                {/* Grid Layout Responsivo */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
-
-                    {/* Coluna 1: Operações de Dados */}
-                    <div className="flex flex-col gap-6">
-                        <Card padding="p-6">
-                            <div className="flex items-center gap-3 mb-4 text-text-main dark:text-white">
-                                <div className="p-2 rounded-lg bg-primary/10 text-primary">
-                                    <span className="material-symbols-outlined text-xl">upload_file</span>
-                                </div>
-                                <h3 className="text-lg font-bold">Importação e Carga</h3>
+                {/* Coluna 2: Integração e Sistema */}
+                <div className="flex flex-col gap-6">
+                    {/* Google Sheets */}
+                    <OrbitalCard
+                        title="Google Sheets Sync"
+                        action={isCloudConnected ? <Wifi size={16} className="text-orbital-success" /> : <WifiOff size={16} className="text-gray-500" />}
+                        className="border-l-4 border-l-green-500"
+                    >
+                         <div className="flex items-center gap-3 mb-4">
+                            <div className="p-2 bg-green-900/30 rounded text-green-400 border border-green-800">
+                                <FileSpreadsheet size={20} />
                             </div>
-                            <div className="flex flex-col gap-3">
-                                <Button onClick={() => openWizard('MASTER')} variant="outline" className="w-full justify-start text-sm" icon="inventory_2">
-                                    Importar Inventário (Planilha)
-                                </Button>
-                                <Button onClick={() => openWizard('HISTORY')} variant="outline" className="w-full justify-start text-sm" icon="history">
-                                    Importar Histórico
-                                </Button>
-                            </div>
-                        </Card>
-
-                        <Card padding="p-6">
-                            <div className="flex items-center gap-3 mb-4 text-text-main dark:text-white">
-                                <div className="p-2 rounded-lg bg-secondary/10 text-secondary">
-                                    <span className="material-symbols-outlined text-xl">science</span>
-                                </div>
-                                <h3 className="text-lg font-bold">Enriquecimento de Dados</h3>
-                            </div>
-                            <p className="text-sm text-text-secondary dark:text-gray-400 mb-4">
-                                Busca automática de dados químicos (Fórmula, Peso, Riscos) na API CAS para itens com CAS Number.
-                            </p>
-                            {enriching ? (
-                                <div className="w-full space-y-2">
-                                    <div className="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700 overflow-hidden">
-                                        <div className="bg-secondary h-2.5 rounded-full transition-all duration-300" style={{ width: `${(enrichProgress/enrichTotal)*100}%` }}></div>
-                                    </div>
-                                    <p className="text-xs text-center text-text-secondary">{enrichProgress} de {enrichTotal} itens processados</p>
-                                </div>
-                            ) : (
-                                <Button onClick={handleEnrichment} variant="primary" icon="auto_fix_high" className="w-full text-sm">
-                                    Enriquecer Itens com CAS
-                                </Button>
-                            )}
-                        </Card>
-
-                        <Card padding="p-6">
-                            <div className="flex items-center gap-3 mb-4 text-text-main dark:text-white relative z-10">
-                                <div className="p-2 bg-purple-50 dark:bg-purple-900/30 rounded-lg text-purple-600 dark:text-purple-300">
-                                    <span className="material-symbols-outlined text-xl">fact_check</span>
-                                </div>
-                                <h3 className="text-lg font-bold">Auditoria de Integridade</h3>
-                            </div>
-                            <p className="text-sm text-text-secondary dark:text-gray-400 mb-4">
-                                Verifica consistência entre saldo visual e histórico (Ledger).
-                            </p>
-
-                            <div className="flex flex-col sm:flex-row gap-3">
-                                <Button onClick={() => handleRunAudit(false)} variant="secondary" icon="search_check" disabled={loading} className="flex-1 text-sm">
-                                    Verificar
-                                </Button>
-                                {auditStats && auditStats.mismatches > 0 && (
-                                    <Button onClick={() => handleRunAudit(true)} variant="warning" icon="build" disabled={loading} className="flex-1 text-sm">
-                                        Corrigir ({auditStats.mismatches})
-                                    </Button>
-                                )}
-                            </div>
-
-                            {auditStats && (
-                                <div className={`mt-4 p-3 rounded-lg border text-sm ${auditStats.mismatches > 0 ? 'bg-amber-50 border-amber-200 text-amber-800' : 'bg-green-50 border-green-200 text-green-800'}`}>
-                                    <p className="font-bold flex items-center gap-2">
-                                        <span className="material-symbols-outlined text-base">{auditStats.mismatches > 0 ? 'warning' : 'check_circle'}</span>
-                                        Resultado:
-                                    </p>
-                                    <ul className="list-disc pl-6 mt-1 text-xs space-y-1 opacity-90">
-                                        <li>Sincronizados: {auditStats.matches}</li>
-                                        <li>Divergências: {auditStats.mismatches}</li>
-                                        {auditStats.corrections > 0 && <li>Corrigidos: {auditStats.corrections}</li>}
-                                    </ul>
-                                </div>
-                            )}
-                        </Card>
-                    </div>
-
-                    {/* Coluna 2: Integração e Sistema */}
-                    <div className="flex flex-col gap-6">
-                        {/* Google Sheets */}
-                        <Card padding="p-6" className="border-l-4 border-l-[#0F9D58] relative overflow-hidden">
-                             <div className="flex items-center gap-3 mb-4 text-text-main dark:text-white relative z-10">
-                                <div className="p-2 bg-green-50 dark:bg-green-900/30 rounded-lg text-[#0F9D58] dark:text-green-300">
-                                    <span className="material-symbols-outlined text-xl">table_view</span>
-                                </div>
-                                <div className="flex-1">
-                                    <h3 className="text-lg font-bold">Google Sheets</h3>
-                                    <p className="text-xs text-text-secondary dark:text-gray-400">Integração com Apps Script</p>
-                                </div>
-                                {isCloudConnected ? (
-                                    <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1">
-                                        <span className="material-symbols-outlined text-sm">wifi</span> Online
-                                    </span>
-                                ) : (
-                                    <span className="bg-gray-100 text-gray-500 px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1">
-                                        <span className="material-symbols-outlined text-sm">wifi_off</span> Offline
-                                    </span>
-                                )}
-                            </div>
-
-                            <div className="flex flex-col gap-4 relative z-10">
-                                <Input
-                                    label="URL do Web App"
-                                    value={googleUrl}
-                                    onChange={e => setGoogleUrl(e.target.value)}
-                                    placeholder="https://script.google.com/..."
-                                    className="text-sm"
-                                />
-                                <div className="flex gap-3">
-                                    <Button onClick={handleSaveGoogleConfig} variant="primary" disabled={loading} icon="save" className="flex-1 text-sm">
-                                        Conectar
-                                    </Button>
-                                    <Button onClick={handleSync} variant="outline" disabled={!isCloudConnected || loading} icon="sync" className="flex-1 text-sm">
-                                        Sincronizar
-                                    </Button>
-                                </div>
-                            </div>
-                        </Card>
-
-                        {/* Backup e Seed */}
-                        <Card padding="p-6">
-                            <div className="flex items-center gap-3 mb-4 text-text-main dark:text-white">
-                                <div className="p-2 rounded-lg bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-300">
-                                    <span className="material-symbols-outlined text-xl">save</span>
-                                </div>
-                                <h3 className="text-lg font-bold">Backup e Padrões</h3>
-                            </div>
-
-                            <div className="space-y-4">
-                                <div>
-                                    <p className="text-xs font-semibold text-text-secondary uppercase mb-2">Exportação</p>
-                                    <div className="grid grid-cols-2 gap-2">
-                                        <Button
-                                            onClick={() => handleExportExcel(false)}
-                                            disabled={loading}
-                                            variant="outline"
-                                            className="w-full text-sm"
-                                            icon="download"
-                                        >
-                                            Exportar (.xlsx)
-                                        </Button>
-                                        {isElectron ? (
-                                            <Button
-                                                onClick={handlePortableBackup}
-                                                disabled={loading}
-                                                variant="primary"
-                                                className="w-full text-sm"
-                                                icon="save"
-                                            >
-                                                Backup Full (.db)
-                                            </Button>
-                                        ) : (
-                                            <Button
-                                                onClick={handleDownloadSeed}
-                                                disabled={loading}
-                                                variant="outline"
-                                                className="w-full text-sm"
-                                                icon="code"
-                                            >
-                                                Baixar Seed
-                                            </Button>
-                                        )}
-                                    </div>
-                                </div>
-
-                                <div className="pt-2 border-t border-gray-100 dark:border-gray-800">
-                                    <p className="text-xs font-semibold text-text-secondary uppercase mb-2">Ponto de Restauração</p>
-
-                                    {hasCustomSeed ? (
-                                        <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg border border-blue-100 dark:border-blue-800 mb-3">
-                                            <div className="flex items-center gap-2 text-blue-800 dark:text-blue-300 text-sm font-bold mb-1">
-                                                <span className="material-symbols-outlined text-base">bookmark_added</span>
-                                                Seed Personalizado Ativo
-                                            </div>
-                                            <p className="text-xs text-blue-600 dark:text-blue-400">
-                                                O sistema usará seus dados salvos como ponto de reset.
-                                            </p>
-                                        </div>
-                                    ) : (
-                                        <div className="bg-gray-50 dark:bg-gray-800/50 p-3 rounded-lg border border-gray-100 dark:border-gray-700 mb-3">
-                                            <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400 text-sm font-bold mb-1">
-                                                <span className="material-symbols-outlined text-base">factory</span>
-                                                Padrão de Fábrica
-                                            </div>
-                                            <p className="text-xs text-text-secondary">
-                                                Usando o arquivo limsData.ts original.
-                                            </p>
-                                        </div>
-                                    )}
-
-                                    <div className="flex flex-col gap-2">
-                                        <Button
-                                            onClick={handleSetCurrentAsDefault}
-                                            disabled={loading}
-                                            variant="white"
-                                            className="w-full justify-start text-sm border-indigo-200 text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/20"
-                                            icon="bookmark_add"
-                                        >
-                                            Definir Estado Atual como Padrão
-                                        </Button>
-
-                                        {hasCustomSeed && (
-                                            <Button
-                                                onClick={handleRestoreFactory}
-                                                disabled={loading}
-                                                variant="white"
-                                                className="w-full justify-start text-sm border-orange-200 text-orange-600 hover:bg-orange-50 dark:hover:bg-orange-900/20"
-                                                icon="restore"
-                                            >
-                                                Voltar ao Padrão de Fábrica
-                                            </Button>
-                                        )}
-                                    </div>
-                                </div>
-                            </div>
-                        </Card>
-
-                        {/* ZONA DE PERIGO */}
-                        <Card padding="p-6" className="border-danger/30 dark:border-danger/20 bg-danger-bg/5 dark:bg-danger/5">
-                            <div className="flex items-center gap-3 mb-4 text-danger">
-                                <span className="material-symbols-outlined text-xl">dangerous</span>
-                                <h3 className="text-lg font-bold">Zona de Perigo</h3>
-                            </div>
-
-                            <div className="flex flex-col gap-3">
-                                <Button 
-                                    onClick={() => openResetModal('RELOAD')}
-                                    variant="white"
-                                    className="w-full justify-start text-sm border-danger/20 text-danger-text hover:bg-danger-bg dark:hover:bg-danger/10"
-                                    icon="restart_alt"
-                                    disabled={loading}
-                                >
-                                    {hasCustomSeed ? 'Resetar para Meu Padrão' : 'Resetar para Padrão de Fábrica'}
-                                </Button>
-                                <Button 
-                                    onClick={() => openResetModal('EMPTY')}
-                                    variant="danger"
-                                    className="w-full justify-start text-sm"
-                                    icon="delete_forever"
-                                    disabled={loading}
-                                >
-                                    Apagar Tudo (Zero)
-                                </Button>
-                            </div>
-                        </Card>
-                    </div>
-                </div>
-
-                {/* Import Wizard Overlay */}
-                <ImportWizard 
-                    isOpen={wizardOpen} 
-                    onClose={() => setWizardOpen(false)} 
-                    mode={wizardMode} 
-                />
-
-                {/* Secure Reset Modal */}
-                <Modal 
-                    isOpen={resetModalOpen} 
-                    onClose={() => setResetModalOpen(false)} 
-                    title={resetTargetMode === 'EMPTY' ? "Apagar TUDO?" : "Recarregar Banco de Dados?"}
-                    className="max-w-md"
-                >
-                    <div className="p-6 pt-0">
-                        <div className="bg-red-50 dark:bg-red-900/20 p-4 rounded-lg border border-red-100 dark:border-red-900/30 mb-6 flex gap-3">
-                            <span className="material-symbols-outlined text-danger text-3xl">warning</span>
-                            <div className="text-sm text-danger-text dark:text-red-200">
-                                <p className="font-bold mb-1">Ação Destrutiva</p>
-                                {resetTargetMode === 'EMPTY' ? (
-                                    <p>O sistema será esvaziado completamente. Todos os dados serão perdidos.</p>
-                                ) : (
-                                    <p>
-                                        Os dados atuais serão substituídos pelo ponto de restauração
-                                        {hasCustomSeed ? ' (Seu Backup Personalizado)' : ' (Padrão de Fábrica)'}.
-                                    </p>
-                                )}
+                            <div className="flex-1">
+                                <h3 className="text-sm font-bold text-green-400 uppercase tracking-wide">Integração Apps Script</h3>
+                                <p className="text-[10px] text-gray-500 font-mono">STATUS: {isCloudConnected ? 'ONLINE' : 'OFFLINE'}</p>
                             </div>
                         </div>
 
-                        <div className="space-y-4">
-                            <label className="block text-sm font-medium text-text-main dark:text-white">
-                                Digite <span className="font-bold font-mono text-danger">DELETAR</span> para confirmar:
-                            </label>
-                            <Input 
-                                value={resetConfirmationText}
-                                onChange={e => setResetConfirmationText(e.target.value)}
-                                placeholder="DELETAR"
-                                className="uppercase font-mono tracking-widest text-center border-red-300 focus:border-red-500 focus:ring-red-200"
-                                autoFocus
+                        <div className="flex flex-col gap-4">
+                            <OrbitalInput
+                                label="URL do Web App"
+                                value={googleUrl}
+                                onChange={e => setGoogleUrl(e.target.value)}
+                                placeholder="https://script.google.com/..."
+                                startIcon={<Sheet size={16} />}
+                                fullWidth
                             />
+                            <div className="flex gap-3">
+                                <OrbitalButton onClick={handleSaveGoogleConfig} variant="primary" disabled={loading} className="flex-1" startIcon={<Save size={16} />}>
+                                    Conectar
+                                </OrbitalButton>
+                                <OrbitalButton onClick={handleSync} variant="secondary" disabled={!isCloudConnected || loading} className="flex-1" startIcon={<RefreshCcw size={16} />}>
+                                    Sincronizar
+                                </OrbitalButton>
+                            </div>
                         </div>
+                    </OrbitalCard>
 
-                        <div className="flex justify-end gap-3 mt-8">
-                            <Button variant="ghost" onClick={() => setResetModalOpen(false)} disabled={loading}>
-                                Cancelar
-                            </Button>
-                            <Button 
-                                variant="danger" 
-                                onClick={handleExecuteReset}
-                                disabled={resetConfirmationText.toUpperCase() !== 'DELETAR' || loading}
-                                isLoading={loading}
-                                className="px-6"
+                    {/* Backup e Seed */}
+                    <OrbitalCard title="Backup e Padrões" action={<HardDrive size={16} />}>
+                        <div className="space-y-6">
+                            <div>
+                                <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-3 border-b border-gray-800 pb-1">Exportação</p>
+                                <div className="grid grid-cols-2 gap-3">
+                                    <OrbitalButton
+                                        onClick={() => handleExportExcel(false)}
+                                        disabled={loading}
+                                        variant="secondary"
+                                        size="sm"
+                                        startIcon={<Download size={14} />}
+                                    >
+                                        Excel (.xlsx)
+                                    </OrbitalButton>
+                                    {isElectron ? (
+                                        <OrbitalButton
+                                            onClick={handlePortableBackup}
+                                            disabled={loading}
+                                            variant="primary"
+                                            size="sm"
+                                            startIcon={<Save size={14} />}
+                                        >
+                                            Backup Full (.db)
+                                        </OrbitalButton>
+                                    ) : (
+                                        <OrbitalButton
+                                            onClick={handleDownloadSeed}
+                                            disabled={loading}
+                                            variant="secondary"
+                                            size="sm"
+                                            startIcon={<Code size={14} />}
+                                        >
+                                            Baixar Seed
+                                        </OrbitalButton>
+                                    )}
+                                </div>
+                            </div>
+
+                            <div>
+                                <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-3 border-b border-gray-800 pb-1">Ponto de Restauração</p>
+
+                                {hasCustomSeed ? (
+                                    <div className="bg-orbital-primary/5 p-3 rounded border border-orbital-primary/20 mb-3 flex gap-3 items-center">
+                                        <BookmarkPlus size={20} className="text-orbital-primary" />
+                                        <div>
+                                            <p className="text-xs font-bold text-orbital-primary uppercase">Seed Personalizado Ativo</p>
+                                            <p className="text-[10px] text-gray-400 font-mono">O sistema usará seus dados salvos como ponto de reset.</p>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="bg-gray-800/50 p-3 rounded border border-gray-700 mb-3 flex gap-3 items-center">
+                                        <Database size={20} className="text-gray-500" />
+                                        <div>
+                                            <p className="text-xs font-bold text-gray-400 uppercase">Padrão de Fábrica</p>
+                                            <p className="text-[10px] text-gray-600 font-mono">Usando dados originais do sistema.</p>
+                                        </div>
+                                    </div>
+                                )}
+
+                                <div className="flex flex-col gap-2">
+                                    <OrbitalButton
+                                        onClick={handleSetCurrentAsDefault}
+                                        disabled={loading}
+                                        variant="ghost"
+                                        size="sm"
+                                        className="w-full justify-start text-orbital-primary border border-orbital-primary/30 hover:bg-orbital-primary/10"
+                                        startIcon={<BookmarkPlus size={14} />}
+                                    >
+                                        Definir Estado Atual como Padrão
+                                    </OrbitalButton>
+
+                                    {hasCustomSeed && (
+                                        <OrbitalButton
+                                            onClick={handleRestoreFactory}
+                                            disabled={loading}
+                                            variant="ghost"
+                                            size="sm"
+                                            className="w-full justify-start text-orbital-accent border border-orbital-accent/30 hover:bg-orbital-accent/10"
+                                            startIcon={<RotateCcw size={14} />}
+                                        >
+                                            Voltar ao Padrão de Fábrica
+                                        </OrbitalButton>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    </OrbitalCard>
+
+                    {/* ZONA DE PERIGO */}
+                    <OrbitalCard title="Zona de Perigo" className="border-orbital-danger/50 shadow-[0_0_15px_rgba(239,68,68,0.1)]" action={<ShieldAlert size={16} className="text-orbital-danger" />}>
+                        <div className="flex flex-col gap-3">
+                            <OrbitalButton
+                                onClick={() => openResetModal('RELOAD')}
+                                variant="danger"
+                                size="sm"
+                                className="w-full justify-start bg-orbital-danger/10 text-orbital-danger border-orbital-danger/30 hover:bg-orbital-danger/20"
+                                startIcon={<RotateCcw size={14} />}
+                                disabled={loading}
                             >
-                                Confirmar Reset
-                            </Button>
+                                {hasCustomSeed ? 'Resetar para Meu Padrão' : 'Resetar para Padrão de Fábrica'}
+                            </OrbitalButton>
+                            <OrbitalButton
+                                onClick={() => openResetModal('EMPTY')}
+                                variant="danger"
+                                size="sm"
+                                className="w-full justify-start"
+                                startIcon={<Trash2 size={14} />}
+                                disabled={loading}
+                            >
+                                Apagar Tudo (Zero)
+                            </OrbitalButton>
+                        </div>
+                    </OrbitalCard>
+                </div>
+            </div>
+
+            {/* Import Wizard Overlay - Kept Original for now, maybe wrapped */}
+            <ImportWizard
+                isOpen={wizardOpen}
+                onClose={() => setWizardOpen(false)}
+                mode={wizardMode}
+            />
+
+            {/* Secure Reset Modal */}
+            <OrbitalModal
+                isOpen={resetModalOpen}
+                onClose={() => setResetModalOpen(false)}
+                title={resetTargetMode === 'EMPTY' ? "Apagar TUDO?" : "Recarregar Banco?"}
+                icon={<ShieldAlert size={24} />}
+            >
+                <div className="space-y-6">
+                    <div className="bg-orbital-danger/10 p-4 rounded border border-orbital-danger/30 flex gap-4 items-start">
+                        <AlertTriangle className="text-orbital-danger shrink-0" size={24} />
+                        <div className="text-sm text-gray-300 font-mono">
+                            <p className="font-bold text-orbital-danger mb-1 uppercase tracking-wider">Ação Destrutiva Detectada</p>
+                            {resetTargetMode === 'EMPTY' ? (
+                                <p>O sistema será esvaziado completamente. Todos os dados serão perdidos irreversivelmente.</p>
+                            ) : (
+                                <p>
+                                    Os dados atuais serão substituídos pelo ponto de restauração
+                                    {hasCustomSeed ? ' (Seu Backup Personalizado)' : ' (Padrão de Fábrica)'}.
+                                </p>
+                            )}
                         </div>
                     </div>
-                </Modal>
-            </div>
-        </PageContainer>
+
+                    <div className="space-y-2">
+                        <label className="block text-xs font-mono font-bold text-gray-500 uppercase tracking-widest">
+                            Digite <span className="text-orbital-danger">DELETAR</span> para confirmar:
+                        </label>
+                        <OrbitalInput
+                            value={resetConfirmationText}
+                            onChange={e => setResetConfirmationText(e.target.value)}
+                            placeholder="DELETAR"
+                            className="uppercase text-center text-orbital-danger border-orbital-danger/50 focus:border-orbital-danger"
+                            autoFocus
+                        />
+                    </div>
+
+                    <div className="flex justify-end gap-3 pt-4 border-t border-orbital-border/50">
+                        <OrbitalButton variant="ghost" onClick={() => setResetModalOpen(false)} disabled={loading}>
+                            Cancelar
+                        </OrbitalButton>
+                        <OrbitalButton
+                            variant="danger"
+                            onClick={handleExecuteReset}
+                            disabled={resetConfirmationText.toUpperCase() !== 'DELETAR' || loading}
+                            startIcon={<Trash2 size={16} />}
+                        >
+                            Confirmar Reset
+                        </OrbitalButton>
+                    </div>
+                </div>
+            </OrbitalModal>
+        </div>
     );
 };

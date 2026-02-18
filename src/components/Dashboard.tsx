@@ -11,7 +11,6 @@ import {
     DollarSign,
     AlertTriangle,
     CalendarClock,
-    History,
     ArrowRight,
     ShoppingCart,
     Activity

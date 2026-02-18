@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
-import { Box, Toolbar } from '@mui/material';
 import { Sidebar } from './Sidebar';
 import { Header } from './Header';
 
-const drawerWidth = 260; // Slightly wider for better legibility
+const DRAWER_WIDTH = 260;
 
 interface LayoutProps {
     children: React.ReactNode;
@@ -27,65 +26,54 @@ export const Layout: React.FC<LayoutProps> = ({
     onScanClick
 }) => {
     const [mobileOpen, setMobileOpen] = useState(false);
-    const [isClosing, setIsClosing] = useState(false);
-
-    const handleDrawerClose = () => {
-        setIsClosing(true);
-        setMobileOpen(false);
-    };
-
-    const handleDrawerTransitionEnd = () => {
-        setIsClosing(false);
-    };
 
     const handleDrawerToggle = () => {
-        if (!isClosing) {
-            setMobileOpen(!mobileOpen);
-        }
+        setMobileOpen(!mobileOpen);
     };
 
     return (
-        <Box sx={{ display: 'flex', height: '100vh', overflow: 'hidden', bgcolor: 'background.default' }}>
-            <Header
-                onToggleTheme={() => {}} // Theme toggle is handled inside Header or Context now
-                onBackup={onBackupForce}
-                onAddClick={onAddClick}
-                onScanClick={onScanClick}
-                notificationsCount={alertsCount}
-                onMenuClick={handleDrawerToggle}
-                drawerWidth={drawerWidth}
-            />
-
+        <div className="flex h-screen overflow-hidden bg-orbital-bg text-gray-100 font-sans selection:bg-orbital-primary/30 selection:text-white">
+            {/* Sidebar (Fixed on Desktop, Drawer on Mobile) */}
             <Sidebar 
                 onLogout={onLogout}
                 notificationsCount={notificationsCount}
                 onSync={onSync}
                 isMobileOpen={mobileOpen}
-                onTransitionEnd={handleDrawerTransitionEnd}
-                onClose={handleDrawerClose}
-                drawerWidth={drawerWidth}
+                onClose={() => setMobileOpen(false)}
+                drawerWidth={DRAWER_WIDTH}
             />
 
-            <Box
-                component="main"
-                sx={{
-                    flexGrow: 1,
-                    // Remove padding from here to let PageContainer control it or use it as a flex container
-                    // But we keep it if children expect it. PageContainer has its own padding.
-                    // To prevent double scrolling, we make this a flex column.
-                    display: 'flex',
-                    flexDirection: 'column',
-                    width: { sm: `calc(100% - ${drawerWidth}px)` },
-                    height: '100vh',
-                    bgcolor: 'background.default',
-                    overflow: 'hidden'
-                }}
-            >
-                <Toolbar /> {/* Spacer to push content below AppBar */}
-                <Box sx={{ flexGrow: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
-                    {children}
-                </Box>
-            </Box>
-        </Box>
+            {/* Main Content Area */}
+            <div className="flex-1 flex flex-col min-w-0 overflow-hidden lg:ml-[260px] transition-all duration-300">
+
+                {/* Fixed Header */}
+                <Header
+                    onToggleTheme={() => {}}
+                    onBackup={onBackupForce}
+                    onAddClick={onAddClick}
+                    onScanClick={onScanClick}
+                    notificationsCount={alertsCount}
+                    onMenuClick={handleDrawerToggle}
+                    drawerWidth={DRAWER_WIDTH}
+                />
+
+                {/* Scrollable Page Content */}
+                <main className="flex-1 overflow-y-auto overflow-x-hidden pt-16 scroll-smooth custom-scrollbar">
+                    <div className="min-h-full p-4 md:p-6 lg:p-8 max-w-[1920px] mx-auto w-full relative">
+                        {/* Grid Background Effect */}
+                        <div className="absolute inset-0 pointer-events-none opacity-[0.03]"
+                             style={{
+                                backgroundImage: `linear-gradient(#334155 1px, transparent 1px), linear-gradient(90deg, #334155 1px, transparent 1px)`,
+                                backgroundSize: '40px 40px'
+                             }}
+                        />
+
+                        <div className="relative z-10">
+                            {children}
+                        </div>
+                    </div>
+                </main>
+            </div>
+        </div>
     );
 };

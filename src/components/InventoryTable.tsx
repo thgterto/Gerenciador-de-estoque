@@ -1,21 +1,27 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { InventoryItem } from '../types';
-import { Button, Box, Paper } from '@mui/material';
-import { PageHeader } from './ui/PageHeader';
-import { PageContainer } from './ui/PageContainer';
 import { useAuth } from '../context/AuthContext';
 import { useStockOperations } from '../hooks/useStockOperations';
 import { useInventoryFilters } from '../hooks/useInventoryFilters';
-
-import { InventoryKPIs } from './inventory/InventoryKPIs';
-import { InventoryFilters } from './inventory/InventoryFilters';
-import { InventoryList } from './inventory/InventoryList';
+import { OrbitalPageHeader } from './ui/orbital/OrbitalPageHeader';
+import { OrbitalInventoryList } from './inventory/orbital/OrbitalInventoryList';
+import { OrbitalStat } from './ui/orbital/OrbitalStat';
+import { OrbitalInput } from './ui/orbital/OrbitalInput';
+import { OrbitalSelect } from './ui/orbital/OrbitalSelect';
+import { OrbitalButton } from './ui/orbital/OrbitalButton';
+import { OrbitalCard } from './ui/orbital/OrbitalCard';
 
 // Icons
-import AddIcon from '@mui/icons-material/Add';
-import FileDownloadIcon from '@mui/icons-material/FileDownload';
-import DeleteIcon from '@mui/icons-material/Delete';
-import CloseIcon from '@mui/icons-material/Close';
+import {
+    Plus,
+    Download,
+    Trash2,
+    X,
+    Search,
+    Package,
+    AlertTriangle,
+    XCircle
+} from 'lucide-react';
 
 interface Props {
   items: InventoryItem[];
@@ -96,14 +102,9 @@ export const InventoryTable: React.FC<Props> = ({ items, onActions, onAddNew }) 
       }
   };
 
-  const getCategoryIcon = useCallback((cat: string) => {
-      const c = cat.toLowerCase();
-      if (c.includes('reagente') || c.includes('quimico')) return 'science';
-      if (c.includes('vidraria')) return 'biotech';
-      if (c.includes('equipamento')) return 'memory';
-      if (c.includes('peça') || c.includes('manutencao')) return 'build';
-      if (c.includes('consum')) return 'inventory';
-      return 'inventory_2'; 
+  const getCategoryIcon = useCallback((_cat: string) => {
+      // Icon mapping logic if needed, currently unused in Orbital row
+      return 'box';
   }, []);
 
   const copyToClipboard = useCallback((text: string) => {
@@ -112,36 +113,122 @@ export const InventoryTable: React.FC<Props> = ({ items, onActions, onAddNew }) 
   }, []);
 
   return (
-    <PageContainer scrollable={isMobile}>
-        <PageHeader 
+    <div className="flex flex-col h-full space-y-4">
+        <OrbitalPageHeader
             title="Inventário" 
-            description="Gerencie lotes, reagentes e vidrarias."
-            className="mb-4"
-        >
-            <Button variant="outlined" startIcon={<FileDownloadIcon />} onClick={() => alert("Use o menu de Configurações para exportar dados completos.")} sx={{ display: { xs: 'none', sm: 'flex' } }}>
-                Exportar
-            </Button>
-            {onAddNew && (
-                <Button variant="contained" startIcon={<AddIcon />} onClick={onAddNew}>
-                    Adicionar
-                </Button>
-            )}
-        </PageHeader>
-
-        <InventoryKPIs stats={stats} />
-
-        <InventoryFilters
-            term={term} setTerm={setTerm}
-            catFilter={catFilter} setCatFilter={setCatFilter}
-            locationFilter={locationFilter} setLocationFilter={setLocationFilter}
-            statusFilter={statusFilter} setStatusFilter={setStatusFilter}
-            hideZeroStock={hideZeroStock} setHideZeroStock={setHideZeroStock}
-            uniqueLocations={uniqueLocations}
-            uniqueCategories={uniqueCategories}
-            getCategoryIcon={getCategoryIcon}
+            description="Gerenciamento de estoque em tempo real."
+            breadcrumbs={[{ label: 'Inventário' }]}
+            actions={
+                <div className="flex gap-2">
+                    <OrbitalButton variant="secondary" startIcon={<Download size={16} />} onClick={() => alert("Use Configurações para exportar.")}>
+                        Exportar
+                    </OrbitalButton>
+                    {onAddNew && (
+                        <OrbitalButton variant="primary" startIcon={<Plus size={16} />} onClick={onAddNew}>
+                            Adicionar
+                        </OrbitalButton>
+                    )}
+                </div>
+            }
         />
 
-        <InventoryList
+        {/* KPIs */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+             <OrbitalStat
+                label="Total de Lotes"
+                value={stats.totalItems}
+                icon={<Package size={24} />}
+                color="primary"
+             />
+             <OrbitalStat
+                label="Baixo Estoque"
+                value={stats.lowStockCount}
+                icon={<AlertTriangle size={24} />}
+                color="warning"
+                trend={stats.lowStockCount > 0 ? 'down' : 'neutral'}
+             />
+             <OrbitalStat
+                label="Vencidos"
+                value={stats.expiredCount}
+                icon={<XCircle size={24} />}
+                color="danger"
+                trend={stats.expiredCount > 0 ? 'down' : 'neutral'}
+             />
+        </div>
+
+        {/* Filters */}
+        <OrbitalCard className="p-4" noPadding>
+            <div className="p-4 space-y-4">
+                <div className="flex flex-col md:flex-row gap-4">
+                    <div className="flex-grow">
+                        <OrbitalInput
+                            placeholder="BUSCAR POR NOME, SKU, LOTE..."
+                            value={term}
+                            onChange={(e) => setTerm(e.target.value)}
+                            startIcon={<Search size={16} />}
+                            fullWidth
+                        />
+                    </div>
+                    <div className="w-full md:w-48">
+                        <OrbitalSelect
+                            options={[
+                                { value: 'ALL', label: 'Todos Status' },
+                                { value: 'LOW_STOCK', label: 'Baixo Estoque' },
+                                { value: 'EXPIRED', label: 'Vencidos' }
+                            ]}
+                            value={statusFilter}
+                            onChange={(e) => setStatusFilter(e.target.value as any)}
+                        />
+                    </div>
+                    <div className="w-full md:w-64">
+                         <OrbitalSelect
+                            options={[
+                                { value: '', label: 'Todas Localizações' },
+                                ...uniqueLocations.map(loc => ({ value: loc, label: loc }))
+                            ]}
+                            value={locationFilter}
+                            onChange={(e) => setLocationFilter(e.target.value)}
+                        />
+                    </div>
+                </div>
+
+                <div className="flex flex-col md:flex-row justify-between items-center pt-4 border-t border-orbital-border/50 gap-4">
+                     <div className="flex items-center gap-2">
+                        <input
+                            type="checkbox"
+                            checked={hideZeroStock}
+                            onChange={(e) => setHideZeroStock(e.target.checked)}
+                            className="w-4 h-4 rounded border-gray-600 bg-gray-800 text-orbital-primary focus:ring-orbital-primary focus:ring-offset-gray-900"
+                            id="hideZero"
+                        />
+                        <label htmlFor="hideZero" className="text-sm font-mono text-gray-400 cursor-pointer select-none">
+                            Ocultar itens sem estoque
+                        </label>
+                     </div>
+
+                     <div className="flex flex-wrap gap-2 items-center">
+                         <span className="text-[10px] font-mono font-bold text-gray-500 uppercase tracking-wider mr-2">Filtro Rápido:</span>
+                         {uniqueCategories.map(cat => (
+                             <button
+                                key={cat}
+                                onClick={() => setCatFilter(cat === catFilter ? '' : cat)}
+                                className={`
+                                    px-2 py-1 rounded text-xs font-mono uppercase tracking-wide border transition-all
+                                    ${cat === catFilter
+                                        ? 'bg-orbital-primary/20 text-orbital-primary border-orbital-primary'
+                                        : 'bg-transparent text-gray-500 border-gray-700 hover:border-gray-500 hover:text-gray-300'}
+                                `}
+                             >
+                                 {cat || 'OUTROS'}
+                             </button>
+                         ))}
+                     </div>
+                </div>
+            </div>
+        </OrbitalCard>
+
+        {/* Inventory List */}
+        <OrbitalInventoryList
             flatList={flatList}
             isMobile={isMobile}
             selectedIds={selectedIds}
@@ -160,54 +247,38 @@ export const InventoryTable: React.FC<Props> = ({ items, onActions, onAddNew }) 
             expandedGroups={expandedGroups}
         />
 
-        {/* Bulk Actions Snackbar/Floating Bar */}
+        {/* Bulk Actions Floating Bar */}
         {selectedIds.size > 0 && hasRole('ADMIN') && (
-            <Paper
-                elevation={6}
-                sx={{
-                    position: 'fixed',
-                    bottom: 32,
-                    left: '50%',
-                    transform: 'translateX(-50%)',
-                    bgcolor: 'text.primary',
-                    color: 'background.paper',
-                    px: 3, py: 1.5,
-                    borderRadius: 8,
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 3,
-                    zIndex: 1300
-                }}
-            >
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <Box sx={{ bgcolor: 'primary.main', color: 'white', borderRadius: '50%', width: 24, height: 24, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: 'bold' }}>
-                        {selectedIds.size}
-                    </Box>
-                    <span className="hidden sm:inline">Itens Selecionados</span>
-                </Box>
-                <Box sx={{ height: 24, width: 1, bgcolor: 'rgba(255,255,255,0.2)' }} />
-                <Box sx={{ display: 'flex', gap: 1 }}>
-                    <Button 
-                        variant="contained"
-                        color="error"
-                        size="small"
-                        startIcon={<DeleteIcon />}
-                        onClick={handleBulkDelete}
-                        sx={{ borderRadius: 4 }}
-                    >
-                        Excluir
-                    </Button>
-                    <Button
-                        size="small"
-                        onClick={() => setSelectedIds(new Set())}
-                        aria-label="Cancelar seleção"
-                        sx={{ color: 'rgba(255,255,255,0.7)', minWidth: 0, p: 1, borderRadius: '50%' }}
-                    >
-                        <CloseIcon />
-                    </Button>
-                </Box>
-            </Paper>
+            <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 animate-slide-up">
+                <div className="bg-orbital-card border border-orbital-border shadow-orbital-hover rounded-full px-6 py-3 flex items-center gap-6 backdrop-blur-md">
+                    <div className="flex items-center gap-3">
+                        <div className="w-6 h-6 rounded-full bg-orbital-primary text-black flex items-center justify-center font-bold text-xs">
+                            {selectedIds.size}
+                        </div>
+                        <span className="text-sm font-mono text-gray-200 hidden sm:inline">ITENS SELECIONADOS</span>
+                    </div>
+
+                    <div className="h-4 w-px bg-gray-700" />
+
+                    <div className="flex items-center gap-2">
+                        <OrbitalButton
+                            variant="danger"
+                            size="sm"
+                            onClick={handleBulkDelete}
+                            startIcon={<Trash2 size={14} />}
+                        >
+                            EXCLUIR
+                        </OrbitalButton>
+                        <button
+                            onClick={() => setSelectedIds(new Set())}
+                            className="p-1.5 rounded-full hover:bg-white/10 text-gray-400 hover:text-white transition-colors"
+                        >
+                            <X size={18} />
+                        </button>
+                    </div>
+                </div>
+            </div>
         )}
-    </PageContainer>
+    </div>
   );
 };
