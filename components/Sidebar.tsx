@@ -63,7 +63,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     color: 'primary.contrastText',
                     display: 'flex'
                 }}>
-                    <ScienceIcon fontSize="medium" />
+                    <ScienceIcon fontSize="medium" aria-hidden="true" />
                 </Box>
                 <Typography variant="h6" noWrap component="div" sx={{ fontWeight: 'bold' }}>
                     Lab<Box component="span" sx={{ color: 'secondary.main' }}>Control</Box>
@@ -125,7 +125,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             {/* Footer Actions */}
             <Box sx={{ p: 2, bgcolor: 'background.paper' }}>
                 <ListItemButton onClick={onSync} sx={{ borderRadius: 2, mb: 1 }}>
-                    <ListItemIcon sx={{ minWidth: 40 }}><SyncIcon /></ListItemIcon>
+                    <ListItemIcon sx={{ minWidth: 40 }}><SyncIcon aria-hidden="true" /></ListItemIcon>
                     <ListItemText primary="Sincronizar" secondary="Backup manual" />
                 </ListItemButton>
 
@@ -142,8 +142,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
                         </Typography>
                     </Box>
                     <Tooltip title="Sair">
-                        <IconButton onClick={onLogout} size="small" color="default">
-                            <LogoutIcon fontSize="small" />
+                        <IconButton
+                            onClick={onLogout}
+                            size="small"
+                            color="default"
+                            aria-label="sair"
+                        >
+                            <LogoutIcon fontSize="small" aria-hidden="true" />
                         </IconButton>
                     </Tooltip>
                 </Box>
