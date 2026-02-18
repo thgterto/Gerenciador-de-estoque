@@ -138,6 +138,7 @@ export const StorageMatrix: React.FC<Props> = ({ items, onActions }) => {
     const { addToast } = useAlert();
     const { hasRole } = useAuth();
     const [selectedLocKey, setSelectedLocKey] = useState<string | null>(null);
+    const [selectedShelf, setSelectedShelf] = useState<string | null>(null);
     const [auditMode, setAuditMode] = useState(false);
     const [selectedItem, setSelectedItem] = useState<InventoryItem | null>(null);
     const [viewMode, setViewMode] = useState<'GRID' | 'LIST'>(() => window.innerWidth < 768 ? 'LIST' : 'GRID');
@@ -183,10 +184,35 @@ export const StorageMatrix: React.FC<Props> = ({ items, onActions }) => {
         return stats;
     }, [locations]);
 
-    // Itens do local selecionado
+    // Itens do local selecionado (Armazém > Armário)
     const selectedLocationItems = useMemo((): InventoryItem[] => {
         return selectedLocKey ? (locations[selectedLocKey] || []) : [];
     }, [selectedLocKey, locations]);
+
+    // Agrupa prateleiras disponíveis neste local
+    const availableShelves = useMemo(() => {
+        const shelves = new Set<string>();
+        selectedLocationItems.forEach(item => {
+            shelves.add(item.location.shelf || 'Sem Prateleira');
+        });
+        return Array.from(shelves).sort();
+    }, [selectedLocationItems]);
+
+    // Estatísticas por prateleira
+    const shelfStats = useMemo(() => {
+        const stats: Record<string, ReturnType<typeof analyzeLocation>> = {};
+        availableShelves.forEach(shelf => {
+            const shelfItems = selectedLocationItems.filter(i => (i.location.shelf || 'Sem Prateleira') === shelf);
+            stats[shelf] = analyzeLocation(shelfItems);
+        });
+        return stats;
+    }, [availableShelves, selectedLocationItems]);
+
+    // Itens filtrados pela prateleira selecionada (para o Grid/Lista final)
+    const finalViewItems = useMemo(() => {
+        if (!selectedShelf) return [];
+        return selectedLocationItems.filter(item => (item.location.shelf || 'Sem Prateleira') === selectedShelf);
+    }, [selectedLocationItems, selectedShelf]);
 
     // Mapeia itens para o Grid e vice-versa
     const { gridMap, reverseGridMap } = useMemo(() => {
@@ -194,7 +220,7 @@ export const StorageMatrix: React.FC<Props> = ({ items, onActions }) => {
         const revMap: Record<string, string> = {};
         const unassigned: InventoryItem[] = [];
         
-        selectedLocationItems.forEach(item => {
+        finalViewItems.forEach(item => {
             const pos = normalizeStr(item.location.position || '').toUpperCase();
             const match = pos.match(/([A-F])[\W_]?([1-8])/);
             
@@ -207,7 +233,7 @@ export const StorageMatrix: React.FC<Props> = ({ items, onActions }) => {
             }
         });
         return { gridMap: map, reverseGridMap: revMap };
-    }, [selectedLocationItems]);
+    }, [finalViewItems]);
 
     const activeCellId = useMemo(() => {
         if (!selectedItem) return null;
@@ -245,13 +271,33 @@ export const StorageMatrix: React.FC<Props> = ({ items, onActions }) => {
         <div className={`flex flex-col ${isMobile ? 'min-h-full' : 'h-full'} bg-background-light dark:bg-background-dark overflow-hidden animate-fade-in`}>
             <div className={`px-4 md:px-8 py-5 bg-surface-light/80 dark:bg-surface-dark/80 backdrop-blur-sm sticky top-0 z-10 border-b border-border-light dark:border-border-dark shadow-sm`}>
                  <PageHeader 
-                    title={selectedLocKey ? (selectedLocKey.split(' > ')[1] || selectedLocKey) : "Locais de Armazenamento"}
-                    description={selectedLocKey ? `${selectedLocKey.split(' > ')[0]}` : "Selecione um local para gerenciar a disposição física."}
+                    title={
+                        selectedShelf
+                            ? selectedShelf
+                            : selectedLocKey
+                                ? (selectedLocKey.split(' > ')[1] || selectedLocKey)
+                                : "Locais de Armazenamento"
+                    }
+                    description={
+                        selectedShelf
+                            ? `${selectedLocKey} > ${selectedShelf}`
+                            : selectedLocKey
+                                ? `${selectedLocKey.split(' > ')[0]} > Selecione a Prateleira`
+                                : "Selecione um local para gerenciar a disposição física."
+                    }
                     className="mb-0"
                  >
                     {selectedLocKey && (
                         <>
-                            <Button variant="ghost" onClick={() => { setSelectedLocKey(null); setSelectedItem(null); }}>
+                            <Button variant="ghost" onClick={() => {
+                                if (selectedShelf) {
+                                    setSelectedShelf(null);
+                                    setSelectedItem(null);
+                                } else {
+                                    setSelectedLocKey(null);
+                                    setSelectedItem(null);
+                                }
+                            }}>
                                 Voltar
                             </Button>
                             {/* Toggle View Mode Button */}
@@ -322,6 +368,39 @@ export const StorageMatrix: React.FC<Props> = ({ items, onActions }) => {
                             </div>
                         )}
                     </div>
+                ) : !selectedShelf ? (
+                    <div className={`${isMobile ? '' : 'overflow-y-auto h-full'} pr-2 pb-10 custom-scrollbar`}>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+                            {availableShelves.map(shelf => {
+                                const analysis = shelfStats[shelf];
+                                return (
+                                    <Card
+                                        key={shelf}
+                                        variant="interactive"
+                                        padding="p-5"
+                                        onClick={() => setSelectedShelf(shelf)}
+                                        className="flex flex-col gap-4 transition-all duration-200"
+                                    >
+                                        <div className="flex justify-between items-start">
+                                            <div className="flex items-center gap-3">
+                                                <div className={`p-2 rounded-lg bg-background-light dark:bg-slate-700 shadow-sm text-primary border border-border-light dark:border-slate-600`}>
+                                                    <span className="material-symbols-outlined text-[24px]">table_rows</span>
+                                                </div>
+                                                <div>
+                                                    <h3 className="font-bold text-text-main dark:text-white text-base">{shelf}</h3>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="flex justify-between text-[10px] text-text-secondary dark:text-gray-400 mt-0.5">
+                                            <span className="font-medium bg-surface-light dark:bg-surface-dark px-2 py-0.5 rounded border border-border-light dark:border-border-dark">
+                                                {analysis.count} Itens
+                                            </span>
+                                        </div>
+                                    </Card>
+                                );
+                            })}
+                        </div>
+                    </div>
                 ) : (
                     <div className="max-w-[1600px] mx-auto w-full h-full flex flex-col lg:flex-row gap-6">
                         <div className="flex-1 flex flex-col gap-4 min-h-0">
@@ -370,10 +449,10 @@ export const StorageMatrix: React.FC<Props> = ({ items, onActions }) => {
                             ) : (
                                 <div className="bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl shadow-sm overflow-hidden flex-1 flex flex-col">
                                     <div className="overflow-y-auto p-0 custom-scrollbar">
-                                        {selectedLocationItems.length === 0 ? (
-                                            <div className="text-center py-12 text-text-secondary">Nenhum item neste local.</div>
+                                        {finalViewItems.length === 0 ? (
+                                            <div className="text-center py-12 text-text-secondary">Nenhum item nesta prateleira.</div>
                                         ) : (
-                                            selectedLocationItems.map(item => {
+                                            finalViewItems.map(item => {
                                                 if (isMobile && onActions) {
                                                     return (
                                                         <InventoryMobileChildRow
