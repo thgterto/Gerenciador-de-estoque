@@ -11,6 +11,7 @@ import { useAlert } from '../context/AlertContext';
 import { Badge } from './ui/Badge';
 import { InventoryMobileChildRow } from './InventoryRows';
 import { useAuth } from '../context/AuthContext';
+import { PageContainer } from './ui/PageContainer';
 
 interface Props {
   items: InventoryItem[];
@@ -138,6 +139,7 @@ export const StorageMatrix: React.FC<Props> = ({ items, onActions }) => {
     const { addToast } = useAlert();
     const { hasRole } = useAuth();
     const [selectedLocKey, setSelectedLocKey] = useState<string | null>(null);
+    const [selectedShelf, setSelectedShelf] = useState<string | null>(null);
     const [auditMode, setAuditMode] = useState(false);
     const [selectedItem, setSelectedItem] = useState<InventoryItem | null>(null);
     const [viewMode, setViewMode] = useState<'GRID' | 'LIST'>(() => window.innerWidth < 768 ? 'LIST' : 'GRID');
@@ -183,10 +185,35 @@ export const StorageMatrix: React.FC<Props> = ({ items, onActions }) => {
         return stats;
     }, [locations]);
 
-    // Itens do local selecionado
+    // Itens do local selecionado (Armazém > Armário)
     const selectedLocationItems = useMemo((): InventoryItem[] => {
         return selectedLocKey ? (locations[selectedLocKey] || []) : [];
     }, [selectedLocKey, locations]);
+
+    // Agrupa prateleiras disponíveis neste local
+    const availableShelves = useMemo(() => {
+        const shelves = new Set<string>();
+        selectedLocationItems.forEach(item => {
+            shelves.add(item.location.shelf || 'Sem Prateleira');
+        });
+        return Array.from(shelves).sort();
+    }, [selectedLocationItems]);
+
+    // Estatísticas por prateleira
+    const shelfStats = useMemo(() => {
+        const stats: Record<string, ReturnType<typeof analyzeLocation>> = {};
+        availableShelves.forEach(shelf => {
+            const shelfItems = selectedLocationItems.filter(i => (i.location.shelf || 'Sem Prateleira') === shelf);
+            stats[shelf] = analyzeLocation(shelfItems);
+        });
+        return stats;
+    }, [availableShelves, selectedLocationItems]);
+
+    // Itens filtrados pela prateleira selecionada (para o Grid/Lista final)
+    const finalViewItems = useMemo(() => {
+        if (!selectedShelf) return [];
+        return selectedLocationItems.filter(item => (item.location.shelf || 'Sem Prateleira') === selectedShelf);
+    }, [selectedLocationItems, selectedShelf]);
 
     // Mapeia itens para o Grid e vice-versa
     const { gridMap, reverseGridMap } = useMemo(() => {
@@ -194,7 +221,7 @@ export const StorageMatrix: React.FC<Props> = ({ items, onActions }) => {
         const revMap: Record<string, string> = {};
         const unassigned: InventoryItem[] = [];
         
-        selectedLocationItems.forEach(item => {
+        finalViewItems.forEach(item => {
             const pos = normalizeStr(item.location.position || '').toUpperCase();
             const match = pos.match(/([A-F])[\W_]?([1-8])/);
             
@@ -207,7 +234,7 @@ export const StorageMatrix: React.FC<Props> = ({ items, onActions }) => {
             }
         });
         return { gridMap: map, reverseGridMap: revMap };
-    }, [selectedLocationItems]);
+    }, [finalViewItems]);
 
     const activeCellId = useMemo(() => {
         if (!selectedItem) return null;
@@ -242,44 +269,61 @@ export const StorageMatrix: React.FC<Props> = ({ items, onActions }) => {
     }, [addToast]);
 
     return (
-        <div className={`flex flex-col ${isMobile ? 'min-h-full' : 'h-full'} bg-background-light dark:bg-background-dark overflow-hidden animate-fade-in`}>
-            <div className={`px-4 md:px-8 py-5 bg-surface-light/80 dark:bg-surface-dark/80 backdrop-blur-sm sticky top-0 z-10 border-b border-border-light dark:border-border-dark shadow-sm`}>
-                 <PageHeader 
-                    title={selectedLocKey ? (selectedLocKey.split(' > ')[1] || selectedLocKey) : "Locais de Armazenamento"}
-                    description={selectedLocKey ? `${selectedLocKey.split(' > ')[0]}` : "Selecione um local para gerenciar a disposição física."}
-                    className="mb-0"
-                 >
-                    {selectedLocKey && (
-                        <>
-                            <Button variant="ghost" onClick={() => { setSelectedLocKey(null); setSelectedItem(null); }}>
-                                Voltar
-                            </Button>
-                            {/* Toggle View Mode Button */}
-                             <Button 
-                                onClick={() => setViewMode(viewMode === 'GRID' ? 'LIST' : 'GRID')}
-                                variant="white"
-                                icon={viewMode === 'GRID' ? 'list' : 'grid_view'}
-                                title="Alternar Visualização"
-                            >
-                                {viewMode === 'GRID' ? 'Lista' : 'Grid'}
-                            </Button>
-                            <Button 
-                                id="tour-audit-btn"
-                                onClick={() => setAuditMode(!auditMode)}
-                                variant={auditMode ? 'warning' : 'white'}
-                                icon={auditMode ? 'visibility' : 'visibility_off'}
-                                className={`hidden sm:flex ${auditMode ? 'ring-2 ring-warning border-transparent font-bold' : ''}`}
-                            >
-                                {auditMode ? 'Audit ON' : 'Audit'}
-                            </Button>
-                        </>
-                    )}
-                 </PageHeader>
-            </div>
+        <PageContainer scrollable>
+             <PageHeader
+                title={
+                    selectedShelf
+                        ? selectedShelf
+                        : selectedLocKey
+                            ? (selectedLocKey.split(' > ')[1] || selectedLocKey)
+                            : "Locais de Armazenamento"
+                }
+                description={
+                    selectedShelf
+                        ? `${selectedLocKey} > ${selectedShelf}`
+                        : selectedLocKey
+                            ? `${selectedLocKey.split(' > ')[0]} > Selecione a Prateleira`
+                            : "Selecione um local para gerenciar a disposição física."
+                }
+             >
+                {selectedLocKey && (
+                    <>
+                        <Button variant="ghost" onClick={() => {
+                            if (selectedShelf) {
+                                setSelectedShelf(null);
+                                setSelectedItem(null);
+                            } else {
+                                setSelectedLocKey(null);
+                                setSelectedItem(null);
+                            }
+                        }}>
+                            Voltar
+                        </Button>
+                        {/* Toggle View Mode Button */}
+                         <Button
+                            onClick={() => setViewMode(viewMode === 'GRID' ? 'LIST' : 'GRID')}
+                            variant="white"
+                            icon={viewMode === 'GRID' ? 'list' : 'grid_view'}
+                            title="Alternar Visualização"
+                        >
+                            {viewMode === 'GRID' ? 'Lista' : 'Grid'}
+                        </Button>
+                        <Button
+                            id="tour-audit-btn"
+                            onClick={() => setAuditMode(!auditMode)}
+                            variant={auditMode ? 'warning' : 'white'}
+                            icon={auditMode ? 'visibility' : 'visibility_off'}
+                            className={`hidden sm:flex ${auditMode ? 'ring-2 ring-warning border-transparent font-bold' : ''}`}
+                        >
+                            {auditMode ? 'Audit ON' : 'Audit'}
+                        </Button>
+                    </>
+                )}
+             </PageHeader>
             
-            <div className={`flex-1 ${isMobile ? 'overflow-visible' : 'overflow-hidden'} p-4 md:p-8 relative`}>
+            <div className={`flex-1 relative`}>
                 {!selectedLocKey ? (
-                    <div className={`${isMobile ? '' : 'overflow-y-auto h-full'} pr-2 pb-10 custom-scrollbar`}>
+                    <div>
                         {Object.keys(locations).length === 0 ? (
                             <div className="flex flex-col items-center justify-center h-64 text-text-secondary opacity-60">
                                 <span className="material-symbols-outlined text-6xl mb-4 text-border-DEFAULT">shelves</span>
@@ -322,12 +366,45 @@ export const StorageMatrix: React.FC<Props> = ({ items, onActions }) => {
                             </div>
                         )}
                     </div>
+                ) : !selectedShelf ? (
+                    <div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+                            {availableShelves.map(shelf => {
+                                const analysis = shelfStats[shelf];
+                                return (
+                                    <Card
+                                        key={shelf}
+                                        variant="interactive"
+                                        padding="p-5"
+                                        onClick={() => setSelectedShelf(shelf)}
+                                        className="flex flex-col gap-4 transition-all duration-200"
+                                    >
+                                        <div className="flex justify-between items-start">
+                                            <div className="flex items-center gap-3">
+                                                <div className={`p-2 rounded-lg bg-background-light dark:bg-slate-700 shadow-sm text-primary border border-border-light dark:border-slate-600`}>
+                                                    <span className="material-symbols-outlined text-[24px]">table_rows</span>
+                                                </div>
+                                                <div>
+                                                    <h3 className="font-bold text-text-main dark:text-white text-base">{shelf}</h3>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="flex justify-between text-[10px] text-text-secondary dark:text-gray-400 mt-0.5">
+                                            <span className="font-medium bg-surface-light dark:bg-surface-dark px-2 py-0.5 rounded border border-border-light dark:border-border-dark">
+                                                {analysis.count} Itens
+                                            </span>
+                                        </div>
+                                    </Card>
+                                );
+                            })}
+                        </div>
+                    </div>
                 ) : (
-                    <div className="max-w-[1600px] mx-auto w-full h-full flex flex-col lg:flex-row gap-6">
+                    <div className="w-full flex flex-col lg:flex-row gap-6">
                         <div className="flex-1 flex flex-col gap-4 min-h-0">
                             {viewMode === 'GRID' ? (
-                                <div className="bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl shadow-sm p-6 overflow-auto custom-scrollbar flex-1 flex flex-col justify-center relative">
-                                    <div className="min-w-[600px] flex flex-col items-center">
+                                <div className="bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl shadow-sm p-6 overflow-auto custom-scrollbar flex-1 flex flex-col justify-center relative min-h-[500px]">
+                                    <div className="min-w-[600px] flex flex-col items-center mx-auto">
                                         <div className="flex mb-3 ml-8 w-full max-w-4xl gap-3">
                                             {activeCols.map(col => (
                                                 <div key={col} className="flex-1 text-center text-xs font-bold text-text-secondary dark:text-gray-500 uppercase tracking-widest">{col}</div>
@@ -369,11 +446,11 @@ export const StorageMatrix: React.FC<Props> = ({ items, onActions }) => {
                                 </div>
                             ) : (
                                 <div className="bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl shadow-sm overflow-hidden flex-1 flex flex-col">
-                                    <div className="overflow-y-auto p-0 custom-scrollbar">
-                                        {selectedLocationItems.length === 0 ? (
-                                            <div className="text-center py-12 text-text-secondary">Nenhum item neste local.</div>
+                                    <div className="overflow-visible p-0">
+                                        {finalViewItems.length === 0 ? (
+                                            <div className="text-center py-12 text-text-secondary">Nenhum item nesta prateleira.</div>
                                         ) : (
-                                            selectedLocationItems.map(item => {
+                                            finalViewItems.map(item => {
                                                 if (isMobile && onActions) {
                                                     return (
                                                         <InventoryMobileChildRow
@@ -443,26 +520,27 @@ export const StorageMatrix: React.FC<Props> = ({ items, onActions }) => {
                             )}
                         </div>
 
-                        {/* Painel Lateral de Detalhes (Desktop Only mostly, or bottom sheet) */}
-                        <aside className={`
-                            w-full lg:w-80 flex-shrink-0 flex flex-col gap-4 h-full overflow-hidden transition-all duration-300
-                            ${!selectedItem && isMobile ? 'hidden' : ''}
+                        {/* Painel Lateral de Detalhes (Desktop Sidebar / Mobile Bottom Sheet) */}
+                        {/* Adiciona padding-bottom extra na div principal para evitar que a bottom-bar cubra o conteúdo no mobile */}
+                        <div className={`
+                            ${selectedItem && !isMobile ? '' : 'hidden'} lg:block
+                            w-full lg:w-80 flex-shrink-0 flex flex-col gap-4
+                            lg:sticky lg:top-4 lg:self-start transition-all duration-300
                         `}>
-                            <Card padding="p-0" className="flex flex-col h-full overflow-hidden bg-surface-light dark:bg-surface-dark border-border-light dark:border-border-dark">
+                            <Card padding="p-0" className="flex flex-col bg-surface-light dark:bg-surface-dark border-border-light dark:border-border-dark">
                                 {selectedItem ? (
-                                    <div className="flex flex-col h-full">
+                                    <div className="flex flex-col">
                                         <div className="p-5 border-b border-border-light dark:border-border-dark bg-background-light/50 dark:bg-slate-800/50">
                                             <div className="flex justify-between items-start mb-3">
                                                 <div className="bg-primary/10 text-primary text-xs font-bold px-2.5 py-1 rounded-md uppercase tracking-wider border border-primary/10">
                                                     {reverseGridMap[selectedItem.id] || 'S/P'}
                                                 </div>
-                                                <Button size="sm" variant="ghost" className="h-6 w-6 p-0 md:hidden" onClick={() => setSelectedItem(null)} icon="close" />
                                             </div>
                                             <h3 className="font-bold text-text-main dark:text-white text-lg leading-tight" title={selectedItem.name}>{selectedItem.name}</h3>
                                             <p className="text-xs text-text-secondary font-mono mt-1">{selectedItem.sapCode || 'Sem código'}</p>
                                         </div>
                                         
-                                        <div className="p-5 space-y-5 flex-1 overflow-y-auto custom-scrollbar">
+                                        <div className="p-5 space-y-5">
                                             <div className="grid grid-cols-2 gap-3">
                                                 <div className="bg-background-light dark:bg-slate-800 p-3 rounded-lg border border-border-light dark:border-border-dark">
                                                     <p className="text-[10px] text-text-secondary uppercase font-bold tracking-wider mb-1">Qtd</p>
@@ -511,10 +589,60 @@ export const StorageMatrix: React.FC<Props> = ({ items, onActions }) => {
                                     </div>
                                 )}
                             </Card>
-                        </aside>
+                        </div>
+
+                        {/* Mobile Bottom Bar (Sheet) */}
+                        {selectedItem && (
+                            <div className={`
+                                lg:hidden fixed bottom-0 left-0 right-0 z-50
+                                bg-surface-light dark:bg-surface-dark
+                                border-t border-border-light dark:border-border-dark
+                                shadow-[0_-4px_20px_-5px_rgba(0,0,0,0.2)]
+                                animate-slide-up-fade
+                                pb-safe
+                            `}>
+                                <div className="p-4">
+                                    <div className="flex justify-between items-start mb-3">
+                                        <div className="flex flex-col">
+                                            <div className="flex items-center gap-2 mb-1">
+                                                <div className="bg-primary/10 text-primary text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider border border-primary/10">
+                                                    {reverseGridMap[selectedItem.id] || 'S/P'}
+                                                </div>
+                                                <p className="text-[10px] text-text-secondary font-mono">{selectedItem.sapCode || 'Sem código'}</p>
+                                            </div>
+                                            <h3 className="font-bold text-text-main dark:text-white text-base leading-tight truncate max-w-[280px]" title={selectedItem.name}>{selectedItem.name}</h3>
+                                        </div>
+                                        <Button size="sm" variant="ghost" className="h-8 w-8 p-0" onClick={() => setSelectedItem(null)} icon="close" />
+                                    </div>
+
+                                    <div className="flex gap-3 mb-4">
+                                        <div className="flex-1 bg-background-light dark:bg-slate-800 p-2 rounded border border-border-light dark:border-border-dark flex flex-col justify-center">
+                                            <p className="text-[10px] text-text-secondary uppercase font-bold tracking-wider mb-0.5">Qtd</p>
+                                            <p className="font-bold text-base text-text-main dark:text-white leading-none">{selectedItem.quantity} <span className="text-[10px] font-normal text-text-light">{selectedItem.baseUnit}</span></p>
+                                        </div>
+                                        <div className="flex-1 bg-background-light dark:bg-slate-800 p-2 rounded border border-border-light dark:border-border-dark flex flex-col justify-center">
+                                            <p className="text-[10px] text-text-secondary uppercase font-bold tracking-wider mb-0.5">Lote</p>
+                                            <p className="font-bold text-sm text-text-main dark:text-white truncate leading-tight" title={selectedItem.lotNumber}>{selectedItem.lotNumber}</p>
+                                        </div>
+                                    </div>
+
+                                    {onActions && (
+                                        <div className="grid grid-cols-4 gap-2">
+                                            <Button size="sm" variant="success" onClick={() => onActions.move(selectedItem)} icon="add_circle" className="col-span-1" />
+                                            <Button size="sm" variant="danger" onClick={() => onActions.move(selectedItem)} icon="remove_circle" className="col-span-1" />
+                                            <Button size="sm" variant="white" onClick={() => onActions.move(selectedItem)} icon="swap_horiz" className="col-span-1" />
+                                            <Button size="sm" variant="white" onClick={() => onActions.edit(selectedItem)} icon="edit" className="col-span-1" />
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Spacer to prevent content being hidden behind bottom bar on mobile */}
+                        {selectedItem && <div className="lg:hidden h-[240px]" />}
                     </div>
                 )}
             </div>
-        </div>
+        </PageContainer>
     );
 };
