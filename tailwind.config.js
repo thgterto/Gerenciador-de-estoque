@@ -53,6 +53,16 @@ export default {
             active: '#2C2E33',
             border: '#2C2E33'
         },
+        // Orbital Command Theme
+        orbital: {
+            bg: '#0f172a',    // Slate 900
+            card: '#1e293b',  // Slate 800
+            border: '#334155', // Slate 700
+            primary: '#22d3ee', // Cyan 400
+            accent: '#f59e0b',  // Amber 500
+            danger: '#ef4444',  // Red 500
+            success: '#10b981'  // Emerald 500
+        },
         border: {
            light: '#E5E7EB',    // Gray 200
            DEFAULT: '#D1D5DB',  // Gray 300
@@ -102,6 +112,8 @@ export default {
         'lg': '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
         'xl': '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
         'inner': 'inset 0 2px 4px 0 rgba(0, 0, 0, 0.06)',
+        'orbital': '4px 4px 0px 0px rgba(0,0,0,0.5)', // Hard shadow
+        'orbital-hover': '6px 6px 0px 0px rgba(34, 211, 238, 0.3)', // Cyan glow shadow
       },
       borderRadius: {
         'none': '0',
@@ -113,6 +125,7 @@ export default {
         '2xl': '1rem',
         '3xl': '1.5rem',
         'full': '9999px',
+        'orbital': '2px', // Sharp
       },
       animation: {
         'fade-in': 'fadeIn 0.3s ease-out forwards',

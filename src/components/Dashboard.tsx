@@ -1,26 +1,26 @@
 import React from 'react';
-import {
-    Card, CardContent, CardHeader, Typography, Box,
-    Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
-    Button, Chip, Divider, useTheme
-} from '@mui/material';
-import { Grid } from '@mui/material';
-import { PageContainer } from './ui/PageContainer';
-import { PageHeader } from './ui/PageHeader';
-import { useDashboardAnalytics } from '../hooks/useDashboardAnalytics';
-import Chart from 'react-apexcharts';
 import { useNavigate } from 'react-router-dom';
+import Chart from 'react-apexcharts';
+import { useDashboardAnalytics } from '../hooks/useDashboardAnalytics';
 import { InventoryItem, MovementRecord } from '../types';
 import { formatDate, formatDateTime } from '../utils/formatters';
 
 // Icons
-import Inventory2Icon from '@mui/icons-material/Inventory2';
-import PaymentsIcon from '@mui/icons-material/Payments';
-import WarningIcon from '@mui/icons-material/Warning';
-import EventBusyIcon from '@mui/icons-material/EventBusy';
-import HistoryIcon from '@mui/icons-material/History';
-import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
-import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
+import {
+    Box,
+    DollarSign,
+    AlertTriangle,
+    CalendarClock,
+    ArrowRight,
+    ShoppingCart,
+    Activity
+} from 'lucide-react';
+
+// Orbital UI
+import { OrbitalCard } from './ui/orbital/OrbitalCard';
+import { OrbitalStat } from './ui/orbital/OrbitalStat';
+import { OrbitalBadge } from './ui/orbital/OrbitalBadge';
+import { OrbitalButton } from './ui/orbital/OrbitalButton';
 
 interface DashboardProps {
   items: InventoryItem[];
@@ -40,41 +40,47 @@ export const Dashboard: React.FC<DashboardProps> = ({ items, history, onAddToPur
   } = useDashboardAnalytics(items, history);
   
   const navigate = useNavigate();
-  const theme = useTheme();
 
-  // Chart Configuration
+  // Chart Configuration for Orbital Theme
   const commonChartOptions: ApexCharts.ApexOptions = {
     chart: {
         toolbar: { show: false },
         background: 'transparent',
-        fontFamily: theme.typography.fontFamily
+        fontFamily: '"JetBrains Mono", monospace',
+        foreColor: '#94a3b8' // Slate 400
     },
-    colors: [theme.palette.primary.main, theme.palette.secondary.main],
+    colors: ['#22d3ee', '#f59e0b'], // Cyan-400, Amber-500
     grid: {
-        borderColor: theme.palette.divider,
+        borderColor: '#334155', // Slate 700
         strokeDashArray: 4,
     },
-    tooltip: { theme: theme.palette.mode }
+    tooltip: {
+        theme: 'dark',
+        style: {
+            fontSize: '12px',
+            fontFamily: '"JetBrains Mono", monospace',
+        }
+    }
   };
 
   const paretoOptions: ApexCharts.ApexOptions = {
     ...commonChartOptions,
     chart: { ...commonChartOptions.chart, type: 'line' },
-    colors: [theme.palette.primary.main, theme.palette.text.primary],
-    stroke: { width: [0, 3], curve: 'smooth' },
+    colors: ['#22d3ee', '#f1f5f9'], // Cyan, Slate-100 for line
+    stroke: { width: [0, 2], curve: 'straight' },
     plotOptions: {
-      bar: { columnWidth: '60%', borderRadius: 4 }
+      bar: { columnWidth: '60%', borderRadius: 0 } // Sharp corners
     },
     dataLabels: { enabled: false },
     xaxis: {
         categories: paretoData.map((d: { category: string }) => d.category),
-        labels: { style: { colors: theme.palette.text.secondary } }
+        labels: { style: { colors: '#94a3b8', fontSize: '10px' } }
     },
     yaxis: [
-      { title: { text: 'Valor Total' } },
-      { opposite: true, title: { text: 'Acumulado %' }, max: 100 }
+      { title: { text: 'Valor Total', style: { color: '#94a3b8' } } },
+      { opposite: true, title: { text: 'Acumulado %', style: { color: '#94a3b8' } }, max: 100 }
     ],
-    legend: { position: 'top' }
+    legend: { position: 'top', horizontalAlign: 'right' }
   };
 
   const paretoSeries = [
@@ -82,235 +88,202 @@ export const Dashboard: React.FC<DashboardProps> = ({ items, history, onAddToPur
     { name: '% Acumulado', type: 'line', data: paretoData.map((d: { accumulatedPercentage: number }) => d.accumulatedPercentage) }
   ];
 
+  const totalIssues = lowStockItems.length + expiringItems.length;
+
   return (
-    <PageContainer scrollable>
-      <PageHeader
-          title="Dashboard"
-          description="Visão Geral Operacional"
-      />
+    <div className="p-4 md:p-8 space-y-8 max-w-[1920px] mx-auto w-full overflow-y-auto custom-scrollbar h-full bg-orbital-bg text-gray-200">
 
-      <Grid container spacing={3} sx={{ mb: 4 }}>
-        {/* Metrics */}
-        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-             <MetricCard
-                title="Total de Itens"
-                value={totalItems}
-                icon={<Inventory2Icon />}
-                color="primary"
-                onClick={() => navigate('/inventory')}
-             />
-        </Grid>
-        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-             <MetricCard
-                title="Valor em Estoque"
-                value={`R$ ${totalValue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`}
-                icon={<PaymentsIcon />}
-                color="success"
-             />
-        </Grid>
-        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-             <MetricCard
-                title="Baixo Estoque"
-                value={lowStockItems.length}
-                subtitle={outOfStockItems.length > 0 ? `${outOfStockItems.length} zerados` : undefined}
-                icon={<WarningIcon />}
-                color="warning"
-             />
-        </Grid>
-        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-             <MetricCard
-                title="A Vencer"
-                value={expiringItems.length}
-                icon={<EventBusyIcon />}
-                color="error"
-             />
-        </Grid>
+      {/* Header */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-end border-b border-orbital-border pb-4 gap-4">
+          <div>
+              <h1 className="text-3xl font-display font-bold text-white tracking-tight uppercase">
+                  Orbital Command
+              </h1>
+              <p className="text-gray-400 font-mono text-sm mt-1">
+                  System Status: <span className="text-orbital-success">ONLINE</span> // Sector: LOGISTICS
+              </p>
+          </div>
+          <div className="flex gap-2">
+               <OrbitalButton
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => navigate('/reports')}
+                  startIcon={<Activity size={14} />}
+               >
+                  Relatórios
+               </OrbitalButton>
+               <OrbitalButton
+                  variant="primary"
+                  size="sm"
+                  onClick={() => navigate('/inventory')}
+                  endIcon={<ArrowRight size={14} />}
+               >
+                  Inventário
+               </OrbitalButton>
+          </div>
+      </div>
 
-        {/* Recent Transactions */}
-        <Grid size={{ xs: 12, lg: 8 }}>
-            <Card sx={{ height: '100%' }}>
-                <CardHeader
-                    title="Movimentações Recentes"
-                    avatar={<HistoryIcon color="action" />}
-                    action={
-                        <Button size="small" endIcon={<ArrowForwardIcon />} onClick={() => navigate('/history')}>
-                            Ver Tudo
-                        </Button>
-                    }
-                />
-                <Divider />
-                <TableContainer>
-                    <Table size="small">
-                        <TableHead>
-                            <TableRow>
-                                <TableCell>Tipo</TableCell>
-                                <TableCell>Item</TableCell>
-                                <TableCell align="right">Qtd</TableCell>
-                                <TableCell align="right">Data</TableCell>
-                            </TableRow>
-                        </TableHead>
-                        <TableBody>
+      {/* Metrics Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+           <OrbitalStat
+              label="Total Itens"
+              value={totalItems}
+              icon={<Box />}
+              color="primary"
+              onClick={() => navigate('/inventory')}
+              trend="neutral"
+           />
+           <OrbitalStat
+              label="Valor em Estoque"
+              value={`R$ ${totalValue.toLocaleString('pt-BR', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
+              icon={<DollarSign />}
+              color="success"
+              trend="up"
+              trendValue="+2.4%" // Mock trend
+           />
+           <OrbitalStat
+              label="Estoque Crítico"
+              value={lowStockItems.length}
+              subtitle={outOfStockItems.length > 0 ? `${outOfStockItems.length} zerados` : undefined}
+              icon={<AlertTriangle />}
+              color="warning"
+              trend={lowStockItems.length > 0 ? 'down' : 'neutral'}
+           />
+           <OrbitalStat
+              label="Vencimentos"
+              value={expiringItems.length}
+              icon={<CalendarClock />}
+              color="danger"
+              trend={expiringItems.length > 0 ? 'down' : 'neutral'}
+           />
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        {/* Recent Transactions - Takes 8 cols */}
+        <div className="lg:col-span-8 flex flex-col gap-6">
+            <OrbitalCard
+                title="Movimentações Recentes"
+                className="h-full min-h-[400px]"
+                action={
+                    <OrbitalButton variant="ghost" size="sm" onClick={() => navigate('/history')} endIcon={<ArrowRight size={14} />}>
+                        Ver Tudo
+                    </OrbitalButton>
+                }
+                noPadding
+            >
+                <div className="overflow-x-auto">
+                    <table className="w-full text-left border-collapse">
+                        <thead className="bg-orbital-card/50 border-b border-orbital-border text-xs font-mono text-gray-400 uppercase tracking-wider">
+                            <tr>
+                                <th className="p-4 font-normal">Tipo</th>
+                                <th className="p-4 font-normal">Item / Lote</th>
+                                <th className="p-4 font-normal text-right">Qtd</th>
+                                <th className="p-4 font-normal text-right">Data</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-orbital-border/50 font-mono text-sm">
                             {recentTransactions.map((tx) => (
-                                <TableRow key={tx.id} hover>
-                                    <TableCell>
-                                        <Chip
+                                <tr key={tx.id} className="hover:bg-white/5 transition-colors group">
+                                    <td className="p-4">
+                                        <OrbitalBadge
                                             label={tx.type}
-                                            size="small"
                                             color={tx.type === 'ENTRADA' ? 'success' : tx.type === 'SAIDA' ? 'default' : 'warning'}
-                                            variant="outlined"
                                         />
-                                    </TableCell>
-                                    <TableCell>
-                                        <Typography variant="body2" fontWeight="medium">{tx.productName}</Typography>
-                                        <Typography variant="caption" color="textSecondary">Lote: {tx.lot}</Typography>
-                                    </TableCell>
-                                    <TableCell align="right">
-                                        <Typography variant="body2" fontWeight="bold">
-                                            {tx.quantity} <Typography component="span" variant="caption">{tx.unit}</Typography>
-                                        </Typography>
-                                    </TableCell>
-                                    <TableCell align="right">
-                                        <Typography variant="caption">{formatDateTime(tx.date)}</Typography>
-                                    </TableCell>
-                                </TableRow>
+                                    </td>
+                                    <td className="p-4">
+                                        <div className="font-bold text-gray-200 group-hover:text-orbital-primary transition-colors">
+                                            {tx.productName}
+                                        </div>
+                                        <div className="text-xs text-gray-500 mt-0.5">Lote: {tx.lot}</div>
+                                    </td>
+                                    <td className="p-4 text-right">
+                                        <span className="font-bold">{tx.quantity}</span> <span className="text-xs text-gray-500">{tx.unit}</span>
+                                    </td>
+                                    <td className="p-4 text-right text-gray-400 text-xs">
+                                        {formatDateTime(tx.date)}
+                                    </td>
+                                </tr>
                             ))}
                             {recentTransactions.length === 0 && (
-                                <TableRow>
-                                    <TableCell colSpan={4} align="center">
-                                        <Typography variant="body2" color="textSecondary" sx={{ py: 3 }}>
-                                            Nenhuma movimentação recente.
-                                        </Typography>
-                                    </TableCell>
-                                </TableRow>
+                                <tr>
+                                    <td colSpan={4} className="p-8 text-center text-gray-500 font-mono text-sm italic">
+                                        // Nenhuma movimentação registrada nas últimas 24h
+                                    </td>
+                                </tr>
                             )}
-                        </TableBody>
-                    </Table>
-                </TableContainer>
-            </Card>
-        </Grid>
+                        </tbody>
+                    </table>
+                </div>
+            </OrbitalCard>
+        </div>
 
-        {/* Action Required & Charts */}
-        <Grid size={{ xs: 12, lg: 4 }}>
-            <Grid container spacing={3} direction="column">
-                
-                {/* Action Items */}
-                <Grid size={{ xs: 12 }}>
-                    <Card sx={{ borderLeft: 4, borderColor: 'warning.main' }}>
-                        <CardHeader
-                            title="Ação Necessária"
-                            action={
-                                (lowStockItems.length + expiringItems.length) > 0 &&
-                                <Chip label={lowStockItems.length + expiringItems.length} color="error" size="small" />
-                            }
-                        />
-                        <CardContent sx={{ pt: 0, maxHeight: 400, overflowY: 'auto' }}>
-                             {/* Low Stock */}
-                             {lowStockItems.slice(0, 3).map(item => (
-                                <Box key={item.id} sx={{ mb: 2, p: 1.5, bgcolor: 'warning.light', borderRadius: 1, color: 'warning.contrastText' }}>
-                                    <Box display="flex" justifyContent="space-between" alignItems="center">
-                                        <Typography variant="subtitle2" noWrap sx={{ maxWidth: '70%' }}>{item.name}</Typography>
-                                        <Typography variant="caption" fontWeight="bold">{item.quantity} / {item.minStockLevel} {item.baseUnit}</Typography>
-                                    </Box>
-                                    <Button
-                                        size="small"
-                                        variant="contained"
-                                        color="warning"
-                                        fullWidth
-                                        sx={{ mt: 1 }}
-                                        onClick={() => onAddToPurchase(item, 'LOW_STOCK')}
-                                        startIcon={<AddShoppingCartIcon />}
-                                    >
-                                        Repor Estoque
-                                    </Button>
-                                </Box>
-                             ))}
+        {/* Action & Charts - Takes 4 cols */}
+        <div className="lg:col-span-4 flex flex-col gap-6">
 
-                             {/* Expiring */}
-                             {expiringItems.slice(0, 3).map(item => (
-                                <Box key={item.id} sx={{ mb: 2, p: 1.5, bgcolor: 'error.light', borderRadius: 1, color: 'error.contrastText' }}>
-                                    <Box display="flex" justifyContent="space-between" alignItems="center">
-                                        <Typography variant="subtitle2" noWrap sx={{ maxWidth: '70%' }}>{item.name}</Typography>
-                                        <Typography variant="caption" fontWeight="bold">Vence: {formatDate(item.expiryDate)}</Typography>
-                                    </Box>
-                                    <Button
-                                        size="small"
-                                        variant="contained"
-                                        color="error"
-                                        fullWidth
-                                        sx={{ mt: 1 }}
-                                        onClick={() => onAddToPurchase(item, 'EXPIRING')}
-                                        startIcon={<AddShoppingCartIcon />}
-                                    >
-                                        Repor (Vencimento)
-                                    </Button>
-                                </Box>
-                             ))}
+            {/* Action Required */}
+            <OrbitalCard
+                title="Prioridade de Ação"
+                className={`border-l-4 ${totalIssues > 0 ? 'border-l-orbital-danger' : 'border-l-orbital-success'}`}
+                action={totalIssues > 0 && <OrbitalBadge label={`${totalIssues} pendentes`} color="danger" />}
+            >
+                <div className="space-y-3 max-h-[350px] overflow-y-auto custom-scrollbar pr-2">
+                     {/* Low Stock */}
+                     {lowStockItems.slice(0, 3).map(item => (
+                        <div key={item.id} className="p-3 bg-orbital-accent/5 border border-orbital-accent/20 rounded-sm">
+                            <div className="flex justify-between items-start mb-2">
+                                <span className="text-sm font-bold text-orbital-accent truncate max-w-[70%]">{item.name}</span>
+                                <span className="text-xs font-mono text-gray-400">{item.quantity} / {item.minStockLevel}</span>
+                            </div>
+                            <OrbitalButton
+                                variant="secondary"
+                                size="sm"
+                                className="w-full text-xs !py-1 !px-2 border-orbital-accent/50 text-orbital-accent hover:bg-orbital-accent/10"
+                                onClick={() => onAddToPurchase(item, 'LOW_STOCK')}
+                                startIcon={<ShoppingCart size={12} />}
+                            >
+                                Repor Estoque
+                            </OrbitalButton>
+                        </div>
+                     ))}
 
-                             {(lowStockItems.length === 0 && expiringItems.length === 0) && (
-                                <Typography variant="body2" color="textSecondary" align="center">
-                                    Tudo certo! Nenhuma ação pendente.
-                                </Typography>
-                             )}
-                        </CardContent>
-                    </Card>
-                </Grid>
+                     {/* Expiring */}
+                     {expiringItems.slice(0, 3).map(item => (
+                        <div key={item.id} className="p-3 bg-orbital-danger/5 border border-orbital-danger/20 rounded-sm">
+                            <div className="flex justify-between items-start mb-2">
+                                <span className="text-sm font-bold text-orbital-danger truncate max-w-[70%]">{item.name}</span>
+                                <span className="text-xs font-mono text-gray-400">Vence: {formatDate(item.expiryDate)}</span>
+                            </div>
+                            <OrbitalButton
+                                variant="danger"
+                                size="sm"
+                                className="w-full text-xs !py-1 !px-2"
+                                onClick={() => onAddToPurchase(item, 'EXPIRING')}
+                                startIcon={<ShoppingCart size={12} />}
+                            >
+                                Repor (Vencimento)
+                            </OrbitalButton>
+                        </div>
+                     ))}
 
-                {/* Pareto Chart */}
-                <Grid size={{ xs: 12 }}>
-                    <Card>
-                        <CardHeader title="Top Categorias (Pareto)" />
-                        <CardContent>
-                            <Box sx={{ height: 300 }}>
-                                <Chart options={paretoOptions} series={paretoSeries} type="line" height="100%" />
-                            </Box>
-                        </CardContent>
-                    </Card>
-                </Grid>
-            </Grid>
-        </Grid>
-      </Grid>
-    </PageContainer>
+                     {(totalIssues === 0) && (
+                        <div className="flex flex-col items-center justify-center py-8 text-gray-500 gap-2 opacity-50">
+                            <Activity size={32} />
+                            <span className="text-sm font-mono uppercase tracking-widest text-center">Nenhuma ação necessária</span>
+                        </div>
+                     )}
+                </div>
+            </OrbitalCard>
+
+            {/* Pareto Chart */}
+            <OrbitalCard title="Análise ABC (Pareto)" className="flex-grow min-h-[300px]" noPadding>
+                <div className="p-2 h-full">
+                    <Chart options={paretoOptions} series={paretoSeries} type="line" height={280} />
+                </div>
+            </OrbitalCard>
+        </div>
+
+      </div>
+    </div>
   );
 };
-
-interface MetricCardProps {
-    title: string;
-    value: string | number;
-    icon: React.ReactNode;
-    color: string;
-    onClick?: () => void;
-    subtitle?: string;
-}
-
-const MetricCard: React.FC<MetricCardProps> = ({ title, value, icon, color, onClick, subtitle }) => (
-    <Card
-      sx={{ height: '100%', cursor: onClick ? 'pointer' : 'default', position: 'relative' }}
-      onClick={onClick}
-      elevation={2}
-    >
-        <CardContent sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <Box>
-                <Typography color="textSecondary" gutterBottom variant="overline">
-                    {title}
-                </Typography>
-                <Typography variant="h4" component="div" fontWeight="bold">
-                    {value}
-                </Typography>
-                {subtitle && (
-                    <Typography variant="caption" color="error">
-                        {subtitle}
-                    </Typography>
-                )}
-            </Box>
-            <Box sx={{
-                bgcolor: `${color}.light`,
-                color: `${color}.main`,
-                p: 1.5,
-                borderRadius: '50%',
-                display: 'flex'
-            }}>
-                {icon}
-            </Box>
-        </CardContent>
-    </Card>
-);
