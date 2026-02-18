@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { InventoryBatch, StockBalance, BatchDetailView } from '../types';
+import { InventoryBatch, StockBalance, BatchDetailView } from '../src/types';
 
 describe('InventoryService Performance Benchmark', () => {
 

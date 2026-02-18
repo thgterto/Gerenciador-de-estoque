@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { identifyCategory } from '../utils/classificationUtils';
+import { identifyCategory } from '../src/utils/classificationUtils';
 
 describe('identifyCategory', () => {
   it('should identify REAGENTES', () => {

@@ -1,5 +1,5 @@
 
-import { InventoryItem, CatalogProduct, InventoryBatch, StockBalance, MovementRecord } from '../types';
+import { InventoryItem } from '../types';
 
 interface ServerResponse {
     success: boolean;

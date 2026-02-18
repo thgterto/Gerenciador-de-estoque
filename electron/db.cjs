@@ -1,7 +1,6 @@
 const Database = require('better-sqlite3');
 const fs = require('fs');
 const path = require('path');
-const { app } = require('electron');
 
 let db;
 
@@ -93,7 +92,7 @@ function getDenormalizedInventory() {
 }
 
 function safeJsonParse(str) {
-    try { return JSON.parse(str); } catch (e) { return {}; }
+    try { return JSON.parse(str); } catch { return {}; }
 }
 
 function readFullDB() {

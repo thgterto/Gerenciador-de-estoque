@@ -5,7 +5,7 @@ import reactRefresh from 'eslint-plugin-react-refresh';
 import tseslint from 'typescript-eslint';
 
 export default tseslint.config(
-  { ignores: ['dist', 'release', 'electron', 'coverage'] },
+  { ignores: ['dist', 'release', 'coverage'] },
   {
     extends: [js.configs.recommended, ...tseslint.configs.recommended],
     files: ['**/*.{ts,tsx}'],
@@ -27,4 +27,16 @@ export default tseslint.config(
       '@typescript-eslint/no-explicit-any': 'warn',
     },
   },
+  {
+    files: ['electron/**/*.{js,cjs}'],
+    extends: [js.configs.recommended],
+    languageOptions: {
+      ecmaVersion: 2020,
+      globals: globals.node,
+    },
+    rules: {
+      'no-unused-vars': 'warn',
+      'no-undef': 'error',
+    },
+  }
 );

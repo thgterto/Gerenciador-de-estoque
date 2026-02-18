@@ -9,7 +9,7 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'jsdom',
-    setupFiles: './vitest.setup.ts',
+    setupFiles: './src/vitest.setup.ts',
     css: true,
   },
   base: process.env.VERCEL ? '/' : './', // '/' para Vercel, './' para Electron (Portable)
