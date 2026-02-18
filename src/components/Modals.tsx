@@ -2,56 +2,31 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { InventoryItem, QRCodeDataDTO, CreateItemDTO } from '../types';
 import * as ReactQRCode from 'react-qr-code';
 const QRCode = (ReactQRCode as any).default || ReactQRCode;
-import {
-    Dialog, DialogTitle, DialogContent, DialogActions,
-    TextField, Button, MenuItem, IconButton, Typography, Box,
-    InputAdornment, Stack, FormControl, InputLabel, Select, CircularProgress
-} from '@mui/material';
-
-// Icons
-import Inventory2Icon from '@mui/icons-material/Inventory2';
-import CloseIcon from '@mui/icons-material/Close';
-import QrCodeScannerIcon from '@mui/icons-material/QrCodeScanner';
-import PrintIcon from '@mui/icons-material/Print';
-import DownloadIcon from '@mui/icons-material/Download';
-import SaveIcon from '@mui/icons-material/Save';
-import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
-import VideocamOffIcon from '@mui/icons-material/VideocamOff';
 
 import { ItemForm } from './ItemForm';
 import { AddItem } from './AddItem';
 import { useAlert } from '../context/AlertContext';
 import { useScanner } from '../hooks/useScanner';
+import { OrbitalModal } from './ui/orbital/OrbitalModal';
+import { OrbitalButton } from './ui/orbital/OrbitalButton';
+import { OrbitalInput } from './ui/orbital/OrbitalInput';
+import { OrbitalSelect } from './ui/orbital/OrbitalSelect';
+import {
+    QrCode,
+    Download,
+    Printer,
+    VideoOff,
+    Loader2,
+    Save,
+    Package,
+    Search,
+    ShoppingCart
+} from 'lucide-react';
 
 interface ItemModalBaseProps {
     isOpen: boolean;
     onClose: () => void;
 }
-
-const BootstrapDialogTitle = (props: { children?: React.ReactNode; onClose: () => void; subtitle?: string }) => {
-  const { children, onClose, subtitle, ...other } = props;
-
-  return (
-    <DialogTitle sx={{ m: 0, p: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'start' }} {...other}>
-      <Box>
-          <Typography variant="h6" component="div" sx={{ fontWeight: 'bold' }}>{children}</Typography>
-          {subtitle && <Typography variant="caption" color="text.secondary" sx={{ fontFamily: 'monospace' }}>{subtitle}</Typography>}
-      </Box>
-      {onClose ? (
-        <IconButton
-          aria-label="close"
-          onClick={onClose}
-          sx={{
-            color: (theme) => theme.palette.grey[500],
-            mt: -0.5
-          }}
-        >
-          <CloseIcon />
-        </IconButton>
-      ) : null}
-    </DialogTitle>
-  );
-};
 
 // ============================================================================
 // MODAL: SCANNER QR CODE
@@ -82,44 +57,42 @@ export const QRScannerModal: React.FC<QRScannerModalProps> = ({ isOpen, onClose,
     }, [isOpen, startScanner, stopScanner]);
 
     return (
-        <Dialog open={isOpen} onClose={onClose} maxWidth="xs" fullWidth>
-             <BootstrapDialogTitle onClose={onClose}>{title}</BootstrapDialogTitle>
-             <DialogContent>
-                <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, py: 2 }}>
-                    <Box sx={{
-                        width: '100%', maxWidth: 300, aspectRatio: '1/1', position: 'relative',
-                        bgcolor: 'black', borderRadius: 2, overflow: 'hidden', border: '1px solid #ccc'
-                    }}>
-                        {error ? (
-                            <Box sx={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', p: 3, bgcolor: 'background.paper', textAlign: 'center' }}>
-                                <VideocamOffIcon color="error" sx={{ fontSize: 40, mb: 1 }} />
-                                <Typography color="error" variant="body2" fontWeight="bold" gutterBottom>{error}</Typography>
-                                <Button variant="outlined" size="small" onClick={() => window.location.reload()}>Recarregar</Button>
-                            </Box>
-                        ) : (
-                            <>
-                                <div id={elementId} style={{ width: '100%', height: '100%', objectFit: 'cover' }}></div>
-                                {isScanning && (
-                                    <Box sx={{ position: 'absolute', inset: 0, pointerEvents: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                        <Box sx={{ width: '60%', height: '60%', border: '2px solid rgba(255,255,255,0.7)', borderRadius: 2, position: 'relative' }}>
-                                            {/* Corner markers could be added here */}
-                                        </Box>
-                                    </Box>
-                                )}
-                                {!isScanning && !error && (
-                                    <Box sx={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: 'rgba(0,0,0,0.1)' }}>
-                                        <CircularProgress />
-                                    </Box>
-                                )}
-                            </>
-                        )}
-                    </Box>
-                    <Typography variant="caption" color="text.secondary" align="center">
-                        Posicione o código QR ou de barras dentro da área demarcada.
-                    </Typography>
-                </Box>
-            </DialogContent>
-        </Dialog>
+        <OrbitalModal isOpen={isOpen} onClose={onClose} title={title} size="sm">
+            <div className="flex flex-col items-center gap-4 py-2">
+                <div className="w-full max-w-[300px] aspect-square relative bg-black rounded border border-orbital-border overflow-hidden">
+                    {error ? (
+                        <div className="absolute inset-0 flex flex-col items-center justify-center p-4 bg-orbital-bg text-center">
+                            <VideoOff className="text-orbital-danger mb-2" size={40} />
+                            <p className="text-orbital-danger font-bold text-sm mb-2">{error}</p>
+                            <OrbitalButton variant="outline" size="sm" onClick={() => window.location.reload()}>Recarregar</OrbitalButton>
+                        </div>
+                    ) : (
+                        <>
+                            <div id={elementId} style={{ width: '100%', height: '100%', objectFit: 'cover' }}></div>
+                            {isScanning && (
+                                <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
+                                    <div className="w-3/5 h-3/5 border-2 border-orbital-accent/70 rounded relative shadow-[0_0_20px_rgba(6,182,212,0.3)]">
+                                        {/* Corner markers */}
+                                        <div className="absolute top-0 left-0 w-4 h-4 border-t-4 border-l-4 border-orbital-accent"></div>
+                                        <div className="absolute top-0 right-0 w-4 h-4 border-t-4 border-r-4 border-orbital-accent"></div>
+                                        <div className="absolute bottom-0 left-0 w-4 h-4 border-b-4 border-l-4 border-orbital-accent"></div>
+                                        <div className="absolute bottom-0 right-0 w-4 h-4 border-b-4 border-r-4 border-orbital-accent"></div>
+                                    </div>
+                                </div>
+                            )}
+                            {!isScanning && !error && (
+                                <div className="absolute inset-0 flex items-center justify-center bg-black/50">
+                                    <Loader2 className="animate-spin text-orbital-accent" size={32} />
+                                </div>
+                            )}
+                        </>
+                    )}
+                </div>
+                <p className="text-xs text-orbital-subtext text-center">
+                    Posicione o código QR ou de barras dentro da área demarcada.
+                </p>
+            </div>
+        </OrbitalModal>
     );
 };
 
@@ -178,7 +151,6 @@ export const QRGeneratorModal: React.FC<QRGeneratorModalProps> = ({ isOpen, onCl
     };
 
     const handlePrint = () => {
-        // ... (Keep existing print logic, it's vanilla JS essentially)
         const printWindow = window.open('', '', 'width=600,height=400');
         if (printWindow) {
             const svgHtml = document.getElementById('qr-code-svg')?.outerHTML || '';
@@ -210,27 +182,22 @@ export const QRGeneratorModal: React.FC<QRGeneratorModalProps> = ({ isOpen, onCl
     };
 
     return (
-        <Dialog open={isOpen} onClose={onClose} maxWidth="xs" fullWidth>
-             <BootstrapDialogTitle onClose={onClose}>Etiqueta Digital</BootstrapDialogTitle>
-             <DialogContent>
-                <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3, py: 2 }}>
-                    <Box sx={{ p: 2, bgcolor: 'white', borderRadius: 2, border: '1px solid', borderColor: 'divider', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                         <QRCode id="qr-code-svg" value={qrString} size={180} level="M" fgColor="#000000" />
-                         <Typography variant="caption" sx={{ mt: 1, fontFamily: 'monospace', color: 'text.secondary' }}>{item.id || 'NOVO'}</Typography>
-                    </Box>
-                    <Box sx={{ textAlign: 'center' }}>
-                        <Typography variant="subtitle1" fontWeight="bold" gutterBottom>{item.name}</Typography>
-                        <Typography variant="body2" color="text.secondary" sx={{ fontFamily: 'monospace' }}>
-                            Lote: {item.lotNumber}
-                        </Typography>
-                    </Box>
-                </Box>
-             </DialogContent>
-             <DialogActions sx={{ px: 3, pb: 3, justifyContent: 'center', gap: 2 }}>
-                 <Button variant="outlined" onClick={handleDownload} startIcon={<DownloadIcon />}>Salvar</Button>
-                 <Button variant="contained" onClick={handlePrint} startIcon={<PrintIcon />}>Imprimir</Button>
-             </DialogActions>
-        </Dialog>
+        <OrbitalModal isOpen={isOpen} onClose={onClose} title="Etiqueta Digital" size="sm">
+            <div className="flex flex-col items-center gap-4 py-2">
+                <div className="p-4 bg-white rounded border border-orbital-border flex flex-col items-center">
+                     <QRCode id="qr-code-svg" value={qrString} size={180} level="M" fgColor="#000000" />
+                     <span className="mt-2 font-mono text-xs text-gray-500">{item.id || 'NOVO'}</span>
+                </div>
+                <div className="text-center">
+                    <h4 className="font-bold text-lg text-orbital-text mb-1">{item.name}</h4>
+                    <p className="font-mono text-sm text-orbital-subtext">Lote: {item.lotNumber}</p>
+                </div>
+            </div>
+            <div className="flex justify-center gap-3 pt-4 border-t border-orbital-border mt-4">
+                 <OrbitalButton variant="outline" onClick={handleDownload} icon={<Download size={16} />}>Salvar</OrbitalButton>
+                 <OrbitalButton variant="primary" onClick={handlePrint} icon={<Printer size={16} />}>Imprimir</OrbitalButton>
+            </div>
+        </OrbitalModal>
     );
 };
 
@@ -240,17 +207,11 @@ export const QRGeneratorModal: React.FC<QRGeneratorModalProps> = ({ isOpen, onCl
 
 export const AddItemModal: React.FC<ItemModalBaseProps & { initialData?: Partial<CreateItemDTO> }> = ({ isOpen, onClose, initialData }) => {
     return (
-        <Dialog open={isOpen} onClose={onClose} maxWidth="md" fullWidth>
-            <BootstrapDialogTitle onClose={onClose} subtitle={initialData ? 'Crie um novo lote a partir de um item existente' : 'Preencha os dados do novo material'}>
-                {initialData ? 'Clonar Item' : 'Cadastrar Novo Item'}
-            </BootstrapDialogTitle>
-            <DialogContent dividers sx={{ p: 0 }}>
-                 {/* Pass onClose to AddItem so it can close the modal on cancel */}
-                 <Box sx={{ p: 3 }}>
-                    <AddItem onCancel={onClose} initialData={initialData} />
-                 </Box>
-            </DialogContent>
-        </Dialog>
+        <OrbitalModal isOpen={isOpen} onClose={onClose} title={initialData ? 'Clonar Item' : 'Cadastrar Novo Item'} size="lg">
+             <div className="p-1">
+                <AddItem onCancel={onClose} initialData={initialData} />
+             </div>
+        </OrbitalModal>
     );
 };
 
@@ -302,22 +263,19 @@ export const EditModal: React.FC<EditModalProps> = ({ isOpen, onClose, item, onS
 
   return (
     <>
-        <Dialog open={isOpen} onClose={onClose} maxWidth="md" fullWidth>
-            <BootstrapDialogTitle onClose={onClose} subtitle={editedItem.id}>Editar Item</BootstrapDialogTitle>
-            <DialogContent dividers sx={{ p: 0 }}>
-                <Box sx={{ p: 3 }}>
-                    <ItemForm 
-                        initialData={editedItem} 
-                        onSubmit={handleFormSubmit} 
-                        onCancel={onClose}
-                        submitLabel="Salvar Alterações"
-                        onViewBatchHistory={onViewBatchHistory}
-                        onScan={(field) => { setActiveScanField(field); setIsScannerOpen(true); }}
-                        onGenerateQR={() => setShowQRModal(true)}
-                    />
-                </Box>
-            </DialogContent>
-        </Dialog>
+        <OrbitalModal isOpen={isOpen} onClose={onClose} title={`Editar Item: ${editedItem.id}`} size="lg">
+            <div className="p-1">
+                <ItemForm
+                    initialData={editedItem}
+                    onSubmit={handleFormSubmit}
+                    onCancel={onClose}
+                    submitLabel="Salvar Alterações"
+                    onViewBatchHistory={onViewBatchHistory}
+                    onScan={(field) => { setActiveScanField(field); setIsScannerOpen(true); }}
+                    onGenerateQR={() => setShowQRModal(true)}
+                />
+            </div>
+        </OrbitalModal>
         
         <QRScannerModal 
             isOpen={isScannerOpen} 
@@ -357,7 +315,7 @@ export const MovementModal: React.FC<MovementModalProps> = ({ isOpen, onClose, i
             if (type !== 'SAIDA') setType('SAIDA');
             setIsSubmitting(false);
         }
-    }, [isOpen]); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [isOpen]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -378,72 +336,65 @@ export const MovementModal: React.FC<MovementModalProps> = ({ isOpen, onClose, i
     if (!item) return null;
 
     return (
-        <Dialog open={isOpen} onClose={onClose} maxWidth="sm" fullWidth>
-            <BootstrapDialogTitle onClose={onClose}>Registrar Movimento</BootstrapDialogTitle>
-            <form onSubmit={handleSubmit}>
-                <DialogContent dividers>
-                    <Box sx={{ mb: 3, p: 2, border: '1px solid', borderColor: 'divider', borderRadius: 2, display: 'flex', gap: 2 }}>
-                        <Box sx={{ p: 1, borderRadius: 1, bgcolor: 'background.paper', boxShadow: 1 }}>
-                            <Inventory2Icon color="primary" />
-                        </Box>
-                        <Box>
-                             <Typography variant="subtitle2" fontWeight="bold">{item.name}</Typography>
-                             <Typography variant="caption" display="block" color="text.secondary">Lote: {item.lotNumber}</Typography>
-                             <Typography variant="caption" fontWeight="bold">Saldo: {item.quantity} {item.baseUnit}</Typography>
-                        </Box>
-                    </Box>
+        <OrbitalModal isOpen={isOpen} onClose={onClose} title="Registrar Movimento" size="md">
+            <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="p-3 border border-orbital-border rounded bg-orbital-bg/50 flex gap-3 items-start">
+                    <div className="p-2 bg-orbital-surface rounded border border-orbital-border">
+                        <Package className="text-orbital-accent" />
+                    </div>
+                    <div>
+                         <h4 className="font-bold text-orbital-text">{item.name}</h4>
+                         <p className="text-xs text-orbital-subtext font-mono">Lote: {item.lotNumber}</p>
+                         <p className="text-sm font-bold text-orbital-text mt-1">Saldo: {item.quantity} {item.baseUnit}</p>
+                    </div>
+                </div>
 
-                    <Stack spacing={3}>
-                        <TextField
-                            select
-                            label="Tipo de Operação"
-                            value={type}
-                            onChange={(e) => setType(e.target.value as any)}
-                            fullWidth
-                        >
-                            <MenuItem value="SAIDA">Saída / Consumo</MenuItem>
-                            <MenuItem value="ENTRADA">Entrada / Devolução</MenuItem>
-                            <MenuItem value="AJUSTE">Ajuste de Inventário</MenuItem>
-                        </TextField>
+                <OrbitalSelect
+                    label="Tipo de Operação"
+                    value={type}
+                    onChange={(e) => setType(e.target.value as any)}
+                    options={[
+                        { value: 'SAIDA', label: 'Saída / Consumo' },
+                        { value: 'ENTRADA', label: 'Entrada / Devolução' },
+                        { value: 'AJUSTE', label: 'Ajuste de Inventário' }
+                    ]}
+                    fullWidth
+                />
 
-                        <TextField
-                            label="Quantidade"
-                            type="number"
-                            value={quantity}
-                            onChange={(e) => setQuantity(parseFloat(e.target.value))}
-                            required
-                            autoFocus
-                            fullWidth
-                            InputProps={{
-                                endAdornment: <InputAdornment position="end">{item.baseUnit}</InputAdornment>,
-                            }}
-                            inputProps={{ min: 0.0001, step: "any" }}
-                        />
+                <OrbitalInput
+                    label="Quantidade"
+                    type="number"
+                    value={quantity}
+                    onChange={(e) => setQuantity(parseFloat(e.target.value))}
+                    required
+                    autoFocus
+                    fullWidth
+                    step="any"
+                    min="0.0001"
+                    startAdornment={<span className="text-xs font-mono">{item.baseUnit}</span>}
+                />
 
-                        <TextField
-                            label="Justificativa (Opcional)"
-                            value={observation}
-                            onChange={(e) => setObservation(e.target.value)}
-                            fullWidth
-                            multiline
-                            rows={2}
-                        />
-                    </Stack>
-                </DialogContent>
-                <DialogActions sx={{ px: 3, pb: 2 }}>
-                    <Button onClick={onClose} disabled={isSubmitting}>Cancelar</Button>
-                    <Button
+                <OrbitalInput
+                    label="Justificativa (Opcional)"
+                    value={observation}
+                    onChange={(e) => setObservation(e.target.value)}
+                    fullWidth
+                />
+
+                <div className="flex justify-end gap-3 pt-4 border-t border-orbital-border mt-4">
+                    <OrbitalButton variant="ghost" type="button" onClick={onClose} disabled={isSubmitting}>Cancelar</OrbitalButton>
+                    <OrbitalButton
                         type="submit"
-                        variant="contained"
-                        color={type === 'SAIDA' ? 'error' : type === 'ENTRADA' ? 'success' : 'warning'}
+                        variant={type === 'SAIDA' ? 'danger' : type === 'ENTRADA' ? 'primary' : 'outline'}
                         disabled={isSubmitting}
-                        startIcon={isSubmitting ? <CircularProgress size={20} /> : <SaveIcon />}
+                        isLoading={isSubmitting}
+                        icon={<Save size={16} />}
                     >
                         Confirmar
-                    </Button>
-                </DialogActions>
+                    </OrbitalButton>
+                </div>
             </form>
-        </Dialog>
+        </OrbitalModal>
     );
 };
 
@@ -468,7 +419,7 @@ export const RequestModal: React.FC<RequestModalProps> = ({ isOpen, onClose, onC
              if (qty !== 1) setQty(1);
              if (searchTerm !== '') setSearchTerm('');
         }
-    }, [isOpen]); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [isOpen]);
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -486,62 +437,51 @@ export const RequestModal: React.FC<RequestModalProps> = ({ isOpen, onClose, onC
     }, [items, searchTerm]);
 
     return (
-        <Dialog open={isOpen} onClose={onClose} maxWidth="sm" fullWidth>
-            <BootstrapDialogTitle onClose={onClose}>Solicitar Compra</BootstrapDialogTitle>
-            <form onSubmit={handleSubmit}>
-                <DialogContent dividers>
-                    <Stack spacing={3}>
-                        <TextField
-                            label="Buscar Produto"
-                            placeholder="Digite para filtrar..."
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            fullWidth
-                            InputProps={{
-                                startAdornment: <InputAdornment position="start"><QrCodeScannerIcon /></InputAdornment>, // Using QR icon as generic search/scan here or just search
-                            }}
-                        />
+        <OrbitalModal isOpen={isOpen} onClose={onClose} title="Solicitar Compra" size="md">
+            <form onSubmit={handleSubmit} className="space-y-4">
+                <OrbitalInput
+                    label="Buscar Produto"
+                    placeholder="Digite para filtrar..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    fullWidth
+                    startAdornment={<Search size={16} />}
+                />
 
-                        <FormControl fullWidth required>
-                            <InputLabel id="select-item-label">Selecione o Item</InputLabel>
-                            <Select
-                                labelId="select-item-label"
-                                value={selectedId}
-                                label="Selecione o Item"
-                                onChange={(e) => setSelectedId(e.target.value)}
-                                native={false} // Use MUI Select
-                            >
-                                {filteredItems.map(item => (
-                                    <MenuItem key={item.id} value={item.id}>
-                                        {item.name} ({item.quantity} {item.baseUnit})
-                                    </MenuItem>
-                                ))}
-                            </Select>
-                        </FormControl>
+                <OrbitalSelect
+                    label="Selecione o Item"
+                    value={selectedId}
+                    onChange={(e) => setSelectedId(e.target.value)}
+                    options={filteredItems.map(item => ({
+                        value: item.id,
+                        label: `${item.name} (${item.quantity} ${item.baseUnit})`
+                    }))}
+                    fullWidth
+                    required
+                />
 
-                        <TextField
-                            label="Quantidade Necessária"
-                            type="number"
-                            value={qty}
-                            onChange={(e) => setQty(parseInt(e.target.value))}
-                            required
-                            fullWidth
-                            inputProps={{ min: 1 }}
-                        />
-                    </Stack>
-                </DialogContent>
-                <DialogActions sx={{ px: 3, pb: 2 }}>
-                    <Button onClick={onClose}>Cancelar</Button>
-                    <Button
+                <OrbitalInput
+                    label="Quantidade Necessária"
+                    type="number"
+                    value={qty}
+                    onChange={(e) => setQty(parseInt(e.target.value))}
+                    required
+                    fullWidth
+                    min="1"
+                />
+
+                <div className="flex justify-end gap-3 pt-4 border-t border-orbital-border mt-4">
+                    <OrbitalButton variant="ghost" type="button" onClick={onClose}>Cancelar</OrbitalButton>
+                    <OrbitalButton
                         type="submit"
-                        variant="contained"
+                        variant="primary"
                         disabled={!selectedId}
-                        startIcon={<AddShoppingCartIcon />}
+                        icon={<ShoppingCart size={16} />}
                     >
                         Adicionar
-                    </Button>
-                </DialogActions>
+                    </OrbitalButton>
+                </div>
             </form>
-        </Dialog>
+        </OrbitalModal>
     );
 };

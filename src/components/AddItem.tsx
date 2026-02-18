@@ -2,11 +2,10 @@ import React, { useState } from 'react';
 import { InventoryService } from '../services/InventoryService';
 import { useAlert } from '../context/AlertContext';
 import { QRScannerModal } from './Modals';
-import { Button } from './ui/Button';
+import { OrbitalButton } from './ui/orbital/OrbitalButton';
 import { QRCodeDataDTO, CreateItemDTO } from '../types';
 import { ItemForm } from './ItemForm';
-import { Box, Paper, Typography } from '@mui/material';
-import QrCodeScannerIcon from '@mui/icons-material/QrCodeScanner';
+import { QrCode, ScanLine } from 'lucide-react';
 
 interface Props {
   onCancel: () => void;
@@ -89,26 +88,26 @@ export const AddItem: React.FC<Props> = ({ onCancel, initialData }) => {
 
   return (
     <>
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, pb: 4 }}>
+        <div className="flex flex-col gap-4 pb-4">
             {!initialData && (
-                <Paper variant="outlined" sx={{ p: 2, display: 'flex', alignItems: 'center', gap: 2, bgcolor: 'primary.lighter', borderColor: 'primary.light' }}>
-                    <Box sx={{ p: 1, borderRadius: '50%', bgcolor: 'background.paper', color: 'primary.main', display: 'flex' }}>
-                        <QrCodeScannerIcon />
-                    </Box>
-                    <Box sx={{ flex: 1 }}>
-                        <Typography variant="subtitle2" fontWeight="bold">Leitura Rápida</Typography>
-                        <Typography variant="caption" color="text.secondary">Escaneie um código para preencher os dados.</Typography>
-                    </Box>
-                    <Button 
+                <div className="p-4 border border-orbital-border rounded bg-orbital-bg/50 flex items-center gap-3">
+                    <div className="p-2 rounded bg-orbital-surface text-orbital-accent border border-orbital-border">
+                        <ScanLine size={20} />
+                    </div>
+                    <div className="flex-1">
+                        <h4 className="text-sm font-bold text-orbital-text">Leitura Rápida</h4>
+                        <p className="text-xs text-orbital-subtext">Escaneie um código para preencher os dados.</p>
+                    </div>
+                    <OrbitalButton
                         type="button"
                         onClick={() => handleScanClick('FULL')}
                         variant="primary"
                         size="sm"
-                        icon="qr_code_scanner"
+                        icon={<QrCode size={16} />}
                     >
                         Escanear
-                    </Button>
-                </Paper>
+                    </OrbitalButton>
+                </div>
             )}
 
             <ItemForm
@@ -118,7 +117,7 @@ export const AddItem: React.FC<Props> = ({ onCancel, initialData }) => {
                 submitLabel="Confirmar Cadastro"
                 onScan={(field) => handleScanClick(field)}
             />
-        </Box>
+        </div>
 
         <QRScannerModal 
             isOpen={showScanner} 

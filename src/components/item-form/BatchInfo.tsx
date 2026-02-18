@@ -1,11 +1,8 @@
 import React from 'react';
-import { Card, CardContent, Typography, Box, IconButton, Tooltip, Stack } from '@mui/material';
-import { Grid } from '@mui/material';
-import { Input } from '../ui/Input';
+import { OrbitalCard } from '../ui/orbital/OrbitalCard';
+import { OrbitalInput } from '../ui/orbital/OrbitalInput';
 import { CreateItemDTO, ItemType } from '../../types';
-import LayersIcon from '@mui/icons-material/Layers';
-import AutorenewIcon from '@mui/icons-material/Autorenew';
-import QrCodeScannerIcon from '@mui/icons-material/QrCodeScanner';
+import { Layers, RefreshCw, ScanLine } from 'lucide-react';
 
 interface BatchInfoProps {
     formData: Partial<CreateItemDTO>;
@@ -27,86 +24,72 @@ export const BatchInfo: React.FC<BatchInfoProps> = ({
     onScan
 }) => {
     return (
-        <Card variant="outlined" sx={{ mb: 2 }}>
-            <CardContent>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 3, borderBottom: 1, borderColor: 'divider', pb: 1 }}>
-                    <LayersIcon color="primary" />
-                    <Typography variant="subtitle2" fontWeight="bold" textTransform="uppercase" color="primary">
-                        Lote & Validade
-                    </Typography>
-                </Box>
+        <OrbitalCard>
+            <div className="flex items-center gap-2 mb-4 text-orbital-accent border-b border-orbital-border pb-2">
+                <Layers size={18} />
+                <h4 className="font-bold text-sm uppercase tracking-wide">Lote & Validade</h4>
+            </div>
 
-                <Stack spacing={3}>
-                    <Grid container spacing={2}>
-                        <Grid size={{ xs: 12, sm: 6 }}>
-                            <Input
-                                label={itemType === 'EQUIPMENT' ? "Patrimônio/Série" : "Lote / Série"}
-                                value={formData.lotNumber || ''}
-                                onChange={e => onChange('lotNumber', e.target.value)}
-                                error={errors.lotNumber}
-                                placeholder={itemType === 'EQUIPMENT' ? "Ex: PAT-001" : "Vazio p/ auto"}
-                                rightElement={
-                                    <Stack direction="row" spacing={0.5}>
-                                        <Tooltip title="Gerar Lote Interno">
-                                            <IconButton onClick={onGenerateInternalBatch} size="small">
-                                                <AutorenewIcon fontSize="small" />
-                                            </IconButton>
-                                        </Tooltip>
-                                        {onScan && (
-                                            <Tooltip title="Escanear">
-                                                <IconButton onClick={() => onScan('lotNumber')} size="small">
-                                                    <QrCodeScannerIcon fontSize="small" />
-                                                </IconButton>
-                                            </Tooltip>
-                                        )}
-                                    </Stack>
-                                }
-                            />
-                        </Grid>
-                        {itemType !== 'EQUIPMENT' && (
-                            <Grid size={{ xs: 12, sm: 6 }}>
-                                <Input
-                                    label="Validade"
-                                    type="date"
-                                    value={formData.expiryDate || ''}
-                                    onChange={e => onChange('expiryDate', e.target.value)}
-                                    InputLabelProps={{ shrink: true }}
-                                />
-                            </Grid>
-                        )}
-                    </Grid>
-
-                    <Input
-                        label="Fabricante / Fornecedor"
-                        value={formData.supplier || ''}
-                        onChange={e => onChange('supplier', e.target.value)}
+            <div className="flex flex-col gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <OrbitalInput
+                        label={itemType === 'EQUIPMENT' ? "Patrimônio/Série" : "Lote / Série"}
+                        value={formData.lotNumber || ''}
+                        onChange={e => onChange('lotNumber', e.target.value)}
+                        error={errors.lotNumber}
+                        placeholder={itemType === 'EQUIPMENT' ? "Ex: PAT-001" : "Vazio p/ auto"}
+                        startAdornment={
+                            <div className="flex gap-1 pr-2">
+                                <button type="button" onClick={onGenerateInternalBatch} title="Gerar Lote" className="hover:text-orbital-accent">
+                                    <RefreshCw size={14} />
+                                </button>
+                                {onScan && (
+                                    <button type="button" onClick={() => onScan('lotNumber')} title="Escanear" className="hover:text-orbital-accent">
+                                        <ScanLine size={14} />
+                                    </button>
+                                )}
+                            </div>
+                        }
                     />
 
-                    <Grid container spacing={2}>
-                        <Grid size={{ xs: 12, sm: 6 }}>
-                            <Input
-                                label="Qtd Inicial"
-                                type="number"
-                                inputProps={{ step: "0.001", min: 0 }}
-                                value={String(formData.quantity ?? 0)}
-                                onChange={e => onChange('quantity', Number(e.target.value))}
-                                error={errors.quantity}
-                                disabled={isEditMode}
-                                helpText={isEditMode ? "Use 'Movimentar' para alterar." : ""}
-                            />
-                        </Grid>
-                        <Grid size={{ xs: 12, sm: 6 }}>
-                            <Input
-                                label="Estoque Mínimo"
-                                type="number"
-                                inputProps={{ step: "1", min: 0 }}
-                                value={String(formData.minStockLevel ?? 0)}
-                                onChange={e => onChange('minStockLevel', Number(e.target.value))}
-                            />
-                        </Grid>
-                    </Grid>
-                </Stack>
-            </CardContent>
-        </Card>
+                    {itemType !== 'EQUIPMENT' && (
+                        <OrbitalInput
+                            label="Validade"
+                            type="date"
+                            value={formData.expiryDate || ''}
+                            onChange={e => onChange('expiryDate', e.target.value)}
+                        />
+                    )}
+                </div>
+
+                <OrbitalInput
+                    label="Fabricante / Fornecedor"
+                    value={formData.supplier || ''}
+                    onChange={e => onChange('supplier', e.target.value)}
+                />
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <OrbitalInput
+                        label="Qtd Inicial"
+                        type="number"
+                        step="0.001"
+                        min="0"
+                        value={String(formData.quantity ?? 0)}
+                        onChange={e => onChange('quantity', Number(e.target.value))}
+                        error={errors.quantity}
+                        disabled={isEditMode}
+                        // helpText not directly supported in OrbitalInput yet, could add it or ignore
+                    />
+                    <OrbitalInput
+                        label="Estoque Mínimo"
+                        type="number"
+                        step="1"
+                        min="0"
+                        value={String(formData.minStockLevel ?? 0)}
+                        onChange={e => onChange('minStockLevel', Number(e.target.value))}
+                    />
+                </div>
+            </div>
+        </OrbitalCard>
     );
 };
