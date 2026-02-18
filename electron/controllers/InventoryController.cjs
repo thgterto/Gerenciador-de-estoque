@@ -2,7 +2,7 @@ const db = require('../db.cjs');
 const crypto = require('crypto');
 
 function upsertItem(item) {
-    const result = db.runTransaction(() => {
+    db.runTransaction(() => {
         // 1. Derive IDs
         let catalogId = item.catalogId;
         if (!catalogId) {

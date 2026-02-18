@@ -55,10 +55,10 @@ def check_electron_window_handler(filepath):
 
 if __name__ == "__main__":
     # 1. Check Google Apps Script (Legacy/Sync)
-    filepath = "backend/GoogleAppsScript.js"
+    filepath = "_archive/backend/GoogleAppsScript.js"
     if not os.path.exists(filepath):
         # Fallback for different CWD
-        filepath = "../backend/GoogleAppsScript.js"
+        filepath = "../_archive/backend/GoogleAppsScript.js"
 
     if os.path.exists(filepath):
         if not check_no_stack_trace_exposure(filepath):

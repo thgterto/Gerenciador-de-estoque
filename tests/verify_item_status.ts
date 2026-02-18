@@ -1,6 +1,6 @@
 
-import { getItemStatus } from '../utils/businessRules';
-import { InventoryItem } from '../types';
+import { getItemStatus } from '../src/utils/businessRules';
+import { InventoryItem } from '../src/types';
 
 // Mock minimal item
 const mockItem = (expiryDate: string): InventoryItem => ({

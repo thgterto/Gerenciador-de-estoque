@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { normalizeUnit, generateInventoryId, calculateSimilarity } from '../../utils/stringUtils';
+import { normalizeUnit, generateInventoryId, calculateSimilarity } from '../../src/utils/stringUtils';
 
 describe('stringUtils', () => {
     describe('normalizeUnit', () => {
