@@ -31,9 +31,9 @@ Este documento rastreia o progresso do desenvolvimento do LabControl rumo à arq
 ### 🚧 Milestone 3: Mobile & Operação em Campo (EM ANDAMENTO)
 *Objetivo: Otimizar o uso em tablets e celulares dentro do laboratório (PWA).*
 *   [x] **Scanner Nativo Otimizado:** Melhorias na estabilidade do `QuickScanModal` e `useScanner` (correção de double-mount).
+*   [x] **Responsividade Avançada:** Refatoração da `StorageMatrix` para scroll unificado (`PageContainer`) e suporte a subdivisão de prateleiras.
 *   [ ] **Ações de Deslizar (Swipe):** Implementar gestos nas listas mobile para Editar/Mover rapidamente.
 *   [ ] **Modo Offline Robusto:** Implementar `SyncQueue` para enfileirar transações caso a conexão caia durante o uso em zonas mortas do laboratório.
-*   [ ] **Responsividade Avançada:** Refinar o layout da `StorageMatrix` para telas pequenas.
 
 ### 📅 Milestone 4: Relatórios & Compliance (FUTURO)
 *Objetivo: Atender requisitos legais (Polícia Federal/Anvisa) e Inteligência de Negócio.*

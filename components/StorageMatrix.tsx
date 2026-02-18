@@ -520,11 +520,12 @@ export const StorageMatrix: React.FC<Props> = ({ items, onActions }) => {
                             )}
                         </div>
 
-                        {/* Painel Lateral de Detalhes (Desktop Only mostly, or bottom sheet) */}
-                        <aside className={`
-                            w-full lg:w-80 flex-shrink-0 flex flex-col gap-4 overflow-hidden transition-all duration-300
-                            lg:sticky lg:top-4 lg:self-start
-                            ${!selectedItem && isMobile ? 'hidden' : ''}
+                        {/* Painel Lateral de Detalhes (Desktop Sidebar / Mobile Bottom Sheet) */}
+                        {/* Adiciona padding-bottom extra na div principal para evitar que a bottom-bar cubra o conteúdo no mobile */}
+                        <div className={`
+                            ${selectedItem && !isMobile ? '' : 'hidden'} lg:block
+                            w-full lg:w-80 flex-shrink-0 flex flex-col gap-4
+                            lg:sticky lg:top-4 lg:self-start transition-all duration-300
                         `}>
                             <Card padding="p-0" className="flex flex-col bg-surface-light dark:bg-surface-dark border-border-light dark:border-border-dark">
                                 {selectedItem ? (
@@ -534,7 +535,6 @@ export const StorageMatrix: React.FC<Props> = ({ items, onActions }) => {
                                                 <div className="bg-primary/10 text-primary text-xs font-bold px-2.5 py-1 rounded-md uppercase tracking-wider border border-primary/10">
                                                     {reverseGridMap[selectedItem.id] || 'S/P'}
                                                 </div>
-                                                <Button size="sm" variant="ghost" className="h-6 w-6 p-0 md:hidden" onClick={() => setSelectedItem(null)} icon="close" />
                                             </div>
                                             <h3 className="font-bold text-text-main dark:text-white text-lg leading-tight" title={selectedItem.name}>{selectedItem.name}</h3>
                                             <p className="text-xs text-text-secondary font-mono mt-1">{selectedItem.sapCode || 'Sem código'}</p>
@@ -589,7 +589,57 @@ export const StorageMatrix: React.FC<Props> = ({ items, onActions }) => {
                                     </div>
                                 )}
                             </Card>
-                        </aside>
+                        </div>
+
+                        {/* Mobile Bottom Bar (Sheet) */}
+                        {selectedItem && (
+                            <div className={`
+                                lg:hidden fixed bottom-0 left-0 right-0 z-50
+                                bg-surface-light dark:bg-surface-dark
+                                border-t border-border-light dark:border-border-dark
+                                shadow-[0_-4px_20px_-5px_rgba(0,0,0,0.2)]
+                                animate-slide-up-fade
+                                pb-safe
+                            `}>
+                                <div className="p-4">
+                                    <div className="flex justify-between items-start mb-3">
+                                        <div className="flex flex-col">
+                                            <div className="flex items-center gap-2 mb-1">
+                                                <div className="bg-primary/10 text-primary text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider border border-primary/10">
+                                                    {reverseGridMap[selectedItem.id] || 'S/P'}
+                                                </div>
+                                                <p className="text-[10px] text-text-secondary font-mono">{selectedItem.sapCode || 'Sem código'}</p>
+                                            </div>
+                                            <h3 className="font-bold text-text-main dark:text-white text-base leading-tight truncate max-w-[280px]" title={selectedItem.name}>{selectedItem.name}</h3>
+                                        </div>
+                                        <Button size="sm" variant="ghost" className="h-8 w-8 p-0" onClick={() => setSelectedItem(null)} icon="close" />
+                                    </div>
+
+                                    <div className="flex gap-3 mb-4">
+                                        <div className="flex-1 bg-background-light dark:bg-slate-800 p-2 rounded border border-border-light dark:border-border-dark flex flex-col justify-center">
+                                            <p className="text-[10px] text-text-secondary uppercase font-bold tracking-wider mb-0.5">Qtd</p>
+                                            <p className="font-bold text-base text-text-main dark:text-white leading-none">{selectedItem.quantity} <span className="text-[10px] font-normal text-text-light">{selectedItem.baseUnit}</span></p>
+                                        </div>
+                                        <div className="flex-1 bg-background-light dark:bg-slate-800 p-2 rounded border border-border-light dark:border-border-dark flex flex-col justify-center">
+                                            <p className="text-[10px] text-text-secondary uppercase font-bold tracking-wider mb-0.5">Lote</p>
+                                            <p className="font-bold text-sm text-text-main dark:text-white truncate leading-tight" title={selectedItem.lotNumber}>{selectedItem.lotNumber}</p>
+                                        </div>
+                                    </div>
+
+                                    {onActions && (
+                                        <div className="grid grid-cols-4 gap-2">
+                                            <Button size="sm" variant="success" onClick={() => onActions.move(selectedItem)} icon="add_circle" className="col-span-1" />
+                                            <Button size="sm" variant="danger" onClick={() => onActions.move(selectedItem)} icon="remove_circle" className="col-span-1" />
+                                            <Button size="sm" variant="white" onClick={() => onActions.move(selectedItem)} icon="swap_horiz" className="col-span-1" />
+                                            <Button size="sm" variant="white" onClick={() => onActions.edit(selectedItem)} icon="edit" className="col-span-1" />
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Spacer to prevent content being hidden behind bottom bar on mobile */}
+                        {selectedItem && <div className="lg:hidden h-[240px]" />}
                     </div>
                 )}
             </div>
