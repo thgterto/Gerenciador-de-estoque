@@ -1,6 +1,6 @@
 
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { InventoryItem } from '../types';
 import { getItemStatus, ItemStatusResult } from '../utils/businessRules';
 import { normalizeStr, defaultCollator } from '../utils/stringUtils';
@@ -184,14 +184,14 @@ export const useInventoryFilters = (items: InventoryItem[]) => {
         return { lowStockCount: low, expiredCount: expired, totalItems: items.length };
     }, [items]);
 
-    const toggleGroupExpand = (groupKey: string) => {
+    const toggleGroupExpand = useCallback((groupKey: string) => {
         setExpandedGroups(prev => {
             const newSet = new Set(prev);
             if (newSet.has(groupKey)) newSet.delete(groupKey);
             else newSet.add(groupKey);
             return newSet;
         });
-    };
+    }, []);
 
     return {
         term, setTerm,
