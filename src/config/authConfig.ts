@@ -1,41 +1,20 @@
-
-// Recupera configurações salvas ou usa placeholders
-const getStoredConfig = () => {
-    return {
-        clientId: localStorage.getItem('LC_SP_CLIENT_ID') || "SEU_CLIENT_ID_AQUI",
-        tenantId: localStorage.getItem('LC_SP_TENANT_ID') || "common"
-    };
-};
-
-const { clientId, tenantId } = getStoredConfig();
-
 export const msalConfig = {
     auth: {
-        clientId: clientId,
-        authority: `https://login.microsoftonline.com/${tenantId}`,
-        redirectUri: window.location.origin,
+        clientId: 'YOUR_AZURE_CLIENT_ID', // Placeholder, user must replace
+        authority: 'https://login.microsoftonline.com/common', // Or tenant specific
+        redirectUri: window.location.origin, // e.g. http://localhost:5173
     },
     cache: {
-        cacheLocation: "localStorage",
+        cacheLocation: 'localStorage', // Needed for persistent login
         storeAuthStateInCookie: false,
     }
 };
 
 export const loginRequest = {
-    scopes: ["User.Read", "Sites.ReadWrite.All", "Lists.ReadWrite", "Sites.Manage.All"]
+    scopes: ['User.Read', 'Files.ReadWrite.All'] // Need access to OneDrive/SharePoint files
 };
 
-export const SHAREPOINT_CONFIG = {
-    siteId: "root", 
-    lists: {
-        inventory: "LabInventory",
-        history: "LabHistory"
-    }
-};
-
-export const updateAuthConfig = (newClientId: string, newTenantId: string) => {
-    localStorage.setItem('LC_SP_CLIENT_ID', newClientId);
-    localStorage.setItem('LC_SP_TENANT_ID', newTenantId);
-    // Reload necessário para aplicar novas configs no MSAL na próxima carga
-    window.location.reload();
+export const graphConfig = {
+    graphMeEndpoint: "https://graph.microsoft.com/v1.0/me",
+    graphFilesEndpoint: "https://graph.microsoft.com/v1.0/me/drive/items"
 };

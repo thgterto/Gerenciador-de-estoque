@@ -4,9 +4,12 @@ import { db } from '../db';
 import { InventoryService } from '../services/InventoryService';
 import { ImportService } from '../services/ImportService';
 import { GoogleSheetsService } from '../services/GoogleSheetsService';
+import { MicrosoftGraphService } from '../services/MicrosoftGraphService';
 import { seedDatabase } from '../services/DatabaseSeeder'; 
 import { GOOGLE_CONFIG } from '../config/apiConfig';
 import { useAlert } from '../context/AlertContext';
+import { useMsal } from "@azure/msal-react";
+import { loginRequest } from "../config/authConfig";
 import { ApiClient } from '../services/ApiClient';
 import { ImportWizard } from './ImportWizard';
 import { ImportMode } from '../utils/ImportEngine';
@@ -25,6 +28,35 @@ export const Settings: React.FC = () => {
     // Cloud Config
     const [googleUrl, setGoogleUrl] = useState('');
     const [isCloudConnected, setIsCloudConnected] = useState(false);
+
+    // Microsoft Config
+    const { instance, accounts } = useMsal();
+    const activeAccount = accounts[0];
+    const [excelId, setExcelId] = useState(localStorage.getItem('LC_MS_EXCEL_ID') || '');
+    const [scriptId, setScriptId] = useState(localStorage.getItem('LC_MS_SCRIPT_ID') || '');
+
+    useEffect(() => {
+        if (activeAccount) {
+            MicrosoftGraphService.initialize(instance, activeAccount);
+        }
+    }, [activeAccount, instance]);
+
+    const handleMicrosoftLogin = () => {
+        instance.loginPopup(loginRequest).catch(e => {
+            console.error(e);
+            addToast("Erro no Login", "error", e.message);
+        });
+    };
+
+    const handleSaveMicrosoftConfig = () => {
+        localStorage.setItem('LC_MS_EXCEL_ID', excelId);
+        localStorage.setItem('LC_MS_SCRIPT_ID', scriptId);
+        if (activeAccount) {
+             MicrosoftGraphService.initialize(instance, activeAccount);
+             MicrosoftGraphService.setExcelFileId(excelId);
+             addToast("Configuração Salva", "success", "Microsoft 365 configurado.");
+        }
+    };
 
     // Enrichment State
     const [enriching, setEnriching] = useState(false);
@@ -426,6 +458,56 @@ export const Settings: React.FC = () => {
                                         Sincronizar
                                     </Button>
                                 </div>
+                            </div>
+                        </Card>
+
+                        {/* Microsoft 365 */}
+                        <Card padding="p-6" className="border-l-4 border-l-[#0078D4] relative overflow-hidden">
+                            <div className="flex items-center gap-3 mb-4 text-text-main dark:text-white relative z-10">
+                                <div className="p-2 bg-blue-50 dark:bg-blue-900/30 rounded-lg text-[#0078D4] dark:text-blue-300">
+                                    <span className="material-symbols-outlined text-xl">grid_view</span>
+                                </div>
+                                <div className="flex-1">
+                                    <h3 className="text-lg font-bold">Microsoft 365</h3>
+                                    <p className="text-xs text-text-secondary dark:text-gray-400">Excel Online + Office Scripts</p>
+                                </div>
+                                {activeAccount ? (
+                                    <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1">
+                                        <span className="material-symbols-outlined text-sm">person</span> {activeAccount.username}
+                                    </span>
+                                ) : (
+                                    <span className="bg-gray-100 text-gray-500 px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1">
+                                        <span className="material-symbols-outlined text-sm">login</span> Desconectado
+                                    </span>
+                                )}
+                            </div>
+
+                            <div className="flex flex-col gap-4 relative z-10">
+                                {!activeAccount ? (
+                                     <Button onClick={handleMicrosoftLogin} variant="primary" disabled={loading} icon="login" className="w-full text-sm bg-[#0078D4] hover:bg-[#006cbd]">
+                                        Entrar com Microsoft
+                                    </Button>
+                                ) : (
+                                    <>
+                                        <Input
+                                            label="ID do Arquivo Excel (Drive Item ID)"
+                                            value={excelId}
+                                            onChange={e => setExcelId(e.target.value)}
+                                            placeholder="Ex: 01ABCDEF..."
+                                            className="text-sm"
+                                        />
+                                        <Input
+                                            label="ID do Office Script (Drive Item ID)"
+                                            value={scriptId}
+                                            onChange={e => setScriptId(e.target.value)}
+                                            placeholder="Ex: 01ABCDEF..."
+                                            className="text-sm"
+                                        />
+                                        <Button onClick={handleSaveMicrosoftConfig} variant="outline" disabled={loading} icon="save" className="w-full text-sm">
+                                            Salvar Configuração
+                                        </Button>
+                                    </>
+                                )}
                             </div>
                         </Card>
 

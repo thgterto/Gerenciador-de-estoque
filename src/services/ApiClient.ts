@@ -1,4 +1,5 @@
 import { GoogleSheetsService } from './GoogleSheetsService';
+import { MicrosoftGraphService } from './MicrosoftGraphService';
 import { RestApiService } from './RestApiService';
 
 export interface ApiResponse {
@@ -78,8 +79,10 @@ export const ApiClient = {
                  return { success: false, error: "Delete not supported in Server Mode yet." };
             }
             return { success: false, error: `Action ${action} not supported in Server Mode` };
+        } else if (MicrosoftGraphService.isConfigured()) {
+            return MicrosoftGraphService.request(action, payload);
         } else {
-            // Web/GAS request
+            // Web/GAS request (Default Fallback)
             return GoogleSheetsService.request(action, payload);
         }
     },
@@ -93,6 +96,8 @@ export const ApiClient = {
             throw new Error(res.error || "Failed to fetch full DB from Electron");
         } else if (this.isServerMode()) {
             return RestApiService.fetchFullDatabase();
+        } else if (MicrosoftGraphService.isConfigured()) {
+            return MicrosoftGraphService.fetchFullDatabase();
         } else {
             return GoogleSheetsService.fetchFullDatabase();
         }

@@ -19,6 +19,8 @@
     "rebuild": "electron-builder install-app-deps"
   },
   "dependencies": {
+    "@azure/msal-browser": "^5.2.0",
+    "@azure/msal-react": "^5.0.4",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
     "@fontsource/roboto": "^5.2.9",
