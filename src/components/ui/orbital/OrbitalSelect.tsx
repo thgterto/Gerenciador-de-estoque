@@ -11,6 +11,7 @@ interface OrbitalSelectProps extends SelectHTMLAttributes<HTMLSelectElement> {
     options: Option[];
     error?: string;
     fullWidth?: boolean;
+    helpText?: string;
 }
 
 export const OrbitalSelect: React.FC<OrbitalSelectProps> = ({
@@ -19,6 +20,7 @@ export const OrbitalSelect: React.FC<OrbitalSelectProps> = ({
     error,
     fullWidth = false,
     className = '',
+    helpText,
     ...props
 }) => {
     return (
@@ -53,7 +55,11 @@ export const OrbitalSelect: React.FC<OrbitalSelectProps> = ({
                  {/* Active Indicator Line */}
                  <div className="absolute bottom-0 left-0 h-[1px] bg-orbital-accent w-0 group-focus-within:w-full transition-all duration-300" />
             </div>
-            {error && <span className="text-xs text-orbital-danger pl-1 font-mono">{error}</span>}
+            {(error || helpText) && (
+                <span className={`text-xs pl-1 font-mono ${error ? 'text-orbital-danger' : 'text-orbital-subtext'}`}>
+                    {error || helpText}
+                </span>
+            )}
         </div>
     );
 };

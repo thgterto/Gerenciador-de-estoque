@@ -12,7 +12,6 @@ import { OrbitalButton } from './ui/orbital/OrbitalButton';
 import { OrbitalInput } from './ui/orbital/OrbitalInput';
 import { OrbitalSelect } from './ui/orbital/OrbitalSelect';
 import {
-    QrCode,
     Download,
     Printer,
     VideoOff,

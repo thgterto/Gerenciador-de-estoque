@@ -1,5 +1,5 @@
 import React from 'react';
-import { NavLink, useLocation } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import {
     LayoutDashboard,
@@ -32,7 +32,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
     drawerWidth
 }) => {
     const { user } = useAuth();
-    const location = useLocation();
 
     const menuItems = [
         { path: '/dashboard', icon: <LayoutDashboard size={20} />, label: 'Dashboard' },

@@ -6,6 +6,7 @@ interface OrbitalCardProps {
     action?: React.ReactNode;
     className?: string;
     noPadding?: boolean;
+    onClick?: () => void;
 }
 
 export const OrbitalCard: React.FC<OrbitalCardProps> = ({
@@ -13,10 +14,14 @@ export const OrbitalCard: React.FC<OrbitalCardProps> = ({
     title,
     action,
     className = '',
-    noPadding = false
+    noPadding = false,
+    onClick
 }) => {
     return (
-        <div className={`card-orbital ${className}`}>
+        <div
+            className={`card-orbital ${className} ${onClick ? 'cursor-pointer hover:bg-orbital-accent/5' : ''}`}
+            onClick={onClick}
+        >
             {/* Decorative Corner Markers */}
             <div className="absolute top-0 right-0 w-3 h-3 border-t-2 border-r-2 border-orbital-accent/30 rounded-bl-lg" />
             <div className="absolute bottom-0 left-0 w-3 h-3 border-b-2 border-l-2 border-orbital-accent/30 rounded-tr-lg" />

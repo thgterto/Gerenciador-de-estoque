@@ -1,7 +1,6 @@
 
 import React from 'react';
 import { OrbitalBadge } from './orbital/OrbitalBadge';
-import { Icon } from './Icon';
 
 interface BadgeProps {
     children: React.ReactNode;
@@ -10,7 +9,7 @@ interface BadgeProps {
     className?: string;
 }
 
-export const Badge: React.FC<BadgeProps> = ({ children, variant = 'neutral', icon, className = '' }) => {
+export const Badge: React.FC<BadgeProps> = ({ children, variant = 'neutral', className = '' }) => {
     return (
         <OrbitalBadge
             label={String(children)}

@@ -7,6 +7,9 @@ interface OrbitalModalProps {
     title: string;
     children: React.ReactNode;
     size?: 'sm' | 'md' | 'lg' | 'xl' | 'full';
+    className?: string;
+    hideHeader?: boolean;
+    noPadding?: boolean;
 }
 
 export const OrbitalModal: React.FC<OrbitalModalProps> = ({
@@ -14,7 +17,10 @@ export const OrbitalModal: React.FC<OrbitalModalProps> = ({
     onClose,
     title,
     children,
-    size = 'md'
+    size = 'md',
+    className = '',
+    hideHeader = false,
+    noPadding = false
 }) => {
     useEffect(() => {
         const handleEsc = (e: KeyboardEvent) => {
@@ -35,7 +41,7 @@ export const OrbitalModal: React.FC<OrbitalModalProps> = ({
     };
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div className={`fixed inset-0 z-50 flex items-center justify-center p-4 ${className}`}>
             {/* Backdrop */}
             <div
                 className="absolute inset-0 bg-orbital-bg/80 backdrop-blur-sm animate-fade-in"
@@ -46,21 +52,23 @@ export const OrbitalModal: React.FC<OrbitalModalProps> = ({
             <div className={`relative bg-orbital-surface border border-orbital-border w-full ${sizes[size]} shadow-glow-lg animate-in fade-in zoom-in-95 duration-200`}>
 
                 {/* Header */}
-                <div className="flex items-center justify-between p-4 border-b border-orbital-border bg-orbital-bg/50">
-                    <h3 className="text-lg font-display font-bold uppercase tracking-widest text-orbital-text flex items-center gap-2">
-                         <span className="w-2 h-2 bg-orbital-accent shadow-glow-sm" />
-                         {title}
-                    </h3>
-                    <button
-                        onClick={onClose}
-                        className="p-1 text-orbital-subtext hover:text-orbital-danger transition-colors"
-                    >
-                        <X size={20} />
-                    </button>
-                </div>
+                {!hideHeader && (
+                    <div className="flex items-center justify-between p-4 border-b border-orbital-border bg-orbital-bg/50">
+                        <h3 className="text-lg font-display font-bold uppercase tracking-widest text-orbital-text flex items-center gap-2">
+                             <span className="w-2 h-2 bg-orbital-accent shadow-glow-sm" />
+                             {title}
+                        </h3>
+                        <button
+                            onClick={onClose}
+                            className="p-1 text-orbital-subtext hover:text-orbital-danger transition-colors"
+                        >
+                            <X size={20} />
+                        </button>
+                    </div>
+                )}
 
                 {/* Body */}
-                <div className="p-6 max-h-[80vh] overflow-y-auto custom-scrollbar">
+                <div className={`${noPadding ? '' : 'p-6'} max-h-[80vh] overflow-y-auto custom-scrollbar`}>
                     {children}
                 </div>
 

@@ -1,7 +1,6 @@
 
 import React from 'react';
 import { OrbitalModal } from './ui/orbital/OrbitalModal';
-import { OrbitalButton } from './ui/orbital/OrbitalButton';
 import { CheckSquare, Database } from 'lucide-react';
 
 interface Props {

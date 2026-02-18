@@ -77,7 +77,6 @@ const InventoryRow = React.memo(({ index, style, data }: { index: number, style:
         onActions,
         toggleGroupExpand,
         copyToClipboard,
-        getCategoryIcon,
         hasRole
     } = data;
 
@@ -94,7 +93,6 @@ const InventoryRow = React.memo(({ index, style, data }: { index: number, style:
                   toggleExpand={() => toggleGroupExpand(rowItem.data.groupKey)}
                   selectedChildIds={selectedIds}
                   onSelectGroup={handleSelectGroup}
-                  getCategoryIcon={getCategoryIcon}
                   copyToClipboard={copyToClipboard}
               />
             );
@@ -107,7 +105,6 @@ const InventoryRow = React.memo(({ index, style, data }: { index: number, style:
                 toggleExpand={() => toggleGroupExpand(rowItem.data.groupKey)}
                 selectedChildIds={selectedIds}
                 onSelectGroup={handleSelectGroup}
-                getCategoryIcon={getCategoryIcon}
                 copyToClipboard={copyToClipboard}
             />
         );
@@ -152,7 +149,6 @@ const MobileNativeList = ({
     toggleGroupExpand,
     selectedIds,
     handleSelectGroup,
-    getCategoryIcon,
     copyToClipboard
 }: any) => {
     const [visibleCount, setVisibleCount] = useState(50);
@@ -182,7 +178,6 @@ const MobileNativeList = ({
                             toggleExpand={() => toggleGroupExpand(rowItem.data.groupKey)}
                             selectedChildIds={selectedIds}
                             onSelectGroup={handleSelectGroup}
-                            getCategoryIcon={getCategoryIcon}
                             copyToClipboard={copyToClipboard}
                         />
                     );
@@ -250,7 +245,7 @@ export const InventoryList: React.FC<InventoryListProps> = ({
     onActions,
     toggleGroupExpand,
     copyToClipboard,
-    getCategoryIcon,
+    // getCategoryIcon, // Removed from destructuring as unused
     hasRole,
     onAddNew,
     totalGroups,
@@ -284,9 +279,8 @@ export const InventoryList: React.FC<InventoryListProps> = ({
         onActions,
         toggleGroupExpand,
         copyToClipboard,
-        getCategoryIcon,
         hasRole
-    }), [flatList, isMobile, selectedIds, handleSelectGroup, handleSelectRow, onActions, toggleGroupExpand, copyToClipboard, getCategoryIcon, hasRole]);
+    }), [flatList, isMobile, selectedIds, handleSelectGroup, handleSelectRow, onActions, toggleGroupExpand, copyToClipboard, hasRole]);
 
     return (
         <OrbitalCard noPadding className="flex-1 flex flex-col min-h-0 border-orbital-border bg-orbital-bg">
@@ -324,7 +318,6 @@ export const InventoryList: React.FC<InventoryListProps> = ({
                             toggleGroupExpand={toggleGroupExpand}
                             selectedIds={selectedIds}
                             handleSelectGroup={handleSelectGroup}
-                            getCategoryIcon={getCategoryIcon}
                             copyToClipboard={copyToClipboard}
                         />
                     ) : (

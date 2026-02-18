@@ -15,10 +15,10 @@ import {
     DollarSign,
     AlertTriangle,
     AlertCircle,
-    History,
     ArrowRight,
     ShoppingCart
 } from 'lucide-react';
+import { MetricCard } from './ui/MetricCard'; // Import MetricCard correctly
 
 interface DashboardProps {
   items: InventoryItem[];
@@ -93,27 +93,27 @@ export const Dashboard: React.FC<DashboardProps> = ({ items, history, onAddToPur
                 title="Total de Itens"
                 value={totalItems}
                 icon={<Package size={24} />}
-                color="text-orbital-accent"
+                variant="primary" // Using variant instead of color prop
                 onClick={() => navigate('/inventory')}
              />
              <MetricCard
                 title="Valor em Estoque"
                 value={`R$ ${totalValue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`}
                 icon={<DollarSign size={24} />}
-                color="text-orbital-success"
+                variant="success"
              />
              <MetricCard
                 title="Baixo Estoque"
                 value={lowStockItems.length}
-                subtitle={outOfStockItems.length > 0 ? `${outOfStockItems.length} zerados` : undefined}
+                subValue={outOfStockItems.length > 0 ? `${outOfStockItems.length} zerados` : undefined}
                 icon={<AlertTriangle size={24} />}
-                color="text-orbital-warning"
+                variant="warning"
              />
              <MetricCard
                 title="A Vencer"
                 value={expiringItems.length}
                 icon={<AlertCircle size={24} />}
-                color="text-orbital-danger"
+                variant="danger"
              />
         </div>
 
@@ -244,38 +244,3 @@ export const Dashboard: React.FC<DashboardProps> = ({ items, history, onAddToPur
     </PageContainer>
   );
 };
-
-interface MetricCardProps {
-    title: string;
-    value: string | number;
-    icon: React.ReactNode;
-    color: string;
-    onClick?: () => void;
-    subtitle?: string;
-}
-
-const MetricCard: React.FC<MetricCardProps> = ({ title, value, icon, color, onClick, subtitle }) => (
-    <OrbitalCard
-      className={`h-full transition-all duration-200 ${onClick ? 'cursor-pointer hover:bg-orbital-surface/80 hover:scale-[1.02]' : ''}`}
-      onClick={onClick}
-    >
-        <div className="flex items-center justify-between">
-            <div>
-                <div className="text-xs font-display font-bold uppercase tracking-widest text-orbital-subtext mb-1">
-                    {title}
-                </div>
-                <div className={`text-3xl font-mono font-bold ${color} drop-shadow-lg`}>
-                    {value}
-                </div>
-                {subtitle && (
-                    <div className="text-xs text-orbital-danger mt-1 font-bold">
-                        {subtitle}
-                    </div>
-                )}
-            </div>
-            <div className={`p-3 bg-orbital-bg rounded-lg border border-orbital-border shadow-inner ${color}`}>
-                {icon}
-            </div>
-        </div>
-    </OrbitalCard>
-);
