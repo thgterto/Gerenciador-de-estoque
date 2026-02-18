@@ -28,7 +28,7 @@ import HistoryIcon from '@mui/icons-material/History';
 
 interface ItemFormProps {
     initialData?: Partial<InventoryItem>;
-    onSubmit: (data: any) => Promise<void>;
+    onSubmit: (data: Partial<InventoryItem>) => Promise<void>;
     onCancel: () => void;
     submitLabel?: string;
     onViewBatchHistory?: (batchId: string) => void;
@@ -268,7 +268,7 @@ export const ItemForm: React.FC<ItemFormProps> = ({
                                                         component="img"
                                                         src={`https://commonchemistry.cas.org/api/image?cas_rn=${CasApiService.normalizeCas(formData.casNumber || '')}`}
                                                         sx={{ width: 48, height: 48, objectFit: 'contain', bgcolor: 'white', borderRadius: 1, border: 1, borderColor: 'divider' }}
-                                                        onError={(e: any) => e.currentTarget.style.display = 'none'}
+                                                        onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => e.currentTarget.style.display = 'none'}
                                                     />
                                                     <Box>
                                                         <Typography variant="subtitle2" fontWeight="bold">{casResult.name}</Typography>
