@@ -11,6 +11,7 @@ import { useAlert } from '../context/AlertContext';
 import { Badge } from './ui/Badge';
 import { InventoryMobileChildRow } from './InventoryRows';
 import { useAuth } from '../context/AuthContext';
+import { PageContainer } from './ui/PageContainer';
 
 interface Props {
   items: InventoryItem[];
@@ -268,64 +269,61 @@ export const StorageMatrix: React.FC<Props> = ({ items, onActions }) => {
     }, [addToast]);
 
     return (
-        <div className={`flex flex-col ${isMobile ? 'min-h-full' : 'h-full'} bg-background-light dark:bg-background-dark overflow-hidden animate-fade-in`}>
-            <div className={`px-4 md:px-8 py-5 bg-surface-light/80 dark:bg-surface-dark/80 backdrop-blur-sm sticky top-0 z-10 border-b border-border-light dark:border-border-dark shadow-sm`}>
-                 <PageHeader 
-                    title={
-                        selectedShelf
-                            ? selectedShelf
-                            : selectedLocKey
-                                ? (selectedLocKey.split(' > ')[1] || selectedLocKey)
-                                : "Locais de Armazenamento"
-                    }
-                    description={
-                        selectedShelf
-                            ? `${selectedLocKey} > ${selectedShelf}`
-                            : selectedLocKey
-                                ? `${selectedLocKey.split(' > ')[0]} > Selecione a Prateleira`
-                                : "Selecione um local para gerenciar a disposição física."
-                    }
-                    className="mb-0"
-                 >
-                    {selectedLocKey && (
-                        <>
-                            <Button variant="ghost" onClick={() => {
-                                if (selectedShelf) {
-                                    setSelectedShelf(null);
-                                    setSelectedItem(null);
-                                } else {
-                                    setSelectedLocKey(null);
-                                    setSelectedItem(null);
-                                }
-                            }}>
-                                Voltar
-                            </Button>
-                            {/* Toggle View Mode Button */}
-                             <Button 
-                                onClick={() => setViewMode(viewMode === 'GRID' ? 'LIST' : 'GRID')}
-                                variant="white"
-                                icon={viewMode === 'GRID' ? 'list' : 'grid_view'}
-                                title="Alternar Visualização"
-                            >
-                                {viewMode === 'GRID' ? 'Lista' : 'Grid'}
-                            </Button>
-                            <Button 
-                                id="tour-audit-btn"
-                                onClick={() => setAuditMode(!auditMode)}
-                                variant={auditMode ? 'warning' : 'white'}
-                                icon={auditMode ? 'visibility' : 'visibility_off'}
-                                className={`hidden sm:flex ${auditMode ? 'ring-2 ring-warning border-transparent font-bold' : ''}`}
-                            >
-                                {auditMode ? 'Audit ON' : 'Audit'}
-                            </Button>
-                        </>
-                    )}
-                 </PageHeader>
-            </div>
+        <PageContainer scrollable>
+             <PageHeader
+                title={
+                    selectedShelf
+                        ? selectedShelf
+                        : selectedLocKey
+                            ? (selectedLocKey.split(' > ')[1] || selectedLocKey)
+                            : "Locais de Armazenamento"
+                }
+                description={
+                    selectedShelf
+                        ? `${selectedLocKey} > ${selectedShelf}`
+                        : selectedLocKey
+                            ? `${selectedLocKey.split(' > ')[0]} > Selecione a Prateleira`
+                            : "Selecione um local para gerenciar a disposição física."
+                }
+             >
+                {selectedLocKey && (
+                    <>
+                        <Button variant="ghost" onClick={() => {
+                            if (selectedShelf) {
+                                setSelectedShelf(null);
+                                setSelectedItem(null);
+                            } else {
+                                setSelectedLocKey(null);
+                                setSelectedItem(null);
+                            }
+                        }}>
+                            Voltar
+                        </Button>
+                        {/* Toggle View Mode Button */}
+                         <Button
+                            onClick={() => setViewMode(viewMode === 'GRID' ? 'LIST' : 'GRID')}
+                            variant="white"
+                            icon={viewMode === 'GRID' ? 'list' : 'grid_view'}
+                            title="Alternar Visualização"
+                        >
+                            {viewMode === 'GRID' ? 'Lista' : 'Grid'}
+                        </Button>
+                        <Button
+                            id="tour-audit-btn"
+                            onClick={() => setAuditMode(!auditMode)}
+                            variant={auditMode ? 'warning' : 'white'}
+                            icon={auditMode ? 'visibility' : 'visibility_off'}
+                            className={`hidden sm:flex ${auditMode ? 'ring-2 ring-warning border-transparent font-bold' : ''}`}
+                        >
+                            {auditMode ? 'Audit ON' : 'Audit'}
+                        </Button>
+                    </>
+                )}
+             </PageHeader>
             
-            <div className={`flex-1 ${isMobile ? 'overflow-visible' : 'overflow-hidden'} p-4 md:p-8 relative`}>
+            <div className={`flex-1 relative`}>
                 {!selectedLocKey ? (
-                    <div className={`${isMobile ? '' : 'overflow-y-auto h-full'} pr-2 pb-10 custom-scrollbar`}>
+                    <div>
                         {Object.keys(locations).length === 0 ? (
                             <div className="flex flex-col items-center justify-center h-64 text-text-secondary opacity-60">
                                 <span className="material-symbols-outlined text-6xl mb-4 text-border-DEFAULT">shelves</span>
@@ -369,7 +367,7 @@ export const StorageMatrix: React.FC<Props> = ({ items, onActions }) => {
                         )}
                     </div>
                 ) : !selectedShelf ? (
-                    <div className={`${isMobile ? '' : 'overflow-y-auto h-full'} pr-2 pb-10 custom-scrollbar`}>
+                    <div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
                             {availableShelves.map(shelf => {
                                 const analysis = shelfStats[shelf];
@@ -402,11 +400,11 @@ export const StorageMatrix: React.FC<Props> = ({ items, onActions }) => {
                         </div>
                     </div>
                 ) : (
-                    <div className="max-w-[1600px] mx-auto w-full h-full flex flex-col lg:flex-row gap-6">
+                    <div className="w-full flex flex-col lg:flex-row gap-6">
                         <div className="flex-1 flex flex-col gap-4 min-h-0">
                             {viewMode === 'GRID' ? (
-                                <div className="bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl shadow-sm p-6 overflow-auto custom-scrollbar flex-1 flex flex-col justify-center relative">
-                                    <div className="min-w-[600px] flex flex-col items-center">
+                                <div className="bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl shadow-sm p-6 overflow-auto custom-scrollbar flex-1 flex flex-col justify-center relative min-h-[500px]">
+                                    <div className="min-w-[600px] flex flex-col items-center mx-auto">
                                         <div className="flex mb-3 ml-8 w-full max-w-4xl gap-3">
                                             {activeCols.map(col => (
                                                 <div key={col} className="flex-1 text-center text-xs font-bold text-text-secondary dark:text-gray-500 uppercase tracking-widest">{col}</div>
@@ -448,7 +446,7 @@ export const StorageMatrix: React.FC<Props> = ({ items, onActions }) => {
                                 </div>
                             ) : (
                                 <div className="bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl shadow-sm overflow-hidden flex-1 flex flex-col">
-                                    <div className="overflow-y-auto p-0 custom-scrollbar">
+                                    <div className="overflow-visible p-0">
                                         {finalViewItems.length === 0 ? (
                                             <div className="text-center py-12 text-text-secondary">Nenhum item nesta prateleira.</div>
                                         ) : (
@@ -524,12 +522,13 @@ export const StorageMatrix: React.FC<Props> = ({ items, onActions }) => {
 
                         {/* Painel Lateral de Detalhes (Desktop Only mostly, or bottom sheet) */}
                         <aside className={`
-                            w-full lg:w-80 flex-shrink-0 flex flex-col gap-4 h-full overflow-hidden transition-all duration-300
+                            w-full lg:w-80 flex-shrink-0 flex flex-col gap-4 overflow-hidden transition-all duration-300
+                            lg:sticky lg:top-4 lg:self-start
                             ${!selectedItem && isMobile ? 'hidden' : ''}
                         `}>
-                            <Card padding="p-0" className="flex flex-col h-full overflow-hidden bg-surface-light dark:bg-surface-dark border-border-light dark:border-border-dark">
+                            <Card padding="p-0" className="flex flex-col bg-surface-light dark:bg-surface-dark border-border-light dark:border-border-dark">
                                 {selectedItem ? (
-                                    <div className="flex flex-col h-full">
+                                    <div className="flex flex-col">
                                         <div className="p-5 border-b border-border-light dark:border-border-dark bg-background-light/50 dark:bg-slate-800/50">
                                             <div className="flex justify-between items-start mb-3">
                                                 <div className="bg-primary/10 text-primary text-xs font-bold px-2.5 py-1 rounded-md uppercase tracking-wider border border-primary/10">
@@ -541,7 +540,7 @@ export const StorageMatrix: React.FC<Props> = ({ items, onActions }) => {
                                             <p className="text-xs text-text-secondary font-mono mt-1">{selectedItem.sapCode || 'Sem código'}</p>
                                         </div>
                                         
-                                        <div className="p-5 space-y-5 flex-1 overflow-y-auto custom-scrollbar">
+                                        <div className="p-5 space-y-5">
                                             <div className="grid grid-cols-2 gap-3">
                                                 <div className="bg-background-light dark:bg-slate-800 p-3 rounded-lg border border-border-light dark:border-border-dark">
                                                     <p className="text-[10px] text-text-secondary uppercase font-bold tracking-wider mb-1">Qtd</p>
@@ -594,6 +593,6 @@ export const StorageMatrix: React.FC<Props> = ({ items, onActions }) => {
                     </div>
                 )}
             </div>
-        </div>
+        </PageContainer>
     );
 };
