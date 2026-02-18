@@ -1,0 +1,78 @@
+/**
+ * LabControl Backend - Office Script (TypeScript)
+ * This script runs inside Excel Online via Microsoft Graph API.
+ * It replaces the Google Apps Script `doPost` logic.
+ */
+
+// Interface for the payload passed from React
+interface ActionPayload {
+  action: string;
+  payload: any; // Complex object passed as string or JSON
+}
+
+function main(workbook: ExcelScript.Workbook, action: string, payloadString: string) {
+  // 1. Parse Payload
+  let payload: any;
+  try {
+    payload = JSON.parse(payloadString);
+  } catch (e) {
+    return JSON.stringify({ success: false, error: "Invalid JSON payload" });
+  }
+
+  // 2. Dispatch Action
+  let result = { success: true, data: null, message: "" };
+
+  try {
+    switch (action) {
+      case 'ping':
+        result.message = "Connected to Office Script Backend";
+        break;
+
+      case 'read_full_db':
+        // Helper function to read tables
+        result.data = {
+           catalog: readTable(workbook, "Catalog"),
+           batches: readTable(workbook, "Batches"),
+           balances: readTable(workbook, "Balances")
+           // view: ... (denormalization logic needed here)
+        };
+        break;
+
+      case 'upsert_item':
+        // Transactional update logic
+        // upsertItem(workbook, payload.item);
+        result.message = "Item saved (Mock)";
+        break;
+
+      default:
+        throw new Error("Unknown action: " + action);
+    }
+  } catch (error: any) {
+    return JSON.stringify({ success: false, error: error.message });
+  }
+
+  return JSON.stringify(result);
+}
+
+// --- HELPER FUNCTIONS ---
+
+function readTable(workbook: ExcelScript.Workbook, tableName: string) {
+  let table = workbook.getTable(tableName);
+  if (!table) return [];
+
+  // Get header and data
+  let range = table.getRangeBetweenHeaderAndTotal();
+  if (!range) return []; // Empty table
+
+  let values = range.getValues();
+  let header = table.getHeaderRowRange().getValues()[0];
+
+  // Map to array of objects
+  return values.map(row => {
+    let obj: any = {};
+    header.forEach((h, i) => {
+      obj[h.toString()] = row[i];
+    });
+    return obj;
+  });
+}
