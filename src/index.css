@@ -4,10 +4,37 @@
 
 @layer base {
   :root {
+    color-scheme: light;
+
+    /* Light Mode Variables */
+    --color-orbital-bg: #f8fafc;      /* Slate 50 */
+    --color-orbital-surface: #ffffff;  /* White */
+    --color-orbital-border: #e2e8f0;   /* Slate 200 */
+    --color-orbital-accent: #0891b2;   /* Cyan 600 */
+    --color-orbital-hover: #0e7490;    /* Cyan 700 */
+    --color-orbital-text: #0f172a;     /* Slate 900 */
+    --color-orbital-subtext: #64748b;  /* Slate 500 */
+
+    --color-orbital-success: #059669;  /* Emerald 600 */
+    --color-orbital-warning: #d97706;  /* Amber 600 */
+    --color-orbital-danger: #dc2626;   /* Red 600 */
+  }
+
+  .dark {
     color-scheme: dark;
-    --color-primary: #06b6d4;
-    --color-background: #09090b;
-    --color-text: #f4f4f5;
+
+    /* Dark Mode Variables (Original Orbital Theme) */
+    --color-orbital-bg: #09090b;      /* Zinc 950 */
+    --color-orbital-surface: #18181b; /* Zinc 900 */
+    --color-orbital-border: #27272a;  /* Zinc 800 */
+    --color-orbital-accent: #06b6d4;  /* Cyan 500 */
+    --color-orbital-hover: #0891b2;   /* Cyan 600 */
+    --color-orbital-text: #f4f4f5;    /* Zinc 100 */
+    --color-orbital-subtext: #a1a1aa; /* Zinc 400 */
+
+    --color-orbital-success: #10b981; /* Emerald 500 */
+    --color-orbital-warning: #f59e0b; /* Amber 500 */
+    --color-orbital-danger: #ef4444;  /* Red 500 */
   }
 
   html, body {
@@ -16,7 +43,7 @@
     margin: 0;
     padding: 0;
     overflow: hidden;
-    @apply bg-orbital-bg text-orbital-text font-sans antialiased;
+    @apply bg-orbital-bg text-orbital-text font-sans antialiased transition-colors duration-300;
   }
 
   #root {
@@ -44,7 +71,7 @@
 
   /* Orbital Card */
   .card-orbital {
-    @apply bg-orbital-surface border border-orbital-border relative overflow-hidden;
+    @apply bg-orbital-surface border border-orbital-border relative overflow-hidden transition-colors duration-300;
   }
 
   .card-orbital::before {

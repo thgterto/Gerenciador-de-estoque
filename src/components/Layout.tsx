@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Sidebar } from './Sidebar';
 import { Header } from './Header';
+import { BottomNav } from './BottomNav';
 import { useTheme } from '../context/ThemeContext';
 
 const drawerWidth = 260;
@@ -27,11 +28,8 @@ export const Layout: React.FC<LayoutProps> = ({
     onScanClick
 }) => {
     const { toggleTheme } = useTheme();
-    const [mobileOpen, setMobileOpen] = useState(false);
-
-    const handleDrawerToggle = () => {
-        setMobileOpen(!mobileOpen);
-    };
+    // Mobile drawer state removed/ignored since we are using BottomNav now
+    // We keep Sidebar for desktop (hidden on sm)
 
     return (
         <div className="flex h-screen overflow-hidden bg-orbital-bg text-orbital-text">
@@ -41,18 +39,21 @@ export const Layout: React.FC<LayoutProps> = ({
                 onAddClick={onAddClick}
                 onScanClick={onScanClick}
                 notificationsCount={alertsCount}
-                onMenuClick={handleDrawerToggle}
+                onMenuClick={() => {}} // No drawer toggle needed anymore
                 drawerWidth={drawerWidth}
             />
 
-            <Sidebar 
-                onLogout={onLogout}
-                notificationsCount={notificationsCount}
-                onSync={onSync}
-                isMobileOpen={mobileOpen}
-                onClose={() => setMobileOpen(false)}
-                drawerWidth={drawerWidth}
-            />
+            {/* Desktop Sidebar (hidden on mobile) */}
+            <div className="hidden sm:block">
+                <Sidebar
+                    onLogout={onLogout}
+                    notificationsCount={notificationsCount}
+                    onSync={onSync}
+                    isMobileOpen={false} // Always false or ignored
+                    onClose={() => {}}
+                    drawerWidth={drawerWidth}
+                />
+            </div>
 
             <main
                 className="flex-1 flex flex-col min-w-0 transition-all duration-300 sm:pl-[260px]"
@@ -61,10 +62,14 @@ export const Layout: React.FC<LayoutProps> = ({
                 <div className="h-16 shrink-0" />
 
                 {/* Scrollable Content Area */}
-                <div className="flex-1 overflow-hidden flex flex-col relative">
+                <div className="flex-1 overflow-hidden flex flex-col relative pb-16 sm:pb-0">
+                    {/* Added pb-16 for mobile bottom nav spacer */}
                     {children}
                 </div>
             </main>
+
+            {/* Mobile Bottom Navigation */}
+            <BottomNav />
         </div>
     );
 };

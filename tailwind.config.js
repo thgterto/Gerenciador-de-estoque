@@ -8,45 +8,45 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Orbital Theme
+        // Orbital Theme - Using CSS Variables for Light/Dark mode
         orbital: {
-            bg: '#09090b',      // Deepest background (Zinc 950)
-            surface: '#18181b', // Card background (Zinc 900)
-            border: '#27272a',  // Borders (Zinc 800)
-            accent: '#06b6d4',  // Cyan 500 (Primary Action)
-            hover: '#0891b2',   // Cyan 600
-            text: '#f4f4f5',    // Primary Text (Zinc 100)
-            subtext: '#a1a1aa', // Secondary Text (Zinc 400)
-            success: '#10b981', // Emerald 500
-            warning: '#f59e0b', // Amber 500
-            danger: '#ef4444',  // Red 500
+            bg: 'var(--color-orbital-bg)',
+            surface: 'var(--color-orbital-surface)',
+            border: 'var(--color-orbital-border)',
+            accent: 'var(--color-orbital-accent)',
+            hover: 'var(--color-orbital-hover)',
+            text: 'var(--color-orbital-text)',
+            subtext: 'var(--color-orbital-subtext)',
+            success: 'var(--color-orbital-success)',
+            warning: 'var(--color-orbital-warning)',
+            danger: 'var(--color-orbital-danger)',
         },
         // Legacy Support (Mapping to Orbital)
         primary: {
-            DEFAULT: '#06b6d4',
-            hover: '#0891b2',
+            DEFAULT: 'var(--color-orbital-accent)',
+            hover: 'var(--color-orbital-hover)',
             light: '#22d3ee',
-            foreground: '#09090b'
+            foreground: 'var(--color-orbital-bg)'
         },
         secondary: {
-            DEFAULT: '#a1a1aa',
+            DEFAULT: 'var(--color-orbital-subtext)',
             hover: '#71717a',
             light: '#d4d4d8',
-            foreground: '#09090b'
+            foreground: 'var(--color-orbital-bg)'
         },
         background: {
-           DEFAULT: '#09090b',
-           light: '#ffffff', // For legacy light mode if needed, but we focus on dark orbital
+           DEFAULT: 'var(--color-orbital-bg)',
+           light: '#f8fafc',
            dark: '#09090b'
         },
         surface: {
-           DEFAULT: '#18181b',
-           light: '#f4f4f5',
+           DEFAULT: 'var(--color-orbital-surface)',
+           light: '#ffffff',
            dark: '#18181b'
         },
         border: {
-           DEFAULT: '#27272a',
-           light: '#e4e4e7',
+           DEFAULT: 'var(--color-orbital-border)',
+           light: '#e2e8f0',
            dark: '#27272a'
         }
       },
