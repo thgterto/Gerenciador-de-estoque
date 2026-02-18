@@ -198,6 +198,7 @@ export const InventoryTable: React.FC<Props> = ({ items, onActions, onAddNew }) 
                         Excluir
                     </Button>
                     <Button
+                        aria-label="Limpar seleção"
                         size="small"
                         onClick={() => setSelectedIds(new Set())}
                         sx={{ color: 'rgba(255,255,255,0.7)', minWidth: 0, p: 1, borderRadius: '50%' }}
