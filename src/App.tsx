@@ -128,7 +128,8 @@ const LabControlContent = () => {
         navigate('/history');
     },
     clone: (item: InventoryItem) => {
-        const { id, quantity, lotNumber, expiryDate, ...template } = item;
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { id: _id, quantity: _quantity, lotNumber: _lotNumber, expiryDate: _expiryDate, ...template } = item;
         setCloneData(template);
         setModalType('ADD');
     }
@@ -167,7 +168,6 @@ const LabControlContent = () => {
                             items={items} 
                             history={history} 
                             onAddToPurchase={addToPurchaseList} 
-                            onAddStock={(item) => { setSelectedItem(item); setModalType('MOVE'); }}
                         />
                    } />
 

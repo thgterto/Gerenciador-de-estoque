@@ -26,10 +26,9 @@ interface DashboardProps {
   items: InventoryItem[];
   history: MovementRecord[];
   onAddToPurchase: (item: InventoryItem, reason: 'LOW_STOCK' | 'EXPIRING' | 'MANUAL') => void;
-  onAddStock: (item: InventoryItem) => void;
 }
 
-export const Dashboard: React.FC<DashboardProps> = ({ items, history, onAddToPurchase, onAddStock: _onAddStock }) => {
+export const Dashboard: React.FC<DashboardProps> = ({ items, history, onAddToPurchase }) => {
   const {
     totalItems,
     lowStockItems,
@@ -68,7 +67,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ items, history, onAddToPur
     },
     dataLabels: { enabled: false },
     xaxis: {
-        categories: paretoData.map((d: any) => d.category),
+        categories: paretoData.map((d: { category: string }) => d.category),
         labels: { style: { colors: theme.palette.text.secondary } }
     },
     yaxis: [
@@ -79,8 +78,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ items, history, onAddToPur
   };
 
   const paretoSeries = [
-    { name: 'Valor (R$)', type: 'column', data: paretoData.map((d: any) => d.value) },
-    { name: '% Acumulado', type: 'line', data: paretoData.map((d: any) => d.accumulatedPercentage) }
+    { name: 'Valor (R$)', type: 'column', data: paretoData.map((d: { value: number }) => d.value) },
+    { name: '% Acumulado', type: 'line', data: paretoData.map((d: { accumulatedPercentage: number }) => d.accumulatedPercentage) }
   ];
 
   return (
@@ -274,7 +273,16 @@ export const Dashboard: React.FC<DashboardProps> = ({ items, history, onAddToPur
   );
 };
 
-const MetricCard = ({ title, value, icon, color, onClick, subtitle }: any) => (
+interface MetricCardProps {
+    title: string;
+    value: string | number;
+    icon: React.ReactNode;
+    color: string;
+    onClick?: () => void;
+    subtitle?: string;
+}
+
+const MetricCard: React.FC<MetricCardProps> = ({ title, value, icon, color, onClick, subtitle }) => (
     <Card
       sx={{ height: '100%', cursor: onClick ? 'pointer' : 'default', position: 'relative' }}
       onClick={onClick}
