@@ -1,8 +1,8 @@
 import React from 'react';
-import {
-    TextField, MenuItem, FormControlLabel, Switch, Chip, Stack, Card, InputAdornment, ToggleButton, ToggleButtonGroup, Box, Typography
-} from '@mui/material';
-import SearchIcon from '@mui/icons-material/Search';
+import { Search, Filter } from 'lucide-react';
+import { OrbitalCard } from '../ui/orbital/OrbitalCard';
+import { OrbitalInput } from '../ui/orbital/OrbitalInput';
+import { OrbitalSelect } from '../ui/orbital/OrbitalSelect';
 
 interface InventoryFiltersProps {
     term: string;
@@ -30,74 +30,113 @@ export const InventoryFilters: React.FC<InventoryFiltersProps> = ({
     uniqueCategories,
 }) => {
     return (
-        <Card variant="outlined" sx={{ p: 2, mb: 3 }}>
-             <Stack direction={{ xs: 'column', lg: 'row' }} spacing={3} alignItems="start">
-                <TextField
-                    label="Busca Rápida"
-                    placeholder="Nome, SKU, CAS ou lote..."
-                    value={term}
-                    onChange={e => setTerm(e.target.value)}
-                    fullWidth
-                    InputProps={{
-                        startAdornment: <InputAdornment position="start"><SearchIcon color="action" /></InputAdornment>,
-                    }}
-                    size="small"
-                />
+        <OrbitalCard className="mb-6 animate-fade-in" noPadding>
+            <div className="p-4 space-y-4">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-end">
 
-                <Box>
-                    <Typography variant="caption" fontWeight="bold" display="block" mb={0.5} color="text.secondary">STATUS</Typography>
-                    <ToggleButtonGroup
-                        value={statusFilter}
-                        exclusive
-                        onChange={(_e, val) => val && setStatusFilter(val)}
-                        size="small"
-                        sx={{ height: 40 }}
-                    >
-                        <ToggleButton value="ALL">Todos</ToggleButton>
-                        <ToggleButton value="LOW_STOCK">Baixo</ToggleButton>
-                        <ToggleButton value="EXPIRED">Vencidos</ToggleButton>
-                    </ToggleButtonGroup>
-                </Box>
+                    {/* Search */}
+                    <div className="lg:col-span-5">
+                        <OrbitalInput
+                            label="Busca Rápida"
+                            placeholder="Nome, SKU, CAS ou lote..."
+                            value={term}
+                            onChange={e => setTerm(e.target.value)}
+                            fullWidth
+                            startAdornment={<Search size={16} />}
+                        />
+                    </div>
 
-                <TextField
-                    select
-                    label="Localização"
-                    value={locationFilter}
-                    onChange={e => setLocationFilter(e.target.value)}
-                    sx={{ minWidth: 200 }}
-                    size="small"
-                    fullWidth
-                >
-                    <MenuItem value="">Todas Localizações</MenuItem>
-                    {uniqueLocations.map(loc => (
-                        <MenuItem key={loc} value={loc}>{loc}</MenuItem>
-                    ))}
-                </TextField>
-             </Stack>
+                    {/* Status Filter */}
+                    <div className="lg:col-span-4 flex flex-col gap-1.5">
+                        <label className="text-xs font-display font-bold uppercase tracking-wider text-orbital-subtext pl-1">
+                            Status
+                        </label>
+                        <div className="flex bg-orbital-bg/50 border border-orbital-border rounded p-1 h-[42px]">
+                            <button
+                                onClick={() => setStatusFilter('ALL')}
+                                className={`flex-1 text-xs font-bold uppercase tracking-wide rounded transition-all duration-200 ${statusFilter === 'ALL' ? 'bg-orbital-accent text-orbital-bg shadow-glow-sm' : 'text-orbital-subtext hover:text-orbital-text hover:bg-orbital-surface'}`}
+                            >
+                                Todos
+                            </button>
+                            <button
+                                onClick={() => setStatusFilter('LOW_STOCK')}
+                                className={`flex-1 text-xs font-bold uppercase tracking-wide rounded transition-all duration-200 ${statusFilter === 'LOW_STOCK' ? 'bg-orbital-warning text-orbital-bg shadow-glow-sm' : 'text-orbital-subtext hover:text-orbital-text hover:bg-orbital-surface'}`}
+                            >
+                                Baixo
+                            </button>
+                            <button
+                                onClick={() => setStatusFilter('EXPIRED')}
+                                className={`flex-1 text-xs font-bold uppercase tracking-wide rounded transition-all duration-200 ${statusFilter === 'EXPIRED' ? 'bg-orbital-danger text-orbital-bg shadow-glow-sm' : 'text-orbital-subtext hover:text-orbital-text hover:bg-orbital-surface'}`}
+                            >
+                                Vencidos
+                            </button>
+                        </div>
+                    </div>
 
-             <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} alignItems="center" sx={{ mt: 2, pt: 2, borderTop: 1, borderColor: 'divider' }}>
-                <FormControlLabel
-                    control={<Switch checked={hideZeroStock} onChange={(e) => setHideZeroStock(e.target.checked)} />}
-                    label={<Typography variant="body2" color="text.secondary">Ocultar itens sem estoque</Typography>}
-                />
+                    {/* Location Filter */}
+                    <div className="lg:col-span-3">
+                         <OrbitalSelect
+                            label="Localização"
+                            value={locationFilter}
+                            onChange={e => setLocationFilter(e.target.value)}
+                            options={[
+                                { value: "", label: "Todas Localizações" },
+                                ...uniqueLocations.map(loc => ({ value: loc, label: loc }))
+                            ]}
+                            fullWidth
+                        />
+                    </div>
+                </div>
 
-                <Box sx={{ height: 24, width: 1, bgcolor: 'divider', display: { xs: 'none', sm: 'block' } }} />
+                <div className="pt-4 border-t border-orbital-border flex flex-col sm:flex-row gap-4 items-center justify-between">
 
-                <Stack direction="row" spacing={1} alignItems="center" overflow="auto" pb={0.5} sx={{ width: '100%' }}>
-                    <Typography variant="caption" fontWeight="bold" color="text.secondary" noWrap>FILTRO RÁPIDO:</Typography>
-                    {uniqueCategories.map((cat) => (
-                         <Chip
-                            key={cat}
-                            label={cat || 'Todas'}
-                            onClick={() => setCatFilter(cat)}
-                            variant={catFilter === cat ? 'filled' : 'outlined'}
-                            color={catFilter === cat ? 'primary' : 'default'}
-                            size="small"
-                            clickable
-                         />
-                    ))}
-                </Stack>
-             </Stack>
-        </Card>
+                    {/* Categories Filter (Chips) */}
+                    <div className="flex items-center gap-2 overflow-x-auto w-full pb-2 sm:pb-0 custom-scrollbar">
+                        <span className="text-xs font-bold text-orbital-subtext whitespace-nowrap mr-2 flex items-center gap-1">
+                            <Filter size={12} />
+                            CATEGORIA:
+                        </span>
+                        {uniqueCategories.map((cat) => (
+                             <button
+                                key={cat}
+                                onClick={() => setCatFilter(cat === catFilter ? '' : cat)}
+                                className={`
+                                    px-3 py-1 text-xs font-mono rounded-full border transition-all duration-200 whitespace-nowrap
+                                    ${catFilter === cat
+                                        ? 'bg-orbital-accent/20 border-orbital-accent text-orbital-accent shadow-glow-sm'
+                                        : 'bg-orbital-surface border-orbital-border text-orbital-subtext hover:border-orbital-subtext hover:text-orbital-text'}
+                                `}
+                             >
+                                {cat || 'Outros'}
+                             </button>
+                        ))}
+                         {catFilter && (
+                            <button
+                                onClick={() => setCatFilter('')}
+                                className="px-2 py-1 text-xs text-orbital-subtext hover:text-orbital-danger underline"
+                            >
+                                Limpar
+                            </button>
+                        )}
+                    </div>
+
+                    {/* Zero Stock Toggle */}
+                    <label className="flex items-center gap-2 cursor-pointer group whitespace-nowrap">
+                        <div className="relative">
+                            <input
+                                type="checkbox"
+                                className="sr-only peer"
+                                checked={hideZeroStock}
+                                onChange={(e) => setHideZeroStock(e.target.checked)}
+                            />
+                            <div className="w-9 h-5 bg-orbital-bg border border-orbital-border rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-orbital-subtext after:border-gray-300 after:border after:rounded-full after:h-3.5 after:w-3.5 after:transition-all peer-checked:bg-orbital-accent peer-checked:border-orbital-accent peer-checked:after:bg-white shadow-inner"></div>
+                        </div>
+                        <span className="text-xs font-medium text-orbital-subtext group-hover:text-orbital-text transition-colors">
+                            Ocultar sem estoque
+                        </span>
+                    </label>
+                </div>
+            </div>
+        </OrbitalCard>
     );
 };

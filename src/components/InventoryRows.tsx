@@ -3,21 +3,19 @@ import { motion, PanInfo, useAnimation } from 'framer-motion';
 import { InventoryItem } from '../types';
 import { InventoryGroup } from '../hooks/useInventoryFilters';
 import { getItemStatus } from '../utils/businessRules';
-import { StatusBadge } from './ui/StatusBadge';
 import { formatDate } from '../utils/formatters';
+import { OrbitalBadge } from './ui/orbital/OrbitalBadge';
 import {
-    Box, Checkbox, Typography, IconButton, Tooltip, Chip, Stack
-} from '@mui/material';
-
-// Icons
-import ContentCopyIcon from '@mui/icons-material/ContentCopy';
-import EditIcon from '@mui/icons-material/Edit';
-import SwapHorizIcon from '@mui/icons-material/SwapHoriz';
-import QrCode2Icon from '@mui/icons-material/QrCode2';
-import LocationOnIcon from '@mui/icons-material/LocationOn';
-import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import WarehouseIcon from '@mui/icons-material/Warehouse';
-import PrintIcon from '@mui/icons-material/Print';
+    Copy,
+    Edit,
+    ArrowRightLeft,
+    QrCode,
+    MapPin,
+    ChevronRight,
+    Warehouse,
+    Printer,
+    FlaskConical
+} from 'lucide-react';
 
 const GRID_TEMPLATE = "40px minmax(240px, 3fr) 120px minmax(180px, 1.5fr) 100px 100px 130px 110px";
 
@@ -51,101 +49,93 @@ export const InventoryChildRow = React.memo(({
     const status = getItemStatus(item);
     
     let validityContent = formatDate(item.expiryDate);
-    let validityColor = status.isExpired ? 'error.main' : 'text.secondary';
+    let validityColor = status.isExpired ? 'text-orbital-danger font-bold' : 'text-orbital-subtext';
     let validityTooltip = "Validade";
 
     if (item.itemType === 'EQUIPMENT' && item.maintenanceDate) {
         validityContent = `Manut: ${formatDate(item.maintenanceDate)}`;
-        validityColor = 'info.main';
+        validityColor = 'text-orbital-accent';
         validityTooltip = "Próxima Manutenção";
     } else if (item.itemType === 'GLASSWARE' && item.glassVolume) {
         validityContent = item.glassVolume;
-        validityColor = 'text.secondary';
+        validityColor = 'text-orbital-subtext';
         validityTooltip = "Volume Nominal";
     }
 
     return (
         <div style={style}>
-            <Box
-                sx={{
-                    height: '100%',
-                    position: 'relative',
-                    borderBottom: isLast ? 0 : 1,
-                    borderColor: 'divider',
-                    bgcolor: isSelected ? 'action.selected' : 'background.paper',
-                    '&:hover': { bgcolor: 'action.hover' },
-                    transition: 'background-color 0.2s'
-                }}
+            <div
+                className={`
+                    h-full relative border-b border-orbital-border/30 transition-colors duration-200 group
+                    ${isSelected ? 'bg-orbital-accent/10' : 'bg-transparent hover:bg-orbital-surface'}
+                    ${isLast ? 'border-b-0' : ''}
+                `}
             >
-                <Box sx={{ position: 'absolute', left: 20, top: 0, bottom: '50%', width: 1, borderLeft: '1px dashed', borderColor: 'divider' }} />
-                <Box sx={{ position: 'absolute', left: 20, top: '50%', width: 24, height: 1, borderTop: '1px dashed', borderColor: 'divider' }} />
+                {/* Tree Lines */}
+                <div className="absolute left-5 top-0 bottom-1/2 w-px border-l border-dashed border-orbital-subtext/30" />
+                <div className="absolute left-5 top-1/2 w-6 h-px border-t border-dashed border-orbital-subtext/30" />
 
-                <Box sx={{ display: 'grid', gridTemplateColumns: GRID_TEMPLATE, alignItems: 'center', height: '100%', px: 2 }}>
+                <div
+                    className="grid items-center h-full px-4"
+                    style={{ gridTemplateColumns: GRID_TEMPLATE }}
+                >
                     
-                    <Box />
+                    <div /> {/* Spacer for checkbox column */}
 
-                    <Box sx={{ px: 1, pl: 3, display: 'flex', alignItems: 'center', gap: 1.5, overflow: 'hidden' }}>
-                        <QrCode2Icon color="action" fontSize="small" />
-                        <Tooltip title={`Lote: ${item.lotNumber}`}>
-                            <Typography
-                                variant="caption"
-                                fontFamily="monospace"
-                                fontWeight="bold"
-                                sx={{
-                                    bgcolor: 'action.hover',
-                                    px: 0.5,
-                                    borderRadius: 0.5,
-                                    cursor: 'pointer',
-                                    '&:hover': { color: 'primary.main' }
-                                }}
-                                onClick={() => copyToClipboard(item.lotNumber, 'Lote')}
-                            >
-                                {item.lotNumber}
-                            </Typography>
-                        </Tooltip>
-                        {item.isGhost && <Chip label="Legado" size="small" variant="outlined" />}
-                    </Box>
-
-                    <Box />
-
-                    <Box sx={{ px: 1, display: 'flex', alignItems: 'center', gap: 0.5, color: 'text.secondary' }}>
-                        <LocationOnIcon fontSize="inherit" />
-                        <Typography variant="caption" noWrap>
-                            {item.location.warehouse} {item.location.cabinet ? `› ${item.location.cabinet}` : ''}
-                        </Typography>
-                    </Box>
-
-                    <Box sx={{ px: 1, textAlign: 'right' }}>
-                        <Typography variant="body2" fontWeight="medium">{item.quantity}</Typography>
-                    </Box>
-
-                    <Box sx={{ px: 1, textAlign: 'right' }}>
-                        <Tooltip title={validityTooltip}>
-                            <Typography variant="caption" sx={{ color: validityColor, fontWeight: status.isExpired ? 'bold' : 'normal' }}>
-                                {validityContent}
-                            </Typography>
-                        </Tooltip>
-                    </Box>
-
-                    <Box sx={{ px: 1, display: 'flex', justifyContent: 'center' }}>
-                        {(status.isExpired || status.isLowStock) && (
-                            <StatusBadge status={status} compact showIcon={false} />
+                    {/* Lote / SKU */}
+                    <div className="px-2 pl-6 flex items-center gap-2 overflow-hidden">
+                        <QrCode className="text-orbital-subtext" size={14} />
+                        <button
+                            title={`Lote: ${item.lotNumber}`}
+                            onClick={() => copyToClipboard(item.lotNumber, 'Lote')}
+                            className="font-mono text-xs font-bold text-orbital-text hover:text-orbital-accent transition-colors truncate"
+                        >
+                            {item.lotNumber}
+                        </button>
+                        {item.isGhost && (
+                            <span className="px-1.5 py-0.5 text-[9px] uppercase font-bold border border-orbital-subtext text-orbital-subtext rounded-none opacity-70">
+                                Legado
+                            </span>
                         )}
-                    </Box>
+                    </div>
 
-                    <Box sx={{ px: 1, textAlign: 'right', display: 'flex', justifyContent: 'flex-end', opacity: 0, transition: 'opacity 0.2s', '.MuiBox-root:hover &': { opacity: 1 } }}>
-                        <Tooltip title="Clonar">
-                            <IconButton size="small" onClick={() => onActions.clone(item)} aria-label="Clonar item"><ContentCopyIcon fontSize="small" /></IconButton>
-                        </Tooltip>
-                        <Tooltip title="Editar">
-                            <IconButton size="small" onClick={() => onActions.edit(item)} aria-label="Editar item"><EditIcon fontSize="small" /></IconButton>
-                        </Tooltip>
-                        <Tooltip title="Movimentar">
-                            <IconButton size="small" onClick={() => onActions.move(item)} aria-label="Movimentar item"><SwapHorizIcon fontSize="small" /></IconButton>
-                        </Tooltip>
-                    </Box>
-                </Box>
-            </Box>
+                    <div /> {/* Spacer for Category */}
+
+                    {/* Location */}
+                    <div className="px-2 flex items-center gap-1.5 text-orbital-subtext overflow-hidden">
+                        <MapPin size={14} className="shrink-0" />
+                        <span className="text-xs truncate">
+                            {item.location.warehouse} {item.location.cabinet ? `› ${item.location.cabinet}` : ''}
+                        </span>
+                    </div>
+
+                    {/* Quantity */}
+                    <div className="px-2 text-right">
+                        <span className="text-sm font-bold text-orbital-text">{item.quantity}</span>
+                    </div>
+
+                    {/* Validity */}
+                    <div className="px-2 text-right">
+                        <span title={validityTooltip} className={`text-xs ${validityColor}`}>
+                            {validityContent}
+                        </span>
+                    </div>
+
+                    {/* Status */}
+                    <div className="px-2 flex justify-center">
+                        {(status.isExpired || status.isLowStock) && (
+                            <OrbitalBadge variant={status.variant} label={status.label} className="scale-90" />
+                        )}
+                    </div>
+
+                    {/* Actions */}
+                    <div className="px-2 flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                        <ActionBtn onClick={() => onActions.clone(item)} title="Clonar" icon={<Copy size={14} />} />
+                        <ActionBtn onClick={() => onActions.edit(item)} title="Editar" icon={<Edit size={14} />} />
+                        <ActionBtn onClick={() => onActions.move(item)} title="Movimentar" icon={<ArrowRightLeft size={14} />} />
+                    </div>
+                </div>
+            </div>
         </div>
     );
 });
@@ -157,7 +147,7 @@ interface GroupRowProps {
     toggleExpand: () => void;
     selectedChildIds: Set<string>;
     onSelectGroup: (groupIds: string[], checked: boolean) => void;
-    getCategoryIcon: (cat: string) => string;
+    // getCategoryIcon removed as it was unused/hardcoded
     copyToClipboard: (text: string, label: string) => void;
 }
 
@@ -168,7 +158,6 @@ export const InventoryGroupRow = React.memo(({
     toggleExpand, 
     selectedChildIds,
     onSelectGroup,
-    getCategoryIcon,
     copyToClipboard
 }: GroupRowProps) => {
     const { primaryItem, totalQuantity, aggregatedStatus, items } = group;
@@ -177,97 +166,105 @@ export const InventoryGroupRow = React.memo(({
 
     return (
         <div style={style}>
-            <Box
-                sx={{
-                    height: '100%',
-                    borderBottom: 1,
-                    borderColor: 'divider',
-                    cursor: 'pointer',
-                    bgcolor: isExpanded ? 'action.selected' : 'background.paper',
-                    '&:hover': { bgcolor: 'action.hover' }
-                }}
+            <div
+                className={`
+                    h-full border-b border-orbital-border cursor-pointer transition-colors duration-200 group
+                    ${isExpanded ? 'bg-orbital-accent/5' : 'bg-orbital-bg hover:bg-orbital-surface'}
+                `}
                 onClick={toggleExpand}
             >
-                <Box sx={{ display: 'grid', gridTemplateColumns: GRID_TEMPLATE, alignItems: 'center', height: '100%', px: 2 }}>
+                <div
+                    className="grid items-center h-full px-4"
+                    style={{ gridTemplateColumns: GRID_TEMPLATE }}
+                >
                     
-                    <Box sx={{ display: 'flex', justifyContent: 'center' }} onClick={(e) => e.stopPropagation()}>
-                        <Checkbox
-                            size="small"
+                    {/* Checkbox */}
+                    <div className="flex justify-center" onClick={(e) => e.stopPropagation()}>
+                        <input
+                            type="checkbox"
+                            className="accent-orbital-accent w-4 h-4 cursor-pointer"
                             checked={allSelected}
-                            indeterminate={someSelected && !allSelected}
+                            ref={input => {
+                                if (input) input.indeterminate = someSelected && !allSelected;
+                            }}
                             onChange={(e) => onSelectGroup(items.map(i => i.id), e.target.checked)}
                         />
-                    </Box>
+                    </div>
 
-                    <Box sx={{ px: 1, overflow: 'hidden' }}>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                             <Box sx={{
-                                 p: 0.5, borderRadius: 1, display: 'flex',
-                                 bgcolor: isExpanded ? 'primary.main' : 'action.hover',
-                                 color: isExpanded ? 'primary.contrastText' : 'text.secondary'
-                             }}>
-                                 <span className="material-symbols-outlined" style={{ fontSize: 20 }}>{getCategoryIcon(primaryItem.category)}</span>
-                             </Box>
-                             <Box sx={{ minWidth: 0 }}>
-                                 <Typography variant="body2" fontWeight="bold" noWrap title={primaryItem.name}>
+                    {/* Product Name */}
+                    <div className="px-2 overflow-hidden">
+                        <div className="flex items-center gap-3">
+                             <div className={`
+                                 p-1 rounded flex shrink-0 transition-colors duration-200
+                                 ${isExpanded ? 'bg-orbital-accent text-orbital-bg shadow-glow-sm' : 'bg-orbital-surface text-orbital-subtext'}
+                             `}>
+                                 <FlaskConical size={16} /> {/* Generic icon for category */}
+                             </div>
+                             <div className="min-w-0">
+                                 <div className="text-sm font-bold text-orbital-text truncate" title={primaryItem.name}>
                                      {primaryItem.name}
-                                 </Typography>
-                                 <Stack direction="row" spacing={1} alignItems="center">
-                                     <Typography
-                                        variant="caption"
-                                        fontFamily="monospace"
-                                        color="text.secondary"
+                                 </div>
+                                 <div className="flex items-center gap-2 mt-0.5">
+                                     <button
                                         onClick={(e) => { e.stopPropagation(); copyToClipboard(primaryItem.sapCode, 'SKU'); }}
-                                        sx={{ cursor: 'copy', '&:hover': { color: 'primary.main' } }}
+                                        className="font-mono text-[10px] text-orbital-subtext hover:text-orbital-accent transition-colors"
                                      >
                                          {primaryItem.sapCode || 'N/A'}
-                                     </Typography>
+                                     </button>
                                      {items.length > 1 && (
-                                         <Chip label={`${items.length} lotes`} size="small" variant="outlined" sx={{ height: 16, fontSize: '0.6rem' }} />
+                                         <span className="px-1 py-0.5 text-[9px] border border-orbital-border rounded text-orbital-subtext">
+                                             {items.length} lotes
+                                         </span>
                                      )}
-                                 </Stack>
-                             </Box>
-                        </Box>
-                    </Box>
+                                 </div>
+                             </div>
+                        </div>
+                    </div>
 
-                    <Box sx={{ px: 1 }}>
-                         <Chip label={primaryItem.category} size="small" />
-                    </Box>
+                    {/* Category */}
+                    <div className="px-2">
+                         <span className="px-2 py-1 text-[10px] font-bold uppercase tracking-wider bg-orbital-surface border border-orbital-border text-orbital-subtext rounded-none">
+                             {primaryItem.category}
+                         </span>
+                    </div>
 
-                    <Box sx={{ px: 1 }}>
-                        <Tooltip title={group.locations.join(', ')}>
-                            <Typography variant="caption" color="text.secondary" noWrap display="block">
-                                {group.locations.length === 1 ? group.locations[0] : `${group.locations.length} locais`}
-                            </Typography>
-                        </Tooltip>
-                    </Box>
+                    {/* Locations Summary */}
+                    <div className="px-2">
+                        <span className="text-xs text-orbital-subtext truncate block" title={group.locations.join(', ')}>
+                            {group.locations.length === 1 ? group.locations[0] : `${group.locations.length} locais`}
+                        </span>
+                    </div>
 
-                    <Box sx={{ px: 1, textAlign: 'right' }}>
-                         <Typography variant="body2" fontWeight="bold">
-                            {totalQuantity.toLocaleString('pt-BR')} <Typography component="span" variant="caption" color="text.secondary">{primaryItem.baseUnit}</Typography>
-                         </Typography>
-                    </Box>
+                    {/* Total Quantity */}
+                    <div className="px-2 text-right">
+                         <div className="text-sm font-bold text-orbital-text">
+                            {totalQuantity.toLocaleString('pt-BR')} <span className="text-[10px] text-orbital-subtext font-normal">{primaryItem.baseUnit}</span>
+                         </div>
+                    </div>
 
-                    <Box sx={{ px: 1, textAlign: 'right' }}>
+                    {/* Expiry Warning */}
+                    <div className="px-2 text-right">
                         {aggregatedStatus.isExpired ? (
-                             <Chip label="Vencidos" color="error" size="small" sx={{ height: 20, fontSize: '0.7rem' }} />
+                             <OrbitalBadge variant="danger" label="Vencidos" />
                         ) : (
-                             <Typography variant="caption" color="text.disabled">--</Typography>
+                             <span className="text-xs text-orbital-border">--</span>
                         )}
-                    </Box>
+                    </div>
 
-                    <Box sx={{ px: 1, display: 'flex', justifyContent: 'center' }}>
-                        <StatusBadge status={aggregatedStatus} compact />
-                    </Box>
+                    {/* Status */}
+                    <div className="px-2 flex justify-center">
+                        <OrbitalBadge variant={aggregatedStatus.variant} label={aggregatedStatus.label === 'Em Estoque' ? 'OK' : aggregatedStatus.label} />
+                    </div>
 
-                    <Box sx={{ px: 1, textAlign: 'right' }}>
-                         <ChevronRightIcon
-                            color={isExpanded ? 'primary' : 'action'}
-                            sx={{ transform: isExpanded ? 'rotate(90deg)' : 'none', transition: 'transform 0.2s' }}
+                    {/* Expand Icon */}
+                    <div className="px-2 text-right">
+                         <ChevronRight
+                            size={16}
+                            className={`transition-transform duration-200 text-orbital-subtext group-hover:text-orbital-accent ${isExpanded ? 'rotate-90 text-orbital-accent' : ''}`}
                         />
-                    </Box>
-                </Box>
-            </Box>
+                    </div>
+                </div>
+            </div>
         </div>
     );
 });
@@ -277,57 +274,57 @@ export const InventoryMobileGroupRow = React.memo(({
     style, 
     isExpanded, 
     toggleExpand,
-    getCategoryIcon
+    // getCategoryIcon removed
 }: GroupRowProps) => {
     const { primaryItem, totalQuantity, aggregatedStatus, items } = group;
 
     return (
-        <div style={style} className="px-2 pt-2 pb-1">
-            <Box
+        <div style={style} className="px-3 pt-3 pb-1">
+            <div
                 onClick={toggleExpand}
-                sx={{
-                    bgcolor: 'background.paper',
-                    borderRadius: 2,
-                    border: 1,
-                    borderColor: isExpanded ? 'primary.main' : 'divider',
-                    boxShadow: 1,
-                    overflow: 'hidden'
-                }}
+                className={`
+                    rounded border transition-all duration-200 overflow-hidden active:scale-[0.99]
+                    ${isExpanded
+                        ? 'bg-orbital-surface border-orbital-accent shadow-glow-sm'
+                        : 'bg-orbital-bg border-orbital-border shadow-sm'}
+                `}
             >
-                <Box sx={{ p: 1.5, display: 'flex', gap: 2 }}>
-                    <Box sx={{
-                        width: 40, height: 40, borderRadius: 1, display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        bgcolor: isExpanded ? 'primary.main' : 'action.selected',
-                        color: isExpanded ? 'primary.contrastText' : 'text.secondary'
-                    }}>
-                        <span className="material-symbols-outlined">{getCategoryIcon(primaryItem.category)}</span>
-                    </Box>
-                    <Box sx={{ flex: 1, minWidth: 0 }}>
-                        <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                             <Typography variant="subtitle2" noWrap>{primaryItem.name}</Typography>
-                             {items.length > 1 && <Chip label={items.length} size="small" sx={{ height: 20 }} />}
-                        </Box>
-                        <Stack direction="row" spacing={1} alignItems="center" mt={0.5}>
-                             <Typography variant="caption" fontFamily="monospace" sx={{ bgcolor: 'action.hover', px: 0.5, borderRadius: 0.5 }}>
+                <div className="p-3 flex gap-3">
+                    <div className={`
+                        w-10 h-10 rounded flex items-center justify-center shrink-0 transition-colors
+                        ${isExpanded ? 'bg-orbital-accent text-orbital-bg' : 'bg-orbital-surface text-orbital-subtext'}
+                    `}>
+                        <FlaskConical size={20} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                        <div className="flex justify-between items-start">
+                             <div className="text-sm font-bold text-orbital-text truncate pr-2">{primaryItem.name}</div>
+                             {items.length > 1 && <span className="text-[10px] px-1.5 py-0.5 bg-orbital-surface rounded border border-orbital-border text-orbital-subtext shrink-0">{items.length}</span>}
+                        </div>
+                        <div className="flex items-center gap-2 mt-1">
+                             <span className="font-mono text-[10px] bg-orbital-surface px-1.5 py-0.5 rounded text-orbital-subtext">
                                  {primaryItem.sapCode || 'S/ SAP'}
-                             </Typography>
+                             </span>
                              {(aggregatedStatus.isExpired || aggregatedStatus.isLowStock) && (
-                                <StatusBadge status={aggregatedStatus} compact />
+                                <OrbitalBadge variant={aggregatedStatus.variant} label={aggregatedStatus.label} className="scale-90" />
                              )}
-                        </Stack>
-                    </Box>
-                </Box>
+                        </div>
+                    </div>
+                </div>
 
-                <Box sx={{ px: 1.5, py: 1, bgcolor: isExpanded ? 'primary.light' : 'action.hover', borderTop: 1, borderColor: 'divider', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, color: 'text.secondary' }}>
-                        <WarehouseIcon fontSize="small" />
-                        <Typography variant="caption" noWrap sx={{ maxWidth: 120 }}>{group.locations.join(', ')}</Typography>
-                    </Box>
-                    <Typography variant="body2" fontWeight="bold">
-                        {totalQuantity} <Typography component="span" variant="caption">{primaryItem.baseUnit}</Typography>
-                    </Typography>
-                </Box>
-            </Box>
+                <div className={`
+                    px-3 py-2 border-t flex justify-between items-center text-xs
+                    ${isExpanded ? 'bg-orbital-accent/10 border-orbital-accent/30' : 'bg-orbital-surface/50 border-orbital-border'}
+                `}>
+                    <div className="flex items-center gap-1.5 text-orbital-subtext max-w-[60%]">
+                        <Warehouse size={14} />
+                        <span className="truncate">{group.locations.join(', ')}</span>
+                    </div>
+                    <div className="font-bold text-orbital-text">
+                        {totalQuantity} <span className="font-normal text-orbital-subtext">{primaryItem.baseUnit}</span>
+                    </div>
+                </div>
+            </div>
         </div>
     );
 });
@@ -360,15 +357,15 @@ export const InventoryMobileChildRow = React.memo(({
     };
 
     return (
-        <div style={style} className="px-2 pl-4 pb-1">
-             <Box sx={{ position: 'absolute', insetY: 4, left: 16, right: 8, borderRadius: 2, display: 'flex', overflow: 'hidden' }}>
-                <Box sx={{ width: '50%', bgcolor: 'info.main', display: 'flex', alignItems: 'center', pl: 2, color: 'white' }}>
-                    <SwapHorizIcon />
-                </Box>
-                <Box sx={{ width: '50%', bgcolor: 'warning.main', display: 'flex', alignItems: 'center', justifyContent: 'end', pr: 2, color: 'white' }}>
-                    <EditIcon />
-                </Box>
-             </Box>
+        <div style={style} className="px-3 pl-6 pb-1">
+             <div className="absolute inset-y-1 left-4 right-3 rounded flex overflow-hidden">
+                <div className="w-1/2 bg-orbital-accent flex items-center pl-4 text-orbital-bg font-bold">
+                    <ArrowRightLeft size={20} />
+                </div>
+                <div className="w-1/2 bg-orbital-warning flex items-center justify-end pr-4 text-orbital-bg font-bold">
+                    <Edit size={20} />
+                </div>
+             </div>
 
              <motion.div
                 drag="x"
@@ -378,36 +375,55 @@ export const InventoryMobileChildRow = React.memo(({
                 animate={controls}
                 style={{ position: 'relative', zIndex: 10 }}
              >
-                <Box sx={{ bgcolor: 'background.paper', borderRadius: 2, p: 1.5, border: 1, borderColor: 'divider', boxShadow: 1 }}>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-                        <Box>
-                            <Stack direction="row" spacing={1} alignItems="center">
-                                <QrCode2Icon color="primary" fontSize="small" />
-                                <Typography variant="body2" fontFamily="monospace" fontWeight="bold">{item.lotNumber}</Typography>
-                            </Stack>
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 0.5, color: 'text.secondary' }}>
-                                <LocationOnIcon fontSize="inherit" />
-                                <Typography variant="caption">{item.location.warehouse} {item.location.cabinet ? `• ${item.location.cabinet}` : ''}</Typography>
-                            </Box>
-                        </Box>
-                        <Box sx={{ textAlign: 'right' }}>
-                             <Typography variant="body2" fontWeight="bold">
-                                 {item.quantity} <Typography component="span" variant="caption">{item.baseUnit}</Typography>
-                             </Typography>
-                             <Typography variant="caption" color={status.isExpired ? 'error' : 'text.secondary'} display="block">
+                <div className="bg-orbital-surface rounded border border-orbital-border shadow-sm p-3">
+                    <div className="flex justify-between mb-2">
+                        <div>
+                            <div className="flex items-center gap-2">
+                                <QrCode className="text-orbital-accent" size={14} />
+                                <span className="font-mono text-sm font-bold text-orbital-text">{item.lotNumber}</span>
+                            </div>
+                            <div className="flex items-center gap-1.5 mt-1 text-xs text-orbital-subtext">
+                                <MapPin size={12} />
+                                <span>{item.location.warehouse} {item.location.cabinet ? `• ${item.location.cabinet}` : ''}</span>
+                            </div>
+                        </div>
+                        <div className="text-right">
+                             <div className="text-sm font-bold text-orbital-text">
+                                 {item.quantity} <span className="text-[10px] text-orbital-subtext font-normal">{item.baseUnit}</span>
+                             </div>
+                             <div className={`text-[10px] ${status.isExpired ? 'text-orbital-danger font-bold' : 'text-orbital-subtext'}`}>
                                  {validityInfo}
-                             </Typography>
-                        </Box>
-                    </Box>
+                             </div>
+                        </div>
+                    </div>
 
-                    <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 1, pt: 1, borderTop: 1, borderColor: 'divider' }}>
-                        <IconButton size="small" onClick={(e) => { e.stopPropagation(); onActions.move(item); }} aria-label="Movimentar item"><SwapHorizIcon /></IconButton>
-                        <IconButton size="small" onClick={(e) => { e.stopPropagation(); onActions.clone(item); }} aria-label="Clonar item"><ContentCopyIcon /></IconButton>
-                        <IconButton size="small" onClick={(e) => { e.stopPropagation(); onActions.edit(item); }} aria-label="Editar item"><EditIcon /></IconButton>
-                        <IconButton size="small" onClick={(e) => { e.stopPropagation(); onActions.qr(item); }} aria-label="Gerar Etiqueta/QR"><PrintIcon /></IconButton>
-                    </Box>
-                </Box>
+                    <div className="grid grid-cols-4 gap-2 pt-2 border-t border-orbital-border">
+                        <MobileActionBtn onClick={(e: any) => { e.stopPropagation(); onActions.move(item); }} icon={<ArrowRightLeft size={16} />} />
+                        <MobileActionBtn onClick={(e: any) => { e.stopPropagation(); onActions.clone(item); }} icon={<Copy size={16} />} />
+                        <MobileActionBtn onClick={(e: any) => { e.stopPropagation(); onActions.edit(item); }} icon={<Edit size={16} />} />
+                        <MobileActionBtn onClick={(e: any) => { e.stopPropagation(); onActions.qr(item); }} icon={<Printer size={16} />} />
+                    </div>
+                </div>
              </motion.div>
         </div>
     );
 });
+
+const ActionBtn = ({ onClick, title, icon }: any) => (
+    <button
+        onClick={(e) => { e.stopPropagation(); onClick(); }}
+        title={title}
+        className="p-1.5 text-orbital-subtext hover:text-orbital-accent hover:bg-orbital-accent/10 rounded transition-all duration-200"
+    >
+        {icon}
+    </button>
+);
+
+const MobileActionBtn = ({ onClick, icon }: any) => (
+    <button
+        onClick={onClick}
+        className="flex items-center justify-center p-2 rounded text-orbital-subtext hover:text-orbital-text hover:bg-orbital-bg transition-colors"
+    >
+        {icon}
+    </button>
+);

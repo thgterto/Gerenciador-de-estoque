@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { Box, Toolbar } from '@mui/material';
 import { Sidebar } from './Sidebar';
 import { Header } from './Header';
+import { useTheme } from '../context/ThemeContext';
 
-const drawerWidth = 260; // Slightly wider for better legibility
+const drawerWidth = 260;
 
 interface LayoutProps {
     children: React.ReactNode;
@@ -26,28 +26,17 @@ export const Layout: React.FC<LayoutProps> = ({
     onAddClick,
     onScanClick
 }) => {
+    const { toggleTheme } = useTheme();
     const [mobileOpen, setMobileOpen] = useState(false);
-    const [isClosing, setIsClosing] = useState(false);
-
-    const handleDrawerClose = () => {
-        setIsClosing(true);
-        setMobileOpen(false);
-    };
-
-    const handleDrawerTransitionEnd = () => {
-        setIsClosing(false);
-    };
 
     const handleDrawerToggle = () => {
-        if (!isClosing) {
-            setMobileOpen(!mobileOpen);
-        }
+        setMobileOpen(!mobileOpen);
     };
 
     return (
-        <Box sx={{ display: 'flex', height: '100vh', overflow: 'hidden', bgcolor: 'background.default' }}>
+        <div className="flex h-screen overflow-hidden bg-orbital-bg text-orbital-text">
             <Header
-                onToggleTheme={() => {}} // Theme toggle is handled inside Header or Context now
+                onToggleTheme={toggleTheme}
                 onBackup={onBackupForce}
                 onAddClick={onAddClick}
                 onScanClick={onScanClick}
@@ -61,31 +50,21 @@ export const Layout: React.FC<LayoutProps> = ({
                 notificationsCount={notificationsCount}
                 onSync={onSync}
                 isMobileOpen={mobileOpen}
-                onTransitionEnd={handleDrawerTransitionEnd}
-                onClose={handleDrawerClose}
+                onClose={() => setMobileOpen(false)}
                 drawerWidth={drawerWidth}
             />
 
-            <Box
-                component="main"
-                sx={{
-                    flexGrow: 1,
-                    // Remove padding from here to let PageContainer control it or use it as a flex container
-                    // But we keep it if children expect it. PageContainer has its own padding.
-                    // To prevent double scrolling, we make this a flex column.
-                    display: 'flex',
-                    flexDirection: 'column',
-                    width: { sm: `calc(100% - ${drawerWidth}px)` },
-                    height: '100vh',
-                    bgcolor: 'background.default',
-                    overflow: 'hidden'
-                }}
+            <main
+                className="flex-1 flex flex-col min-w-0 transition-all duration-300 sm:pl-[260px]"
             >
-                <Toolbar /> {/* Spacer to push content below AppBar */}
-                <Box sx={{ flexGrow: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+                {/* Header Spacer */}
+                <div className="h-16 shrink-0" />
+
+                {/* Scrollable Content Area */}
+                <div className="flex-1 overflow-hidden flex flex-col relative">
                     {children}
-                </Box>
-            </Box>
-        </Box>
+                </div>
+            </main>
+        </div>
     );
 };
