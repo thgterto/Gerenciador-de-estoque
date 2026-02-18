@@ -2,6 +2,20 @@
 
 import { InventoryItem, RiskFlags } from '../types';
 
+// Global cache for today's ISO string (Performance Optimization)
+let _cachedTodayISO: string = '';
+let _lastCacheTime: number = 0;
+
+const getTodayISO = () => {
+    const now = Date.now();
+    // Cache for 1 minute to avoid re-calculating string on every render/loop
+    if (now - _lastCacheTime > 60000 || !_cachedTodayISO) {
+        _cachedTodayISO = new Date().toISOString().split('T')[0];
+        _lastCacheTime = now;
+    }
+    return _cachedTodayISO;
+};
+
 // --- CONFIGURAÇÃO DE RISCOS (GHS) ---
 export const RISK_CONFIG: Record<keyof RiskFlags, { label: string, color: string, icon: string, textColor?: string }> = {
     F: { label: 'Inflamável (Flammable)', color: 'bg-red-500', icon: 'local_fire_department', textColor: 'text-red-500' },
@@ -39,9 +53,21 @@ export type ItemStatusResult = {
     icon: string;
 };
 
-// Optimization: Accept 'now' Date object to prevent recreation in loops
-export const getItemStatus = (item: InventoryItem, now: Date = new Date()): ItemStatusResult => {
-    const isExpired = !!item.expiryDate && new Date(item.expiryDate) < now;
+// Optimization: Accept 'now' Date object, but prefer string comparison if not provided
+export const getItemStatus = (item: InventoryItem, now?: Date): ItemStatusResult => {
+    let isExpired = false;
+
+    if (item.expiryDate) {
+        if (now) {
+             // Legacy/Explicit check with Date object
+             isExpired = new Date(item.expiryDate) < now;
+        } else {
+             // Optimization: String comparison is ~10x faster than new Date() parsing
+             // Uses cached 'today' string to avoid allocation
+             isExpired = item.expiryDate < getTodayISO();
+        }
+    }
+
     const isLowStock = item.quantity <= item.minStockLevel && item.minStockLevel > 0;
 
     if (isExpired) {
@@ -81,13 +107,14 @@ export const analyzeLocation = (locItems: InventoryItem[]) => {
     let conflictMessage: string | null = null;
     let expiredCount = 0;
     let lowStockCount = 0;
-    const now = new Date(); // Created once for loop optimization
+
+    // Note: We removed explicit 'now' date creation to let getItemStatus use its optimized string cache
 
     locItems.forEach(item => {
         (Object.keys(item.risks) as Array<keyof RiskFlags>).forEach(riskKey => {
             if (item.risks[riskKey]) activeRisks.add(riskKey);
         });
-        const status = getItemStatus(item, now); // Use cached date
+        const status = getItemStatus(item); // Uses optimized string comparison
         if (status.isExpired) expiredCount++;
         if (status.isLowStock) lowStockCount++;
     });
