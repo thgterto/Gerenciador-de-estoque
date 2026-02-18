@@ -10,7 +10,7 @@
 -   **Persistence Layer**:
     -   **Local (Renderer)**: IndexedDB via **Dexie.js** for fast, offline-first data access in the UI.
     -   **System (Main)**: SQLite via **better-sqlite3** for robust, transactional data storage and backups.
--   **Legacy Backend**: A `GoogleAppsScript.js` file exists in `backend/`, indicating a migration from a cloud-based Google Sheets backend to the current local architecture.
+-   **Legacy Backend**: A `GoogleAppsScript.js` file existed in `backend/` but has been archived to `_archive/backend/` to prevent confusion with the current local architecture.
 
 ### Core Features:
 -   **Inventory Management**: High-performance list virtualization for large datasets.
@@ -45,29 +45,34 @@ The project includes a specific workflow for managing a local preview server, li
 
 ## 3. Codebase Structure Assessment
 
-The codebase follows a somewhat flat structure for the frontend source, with key directories at the root level rather than nested in `src/`. This unconventional structure places source files directly alongside configuration files.
+The codebase now follows a standard React/Vite structure, with all frontend source code residing in the `src/` directory.
 
 ### Key Directories:
+-   `src/`: **Frontend Source**. Contains all React application code:
+    -   `components/`: UI components.
+    -   `context/`: React Context definitions.
+    -   `data/`: Static data files (e.g., LIMS real data).
+    -   `hooks/`: Custom React hooks.
+    -   `services/`: Frontend services (API calls, Dexie interaction).
+    -   `utils/`: Utility functions.
+    -   `database/`: Dexie schema and configuration.
+    -   `App.tsx`, `index.tsx`: Entry points.
 -   `electron/`: **Main Process**. Contains the Electron backend logic, including:
     -   `main.cjs`: Entry point.
     -   `preload.cjs`: IPC bridge.
     -   `controllers/`: Business logic for the main process.
     -   `db/`: SQLite database handling.
--   `backend/`: **Legacy**. Contains `GoogleAppsScript.js` and benchmarks.
--   `components/`: React UI components.
--   `hooks/`: Custom React hooks.
--   `services/`: Frontend services (likely API calls, Dexie interaction).
--   `utils/`: Utility functions.
--   `context/`: React Context definitions.
--   `database/`: Database schemas or configurations (likely for Dexie).
+-   `_archive/`: **Archived Code**. Contains legacy backend code (`GoogleAppsScript.js`) and unused benchmarks.
+-   `tests/`: **Test Suite**. Contains integration and E2E tests, including:
+    -   `electron/`: Specific tests for Electron IPC logic.
 -   `public/`: Static assets.
 -   `release/`: Output directory for Electron builds.
 -   `dist/`: Output directory for Vite builds.
 
 ### Root Files:
--   `App.tsx`, `index.tsx`: React application entry points.
--   `vite.config.ts`: Vite configuration.
--   `tsconfig.json`: TypeScript configuration.
+-   `vite.config.ts`: Vite configuration, pointing to `src/` and handling test setup.
+-   `tsconfig.json`: TypeScript configuration including `src` and `tests`.
+-   `eslint.config.js`: ESLint configuration covering both `src` (React/TS) and `electron` (Node/JS).
 
 ## 4. Configuration Review
 
@@ -83,23 +88,25 @@ The codebase follows a somewhat flat structure for the frontend source, with key
 ### `vite.config.ts`
 -   Configured for both web and Electron environments (`base: './'` for Electron portability).
 -   Manual chunking configured for build optimization.
--   Test configuration using Vitest.
+-   Test configuration using Vitest, pointing to `src/vitest.setup.ts`.
 
 ### `tsconfig.json`
 -   Target: ES2020.
 -   Strict mode enabled.
--   Excludes `electron` folder (which likely has its own config or uses JS).
+-   Includes `src` and `tests` directories.
 
 ### Linting (`eslint.config.js`)
--   Standard React + TypeScript configuration.
--   **Important**: Explicitly ignores the `electron/` directory, meaning the backend code is currently not being linted.
+-   **Frontend**: Standard React + TypeScript configuration for `src/`.
+-   **Backend**: Specific configuration for `electron/` directory (Node environment, no React rules).
+-   **Tailwind**: Configured to scan `src/` for class usage.
 
-## 5. Summary & Recommendations
+## 5. Summary & Implemented Improvements
 
-The **LabControl** project is a modern, robust desktop application built with web technologies. The migration to Electron + SQLite/IndexedDB provides the necessary stability and offline capabilities for a laboratory environment.
+The **LabControl** project has been successfully restructured to improve maintainability and developer experience.
 
-**Recommendations:**
-1.  **Cleanup**: Consider archiving or removing the `backend/` directory if the Google Apps Script integration is fully deprecated to avoid confusion.
-2.  **Structure**: Moving frontend source files (`components`, `hooks`, `services`, `utils`, `App.tsx`, `index.tsx`) into a `src/` directory would improve root directory cleanliness and follow standard conventions.
-3.  **Testing**: Ensure `vitest` is actively used and covers both the React components and the Electron IPC logic.
-4.  **Code Quality**: Introduce an ESLint configuration for the `electron/` directory to ensure code quality and consistency in the backend logic.
+**Completed Improvements:**
+1.  **Cleanup**: The legacy `backend/` directory has been moved to `_archive/backend/`, removing ambiguity about the active backend logic.
+2.  **Structure**: All frontend source files have been moved to `src/`, decluttering the root directory and following standard React conventions.
+3.  **Testing**: A comprehensive testing infrastructure using **Vitest** is now in place, covering both React components (in `src/components/__tests__`) and Electron IPC logic (in `tests/electron`).
+4.  **Code Quality**: An **ESLint** configuration has been added for the `electron/` directory, ensuring consistent code quality across the full stack.
+5.  **Rendering Fix**: Tailwind CSS configuration was updated to correctly locate source files in the new `src/` directory, ensuring proper styling.
