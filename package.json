@@ -12,6 +12,7 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview --host --open",
+    "lint": "eslint . --max-warnings 0",
     "electron:dev": "concurrently \"cross-env BROWSER=none npm run dev\" \"wait-on http://localhost:5173 && cross-env NODE_ENV=development electron .\"",
     "electron:build": "npm run build && electron-builder",
     "pack": "npm run build && electron-builder --dir",
