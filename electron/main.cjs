@@ -54,11 +54,11 @@ function createWindow() {
   }
 
   mainWindow.webContents.setWindowOpenHandler(({ url }) => {
-    if (url.startsWith('https:') || url.startsWith('http:')) {
-      shell.openExternal(url);
+    if (url.startsWith('https:') || url.startsWith('http:') || url.startsWith('mailto:')) {
+      setImmediate(() => { shell.openExternal(url); });
       return { action: 'deny' };
     }
-    return { action: 'allow' };
+    return { action: 'deny' };
   });
 
   mainWindow.on('closed', () => {

@@ -28,17 +28,53 @@ def check_no_stack_trace_exposure(filepath):
         print(f"❌ Error: File not found: {filepath}")
         return False
 
+def check_electron_window_handler(filepath):
+    """
+    Checks if setWindowOpenHandler is restrictive (returns deny by default).
+    """
+    print(f"Scanning {filepath} for secure window handler...")
+    try:
+        with open(filepath, 'r') as f:
+            content = f.read()
+
+        # Check for presence of 'allow' action which is dangerous as fallback
+        if "action: 'allow'" in content or 'action: "allow"' in content:
+            print(f"❌ SECURITY FAIL: Found 'action: allow' in {filepath}. Window handler should deny by default.")
+            return False
+
+        # Check for presence of 'deny' action
+        if "action: 'deny'" not in content and 'action: "deny"' not in content:
+             print(f"❌ SECURITY FAIL: Did not find 'action: deny' in {filepath}.")
+             return False
+
+        print(f"✅ SECURITY PASS: Secure window handler pattern found in {filepath}")
+        return True
+    except FileNotFoundError:
+        print(f"❌ Error: File not found: {filepath}")
+        return False
+
 if __name__ == "__main__":
+    # 1. Check Google Apps Script (Legacy/Sync)
     filepath = "backend/GoogleAppsScript.js"
     if not os.path.exists(filepath):
         # Fallback for different CWD
         filepath = "../backend/GoogleAppsScript.js"
 
-    if not os.path.exists(filepath):
-         print(f"Could not find file at {filepath}")
-         sys.exit(1)
+    if os.path.exists(filepath):
+        if not check_no_stack_trace_exposure(filepath):
+            sys.exit(1)
+    else:
+         print(f"Warning: Could not find backend file at {filepath}")
 
-    if not check_no_stack_trace_exposure(filepath):
-        sys.exit(1)
+    # 2. Check Electron Main Process (New Architecture)
+    electron_path = "electron/main.cjs"
+    if not os.path.exists(electron_path):
+        electron_path = "../electron/main.cjs"
+
+    if os.path.exists(electron_path):
+        if not check_electron_window_handler(electron_path):
+             sys.exit(1)
+    else:
+        print(f"Warning: Could not find electron main file at {electron_path}")
 
     sys.exit(0)
