@@ -9,9 +9,9 @@ export type ColorScheme = 'neutral' | 'primary' | 'warning' | 'danger' | 'succes
 
 interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
     title?: string;
-    subtitle?: string;
+    subtitle?: string | React.ReactNode;
     value?: string | number;
-    icon?: string;
+    icon?: string | React.ReactNode;
     variant?: CardVariant;
     colorScheme?: ColorScheme;
     padding?: string;
@@ -34,6 +34,15 @@ export const Card: React.FC<CardProps> = ({
     ...props
 }) => {
     
+    // Helper to render icon whether it's a string name or a ReactNode
+    const renderIcon = () => {
+        if (!icon) return null;
+        if (typeof icon === 'string') {
+            return <Icon name={icon} className="text-orbital-accent" />;
+        }
+        return icon;
+    };
+
     // Metric Card Layout Mapping
     if (variant === 'metric') {
         return (
@@ -44,7 +53,7 @@ export const Card: React.FC<CardProps> = ({
             >
                 <div className="flex justify-between items-start mb-2">
                     {title && <span className="text-xs font-bold text-orbital-subtext uppercase tracking-wider">{title}</span>}
-                    {icon && <Icon name={icon} className="text-orbital-accent" />}
+                    {icon && renderIcon()}
                 </div>
                 <div className="text-3xl font-bold text-orbital-text font-mono">{value}</div>
                 {subtitle && <div className="text-xs text-orbital-subtext mt-1">{subtitle}</div>}
@@ -64,7 +73,7 @@ export const Card: React.FC<CardProps> = ({
         >
             {(subtitle || badge || icon) && (
                 <div className="flex items-center gap-2 mb-4 px-1">
-                    {icon && <Icon name={icon} className="text-orbital-accent" />}
+                    {icon && renderIcon()}
                     {subtitle && <span className="text-sm text-orbital-subtext">{subtitle}</span>}
                     {badge && <OrbitalBadge label={badge.label} variant={badge.color as any} />}
                 </div>

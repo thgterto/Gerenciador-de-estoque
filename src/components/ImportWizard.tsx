@@ -236,7 +236,7 @@ export const ImportWizard: React.FC<Props> = ({ isOpen, onClose, mode }) => {
                         supplier: d.supplier || '',
                         type: 'ROH',
                         materialGroup: 'General',
-                        itemStatus: 'Active',
+                        itemStatus: 'Ativo', // Fixed: 'Active' -> 'Ativo'
                         isControlled: false,
                         casNumber: d.casNumber || '', 
                         lastUpdated: new Date().toISOString(),
