@@ -15,7 +15,8 @@ import {
     BusinessPartner,
     StockBalance,
     StockMovement, // New Entity
-    SyncQueueItem
+    SyncQueueItem,
+    User
 } from './types';
 import { HybridStorageManager } from './utils/HybridStorage';
 
@@ -35,6 +36,7 @@ export class QStockDB extends Dexie {
   partners!: Table<BusinessPartner, string>;
   balances!: Table<StockBalance, string>; // The "Cache" for distributed stock
   stock_movements!: Table<StockMovement, string>; // The Real Ledger
+  users!: Table<User, string>; // User Management
 
   // --- Support Tables ---
   syncQueue!: Table<SyncQueueItem, number>; // Offline Sync Queue
@@ -100,6 +102,11 @@ export class QStockDB extends Dexie {
     // Schema Version 6 (Performance Optimization - Composite Indices)
     (this as any).version(6).stores({
         items: 'id, sapCode, lotNumber, name, category, supplier, expiryDate, itemStatus, location.warehouse, molecularFormula, batchId, catalogId, [category+itemStatus], [location.warehouse+category], [expiryDate+itemStatus]'
+    });
+
+    // Schema Version 7 (User Management)
+    (this as any).version(7).stores({
+        users: 'id, &username, role, active'
     });
   }
 }

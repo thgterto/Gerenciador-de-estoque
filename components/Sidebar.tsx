@@ -18,6 +18,7 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import ScienceIcon from '@mui/icons-material/Science';
 import SyncIcon from '@mui/icons-material/Sync';
 import LogoutIcon from '@mui/icons-material/Logout';
+import PeopleIcon from '@mui/icons-material/People';
 
 interface SidebarProps {
     onLogout: () => void;
@@ -51,6 +52,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
         { path: '/reports', icon: <BarChartIcon />, label: 'Relatórios' },
         { path: '/settings', icon: <SettingsIcon />, label: 'Configurações' },
     ];
+
+    if (user?.role === 'ADMIN') {
+        // Insert Users before Settings (index 6)
+        menuItems.splice(6, 0, { path: '/users', icon: <PeopleIcon />, label: 'Usuários' });
+    }
 
     const drawerContent = (
         <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>

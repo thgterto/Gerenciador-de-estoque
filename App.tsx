@@ -30,6 +30,7 @@ const StorageMatrix = React.lazy(() => import('./components/StorageMatrix').then
 const Purchases = React.lazy(() => import('./components/Purchases').then(m => ({ default: m.Purchases })));
 const Settings = React.lazy(() => import('./components/Settings').then(m => ({ default: m.Settings })));
 const Reports = React.lazy(() => import('./components/Reports').then(m => ({ default: m.Reports })));
+import { UserManagement } from './components/UserManagement'; // Not lazy for now as it's small
 
 // Loading Component para Suspense
 const PageLoader = () => (
@@ -218,7 +219,9 @@ const LabControlContent = () => {
                    } />
                    
                    <Route path="/reports" element={<Reports items={items} history={history} />} />
-                   <Route path="/users" element={<Navigate to="/dashboard" />} />
+                   <Route path="/users" element={
+                       hasRole('ADMIN') ? <UserManagement /> : <Navigate to="/dashboard" />
+                   } />
 
                    <Route path="*" element={<Navigate to="/dashboard" />} />
                </Routes>

@@ -30,6 +30,8 @@
     "echarts": "^5.5.0",
     "framer-motion": "^12.31.2",
     "html5-qrcode": "^2.3.8",
+    "jspdf": "^4.1.0",
+    "jspdf-autotable": "^5.0.7",
     "lucide-react": "^0.475.0",
     "react": "^19.0.0",
     "react-apexcharts": "^1.7.0",

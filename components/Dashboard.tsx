@@ -21,6 +21,7 @@ import EventBusyIcon from '@mui/icons-material/EventBusy';
 import HistoryIcon from '@mui/icons-material/History';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
+import TrendingDownIcon from '@mui/icons-material/TrendingDown';
 
 interface DashboardProps {
   items: InventoryItem[];
@@ -37,7 +38,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ items, history, onAddToPur
     expiringItems,
     totalValue,
     recentTransactions,
-    paretoData
+    paretoData,
+    stockoutRisks
   } = useDashboardAnalytics(items, history);
   
   const navigate = useNavigate();
@@ -194,6 +196,43 @@ export const Dashboard: React.FC<DashboardProps> = ({ items, history, onAddToPur
         <Grid size={{ xs: 12, lg: 4 }}>
             <Grid container spacing={3} direction="column">
                 
+                {/* Stockout Prediction */}
+                {stockoutRisks && stockoutRisks.length > 0 && (
+                <Grid size={{ xs: 12 }}>
+                    <Card sx={{ borderLeft: 4, borderColor: 'secondary.main' }}>
+                        <CardHeader
+                            title="Risco de Ruptura (IA)"
+                            subheader="Estimativa baseada no consumo (90d)"
+                            avatar={<TrendingDownIcon color="secondary" />}
+                        />
+                        <CardContent sx={{ pt: 0 }}>
+                             {stockoutRisks.map((item: any) => (
+                                <Box key={item.id} sx={{ mb: 2, p: 1.5, bgcolor: 'background.paper', borderRadius: 1, border: '1px dashed', borderColor: 'text.disabled' }}>
+                                    <Box display="flex" justifyContent="space-between" alignItems="center">
+                                        <Typography variant="subtitle2" noWrap sx={{ maxWidth: '60%' }}>{item.name}</Typography>
+                                        <Chip label={`${item.daysSupply} dias`} size="small" color="secondary" variant="outlined" />
+                                    </Box>
+                                    <Typography variant="caption" color="textSecondary" display="block" mt={0.5}>
+                                        Esgota em: <b>{new Date(item.predictedStockoutDate).toLocaleDateString()}</b>
+                                    </Typography>
+                                    <Button
+                                        size="small"
+                                        variant="text"
+                                        color="secondary"
+                                        fullWidth
+                                        sx={{ mt: 0.5, justifyContent: 'flex-start' }}
+                                        onClick={() => onAddToPurchase(item, 'LOW_STOCK')}
+                                        startIcon={<AddShoppingCartIcon fontSize="small" />}
+                                    >
+                                        Solicitar Compra
+                                    </Button>
+                                </Box>
+                             ))}
+                        </CardContent>
+                    </Card>
+                </Grid>
+                )}
+
                 {/* Action Items */}
                 <Grid size={{ xs: 12 }}>
                     <Card sx={{ borderLeft: 4, borderColor: 'warning.main' }}>
