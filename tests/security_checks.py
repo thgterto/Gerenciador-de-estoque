@@ -28,6 +28,39 @@ def check_no_stack_trace_exposure(filepath):
         print(f"❌ Error: File not found: {filepath}")
         return False
 
+def check_formula_injection_protection(filepath):
+    """
+    Checks if GoogleAppsScript.js contains sanitization for Formula Injection.
+    """
+    print(f"Scanning {filepath} for Formula Injection protection...")
+    try:
+        with open(filepath, 'r') as f:
+            content = f.read()
+
+        # Check for sanitizeForSheet definition
+        if "function sanitizeForSheet(value)" not in content:
+            print(f"❌ SECURITY FAIL: sanitizeForSheet function not found in {filepath}")
+            return False
+
+        # Check for usage in upsertData
+        # Simple check: does "sanitizeForSheet(" appear inside upsertData?
+        # This is a heuristic.
+        upsert_data_match = re.search(r"function upsertData[\s\S]*?}", content)
+        if not upsert_data_match:
+             print(f"❌ FAIL: upsertData function not found in {filepath}")
+             return False
+
+        upsert_body = upsert_data_match.group(0)
+        if "sanitizeForSheet(" not in upsert_body:
+             print(f"❌ SECURITY FAIL: sanitizeForSheet not used in upsertData in {filepath}")
+             return False
+
+        print(f"✅ SECURITY PASS: Formula Injection protection found in {filepath}")
+        return True
+    except FileNotFoundError:
+        print(f"❌ Error: File not found: {filepath}")
+        return False
+
 if __name__ == "__main__":
     filepath = "backend/GoogleAppsScript.js"
     if not os.path.exists(filepath):
@@ -39,6 +72,9 @@ if __name__ == "__main__":
          sys.exit(1)
 
     if not check_no_stack_trace_exposure(filepath):
+        sys.exit(1)
+
+    if not check_formula_injection_protection(filepath):
         sys.exit(1)
 
     sys.exit(0)
