@@ -1,37 +1,33 @@
-# LabControl V2 Definitive Edition Implementation Plan
+# Orchestration Plan: LabControl Cleanup & Testing
 
 ## Overview
-This plan outlines the steps to create the definitive version of LabControl, addressing incomplete roadmap items, ensuring technical debt reduction, and implementing robust testing and compliance features.
+This plan addresses the remaining items from the "Cleanup & Restructuring" PRD, focusing on finalizing the testing infrastructure and verifying the architectural changes.
 
-## Phase 1: Foundation, Infrastructure & Cleanup (DevOps/Architect)
-**Goal:** Establish a solid, testable, and modern foundation.
-- [ ] **React 19 Upgrade:** Verify and complete the migration to React 19 as claimed in documentation. Resolve peer dependency conflicts (e.g., `lucide-react`).
-- [ ] **Testing Infrastructure:** Set up `Vitest` and `React Testing Library`. Add `test` script to `package.json`.
-- [ ] **Code Cleanup:** Remove unused files (`stitch_dashboard_principal`, old HTML files), consolidate types in `types.ts`, and enforce strict TypeScript rules.
-- [ ] **Linting & Formatting:** Ensure ESLint and Prettier are correctly configured and running.
+## Phase 1: Environment & Configuration
+**Goal**: Establish a working development environment and configure testing tools.
 
-## Phase 2: Mobile & Field Operations (Frontend/Mobile)
-**Goal:** Optimize the application for use on tablets and mobile devices in the lab.
-- [ ] **QuickScan Mode:** Implement a continuous scanning mode in `QuickScanModal` for rapid inventory checks.
-- [ ] **Swipe Actions:** Add swipe-to-edit/delete gestures for inventory lists on touch devices.
-- [ ] **Responsive StorageMatrix:** Refactor `StorageMatrix` to be fully responsive and usable on smaller screens.
-- [ ] **Offline SyncQueue:** Implement a robust offline queue system to handle transactions when connectivity is lost and sync when restored.
+### Tasks
+1.  **Install Dependencies**: Run `npm install` to ensure all packages are available.
+2.  **Configure Vitest**:
+    - Update `vite.config.ts` or create `vitest.workspace.ts` to support both `jsdom` (Frontend) and `node` (Electron) environments.
+    - Ensure `npm test` runs both test suites.
 
-## Phase 3: Compliance, Reporting & Intelligence (Backend/Data)
-**Goal:** Add critical business intelligence and legal compliance features.
-- [ ] **Controlled Substances Report:** Implement logic to track and report on items flagged as controlled substances.
-- [ ] **Cost Analysis:** Add `cost` field to batches and implement FIFO/Average Cost calculation logic.
-- [ ] **Audit Trail Export:** Create a feature to export the `history` table as a tamper-evident PDF or CSV.
-- [ ] **Data Integrity Checks:** enhance `runLedgerAudit` to automatically fix minor discrepancies if safe, or flag for review.
+## Phase 2: Test Implementation & Verification
+**Goal**: Implement meaningful tests and verify the system stability.
 
-## Phase 4: Quality Assurance & Polish (Test/QA)
-**Goal:** Ensure the application is bug-free and performant.
-- [ ] **Unit Tests:** Write unit tests for critical business logic (`InventoryService`, `ImportWizard`, `HybridStorage`).
-- [ ] **Integration Tests:** Write integration tests for the main flows (Add Item, Move Item, Audit).
-- [ ] **Performance Optimization:** Audit with Lighthouse, optimize bundle size, lazy load routes, and ensure 60fps scrolling.
-- [ ] **Documentation:** Update `README.md`, `FEATURES.md`, and `ARCHITECTURE.md` to reflect the final state.
+### Tasks
+1.  **Update Electron Tests**:
+    - Rewrite `tests/electron/ipc.test.ts` to test actual IPC logic (mocking `ipcMain`/`ipcRenderer`).
+    - Ensure it runs in the `node` environment.
+2.  **Verify Component Tests**:
+    - confirm `src/components/__tests__/Tooltip.test.tsx` passes in `jsdom` environment.
+3.  **Backend Archival Verification**:
+    - Double-check that `_archive/backend/` contains the legacy code.
+    - Verify no active code references legacy backend files.
 
-## Execution Strategy
-1.  **Sequential Execution:** We will tackle Phase 1 first to ensure a stable base.
-2.  **Parallel Execution:** Phases 2 and 3 can be worked on somewhat in parallel if resources allow (simulated by switching contexts).
-3.  **Final Verification:** Phase 4 will be the final gate before release.
+## Success Criteria
+- [ ] `npm install` completes successfully.
+- [ ] `npm test` runs and passes all tests.
+- [ ] Electron tests run in `node` environment.
+- [ ] React tests run in `jsdom` environment.
+- [ ] No active references to `backend/GoogleAppsScript.js` remain (except in archive/docs).

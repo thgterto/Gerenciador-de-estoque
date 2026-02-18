@@ -8,11 +8,44 @@ export default defineConfig({
   plugins: [react()],
   test: {
     globals: true,
-    environment: 'jsdom',
-    setupFiles: './src/vitest.setup.ts',
-    css: true,
+    reporters: ['default'],
+    projects: [
+      {
+        extends: true,
+        test: {
+          name: 'frontend',
+          include: ['src/**/*.{test,spec}.{ts,tsx}'],
+          environment: 'jsdom',
+          setupFiles: ['./src/vitest.setup.ts'],
+        }
+      },
+      {
+        extends: true,
+        test: {
+          name: 'electron',
+          include: ['tests/electron/**/*.{test,spec}.{ts,tsx}'],
+          environment: 'node',
+          setupFiles: [],
+          server: {
+            deps: {
+              inline: ['electron'],
+            },
+          },
+        }
+      },
+      {
+        extends: true,
+        test: {
+          name: 'utils',
+          include: ['tests/**/*.{test,spec}.{ts,tsx}'],
+          exclude: ['tests/electron/**/*', 'tests/e2e/**/*'],
+          environment: 'node',
+          setupFiles: [],
+        }
+      }
+    ]
   },
-  base: process.env.VERCEL ? '/' : './', // '/' para Vercel, './' para Electron (Portable)
+  base: process.env.VERCEL ? '/' : './',
   resolve: {
     alias: {
       react: resolve('./node_modules/react'),
