@@ -16,7 +16,7 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src", "tests"],
-  "exclude": ["node_modules", "vite.config.ts", "electron", "dist", "release"],
+  "include": ["src", "tests", "electron/ipcHandlers.d.cts"],
+  "exclude": ["node_modules", "vite.config.ts", "dist", "release"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }
