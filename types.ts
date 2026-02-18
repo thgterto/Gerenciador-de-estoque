@@ -363,7 +363,15 @@ export interface FullRelationalDumpDTO { metadata: any; relationalData?: { locat
 export interface ExportOptions { includeHistory: boolean; format: 'xlsx' | 'csv'; }
 
 export type UserRole = 'ADMIN' | 'OPERATOR' | 'VIEWER';
-export interface User { readonly id: string; readonly name: string; readonly username: string; readonly role: UserRole; readonly avatar?: string; readonly active: boolean; }
+export interface User {
+    id: string;
+    name: string;
+    username: string;
+    password?: string; // Stored locally
+    role: UserRole;
+    avatar?: string;
+    active: boolean;
+}
 export interface SystemConfigDTO { key: string; value: any; category: string; }
 export interface SystemLogDTO { id?: number; timestamp: DateISOString; action: string; module: string; details: string; level: 'INFO' | 'WARN' | 'ERROR'; }
 export type AlertSeverity = 'success' | 'error' | 'warning' | 'info';

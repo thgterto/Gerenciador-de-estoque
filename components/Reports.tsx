@@ -10,6 +10,7 @@ import { useReportsAnalytics } from '../hooks/useReportsAnalytics';
 import { useECharts } from '../hooks/useECharts';
 import { formatDate } from '../utils/formatters';
 import { Badge } from './ui/Badge';
+import { ReportGenerator } from '../services/ReportGenerator';
 
 interface Props {
   items: InventoryItem[];
@@ -121,29 +122,39 @@ export const Reports: React.FC<Props> = ({ items, history }) => {
                 title="Relatórios Gerenciais" 
                 description="Análise estratégica de estoque, consumo e conformidade."
             >
-                <div className="flex bg-surface-light dark:bg-surface-dark p-1 rounded-lg border border-border-light dark:border-border-dark overflow-x-auto no-scrollbar">
-                    {[
-                        { id: 'ABC', label: 'Curva ABC', icon: 'analytics' },
-                        { id: 'COST', label: 'Financeiro', icon: 'attach_money' },
-                        { id: 'FLOW', label: 'Fluxo', icon: 'swap_vert' },
-                        { id: 'CONTROLLED', label: 'Controlados', icon: 'verified_user' },
-                        { id: 'EXPIRY', label: 'Validade', icon: 'event_busy' }
-                    ].map(tab => (
-                        <button
-                            key={tab.id}
-                            onClick={() => setActiveTab(tab.id as any)}
-                            className={`
-                                flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all whitespace-nowrap
-                                ${activeTab === tab.id 
-                                    ? 'bg-primary text-white shadow-sm' 
-                                    : 'text-text-secondary hover:text-text-main dark:text-gray-400 dark:hover:text-white hover:bg-background-light dark:hover:bg-slate-700'
-                                }
-                            `}
-                        >
-                            <span className="material-symbols-outlined text-[18px]">{tab.icon}</span>
-                            <span className="hidden sm:inline">{tab.label}</span>
-                        </button>
-                    ))}
+                <div className="flex gap-2">
+                    <Button
+                        variant="outline"
+                        icon="picture_as_pdf"
+                        onClick={() => ReportGenerator.generateInventoryReport(items)}
+                        className="hidden md:flex"
+                    >
+                        Relatório Geral
+                    </Button>
+                    <div className="flex bg-surface-light dark:bg-surface-dark p-1 rounded-lg border border-border-light dark:border-border-dark overflow-x-auto no-scrollbar">
+                        {[
+                            { id: 'ABC', label: 'Curva ABC', icon: 'analytics' },
+                            { id: 'COST', label: 'Financeiro', icon: 'attach_money' },
+                            { id: 'FLOW', label: 'Fluxo', icon: 'swap_vert' },
+                            { id: 'CONTROLLED', label: 'Controlados', icon: 'verified_user' },
+                            { id: 'EXPIRY', label: 'Validade', icon: 'event_busy' }
+                        ].map(tab => (
+                            <button
+                                key={tab.id}
+                                onClick={() => setActiveTab(tab.id as any)}
+                                className={`
+                                    flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all whitespace-nowrap
+                                    ${activeTab === tab.id
+                                        ? 'bg-primary text-white shadow-sm'
+                                        : 'text-text-secondary hover:text-text-main dark:text-gray-400 dark:hover:text-white hover:bg-background-light dark:hover:bg-slate-700'
+                                    }
+                                `}
+                            >
+                                <span className="material-symbols-outlined text-[18px]">{tab.icon}</span>
+                                <span className="hidden sm:inline">{tab.label}</span>
+                            </button>
+                        ))}
+                    </div>
                 </div>
             </PageHeader>
 
@@ -304,7 +315,14 @@ export const Reports: React.FC<Props> = ({ items, history }) => {
                      <Card padding="p-0" className="flex flex-col overflow-hidden">
                         <div className="px-6 py-4 border-b border-border-light dark:border-border-dark bg-background-light/50 dark:bg-slate-800/50 flex justify-between items-center">
                             <h3 className="font-bold text-text-main dark:text-white">Mapa de Produtos Controlados</h3>
-                            <Button variant="outline" size="sm" icon="print" onClick={() => window.print()}>Imprimir</Button>
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                icon="picture_as_pdf"
+                                onClick={() => ReportGenerator.generateControlledReport(items)}
+                            >
+                                Exportar PDF
+                            </Button>
                         </div>
                         <Table>
                             <TableHeader>

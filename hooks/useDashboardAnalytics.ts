@@ -191,6 +191,48 @@ export const useDashboardAnalytics = (items: InventoryItem[], history: MovementR
             });
         });
 
+        // 6. Predictive Analytics (Stockout Risk)
+        const riskItems: any[] = [];
+
+        // Consider last 90 days for consumption rate
+        const NINETY_DAYS_AGO = new Date(now);
+        NINETY_DAYS_AGO.setDate(now.getDate() - 90);
+
+        // Pre-calculate consumption per item
+        const consumptionMap = new Map<string, number>(); // ItemID -> Total Consumed Qty in 90 days
+
+        activeHistory.forEach(h => {
+            if (h.type === 'SAIDA' && new Date(h.date) >= NINETY_DAYS_AGO) {
+                const current = consumptionMap.get(h.itemId) || 0;
+                consumptionMap.set(h.itemId, current + h.quantity);
+            }
+        });
+
+        activeItems.forEach(item => {
+            if (item.quantity <= 0) return; // Already out of stock
+
+            const totalConsumed = consumptionMap.get(item.id) || 0;
+            if (totalConsumed === 0) return; // No consumption, no risk
+
+            const dailyRate = totalConsumed / 90;
+            const daysSupply = item.quantity / dailyRate;
+
+            if (daysSupply < 21) { // Risk if less than 3 weeks supply (increased from 14)
+                const predictedDate = new Date();
+                predictedDate.setDate(predictedDate.getDate() + Math.ceil(daysSupply));
+
+                riskItems.push({
+                    ...item,
+                    daysSupply: Math.round(daysSupply),
+                    dailyRate: dailyRate.toFixed(2),
+                    predictedStockoutDate: predictedDate.toISOString()
+                });
+            }
+        });
+
+        // Sort by urgency (lowest days supply first)
+        riskItems.sort((a: any, b: any) => a.daysSupply - b.daysSupply);
+
         return {
             kpis: {
                 totalItems: activeItems.length,
@@ -203,7 +245,8 @@ export const useDashboardAnalytics = (items: InventoryItem[], history: MovementR
             chartData: { xData: xLabels, yData },
             waterfallSeries: wSeries,
             waterfallColors: wColors,
-            paretoData
+            paretoData,
+            stockoutRisks: riskItems.slice(0, 5)
         };
 
     }, [items, history, selectedItemId]);
@@ -237,6 +280,7 @@ export const useDashboardAnalytics = (items: InventoryItem[], history: MovementR
         chartData: analytics.chartData,
         waterfallSeries: analytics.waterfallSeries,
         waterfallColors: analytics.waterfallColors,
-        paretoData: analytics.paretoData
+        paretoData: analytics.paretoData,
+        stockoutRisks: analytics.stockoutRisks
     };
 };
