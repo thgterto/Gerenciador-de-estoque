@@ -1,12 +1,13 @@
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Modal } from './ui/Modal';
-import { Button } from './ui/Button';
+import { OrbitalModal } from './ui/orbital/OrbitalModal';
+import { OrbitalButton } from './ui/orbital/OrbitalButton';
+import { OrbitalBadge } from './ui/orbital/OrbitalBadge';
 import { InventoryService } from '../services/InventoryService';
 import { InventoryItem } from '../types';
 import { useAlert } from '../context/AlertContext';
-import { Badge } from './ui/Badge';
 import { useScanner } from '../hooks/useScanner';
+import { QrCode, X, Zap, Activity } from 'lucide-react';
 
 interface Props {
   isOpen: boolean;
@@ -20,12 +21,10 @@ export const QuickScanModal: React.FC<Props> = ({ isOpen, onClose }) => {
   const [continuousMode, setContinuousMode] = useState(false);
   const [continuousType, setContinuousType] = useState<'ENTRADA' | 'SAIDA'>('SAIDA');
   
-  // Controle de "CoolDown" para evitar leituras duplas do mesmo código
   const lastScanRef = useRef<{code: string, time: number} | null>(null);
   const [scanHistory, setScanHistory] = useState<{name: string, time: string, type: 'IN'|'OUT'}[]>([]);
 
   const handleScan = useCallback(async (decodedText: string) => {
-      // Debounce lógico: Ignora o mesmo código se lido em menos de 2 segundos
       const now = Date.now();
       if (lastScanRef.current && 
           lastScanRef.current.code === decodedText && 
@@ -35,47 +34,41 @@ export const QuickScanModal: React.FC<Props> = ({ isOpen, onClose }) => {
       lastScanRef.current = { code: decodedText, time: now };
 
       try {
-          // 1. Tentar encontrar o item
           const item = await InventoryService.findItemByCode(decodedText);
           
           if (item) {
               setScannedItem(item);
               
               if (continuousMode) {
-                  // Modo Contínuo: Registra movimento imediato
                   await InventoryService.registerMovement(
                       item, 
                       continuousType,
                       1, 
                       new Date().toISOString(), 
-                      `Scan Rápido (${continuousType})`
+                      `Quick Scan (${continuousType})`
                   );
                   
-                  const typeLabel = continuousType === 'ENTRADA' ? 'Entrada' : 'Saída';
+                  const typeLabel = continuousType === 'ENTRADA' ? 'IN' : 'OUT';
                   const symbol = continuousType === 'ENTRADA' ? '+1' : '-1';
 
-                  addToast(`${typeLabel} Registrada: ${item.name}`, 'success', `${symbol} UN`, 2000);
+                  addToast(`${typeLabel}: ${item.name}`, 'success', `${symbol} UN`, 2000);
                   
                   setScanHistory(prev => [
                       { name: item.name, time: new Date().toLocaleTimeString(), type: continuousType === 'SAIDA' ? 'OUT' : 'IN' },
-                      ...prev.slice(0, 4) // Mantém apenas os últimos 5
+                      ...prev.slice(0, 4)
                   ]);
                   
-                  // Reset para próxima leitura
                   setTimeout(() => setScannedItem(null), 1500);
-              } else {
-                  // Modo Normal: Mostra detalhes para ação manual
-                  // (Neste caso, não limpamos scannedItem)
               }
           } else {
-              addToast('Não encontrado', 'error', `Código: ${decodedText}`);
+              addToast('Not Found', 'error', `Code: ${decodedText}`);
               if (continuousMode) {
                    setTimeout(() => setScannedItem(null), 1000);
               }
           }
       } catch (e) {
           console.error(e);
-          addToast('Erro', 'error', 'Falha ao processar código.');
+          addToast('Scan Error', 'error', 'Processing failed');
       }
   }, [continuousMode, continuousType, addToast]);
 
@@ -109,42 +102,53 @@ export const QuickScanModal: React.FC<Props> = ({ isOpen, onClose }) => {
           type, 
           qty, 
           new Date().toISOString(), 
-          'Scan Manual'
+          'Manual Scan'
       );
       
-      addToast(`${type === 'ENTRADA' ? 'Entrada' : 'Saída'} Registrada`, 'success');
+      addToast(`${type === 'ENTRADA' ? 'IN' : 'OUT'} REGISTERED`, 'success');
       setScannedItem(null);
       if (!continuousMode) onClose();
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} hideHeader noPadding className="max-w-md bg-black border-none">
-        <div className="flex flex-col h-full bg-surface-light dark:bg-surface-dark relative min-h-[500px]">
-            {/* Header com Toggle */}
-            <div className="absolute top-0 left-0 right-0 z-20 p-4 flex justify-between items-start bg-gradient-to-b from-black/80 to-transparent">
-                <div className="flex flex-col">
-                    <h3 className="text-white font-bold text-lg drop-shadow-md">Scanner</h3>
-                    <p className="text-white/80 text-xs">{continuousMode ? 'Modo Contínuo (Saída Automática -1)' : 'Modo Manual (Detalhes)'}</p>
+    <OrbitalModal isOpen={isOpen} onClose={onClose} title="SCANNER" className="max-w-md bg-black border-orbital-border" hideHeader noPadding>
+        <div className="flex flex-col h-full bg-orbital-surface relative min-h-[500px]">
+            {/* Header Overlay */}
+            <div className="absolute top-0 left-0 right-0 z-20 p-4 flex justify-between items-start bg-gradient-to-b from-black/90 to-transparent pointer-events-none">
+                <div className="flex flex-col pointer-events-auto">
+                    <h3 className="text-orbital-accent font-bold text-lg font-display tracking-widest uppercase flex items-center gap-2">
+                        <QrCode size={18} /> SCANNER
+                    </h3>
+                    <p className="text-orbital-subtext text-[10px] font-mono uppercase mt-1">
+                        {continuousMode ? 'AUTO MODE ACTIVE (-1 OUT)' : 'MANUAL CONFIRMATION MODE'}
+                    </p>
                 </div>
-                <button onClick={onClose} className="text-white bg-white/20 p-2 rounded-full backdrop-blur-sm hover:bg-white/30">
-                    <span className="material-symbols-outlined">close</span>
+                <button onClick={onClose} className="pointer-events-auto text-orbital-text hover:text-orbital-accent bg-black/50 p-2 border border-orbital-border hover:border-orbital-accent transition-all">
+                    <X size={20} />
                 </button>
             </div>
 
-            {/* Viewport da Câmera */}
-            <div className="w-full h-[350px] bg-black relative overflow-hidden flex flex-col justify-center">
+            {/* Camera Viewport */}
+            <div className="w-full h-[350px] bg-black relative overflow-hidden flex flex-col justify-center border-b border-orbital-border">
                 {error ? (
-                    <div className="text-center text-white p-6">
-                        <span className="material-symbols-outlined text-4xl mb-2 text-red-500">videocam_off</span>
-                        <p>{error}</p>
+                    <div className="text-center text-orbital-danger p-6 font-mono">
+                        <X size={48} className="mx-auto mb-4" />
+                        <p>CAMERA ACCESS DENIED</p>
                     </div>
                 ) : (
                     <>
-                        <div id={elementId} className="w-full h-full object-cover"></div>
+                        <div id={elementId} className="w-full h-full object-cover opacity-80"></div>
                         {isScanning && (
                              <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
-                                 <div className="w-64 h-64 border-2 border-primary/80 rounded-lg relative animate-pulse shadow-[0_0_0_9999px_rgba(0,0,0,0.5)]">
-                                     <div className="absolute top-1/2 left-0 right-0 h-0.5 bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.8)]"></div>
+                                 <div className="w-64 h-64 border border-orbital-accent/50 relative shadow-[0_0_50px_rgba(0,243,255,0.2)]">
+                                     {/* Crosshairs */}
+                                     <div className="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-orbital-accent"></div>
+                                     <div className="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 border-orbital-accent"></div>
+                                     <div className="absolute bottom-0 left-0 w-4 h-4 border-b-2 border-l-2 border-orbital-accent"></div>
+                                     <div className="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-orbital-accent"></div>
+
+                                     {/* Scanning Line */}
+                                     <div className="absolute top-1/2 left-0 right-0 h-0.5 bg-orbital-danger shadow-[0_0_8px_rgba(255,50,50,0.8)] animate-pulse"></div>
                                  </div>
                              </div>
                         )}
@@ -152,60 +156,58 @@ export const QuickScanModal: React.FC<Props> = ({ isOpen, onClose }) => {
                 )}
             </div>
             
-            {/* Botão de Toggle de Modo */}
-            <div className="absolute top-[320px] right-4 z-20 flex flex-col gap-2 items-end">
+            {/* Mode Toggles */}
+            <div className="absolute top-[310px] right-4 z-20 flex flex-col gap-2 items-end">
                 {continuousMode && (
-                     <div className="flex bg-black/50 backdrop-blur-md rounded-full p-1 border border-white/20 animate-fade-in">
+                     <div className="flex bg-black/80 backdrop-blur-md border border-orbital-border p-1 animate-in slide-in-from-right-5">
                          <button
                             onClick={() => setContinuousType('ENTRADA')}
-                            className={`px-3 py-1.5 rounded-full text-xs font-bold transition-colors ${continuousType === 'ENTRADA' ? 'bg-green-500 text-white' : 'text-white/70 hover:text-white'}`}
+                            className={`px-3 py-1 text-[10px] font-bold font-mono transition-colors ${continuousType === 'ENTRADA' ? 'bg-orbital-success text-black' : 'text-orbital-subtext hover:text-white'}`}
                          >
-                             ENTRADA
+                             IN
                          </button>
                          <button
                             onClick={() => setContinuousType('SAIDA')}
-                            className={`px-3 py-1.5 rounded-full text-xs font-bold transition-colors ${continuousType === 'SAIDA' ? 'bg-red-500 text-white' : 'text-white/70 hover:text-white'}`}
+                            className={`px-3 py-1 text-[10px] font-bold font-mono transition-colors ${continuousType === 'SAIDA' ? 'bg-orbital-danger text-black' : 'text-orbital-subtext hover:text-white'}`}
                          >
-                             SAÍDA
+                             OUT
                          </button>
                      </div>
                 )}
                 <button 
                     onClick={() => setContinuousMode(!continuousMode)}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold shadow-lg backdrop-blur-md transition-all ${
+                    className={`flex items-center gap-2 px-4 py-2 text-[10px] font-bold font-display uppercase tracking-wider border transition-all shadow-lg backdrop-blur-md ${
                         continuousMode 
-                        ? 'bg-amber-500 text-white'
-                        : 'bg-white/20 text-white border border-white/30'
+                        ? 'bg-orbital-warning/10 border-orbital-warning text-orbital-warning shadow-[0_0_15px_rgba(255,165,0,0.3)]'
+                        : 'bg-black/50 border-orbital-border text-orbital-subtext hover:border-orbital-accent hover:text-orbital-accent'
                     }`}
                 >
-                    <span className="material-symbols-outlined text-base">
-                        {continuousMode ? 'bolt' : 'touch_app'}
-                    </span>
-                    {continuousMode ? 'AUTO' : 'MANUAL'}
+                    {continuousMode ? <Zap size={14} fill="currentColor" /> : <Activity size={14} />}
+                    {continuousMode ? 'AUTO-SCAN' : 'MANUAL'}
                 </button>
             </div>
 
-            {/* Painel de Ação (Slide Up) */}
-            <div className="flex-1 bg-surface-light dark:bg-surface-dark p-4 rounded-t-2xl -mt-4 relative z-10 flex flex-col gap-4">
+            {/* Action Panel */}
+            <div className="flex-1 bg-orbital-bg p-6 border-t border-orbital-accent/20 relative z-10 flex flex-col gap-4">
                 {scannedItem ? (
-                    <div className="animate-slide-up">
-                        <div className="flex justify-between items-start mb-3">
+                    <div className="animate-in slide-in-from-bottom-5">
+                        <div className="flex justify-between items-start mb-4">
                             <div>
-                                <Badge variant={continuousMode ? 'success' : 'primary'}>{continuousMode ? 'REGISTRADO' : 'DETECTADO'}</Badge>
-                                <h4 className="font-bold text-lg text-text-main dark:text-white mt-1 leading-tight">{scannedItem.name}</h4>
-                                <p className="text-xs text-text-secondary font-mono">{scannedItem.sapCode} • Lote: {scannedItem.lotNumber}</p>
+                                <OrbitalBadge variant={continuousMode ? 'success' : 'primary'} label={continuousMode ? 'LOGGED' : 'DETECTED'} />
+                                <h4 className="font-bold text-lg text-orbital-text mt-2 font-display uppercase tracking-wide">{scannedItem.name}</h4>
+                                <p className="text-xs text-orbital-subtext font-mono">SAP: {scannedItem.sapCode} | LOT: {scannedItem.lotNumber}</p>
                             </div>
-                            <div className="text-right">
-                                <span className="block text-xs uppercase text-text-secondary font-bold">Atual</span>
-                                <span className="text-xl font-bold text-text-main dark:text-white">{scannedItem.quantity} <span className="text-sm">{scannedItem.baseUnit}</span></span>
+                            <div className="text-right border border-orbital-border p-2 bg-orbital-surface">
+                                <span className="block text-[10px] uppercase text-orbital-subtext font-bold mb-1">Current Stock</span>
+                                <span className="text-xl font-bold text-orbital-text font-mono">{scannedItem.quantity} <span className="text-sm">{scannedItem.baseUnit}</span></span>
                             </div>
                         </div>
 
                         {!continuousMode && (
-                            <div className="flex flex-col gap-3">
+                            <div className="flex flex-col gap-4">
                                 <div className="flex items-center gap-3">
                                     <button 
-                                        className="size-10 rounded-lg bg-gray-100 dark:bg-slate-700 flex items-center justify-center text-xl font-bold"
+                                        className="size-10 border border-orbital-border hover:border-orbital-accent hover:bg-orbital-accent/10 flex items-center justify-center text-xl font-bold text-orbital-text transition-colors"
                                         onClick={() => setQuantity(String(Math.max(1, parseFloat(quantity) - 1)))}
                                     >-</button>
                                     <div className="flex-1">
@@ -213,21 +215,21 @@ export const QuickScanModal: React.FC<Props> = ({ isOpen, onClose }) => {
                                             type="number" 
                                             value={quantity}
                                             onChange={(e) => setQuantity(e.target.value)}
-                                            className="w-full text-center font-bold text-xl bg-transparent border-b border-border-light dark:border-border-dark py-1 focus:outline-none focus:border-primary"
+                                            className="w-full text-center font-bold text-2xl bg-transparent border-b border-orbital-border text-orbital-accent py-1 focus:outline-none focus:border-orbital-accent font-mono"
                                          />
                                     </div>
                                     <button 
-                                        className="size-10 rounded-lg bg-gray-100 dark:bg-slate-700 flex items-center justify-center text-xl font-bold"
+                                        className="size-10 border border-orbital-border hover:border-orbital-accent hover:bg-orbital-accent/10 flex items-center justify-center text-xl font-bold text-orbital-text transition-colors"
                                         onClick={() => setQuantity(String(parseFloat(quantity) + 1))}
                                     >+</button>
                                 </div>
                                 <div className="grid grid-cols-2 gap-3">
-                                    <Button variant="danger" onClick={() => handleManualAction('SAIDA')}>
-                                        Registrar Saída
-                                    </Button>
-                                    <Button variant="success" onClick={() => handleManualAction('ENTRADA')}>
-                                        Registrar Entrada
-                                    </Button>
+                                    <OrbitalButton variant="danger" onClick={() => handleManualAction('SAIDA')}>
+                                        REGISTER OUT
+                                    </OrbitalButton>
+                                    <OrbitalButton variant="success" onClick={() => handleManualAction('ENTRADA')}>
+                                        REGISTER IN
+                                    </OrbitalButton>
                                 </div>
                             </div>
                         )}
@@ -236,13 +238,13 @@ export const QuickScanModal: React.FC<Props> = ({ isOpen, onClose }) => {
                     <div className="flex-1 flex flex-col items-center justify-start pt-2">
                         {scanHistory.length > 0 ? (
                             <div className="w-full">
-                                <h5 className="text-xs font-bold text-text-secondary uppercase mb-2">Histórico Recente</h5>
+                                <h5 className="text-[10px] font-bold text-orbital-subtext uppercase tracking-widest mb-3 border-b border-orbital-border pb-1">Recent Activity</h5>
                                 <div className="space-y-2">
                                     {scanHistory.map((h, i) => (
-                                        <div key={i} className="flex justify-between items-center text-sm p-2 bg-background-light dark:bg-slate-800 rounded-lg animate-fade-in">
-                                            <span className="truncate flex-1">{h.name}</span>
-                                            <span className="text-xs text-text-secondary ml-2">{h.time}</span>
-                                            <span className={`text-xs font-bold ml-2 ${h.type === 'OUT' ? 'text-red-500' : 'text-green-500'}`}>
+                                        <div key={i} className="flex justify-between items-center text-sm p-2 bg-orbital-surface border border-orbital-border hover:border-orbital-accent/30 transition-colors animate-in fade-in">
+                                            <span className="truncate flex-1 font-mono text-xs text-orbital-text">{h.name}</span>
+                                            <span className="text-[10px] text-orbital-subtext ml-2 font-mono">{h.time}</span>
+                                            <span className={`text-xs font-bold ml-2 font-mono ${h.type === 'OUT' ? 'text-orbital-danger' : 'text-orbital-success'}`}>
                                                 {h.type === 'OUT' ? '-1' : '+1'}
                                             </span>
                                         </div>
@@ -250,15 +252,15 @@ export const QuickScanModal: React.FC<Props> = ({ isOpen, onClose }) => {
                                 </div>
                             </div>
                         ) : (
-                            <div className="text-center text-text-secondary opacity-60 mt-4">
-                                <span className="material-symbols-outlined text-4xl mb-2">qr_code_scanner</span>
-                                <p className="text-sm">Aguardando leitura...</p>
+                            <div className="text-center text-orbital-subtext opacity-50 mt-4 animate-pulse">
+                                <QrCode size={48} strokeWidth={1} className="mx-auto mb-2" />
+                                <p className="text-xs font-mono uppercase">Awaiting Target...</p>
                             </div>
                         )}
                     </div>
                 )}
             </div>
         </div>
-    </Modal>
+    </OrbitalModal>
   );
 };

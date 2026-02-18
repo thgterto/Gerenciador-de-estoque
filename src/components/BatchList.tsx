@@ -3,8 +3,8 @@ import React, { useState, useEffect } from 'react';
 import { InventoryService } from '../services/InventoryService';
 import { BatchDetailView } from '../types';
 import { formatDate } from '../utils/formatters';
-import { Badge } from './ui/Badge';
-import { Button } from './ui/Button';
+import { OrbitalBadge } from './ui/orbital/OrbitalBadge';
+import { OrbitalButton } from './ui/orbital/OrbitalButton';
 import { db } from '../db';
 
 interface BatchListProps {
@@ -20,8 +20,6 @@ export const BatchList: React.FC<BatchListProps> = ({ itemId, onViewHistory }) =
         let isMounted = true;
 
         const load = async () => {
-            // Don't set loading on updates to avoid flickering if already loaded once
-            // But we do want to show loading on initial fetch
             try {
                 const data = await InventoryService.getItemBatchDetails(itemId);
                 if (isMounted) {
@@ -37,10 +35,9 @@ export const BatchList: React.FC<BatchListProps> = ({ itemId, onViewHistory }) =
         };
 
         if (itemId) {
-            setLoading(true); // Only set loading on initial mount/id change
+            setLoading(true);
             load();
 
-            // Subscribe to DB changes to update batch list in real-time
             const unsubscribe = db.subscribe(() => {
                 load();
             });
@@ -52,33 +49,33 @@ export const BatchList: React.FC<BatchListProps> = ({ itemId, onViewHistory }) =
     }, [itemId]);
 
     if (loading) {
-        return <div className="text-sm text-text-secondary animate-pulse p-4">Carregando detalhes dos lotes...</div>;
+        return <div className="text-sm text-orbital-subtext animate-pulse p-4 font-mono">Loading batches...</div>;
     }
 
     if (batches.length === 0) {
         return (
-            <div className="text-sm text-text-secondary bg-background-light dark:bg-slate-800 p-4 rounded-lg border border-dashed border-border-light dark:border-slate-700 text-center">
-                Este item ainda não possui detalhamento de lotes (Legado V1).
+            <div className="text-sm text-orbital-subtext bg-orbital-bg p-4 border border-dashed border-orbital-border text-center font-mono">
+                NO BATCH DATA FOUND.
                 <br/>
-                <span className="text-xs opacity-70">Novos lotes aparecerão aqui automaticamente.</span>
+                <span className="text-xs opacity-70">New batches will appear here automatically.</span>
             </div>
         );
     }
 
     return (
-        <div className="overflow-hidden rounded-lg border border-border-light dark:border-border-dark">
-            <table className="w-full text-left text-xs">
-                <thead className="bg-background-light dark:bg-slate-800/50 text-text-secondary dark:text-slate-400 font-semibold border-b border-border-light dark:border-border-dark">
+        <div className="w-full overflow-hidden border border-orbital-border bg-orbital-surface">
+            <table className="w-full text-left text-xs border-collapse">
+                <thead className="bg-orbital-bg border-b border-orbital-border text-xs font-display font-bold uppercase tracking-wider text-orbital-subtext">
                     <tr>
-                        <th className="px-4 py-3">Lote</th>
-                        <th className="px-4 py-3">Validade</th>
-                        <th className="px-4 py-3">Localização</th>
-                        <th className="px-4 py-3 text-right">Saldo</th>
-                        <th className="px-4 py-3 text-center">Status</th>
-                        <th className="px-4 py-3 text-right">Ações</th>
+                        <th className="px-4 py-3 font-medium">Batch</th>
+                        <th className="px-4 py-3 font-medium">Expiry</th>
+                        <th className="px-4 py-3 font-medium">Location</th>
+                        <th className="px-4 py-3 font-medium text-right">Balance</th>
+                        <th className="px-4 py-3 font-medium text-center">Status</th>
+                        <th className="px-4 py-3 font-medium text-right">Actions</th>
                     </tr>
                 </thead>
-                <tbody className="divide-y divide-border-light dark:divide-border-dark bg-surface-light dark:bg-surface-dark">
+                <tbody className="divide-y divide-orbital-border/50">
                     {batches.map((batch) => {
                         const daysToExpiry = batch.expiryDate 
                             ? Math.ceil((new Date(batch.expiryDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))
@@ -88,48 +85,46 @@ export const BatchList: React.FC<BatchListProps> = ({ itemId, onViewHistory }) =
                         const isNearExpiry = daysToExpiry > 0 && daysToExpiry < 30;
 
                         return (
-                            <tr key={batch.batchId} className="hover:bg-background-light dark:hover:bg-slate-800/50 transition-colors group">
-                                <td className="px-4 py-3 font-mono font-medium text-text-main dark:text-white">
+                            <tr key={batch.batchId} className="group hover:bg-orbital-accent/5 transition-colors">
+                                <td className="px-4 py-3 font-mono font-medium text-orbital-text">
                                     {batch.lotNumber}
                                 </td>
-                                <td className="px-4 py-3">
+                                <td className="px-4 py-3 font-mono text-orbital-subtext">
                                     <div className="flex flex-col">
-                                        <span className={isExpired ? 'text-danger font-bold' : isNearExpiry ? 'text-warning font-bold' : 'text-text-secondary dark:text-slate-400'}>
+                                        <span className={isExpired ? 'text-orbital-danger font-bold' : isNearExpiry ? 'text-orbital-warning font-bold' : ''}>
                                             {formatDate(batch.expiryDate)}
                                         </span>
-                                        {isNearExpiry && <span className="text-[10px] text-warning">Vence em {daysToExpiry} dias</span>}
+                                        {isNearExpiry && <span className="text-[10px] text-orbital-warning uppercase tracking-wider">Expiring soon</span>}
                                     </div>
                                 </td>
-                                <td className="px-4 py-3 text-text-secondary dark:text-slate-300">
+                                <td className="px-4 py-3 text-orbital-subtext font-mono">
                                     <span className="flex items-center gap-1">
-                                        <span className="material-symbols-outlined text-[14px] opacity-70">location_on</span>
                                         {batch.locationName}
                                     </span>
                                 </td>
-                                <td className="px-4 py-3 text-right font-bold text-text-main dark:text-white">
+                                <td className="px-4 py-3 text-right font-bold text-orbital-text font-mono">
                                     {batch.quantity}
                                 </td>
                                 <td className="px-4 py-3 text-center">
                                     {batch.status === 'BLOCKED' ? (
-                                        <Badge variant="danger">Bloqueado</Badge>
+                                        <OrbitalBadge variant="danger" label="BLOCKED" />
                                     ) : isExpired ? (
-                                        <Badge variant="danger">Vencido</Badge>
+                                        <OrbitalBadge variant="danger" label="EXPIRED" />
                                     ) : (
-                                        <Badge variant="success">Ativo</Badge>
+                                        <OrbitalBadge variant="success" label="ACTIVE" />
                                     )}
                                 </td>
                                 <td className="px-4 py-3 text-right">
                                     {onViewHistory && (
-                                        <Button 
-                                            variant="ghost" 
+                                        <OrbitalButton
+                                            variant="secondary"
                                             size="sm" 
-                                            className="h-6 px-2 text-[10px] opacity-0 group-hover:opacity-100 transition-opacity"
                                             onClick={() => onViewHistory(batch.batchId)}
-                                            title="Ver Histórico Completo do Lote"
-                                            icon="history"
+                                            title="View Batch History"
+                                            className="text-[10px] h-6 px-2"
                                         >
-                                            Rastrear
-                                        </Button>
+                                            TRACE
+                                        </OrbitalButton>
                                     )}
                                 </td>
                             </tr>
