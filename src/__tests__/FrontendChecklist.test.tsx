@@ -1,7 +1,7 @@
 
 import React from 'react';
-import { render, screen, fireEvent, act } from '@testing-library/react';
-import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { render, screen, fireEvent } from '@testing-library/react';
+import { vi, describe, it, expect } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
 import { ThemeProvider, useTheme } from '../context/ThemeContext';
 import { Layout } from '../components/Layout';
@@ -116,7 +116,6 @@ describe('Frontend Verification Checklist', () => {
             renderLayout();
 
             // Check for Sidebar content (e.g., "Inventário" link)
-            const sidebarLinks = screen.getAllByText('Inventário');
             // In Desktop, Sidebar is visible. BottomNav is hidden via CSS classes (hidden sm:block / sm:hidden).
             // JSDOM doesn't calculate visibility, but we can check if the elements are in the DOM and have correct classes.
 
