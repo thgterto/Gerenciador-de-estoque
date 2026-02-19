@@ -25,3 +25,7 @@
 ## 2025-02-14 - Unmemoized Hook Functions & Virtual List Performance
 **Learning:** Functions returned from custom hooks (like `toggleGroupExpand` in `useInventoryFilters`) that are recreated on every render will invalidate `itemData` prop passed to `react-window` components, forcing the entire list to re-render even if the underlying data (`flatList`) is stable.
 **Action:** Always wrap functions returned from hooks in `useCallback` if they are passed down to memoized children or used in `useMemo` dependencies, especially when filtering/sorting logic is involved.
+
+## 2026-02-19 - HybridStorage Cold Start Bottleneck
+**Learning:** `HybridTableWrapper.toArray()` loads the entire IndexedDB table into memory on first access to populate the cache. While great for subsequent reads, this blocks critical paths like the Dashboard on cold start, causing massive delays/freezes for large datasets just to compute simple aggregates.
+**Action:** For aggregate metrics or initial load screens, bypass the wrapper using `db.rawDb.table.each()` or `.count()` to stream data directly from IDB without full materialization.
