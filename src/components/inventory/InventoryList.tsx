@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useMemo, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { OrbitalCard } from '../ui/orbital/OrbitalCard';
 import { EmptyState } from '../ui/EmptyState';
 import {
@@ -150,8 +150,7 @@ export const InventoryList: React.FC<InventoryListProps> = ({
     totalGroups,
     filteredItemsCount,
     hideZeroStock,
-    handleSelectAll,
-    expandedGroups
+    handleSelectAll
 }) => {
 
     return (
