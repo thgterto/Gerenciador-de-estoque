@@ -1,13 +1,15 @@
-
 import { InventoryRepository } from '../../domain/repositories/InventoryRepository';
-import { InventoryTransaction } from '../../domain/entities/InventoryTransaction';
+import { InventoryTransaction, TransactionType } from '../../domain/entities/InventoryTransaction';
 import { Product } from '../../domain/entities/Product';
 import { db } from './database';
 import { sql } from 'kysely';
 
+const TABLE_PRODUCTS = 'products';
+const TABLE_TRANSACTIONS = 'inventory_transactions';
+
 export class SQLiteInventoryRepository implements InventoryRepository {
   async saveProduct(product: Product): Promise<void> {
-    await db.insertInto('products')
+    await db.insertInto(TABLE_PRODUCTS)
       .values({
         id: product.id,
         sku: product.sku,
@@ -28,7 +30,7 @@ export class SQLiteInventoryRepository implements InventoryRepository {
   }
 
   async getProductById(id: string): Promise<Product | null> {
-    const result = await db.selectFrom('products')
+    const result = await db.selectFrom(TABLE_PRODUCTS)
       .selectAll()
       .where('id', '=', id)
       .executeTakeFirst();
@@ -45,7 +47,7 @@ export class SQLiteInventoryRepository implements InventoryRepository {
   }
 
   async getAllProducts(): Promise<Product[]> {
-    const results = await db.selectFrom('products')
+    const results = await db.selectFrom(TABLE_PRODUCTS)
       .selectAll()
       .execute();
 
@@ -59,7 +61,7 @@ export class SQLiteInventoryRepository implements InventoryRepository {
   }
 
   async logTransaction(transaction: InventoryTransaction): Promise<void> {
-    await db.insertInto('inventory_transactions')
+    await db.insertInto(TABLE_TRANSACTIONS)
       .values({
         id: transaction.id,
         product_id: transaction.product_id,
@@ -72,7 +74,7 @@ export class SQLiteInventoryRepository implements InventoryRepository {
   }
 
   async getTransactionsByProductId(productId: string): Promise<InventoryTransaction[]> {
-    const results = await db.selectFrom('inventory_transactions')
+    const results = await db.selectFrom(TABLE_TRANSACTIONS)
       .selectAll()
       .where('product_id', '=', productId)
       .orderBy('timestamp', 'desc')
@@ -80,7 +82,7 @@ export class SQLiteInventoryRepository implements InventoryRepository {
 
     return results.map(row => new InventoryTransaction(
       row.product_id,
-      row.type as any,
+      row.type as TransactionType,
       row.qty,
       row.user,
       row.id,
@@ -89,14 +91,14 @@ export class SQLiteInventoryRepository implements InventoryRepository {
   }
 
   async getAllTransactions(): Promise<InventoryTransaction[]> {
-    const results = await db.selectFrom('inventory_transactions')
+    const results = await db.selectFrom(TABLE_TRANSACTIONS)
       .selectAll()
       .orderBy('timestamp', 'desc')
       .execute();
 
     return results.map(row => new InventoryTransaction(
       row.product_id,
-      row.type as any,
+      row.type as TransactionType,
       row.qty,
       row.user,
       row.id,
@@ -105,7 +107,7 @@ export class SQLiteInventoryRepository implements InventoryRepository {
   }
 
   async calculateStock(productId: string): Promise<number> {
-    const result = await db.selectFrom('inventory_transactions')
+    const result = await db.selectFrom(TABLE_TRANSACTIONS)
       .select(({ fn }) => [
         fn.sum<number>(
             sql`CASE

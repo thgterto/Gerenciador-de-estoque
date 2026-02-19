@@ -12,7 +12,7 @@ describe('Electron IPC Handlers', () => {
 
     expect(ipcMain.handle).toHaveBeenCalledWith('get-app-version', expect.any(Function));
     expect(ipcMain.handle).toHaveBeenCalledWith('db:ping', expect.any(Function));
-    expect(ipcMain.handle).toHaveBeenCalledWith('db:read-full', expect.any(Function));
+    expect(ipcMain.handle).toHaveBeenCalledWith('cas:fetch-chemical-data', expect.any(Function));
     expect(ipcMain.handle).toHaveBeenCalledWith('db:read-inventory', expect.any(Function));
     expect(ipcMain.handle).toHaveBeenCalledWith('db:upsert-item', expect.any(Function));
     expect(ipcMain.handle).toHaveBeenCalledWith('db:delete-item', expect.any(Function));
