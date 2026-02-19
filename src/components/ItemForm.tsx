@@ -246,7 +246,7 @@ export const ItemForm: React.FC<ItemFormProps> = ({
                                         <div className="p-3 border border-orbital-border rounded bg-orbital-surface flex gap-3 items-center">
                                             <img
                                                 src={`https://commonchemistry.cas.org/api/image?cas_rn=${CasApiService.normalizeCas(formData.casNumber || '')}`}
-                                                alt="Structure"
+                                                alt={`Chemical Structure of ${casResult.name}`}
                                                 className="w-12 h-12 object-contain bg-white rounded border border-orbital-border"
                                                 onError={(e: any) => e.target.style.display = 'none'}
                                             />
