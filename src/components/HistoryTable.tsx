@@ -1,7 +1,5 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { MovementRecord } from '../types';
-import { FixedSizeList as List } from 'react-window';
-import AutoSizer from 'react-virtualized-auto-sizer';
 import { useHistoryFilters } from '../hooks/useHistoryFilters';
 import { ExportEngine } from '../utils/ExportEngine';
 import { formatDateTime } from '../utils/formatters';
@@ -77,47 +75,44 @@ const HistoryMobileRow = ({ item }: { item: MovementRecord }) => {
     );
 };
 
-const HistoryRow = ({ index, style, data }: { index: number, style: React.CSSProperties, data: { filtered: MovementRecord[] } }) => {
-    const h = data.filtered[index];
-    if (!h) return null;
-    
-    const amountColor = h.type === 'ENTRADA' ? 'text-orbital-success' : h.type === 'SAIDA' ? 'text-orbital-danger' : 'text-orbital-warning';
-    const sign = h.type === 'ENTRADA' ? '+' : h.type === 'SAIDA' ? '-' : '';
+const HistoryRow = ({ item }: { item: MovementRecord }) => {
+    const amountColor = item.type === 'ENTRADA' ? 'text-orbital-success' : item.type === 'SAIDA' ? 'text-orbital-danger' : 'text-orbital-warning';
+    const sign = item.type === 'ENTRADA' ? '+' : item.type === 'SAIDA' ? '-' : '';
 
     return (
-      <div style={style}>
+      <div className="w-full">
           <div
-            className="h-full border-b border-orbital-border bg-orbital-bg hover:bg-orbital-surface/50 transition-colors grid items-center px-4"
+            className="h-[56px] border-b border-orbital-border bg-orbital-bg hover:bg-orbital-surface/50 transition-colors grid items-center px-4"
             style={{ gridTemplateColumns: GRID_TEMPLATE }}
           >
-              <div>{getTypeBadge(h.type)}</div>
+              <div>{getTypeBadge(item.type)}</div>
 
               <div className="pr-4 overflow-hidden">
                   <div className="font-bold text-sm text-orbital-text truncate">
-                      {h.productName || <span className="italic text-orbital-subtext">Item Arquivado</span>}
+                      {item.productName || <span className="italic text-orbital-subtext">Item Arquivado</span>}
                   </div>
                   <div className="flex items-center gap-2">
-                      {h.batchId && (
+                      {item.batchId && (
                           <span className="text-[9px] px-1 border border-orbital-accent text-orbital-accent rounded">
-                              Batch: {h.batchId}
+                              Batch: {item.batchId}
                           </span>
                       )}
-                      <span className="text-xs text-orbital-subtext font-mono">Lote: {h.lot || 'GEN'}</span>
+                      <span className="text-xs text-orbital-subtext font-mono">Lote: {item.lot || 'GEN'}</span>
                   </div>
               </div>
 
               <div className="text-right pr-4">
                   <div className={`font-mono font-bold text-sm ${amountColor}`}>
-                      {sign}{h.quantity}
+                      {sign}{item.quantity}
                   </div>
-                  <div className="text-[10px] text-orbital-subtext font-bold uppercase">{h.unit || 'un'}</div>
+                  <div className="text-[10px] text-orbital-subtext font-bold uppercase">{item.unit || 'un'}</div>
               </div>
 
               <div className="pr-4 overflow-hidden">
-                  {h.observation ? (
-                      <div className="flex items-center gap-1 text-orbital-subtext" title={h.observation}>
+                  {item.observation ? (
+                      <div className="flex items-center gap-1 text-orbital-subtext" title={item.observation}>
                           <FileText size={12} />
-                          <span className="text-xs truncate">{h.observation}</span>
+                          <span className="text-xs truncate">{item.observation}</span>
                       </div>
                   ) : (
                       <span className="text-xs text-orbital-border italic">Sem obs.</span>
@@ -125,10 +120,43 @@ const HistoryRow = ({ index, style, data }: { index: number, style: React.CSSPro
               </div>
 
               <div className="text-right text-xs text-orbital-subtext font-medium">
-                  {formatDateTime(h.date)}
+                  {formatDateTime(item.date)}
               </div>
           </div>
       </div>
+    );
+};
+
+const NativeHistoryList = ({ filtered, isMobile }: { filtered: MovementRecord[], isMobile: boolean }) => {
+    const [visibleCount, setVisibleCount] = useState(50);
+
+    useEffect(() => {
+        setVisibleCount(50);
+    }, [filtered.length]);
+
+    const visibleItems = filtered.slice(0, visibleCount);
+
+    return (
+        <div className="pb-8">
+            {visibleItems.map((item) => (
+                isMobile ? (
+                    <HistoryMobileRow key={item.id} item={item} />
+                ) : (
+                    <HistoryRow key={item.id} item={item} />
+                )
+            ))}
+
+            {visibleCount < filtered.length && (
+                <div className="p-4 flex justify-center">
+                    <OrbitalButton
+                        variant="outline"
+                        onClick={() => setVisibleCount(prev => prev + 50)}
+                    >
+                        Carregar Mais ({filtered.length - visibleCount} restantes)
+                    </OrbitalButton>
+                </div>
+            )}
+        </div>
     );
 };
 
@@ -143,7 +171,6 @@ export const HistoryTable: React.FC<Props> = ({ preselectedItemId, preselectedBa
   } = useHistoryFilters(preselectedItemId, preselectedBatchId);
 
   const sampleBatch = filtered.length > 0 ? filtered[0] : null;
-  const itemData = useMemo(() => ({ filtered }), [filtered]);
   const isMobile = window.innerWidth < 768;
 
   return (
@@ -259,10 +286,10 @@ export const HistoryTable: React.FC<Props> = ({ preselectedItemId, preselectedBa
         </OrbitalCard>
 
         {/* Table Area */}
-        <OrbitalCard className="flex-grow flex flex-col min-h-[400px]" noPadding>
+        <OrbitalCard className="flex-grow flex flex-col min-h-[400px] overflow-visible" noPadding>
              {!isMobile && (
                  <div
-                    className="grid px-4 py-2 border-b border-orbital-border bg-orbital-surface text-xs font-bold text-orbital-subtext uppercase tracking-wider"
+                    className="grid px-4 py-2 border-b border-orbital-border bg-orbital-surface text-xs font-bold text-orbital-subtext uppercase tracking-wider sticky top-0 z-10"
                     style={{ gridTemplateColumns: GRID_TEMPLATE }}
                  >
                     <div>TIPO</div>
@@ -275,35 +302,14 @@ export const HistoryTable: React.FC<Props> = ({ preselectedItemId, preselectedBa
 
              <div className="flex-grow relative bg-orbital-bg">
                 {loading ? (
-                    <div className="absolute inset-0 flex flex-col items-center justify-center text-orbital-subtext">
+                    <div className="flex flex-col items-center justify-center p-12 text-orbital-subtext">
                         <div className="animate-spin mb-2 w-6 h-6 border-2 border-orbital-accent border-t-transparent rounded-full" />
                         <span>Carregando...</span>
                     </div>
                 ) : filtered.length > 0 ? (
-                    isMobile ? (
-                        <div>
-                            {filtered.map((item, index) => (
-                                <HistoryMobileRow key={index} item={item} />
-                            ))}
-                        </div>
-                    ) : (
-                        <AutoSizer>
-                            {({ height, width }: { height: number; width: number }) => (
-                                <List
-                                    height={height}
-                                    itemCount={filtered.length}
-                                    itemSize={56} // reduced height for cleaner look
-                                    width={width}
-                                    itemData={itemData}
-                                    className="custom-scrollbar"
-                                >
-                                    {HistoryRow}
-                                </List>
-                            )}
-                        </AutoSizer>
-                    )
+                    <NativeHistoryList filtered={filtered} isMobile={isMobile} />
                 ) : (
-                    <div className="absolute inset-0 flex flex-col items-center justify-center text-orbital-subtext opacity-50">
+                    <div className="flex flex-col items-center justify-center p-12 text-orbital-subtext opacity-50">
                         <History size={48} className="mb-2" />
                         <h3 className="text-lg font-bold">Nenhuma movimentação</h3>
                         <p className="text-sm">Ajuste os filtros para encontrar registros.</p>
