@@ -4,26 +4,12 @@ import {
     LayoutDashboard,
     Package,
     LayoutGrid,
-    History,
     ShoppingCart,
-    BarChart3,
     Settings
 } from 'lucide-react';
 
 export const BottomNav: React.FC = () => {
-    const menuItems = [
-        { path: '/dashboard', icon: <LayoutDashboard size={20} />, label: 'Dash' },
-        { path: '/inventory', icon: <Package size={20} />, label: 'Items' },
-        { path: '/storage', icon: <LayoutGrid size={20} />, label: 'Matrix' },
-        // { path: '/history', icon: <History size={20} />, label: 'Hist' }, // Limited space on bottom nav, maybe hide some?
-        { path: '/purchases', icon: <ShoppingCart size={20} />, label: 'Buy' },
-        { path: '/reports', icon: <BarChart3 size={20} />, label: 'Rpts' },
-        { path: '/settings', icon: <Settings size={20} />, label: 'Cfg' },
-    ];
-
-    // Filter to 5 items max for better mobile UX, or use scroll
-    // Let's keep 5 main ones and maybe put others in "More"?
-    // For simplicity, let's just show top 5 relevant for mobile ops.
+    // Filter to 5 items max for better mobile UX
     const mobileItems = [
         { path: '/dashboard', icon: <LayoutDashboard size={22} />, label: 'Dash' },
         { path: '/inventory', icon: <Package size={22} />, label: 'Items' },

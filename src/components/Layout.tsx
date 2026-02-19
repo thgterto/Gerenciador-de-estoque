@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Sidebar } from './Sidebar';
 import { Header } from './Header';
 import { BottomNav } from './BottomNav';
@@ -28,8 +28,6 @@ export const Layout: React.FC<LayoutProps> = ({
     onScanClick
 }) => {
     const { toggleTheme } = useTheme();
-    // Mobile drawer state removed/ignored since we are using BottomNav now
-    // We keep Sidebar for desktop (hidden on sm)
 
     return (
         <div className="flex h-screen overflow-hidden bg-orbital-bg text-orbital-text">
@@ -39,7 +37,7 @@ export const Layout: React.FC<LayoutProps> = ({
                 onAddClick={onAddClick}
                 onScanClick={onScanClick}
                 notificationsCount={alertsCount}
-                onMenuClick={() => {}} // No drawer toggle needed anymore
+                onMenuClick={() => {}}
                 drawerWidth={drawerWidth}
             />
 
@@ -49,7 +47,7 @@ export const Layout: React.FC<LayoutProps> = ({
                     onLogout={onLogout}
                     notificationsCount={notificationsCount}
                     onSync={onSync}
-                    isMobileOpen={false} // Always false or ignored
+                    isMobileOpen={false}
                     onClose={() => {}}
                     drawerWidth={drawerWidth}
                 />
