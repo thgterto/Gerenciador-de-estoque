@@ -87,10 +87,6 @@ export const Login: React.FC = () => {
                         >
                             {isLoading ? 'Acessando...' : 'Entrar no Sistema'}
                         </OrbitalButton>
-
-                        <div className="text-center text-xs text-orbital-subtext mt-4 font-mono opacity-70">
-                            <p>Credenciais padrão: <span className="text-orbital-text">admin</span> / <span className="text-orbital-text">admin</span></p>
-                        </div>
                     </form>
                 </OrbitalCard>
 

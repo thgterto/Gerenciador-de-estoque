@@ -1,6 +1,4 @@
-
-
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useDeferredValue } from 'react';
 import { InventoryItem } from '../types';
 import { getItemStatus, ItemStatusResult } from '../utils/businessRules';
 import { normalizeStr, defaultCollator } from '../utils/stringUtils';
@@ -32,37 +30,46 @@ export const useInventoryFilters = (items: InventoryItem[]) => {
     const [hideZeroStock, setHideZeroStock] = useState(false);
     const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
 
+    // DEFERRED VALUES for Performance Optimization
+    // Prevents UI blocking during heavy filtering operations
+    const deferredItems = useDeferredValue(items);
+    const deferredCatFilter = useDeferredValue(catFilter);
+    const deferredLocationFilter = useDeferredValue(locationFilter);
+    const deferredStatusFilter = useDeferredValue(statusFilter);
+    const deferredHideZeroStock = useDeferredValue(hideZeroStock);
+    const deferredTerm = useDeferredValue(debouncedTerm);
+
     // --- 1. Pré-processamento de Filtros Base (Rápido) ---
     // Filtra primeiro por categorias/status que são comparadores diretos
     const baseFilteredItems = useMemo(() => {
-        if (!catFilter && !locationFilter && statusFilter === 'ALL' && !hideZeroStock) return items;
+        if (!deferredCatFilter && !deferredLocationFilter && deferredStatusFilter === 'ALL' && !deferredHideZeroStock) return deferredItems;
 
         const now = new Date(); // Optimize status check
-        return items.filter(i => {
+        return deferredItems.filter(i => {
             // Filtro de Estoque Zero
-            if (hideZeroStock && (i.quantity || 0) <= 0) return false;
+            if (deferredHideZeroStock && (i.quantity || 0) <= 0) return false;
 
             // Filtros Categóricos
-            if (catFilter && i.category !== catFilter) return false;
-            if (locationFilter && i.location.warehouse !== locationFilter) return false;
+            if (deferredCatFilter && i.category !== deferredCatFilter) return false;
+            if (deferredLocationFilter && i.location.warehouse !== deferredLocationFilter) return false;
 
             // Filtro de Status
-            if (statusFilter !== 'ALL') {
+            if (deferredStatusFilter !== 'ALL') {
                 const status = getItemStatus(i, now);
-                if (statusFilter === 'EXPIRED' && !status.isExpired) return false;
-                if (statusFilter === 'LOW_STOCK' && !status.isLowStock) return false;
-                if (statusFilter === 'OK' && (status.isExpired || status.isLowStock)) return false;
+                if (deferredStatusFilter === 'EXPIRED' && !status.isExpired) return false;
+                if (deferredStatusFilter === 'LOW_STOCK' && !status.isLowStock) return false;
+                if (deferredStatusFilter === 'OK' && (status.isExpired || status.isLowStock)) return false;
             }
             return true;
         });
-    }, [items, catFilter, locationFilter, statusFilter, hideZeroStock]);
+    }, [deferredItems, deferredCatFilter, deferredLocationFilter, deferredStatusFilter, deferredHideZeroStock]);
 
     // --- 2. Busca Textual (Pesado - Debounced) ---
     // Separamos isso para que mudanças de filtro não esperem o debounce, e busca não trave a UI
     const finalFilteredItems = useMemo(() => {
-        if (!debouncedTerm) return baseFilteredItems;
+        if (!deferredTerm) return baseFilteredItems;
 
-        const terms = debouncedTerm.trim().split(/\s+/).filter(t => t.length > 0);
+        const terms = deferredTerm.trim().split(/\s+/).filter(t => t.length > 0);
         const normalizedTerms = terms.map(t => normalizeStr(t));
 
         if (normalizedTerms.length === 0) return baseFilteredItems;
@@ -71,7 +78,7 @@ export const useInventoryFilters = (items: InventoryItem[]) => {
             const itemStr = normalizeStr(`${i.name} ${i.sapCode} ${i.lotNumber} ${i.casNumber || ''}`);
             return normalizedTerms.every(t => itemStr.includes(t));
         });
-    }, [baseFilteredItems, debouncedTerm]);
+    }, [baseFilteredItems, deferredTerm]);
 
     // --- 3. Agrupamento (Transformação de Dados) ---
     const groupedInventory = useMemo(() => {
@@ -163,6 +170,7 @@ export const useInventoryFilters = (items: InventoryItem[]) => {
     }, [groupedInventory, expandedGroups]);
 
     // --- 5. Metadados para Filtros de UI (Calculado apenas sobre items totais) ---
+    // Note: We use the raw 'items' here for filter options so options don't disappear when filtering
     const uniqueLocations = useMemo(() => 
         Array.from(new Set(items.map(i => i.location.warehouse))).filter(Boolean).sort(), 
     [items]);

@@ -4,8 +4,36 @@ function registerIpcHandlers(ipcMain, db, controllers, { app, dialog, getMainWin
     ipcMain.handle('get-app-version', () => app.getVersion());
 
     ipcMain.handle('db:ping', () => ({ success: true, message: "Connected to Local SQLite" }));
-    ipcMain.handle('db:read-full', () => ({ success: true, data: db.readFullDB() }));
+    // db:read-full removed for security
     ipcMain.handle('db:read-inventory', () => ({ success: true, data: db.getDenormalizedInventory() }));
+
+    // CAS API Handler (Server-side Proxy)
+    ipcMain.handle('cas:fetch-chemical-data', async (_, casNumber) => {
+        const apiKey = process.env.VITE_CAS_API_KEY || process.env.CAS_API_KEY;
+        if (!apiKey) {
+            console.warn('[CAS] No API Key found in environment (VITE_CAS_API_KEY or CAS_API_KEY)');
+            return null;
+        }
+
+        try {
+            const response = await fetch(`https://commonchemistry.cas.org/api/detail?cas_rn=${casNumber}`, {
+                headers: { 'X-API-KEY': apiKey }
+            });
+
+            if (!response.ok) {
+                // 404 is expected for invalid/unknown CAS
+                if (response.status !== 404) {
+                    console.warn(`[CAS] API Error: ${response.status}`);
+                }
+                return null;
+            }
+
+            return await response.json();
+        } catch (error) {
+            console.error('[CAS] Network error:', error);
+            return null;
+        }
+    });
 
     // Transactional Writes via Controllers
     ipcMain.handle('db:upsert-item', (_, payload) => InventoryController.upsertItem(payload.item));

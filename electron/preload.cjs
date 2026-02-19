@@ -7,12 +7,12 @@ contextBridge.exposeInMainWorld('electronAPI', {
   request: (action, payload) => {
     const channelMap = {
         'ping': 'db:ping',
-        'read_full_db': 'db:read-full',
         'read_inventory': 'db:read-inventory',
         'upsert_item': 'db:upsert-item',
         'delete_item': 'db:delete-item',
         'log_movement': 'db:log-movement',
-        'sync_transaction': 'db:sync-transaction'
+        'sync_transaction': 'db:sync-transaction',
+        'cas_fetch_data': 'cas:fetch-chemical-data'
     };
 
     const channel = channelMap[action];

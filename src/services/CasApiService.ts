@@ -1,19 +1,5 @@
 import { RiskFlags, CasDataDTO } from '../types';
 
-// API Key movida para variável de ambiente
-// SECURITY FIX: Safe access pattern for import.meta.env to prevent runtime crashes if env is undefined
-const getEnv = (): any => {
-    try {
-        return import.meta.env || {};
-    } catch {
-        return {};
-    }
-};
-
-const env = getEnv();
-const API_KEY = env.VITE_CAS_API_KEY || '';
-const BASE_URL = 'https://commonchemistry.cas.org/api';
-
 export const CasApiService = {
     /**
      * Remove formatação do CAS para uso interno (ex: 67-64-1 -> 67641)
@@ -70,31 +56,19 @@ export const CasApiService = {
             return null;
         }
 
-        // SECURITY CHECK: Ensure API Key is present
-        if (!API_KEY) {
-            console.warn("CAS API Key not configured in environment. Skipping fetch.");
-            return null;
-        }
-
         const cleanCas = this.normalizeCas(casNumber);
 
         try {
-            const response = await fetch(`${BASE_URL}/detail?cas_rn=${cleanCas}`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-API-KEY': API_KEY
-                }
-            });
-
-            if (!response.ok) {
-                if (response.status === 404) return null;
-                console.warn(`CAS API Warning: ${response.status} ${response.statusText}`);
+            // SECURITY UPDATE: Use IPC Bridge instead of direct client-side fetch to hide API Key
+            if (!window.electronAPI) {
+                console.warn("Electron API not available");
                 return null;
             }
 
-            const data = await response.json();
+            const data = await window.electronAPI.request('cas_fetch_data', cleanCas);
             
+            if (!data) return null;
+
             // Injeta a URL de imagem do PubChem caso a do CAS falhe ou como alternativa
             return {
                 ...data,
@@ -103,8 +77,7 @@ export const CasApiService = {
             } as CasDataDTO;
             
         } catch (error) {
-            // Silencia erros de rede/CORS para não quebrar a UX
-            console.warn("CAS API indisponível ou bloqueada por CORS:", error);
+            console.warn("CAS API error via IPC:", error);
             return null;
         }
     },

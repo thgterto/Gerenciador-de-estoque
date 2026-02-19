@@ -95,15 +95,6 @@ function safeJsonParse(str) {
     try { return JSON.parse(str); } catch { return {}; }
 }
 
-function readFullDB() {
-    return {
-        catalog: db.prepare("SELECT * FROM catalog").all(),
-        batches: db.prepare("SELECT * FROM batches").all(),
-        balances: db.prepare("SELECT * FROM balances WHERE status != 'DELETED'").all(),
-        view: getDenormalizedInventory()
-    };
-}
-
 // System Config & Queue
 function getSystemConfig(key) {
     const row = db.prepare('SELECT value FROM systemConfigs WHERE key = ?').get(key);
@@ -151,7 +142,6 @@ module.exports = {
     all,
     exec,
     getDenormalizedInventory,
-    readFullDB,
     getSystemConfig,
     setSystemConfig,
     processOfflineQueue,
