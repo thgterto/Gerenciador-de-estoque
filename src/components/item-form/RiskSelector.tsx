@@ -1,7 +1,8 @@
+
 import React from 'react';
 import { RiskFlags } from '../../types';
 import { GHS_OPTIONS } from '../../utils/businessRules';
-import { Tooltip, Stack, Typography, Box } from '@mui/material';
+import { Tooltip } from '../Tooltip';
 
 interface RiskSelectorProps {
     risks: RiskFlags;
@@ -15,39 +16,31 @@ export const RiskSelector: React.FC<RiskSelectorProps> = ({ risks, onChange }) =
     };
 
     return (
-        <Box>
-            <Typography variant="caption" fontWeight="bold" color="text.secondary" textTransform="uppercase" display="block" mb={1}>
-                Riscos Associados (GHS)
-            </Typography>
-            <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
+        <div>
+            <span className="block text-xs font-bold text-orbital-subtext uppercase tracking-wider mb-2">
+                Associated Risks (GHS)
+            </span>
+            <div className="flex flex-wrap gap-2">
                 {GHS_OPTIONS.map((ghs) => {
                     const isChecked = risks?.[ghs.key] || false;
                     return (
-                        <Tooltip key={ghs.key} title={ghs.label} arrow>
-                            <Box
+                        <Tooltip key={ghs.key} content={ghs.label}>
+                            <div
                                 onClick={() => toggleRisk(ghs.key)}
-                                sx={{
-                                    width: 36, height: 36,
-                                    borderRadius: 1,
-                                    border: '1px solid',
-                                    borderColor: isChecked ? 'error.main' : 'divider',
-                                    bgcolor: isChecked ? 'error.light' : 'background.paper',
-                                    color: isChecked ? 'error.contrastText' : 'text.disabled',
-                                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                    cursor: 'pointer',
-                                    transition: 'all 0.2s',
-                                    '&:hover': {
-                                        borderColor: 'error.main',
-                                        color: 'error.main'
+                                className={`
+                                    w-9 h-9 flex items-center justify-center rounded border transition-all cursor-pointer
+                                    ${isChecked
+                                        ? 'bg-orbital-danger/20 border-orbital-danger text-orbital-danger shadow-[0_0_10px_rgba(255,50,50,0.3)]'
+                                        : 'bg-orbital-surface border-orbital-border text-orbital-subtext hover:border-orbital-danger hover:text-orbital-danger'
                                     }
-                                }}
+                                `}
                             >
-                                <span className="material-symbols-outlined" style={{ fontSize: 20 }}>{ghs.icon}</span>
-                            </Box>
+                                <span className="material-symbols-outlined text-[20px]">{ghs.icon}</span>
+                            </div>
                         </Tooltip>
                     );
                 })}
-            </Stack>
-        </Box>
+            </div>
+        </div>
     );
 };

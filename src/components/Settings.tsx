@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { db } from '../db';
 import { InventoryService } from '../services/InventoryService';
@@ -10,12 +9,38 @@ import { useAlert } from '../context/AlertContext';
 import { ApiClient } from '../services/ApiClient';
 import { ImportWizard } from './ImportWizard';
 import { ImportMode } from '../utils/ImportEngine';
-import { Card } from './ui/Card'; 
-import { Button } from './ui/Button'; 
-import { Modal } from './ui/Modal'; 
+import { OrbitalCard } from './ui/orbital/OrbitalCard';
+import { OrbitalButton } from './ui/orbital/OrbitalButton';
+import { OrbitalModal } from './ui/orbital/OrbitalModal';
 import { PageContainer } from './ui/PageContainer'; 
-import { Input } from './ui/Input';
+import { OrbitalInput } from './ui/orbital/OrbitalInput';
 import { ExportEngine } from '../utils/ExportEngine';
+import {
+    Upload,
+    Package,
+    History,
+    FlaskConical,
+    Sparkles,
+    ClipboardCheck,
+    Search,
+    Wrench,
+    AlertTriangle,
+    CheckCircle,
+    Table2,
+    Wifi,
+    WifiOff,
+    Save,
+    RefreshCw,
+    Download,
+    Code,
+    BookmarkCheck,
+    Factory,
+    BookmarkPlus,
+    RotateCcw,
+    AlertOctagon,
+    RotateCw,
+    Trash2
+} from 'lucide-react';
 
 export const Settings: React.FC = () => {
     const { addToast } = useAlert();
@@ -296,9 +321,9 @@ export const Settings: React.FC = () => {
     return (
         <PageContainer scrollable={true} className="pb-20">
             <div className="flex flex-col gap-8 max-w-6xl mx-auto w-full">
-                <div className="flex flex-col gap-2 border-b border-border-light dark:border-border-dark pb-6">
-                    <h1 className="text-3xl font-black tracking-tight text-text-main dark:text-white">Configurações e Sistema</h1>
-                    <p className="text-text-secondary dark:text-gray-400 text-base max-w-2xl">
+                <div className="flex flex-col gap-2 border-b border-orbital-border pb-6">
+                    <h1 className="text-3xl font-display font-black tracking-tight text-orbital-text uppercase">Configurações e Sistema</h1>
+                    <p className="text-orbital-subtext text-base max-w-2xl font-mono text-sm">
                         Gerencie importações, integrações com nuvem, backups e redefinições do sistema.
                     </p>
                 </div>
@@ -308,73 +333,73 @@ export const Settings: React.FC = () => {
 
                     {/* Coluna 1: Operações de Dados */}
                     <div className="flex flex-col gap-6">
-                        <Card padding="p-6">
-                            <div className="flex items-center gap-3 mb-4 text-text-main dark:text-white">
-                                <div className="p-2 rounded-lg bg-primary/10 text-primary">
-                                    <span className="material-symbols-outlined text-xl">upload_file</span>
+                        <OrbitalCard>
+                            <div className="flex items-center gap-3 mb-4 text-orbital-text">
+                                <div className="p-2 rounded bg-orbital-accent/10 text-orbital-accent border border-orbital-accent">
+                                    <Upload size={24} />
                                 </div>
-                                <h3 className="text-lg font-bold">Importação e Carga</h3>
+                                <h3 className="text-lg font-bold font-display uppercase tracking-wide">Importação e Carga</h3>
                             </div>
                             <div className="flex flex-col gap-3">
-                                <Button onClick={() => openWizard('MASTER')} variant="outline" className="w-full justify-start text-sm" icon="inventory_2">
+                                <OrbitalButton onClick={() => openWizard('MASTER')} variant="outline" className="w-full justify-start text-sm" icon={<Package size={16} />}>
                                     Importar Inventário (Planilha)
-                                </Button>
-                                <Button onClick={() => openWizard('HISTORY')} variant="outline" className="w-full justify-start text-sm" icon="history">
+                                </OrbitalButton>
+                                <OrbitalButton onClick={() => openWizard('HISTORY')} variant="outline" className="w-full justify-start text-sm" icon={<History size={16} />}>
                                     Importar Histórico
-                                </Button>
+                                </OrbitalButton>
                             </div>
-                        </Card>
+                        </OrbitalCard>
 
-                        <Card padding="p-6">
-                            <div className="flex items-center gap-3 mb-4 text-text-main dark:text-white">
-                                <div className="p-2 rounded-lg bg-secondary/10 text-secondary">
-                                    <span className="material-symbols-outlined text-xl">science</span>
+                        <OrbitalCard>
+                            <div className="flex items-center gap-3 mb-4 text-orbital-text">
+                                <div className="p-2 rounded bg-orbital-accent/10 text-orbital-accent border border-orbital-accent">
+                                    <FlaskConical size={24} />
                                 </div>
-                                <h3 className="text-lg font-bold">Enriquecimento de Dados</h3>
+                                <h3 className="text-lg font-bold font-display uppercase tracking-wide">Enriquecimento de Dados</h3>
                             </div>
-                            <p className="text-sm text-text-secondary dark:text-gray-400 mb-4">
+                            <p className="text-sm text-orbital-subtext mb-4 font-mono">
                                 Busca automática de dados químicos (Fórmula, Peso, Riscos) na API CAS para itens com CAS Number.
                             </p>
                             {enriching ? (
                                 <div className="w-full space-y-2">
-                                    <div className="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700 overflow-hidden">
-                                        <div className="bg-secondary h-2.5 rounded-full transition-all duration-300" style={{ width: `${(enrichProgress/enrichTotal)*100}%` }}></div>
+                                    <div className="w-full bg-orbital-bg rounded-none h-2 border border-orbital-border overflow-hidden">
+                                        <div className="bg-orbital-accent h-full transition-all duration-300 shadow-glow" style={{ width: `${(enrichProgress/enrichTotal)*100}%` }}></div>
                                     </div>
-                                    <p className="text-xs text-center text-text-secondary">{enrichProgress} de {enrichTotal} itens processados</p>
+                                    <p className="text-xs text-center text-orbital-subtext font-mono">{enrichProgress} de {enrichTotal} itens processados</p>
                                 </div>
                             ) : (
-                                <Button onClick={handleEnrichment} variant="primary" icon="auto_fix_high" className="w-full text-sm">
+                                <OrbitalButton onClick={handleEnrichment} variant="primary" icon={<Sparkles size={16} />} className="w-full text-sm">
                                     Enriquecer Itens com CAS
-                                </Button>
+                                </OrbitalButton>
                             )}
-                        </Card>
+                        </OrbitalCard>
 
-                        <Card padding="p-6">
-                            <div className="flex items-center gap-3 mb-4 text-text-main dark:text-white relative z-10">
-                                <div className="p-2 bg-purple-50 dark:bg-purple-900/30 rounded-lg text-purple-600 dark:text-purple-300">
-                                    <span className="material-symbols-outlined text-xl">fact_check</span>
+                        <OrbitalCard>
+                            <div className="flex items-center gap-3 mb-4 text-orbital-text relative z-10">
+                                <div className="p-2 bg-purple-900/20 rounded text-purple-400 border border-purple-500/50">
+                                    <ClipboardCheck size={24} />
                                 </div>
-                                <h3 className="text-lg font-bold">Auditoria de Integridade</h3>
+                                <h3 className="text-lg font-bold font-display uppercase tracking-wide">Auditoria de Integridade</h3>
                             </div>
-                            <p className="text-sm text-text-secondary dark:text-gray-400 mb-4">
+                            <p className="text-sm text-orbital-subtext mb-4 font-mono">
                                 Verifica consistência entre saldo visual e histórico (Ledger).
                             </p>
 
                             <div className="flex flex-col sm:flex-row gap-3">
-                                <Button onClick={() => handleRunAudit(false)} variant="secondary" icon="search_check" disabled={loading} className="flex-1 text-sm">
+                                <OrbitalButton onClick={() => handleRunAudit(false)} variant="outline" icon={<Search size={16} />} disabled={loading} className="flex-1 text-sm">
                                     Verificar
-                                </Button>
+                                </OrbitalButton>
                                 {auditStats && auditStats.mismatches > 0 && (
-                                    <Button onClick={() => handleRunAudit(true)} variant="warning" icon="build" disabled={loading} className="flex-1 text-sm">
+                                    <OrbitalButton onClick={() => handleRunAudit(true)} variant="danger" icon={<Wrench size={16} />} disabled={loading} className="flex-1 text-sm">
                                         Corrigir ({auditStats.mismatches})
-                                    </Button>
+                                    </OrbitalButton>
                                 )}
                             </div>
 
                             {auditStats && (
-                                <div className={`mt-4 p-3 rounded-lg border text-sm ${auditStats.mismatches > 0 ? 'bg-amber-50 border-amber-200 text-amber-800' : 'bg-green-50 border-green-200 text-green-800'}`}>
-                                    <p className="font-bold flex items-center gap-2">
-                                        <span className="material-symbols-outlined text-base">{auditStats.mismatches > 0 ? 'warning' : 'check_circle'}</span>
+                                <div className={`mt-4 p-3 border text-sm font-mono ${auditStats.mismatches > 0 ? 'bg-orbital-warning/10 border-orbital-warning text-orbital-warning' : 'bg-orbital-success/10 border-orbital-success text-orbital-success'}`}>
+                                    <p className="font-bold flex items-center gap-2 uppercase tracking-wide">
+                                        {auditStats.mismatches > 0 ? <AlertTriangle size={16} /> : <CheckCircle size={16} />}
                                         Resultado:
                                     </p>
                                     <ul className="list-disc pl-6 mt-1 text-xs space-y-1 opacity-90">
@@ -384,34 +409,34 @@ export const Settings: React.FC = () => {
                                     </ul>
                                 </div>
                             )}
-                        </Card>
+                        </OrbitalCard>
                     </div>
 
                     {/* Coluna 2: Integração e Sistema */}
                     <div className="flex flex-col gap-6">
                         {/* Google Sheets */}
-                        <Card padding="p-6" className="border-l-4 border-l-[#0F9D58] relative overflow-hidden">
-                             <div className="flex items-center gap-3 mb-4 text-text-main dark:text-white relative z-10">
-                                <div className="p-2 bg-green-50 dark:bg-green-900/30 rounded-lg text-[#0F9D58] dark:text-green-300">
-                                    <span className="material-symbols-outlined text-xl">table_view</span>
+                        <OrbitalCard className="border-l-4 border-l-[#0F9D58] relative overflow-hidden">
+                             <div className="flex items-center gap-3 mb-4 text-orbital-text relative z-10">
+                                <div className="p-2 bg-green-900/20 rounded text-green-400 border border-green-500/50">
+                                    <Table2 size={24} />
                                 </div>
                                 <div className="flex-1">
-                                    <h3 className="text-lg font-bold">Google Sheets</h3>
-                                    <p className="text-xs text-text-secondary dark:text-gray-400">Integração com Apps Script</p>
+                                    <h3 className="text-lg font-bold font-display uppercase tracking-wide">Google Sheets</h3>
+                                    <p className="text-xs text-orbital-subtext font-mono">Integração com Apps Script</p>
                                 </div>
                                 {isCloudConnected ? (
-                                    <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1">
-                                        <span className="material-symbols-outlined text-sm">wifi</span> Online
+                                    <span className="bg-green-900/30 text-green-400 px-3 py-1 border border-green-500/50 rounded-none text-xs font-bold font-mono uppercase flex items-center gap-1 shadow-[0_0_10px_rgba(74,222,128,0.2)]">
+                                        <Wifi size={14} /> Online
                                     </span>
                                 ) : (
-                                    <span className="bg-gray-100 text-gray-500 px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1">
-                                        <span className="material-symbols-outlined text-sm">wifi_off</span> Offline
+                                    <span className="bg-orbital-surface text-orbital-subtext px-3 py-1 border border-orbital-border rounded-none text-xs font-bold font-mono uppercase flex items-center gap-1">
+                                        <WifiOff size={14} /> Offline
                                     </span>
                                 )}
                             </div>
 
                             <div className="flex flex-col gap-4 relative z-10">
-                                <Input
+                                <OrbitalInput
                                     label="URL do Web App"
                                     value={googleUrl}
                                     onChange={e => setGoogleUrl(e.target.value)}
@@ -419,142 +444,142 @@ export const Settings: React.FC = () => {
                                     className="text-sm"
                                 />
                                 <div className="flex gap-3">
-                                    <Button onClick={handleSaveGoogleConfig} variant="primary" disabled={loading} icon="save" className="flex-1 text-sm">
+                                    <OrbitalButton onClick={handleSaveGoogleConfig} variant="primary" disabled={loading} icon={<Save size={16} />} className="flex-1 text-sm">
                                         Conectar
-                                    </Button>
-                                    <Button onClick={handleSync} variant="outline" disabled={!isCloudConnected || loading} icon="sync" className="flex-1 text-sm">
+                                    </OrbitalButton>
+                                    <OrbitalButton onClick={handleSync} variant="outline" disabled={!isCloudConnected || loading} icon={<RefreshCw size={16} />} className="flex-1 text-sm">
                                         Sincronizar
-                                    </Button>
+                                    </OrbitalButton>
                                 </div>
                             </div>
-                        </Card>
+                        </OrbitalCard>
 
                         {/* Backup e Seed */}
-                        <Card padding="p-6">
-                            <div className="flex items-center gap-3 mb-4 text-text-main dark:text-white">
-                                <div className="p-2 rounded-lg bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-300">
-                                    <span className="material-symbols-outlined text-xl">save</span>
+                        <OrbitalCard>
+                            <div className="flex items-center gap-3 mb-4 text-orbital-text">
+                                <div className="p-2 rounded bg-orbital-surface text-orbital-subtext border border-orbital-border">
+                                    <Save size={24} />
                                 </div>
-                                <h3 className="text-lg font-bold">Backup e Padrões</h3>
+                                <h3 className="text-lg font-bold font-display uppercase tracking-wide">Backup e Padrões</h3>
                             </div>
 
                             <div className="space-y-4">
                                 <div>
-                                    <p className="text-xs font-semibold text-text-secondary uppercase mb-2">Exportação</p>
+                                    <p className="text-xs font-bold font-display text-orbital-subtext uppercase mb-2">Exportação</p>
                                     <div className="grid grid-cols-2 gap-2">
-                                        <Button
+                                        <OrbitalButton
                                             onClick={() => handleExportExcel(false)}
                                             disabled={loading}
                                             variant="outline"
                                             className="w-full text-sm"
-                                            icon="download"
+                                            icon={<Download size={16} />}
                                         >
                                             Exportar (.xlsx)
-                                        </Button>
+                                        </OrbitalButton>
                                         {isElectron ? (
-                                            <Button
+                                            <OrbitalButton
                                                 onClick={handlePortableBackup}
                                                 disabled={loading}
                                                 variant="primary"
                                                 className="w-full text-sm"
-                                                icon="save"
+                                                icon={<Save size={16} />}
                                             >
                                                 Backup Full (.db)
-                                            </Button>
+                                            </OrbitalButton>
                                         ) : (
-                                            <Button
+                                            <OrbitalButton
                                                 onClick={handleDownloadSeed}
                                                 disabled={loading}
                                                 variant="outline"
                                                 className="w-full text-sm"
-                                                icon="code"
+                                                icon={<Code size={16} />}
                                             >
                                                 Baixar Seed
-                                            </Button>
+                                            </OrbitalButton>
                                         )}
                                     </div>
                                 </div>
 
-                                <div className="pt-2 border-t border-gray-100 dark:border-gray-800">
-                                    <p className="text-xs font-semibold text-text-secondary uppercase mb-2">Ponto de Restauração</p>
+                                <div className="pt-2 border-t border-orbital-border">
+                                    <p className="text-xs font-bold font-display text-orbital-subtext uppercase mb-2">Ponto de Restauração</p>
 
                                     {hasCustomSeed ? (
-                                        <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg border border-blue-100 dark:border-blue-800 mb-3">
-                                            <div className="flex items-center gap-2 text-blue-800 dark:text-blue-300 text-sm font-bold mb-1">
-                                                <span className="material-symbols-outlined text-base">bookmark_added</span>
+                                        <div className="bg-blue-900/20 p-3 border border-blue-500/30 mb-3">
+                                            <div className="flex items-center gap-2 text-blue-400 text-sm font-bold font-mono mb-1 uppercase">
+                                                <BookmarkCheck size={16} />
                                                 Seed Personalizado Ativo
                                             </div>
-                                            <p className="text-xs text-blue-600 dark:text-blue-400">
+                                            <p className="text-xs text-blue-300/70 font-mono">
                                                 O sistema usará seus dados salvos como ponto de reset.
                                             </p>
                                         </div>
                                     ) : (
-                                        <div className="bg-gray-50 dark:bg-gray-800/50 p-3 rounded-lg border border-gray-100 dark:border-gray-700 mb-3">
-                                            <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400 text-sm font-bold mb-1">
-                                                <span className="material-symbols-outlined text-base">factory</span>
+                                        <div className="bg-orbital-surface p-3 border border-orbital-border mb-3">
+                                            <div className="flex items-center gap-2 text-orbital-subtext text-sm font-bold font-mono mb-1 uppercase">
+                                                <Factory size={16} />
                                                 Padrão de Fábrica
                                             </div>
-                                            <p className="text-xs text-text-secondary">
+                                            <p className="text-xs text-orbital-subtext/70 font-mono">
                                                 Usando o arquivo limsData.ts original.
                                             </p>
                                         </div>
                                     )}
 
                                     <div className="flex flex-col gap-2">
-                                        <Button
+                                        <OrbitalButton
                                             onClick={handleSetCurrentAsDefault}
                                             disabled={loading}
-                                            variant="white"
-                                            className="w-full justify-start text-sm border-indigo-200 text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/20"
-                                            icon="bookmark_add"
+                                            variant="ghost"
+                                            className="w-full justify-start text-sm text-indigo-400 hover:text-indigo-300 hover:bg-indigo-900/20 border border-transparent hover:border-indigo-500/30"
+                                            icon={<BookmarkPlus size={16} />}
                                         >
                                             Definir Estado Atual como Padrão
-                                        </Button>
+                                        </OrbitalButton>
 
                                         {hasCustomSeed && (
-                                            <Button
+                                            <OrbitalButton
                                                 onClick={handleRestoreFactory}
                                                 disabled={loading}
-                                                variant="white"
-                                                className="w-full justify-start text-sm border-orange-200 text-orange-600 hover:bg-orange-50 dark:hover:bg-orange-900/20"
-                                                icon="restore"
+                                                variant="ghost"
+                                                className="w-full justify-start text-sm text-orange-400 hover:text-orange-300 hover:bg-orange-900/20 border border-transparent hover:border-orange-500/30"
+                                                icon={<RotateCcw size={16} />}
                                             >
                                                 Voltar ao Padrão de Fábrica
-                                            </Button>
+                                            </OrbitalButton>
                                         )}
                                     </div>
                                 </div>
                             </div>
-                        </Card>
+                        </OrbitalCard>
 
                         {/* ZONA DE PERIGO */}
-                        <Card padding="p-6" className="border-danger/30 dark:border-danger/20 bg-danger-bg/5 dark:bg-danger/5">
-                            <div className="flex items-center gap-3 mb-4 text-danger">
-                                <span className="material-symbols-outlined text-xl">dangerous</span>
-                                <h3 className="text-lg font-bold">Zona de Perigo</h3>
+                        <OrbitalCard className="border-orbital-danger/30 bg-orbital-danger/5">
+                            <div className="flex items-center gap-3 mb-4 text-orbital-danger">
+                                <AlertOctagon size={24} />
+                                <h3 className="text-lg font-bold font-display uppercase tracking-wide">Zona de Perigo</h3>
                             </div>
 
                             <div className="flex flex-col gap-3">
-                                <Button 
+                                <OrbitalButton
                                     onClick={() => openResetModal('RELOAD')}
-                                    variant="white"
-                                    className="w-full justify-start text-sm border-danger/20 text-danger-text hover:bg-danger-bg dark:hover:bg-danger/10"
-                                    icon="restart_alt"
+                                    variant="outline"
+                                    className="w-full justify-start text-sm border-orbital-danger/30 text-orbital-danger hover:bg-orbital-danger/10"
+                                    icon={<RotateCw size={16} />}
                                     disabled={loading}
                                 >
                                     {hasCustomSeed ? 'Resetar para Meu Padrão' : 'Resetar para Padrão de Fábrica'}
-                                </Button>
-                                <Button 
+                                </OrbitalButton>
+                                <OrbitalButton
                                     onClick={() => openResetModal('EMPTY')}
                                     variant="danger"
                                     className="w-full justify-start text-sm"
-                                    icon="delete_forever"
+                                    icon={<Trash2 size={16} />}
                                     disabled={loading}
                                 >
                                     Apagar Tudo (Zero)
-                                </Button>
+                                </OrbitalButton>
                             </div>
-                        </Card>
+                        </OrbitalCard>
                     </div>
                 </div>
 
@@ -566,21 +591,22 @@ export const Settings: React.FC = () => {
                 />
 
                 {/* Secure Reset Modal */}
-                <Modal 
+                <OrbitalModal
                     isOpen={resetModalOpen} 
                     onClose={() => setResetModalOpen(false)} 
                     title={resetTargetMode === 'EMPTY' ? "Apagar TUDO?" : "Recarregar Banco de Dados?"}
-                    className="max-w-md"
                 >
-                    <div className="p-6 pt-0">
-                        <div className="bg-red-50 dark:bg-red-900/20 p-4 rounded-lg border border-red-100 dark:border-red-900/30 mb-6 flex gap-3">
-                            <span className="material-symbols-outlined text-danger text-3xl">warning</span>
-                            <div className="text-sm text-danger-text dark:text-red-200">
-                                <p className="font-bold mb-1">Ação Destrutiva</p>
+                    <div className="space-y-6">
+                        <div className="bg-orbital-danger/10 p-4 border border-orbital-danger/30 flex gap-3">
+                            <div className="text-orbital-danger">
+                                <AlertTriangle size={32} />
+                            </div>
+                            <div className="text-sm text-orbital-text">
+                                <p className="font-bold mb-1 uppercase tracking-wide text-orbital-danger">Ação Destrutiva</p>
                                 {resetTargetMode === 'EMPTY' ? (
-                                    <p>O sistema será esvaziado completamente. Todos os dados serão perdidos.</p>
+                                    <p className="font-mono opacity-80">O sistema será esvaziado completamente. Todos os dados serão perdidos.</p>
                                 ) : (
-                                    <p>
+                                    <p className="font-mono opacity-80">
                                         Os dados atuais serão substituídos pelo ponto de restauração
                                         {hasCustomSeed ? ' (Seu Backup Personalizado)' : ' (Padrão de Fábrica)'}.
                                     </p>
@@ -589,23 +615,23 @@ export const Settings: React.FC = () => {
                         </div>
 
                         <div className="space-y-4">
-                            <label className="block text-sm font-medium text-text-main dark:text-white">
-                                Digite <span className="font-bold font-mono text-danger">DELETAR</span> para confirmar:
+                            <label className="block text-sm font-bold font-display uppercase tracking-wide text-orbital-subtext">
+                                Digite <span className="text-orbital-danger select-all">DELETAR</span> para confirmar:
                             </label>
-                            <Input 
+                            <OrbitalInput
                                 value={resetConfirmationText}
                                 onChange={e => setResetConfirmationText(e.target.value)}
                                 placeholder="DELETAR"
-                                className="uppercase font-mono tracking-widest text-center border-red-300 focus:border-red-500 focus:ring-red-200"
+                                className="uppercase font-mono tracking-widest text-center border-orbital-danger text-orbital-danger focus:shadow-[0_0_10px_rgba(239,68,68,0.5)]"
                                 autoFocus
                             />
                         </div>
 
-                        <div className="flex justify-end gap-3 mt-8">
-                            <Button variant="ghost" onClick={() => setResetModalOpen(false)} disabled={loading}>
+                        <div className="flex justify-end gap-3 mt-8 pt-4 border-t border-orbital-border">
+                            <OrbitalButton variant="ghost" onClick={() => setResetModalOpen(false)} disabled={loading}>
                                 Cancelar
-                            </Button>
-                            <Button 
+                            </OrbitalButton>
+                            <OrbitalButton
                                 variant="danger" 
                                 onClick={handleExecuteReset}
                                 disabled={resetConfirmationText.toUpperCase() !== 'DELETAR' || loading}
@@ -613,10 +639,10 @@ export const Settings: React.FC = () => {
                                 className="px-6"
                             >
                                 Confirmar Reset
-                            </Button>
+                            </OrbitalButton>
                         </div>
                     </div>
-                </Modal>
+                </OrbitalModal>
             </div>
         </PageContainer>
     );

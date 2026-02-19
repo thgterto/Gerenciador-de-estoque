@@ -1,21 +1,15 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { InventoryItem } from '../types';
-import { Button, Box, Paper } from '@mui/material';
 import { PageHeader } from './ui/PageHeader';
 import { PageContainer } from './ui/PageContainer';
 import { useAuth } from '../context/AuthContext';
 import { useStockOperations } from '../hooks/useStockOperations';
 import { useInventoryFilters } from '../hooks/useInventoryFilters';
-
+import { OrbitalButton } from './ui/orbital/OrbitalButton';
 import { InventoryKPIs } from './inventory/InventoryKPIs';
 import { InventoryFilters } from './inventory/InventoryFilters';
 import { InventoryList } from './inventory/InventoryList';
-
-// Icons
-import AddIcon from '@mui/icons-material/Add';
-import FileDownloadIcon from '@mui/icons-material/FileDownload';
-import DeleteIcon from '@mui/icons-material/Delete';
-import CloseIcon from '@mui/icons-material/Close';
+import { Plus, Download, Trash2, X } from 'lucide-react';
 
 interface Props {
   items: InventoryItem[];
@@ -97,6 +91,7 @@ export const InventoryTable: React.FC<Props> = ({ items, onActions, onAddNew }) 
   };
 
   const getCategoryIcon = useCallback((cat: string) => {
+      // Logic moved to component rendering level or kept here for strings
       const c = cat.toLowerCase();
       if (c.includes('reagente') || c.includes('quimico')) return 'science';
       if (c.includes('vidraria')) return 'biotech';
@@ -112,20 +107,29 @@ export const InventoryTable: React.FC<Props> = ({ items, onActions, onAddNew }) 
   }, []);
 
   return (
-    <PageContainer scrollable={isMobile}>
+    <PageContainer scrollable={false} className="h-full">
         <PageHeader 
             title="Inventário" 
             description="Gerencie lotes, reagentes e vidrarias."
-            className="mb-4"
         >
-            <Button variant="outlined" startIcon={<FileDownloadIcon />} onClick={() => alert("Use o menu de Configurações para exportar dados completos.")} sx={{ display: { xs: 'none', sm: 'flex' } }}>
-                Exportar
-            </Button>
-            {onAddNew && (
-                <Button variant="contained" startIcon={<AddIcon />} onClick={onAddNew}>
-                    Adicionar
-                </Button>
-            )}
+            <div className="hidden sm:flex gap-3">
+                <OrbitalButton
+                    variant="outline"
+                    icon={<Download size={16} />}
+                    onClick={() => alert("Use o menu de Configurações para exportar dados completos.")}
+                >
+                    Exportar
+                </OrbitalButton>
+                {onAddNew && (
+                    <OrbitalButton
+                        variant="primary"
+                        icon={<Plus size={16} />}
+                        onClick={onAddNew}
+                    >
+                        Adicionar
+                    </OrbitalButton>
+                )}
+            </div>
         </PageHeader>
 
         <InventoryKPIs stats={stats} />
@@ -160,53 +164,37 @@ export const InventoryTable: React.FC<Props> = ({ items, onActions, onAddNew }) 
             expandedGroups={expandedGroups}
         />
 
-        {/* Bulk Actions Snackbar/Floating Bar */}
+        {/* Bulk Actions Floating Bar */}
         {selectedIds.size > 0 && hasRole('ADMIN') && (
-            <Paper
-                elevation={6}
-                sx={{
-                    position: 'fixed',
-                    bottom: 32,
-                    left: '50%',
-                    transform: 'translateX(-50%)',
-                    bgcolor: 'text.primary',
-                    color: 'background.paper',
-                    px: 3, py: 1.5,
-                    borderRadius: 8,
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 3,
-                    zIndex: 1300
-                }}
-            >
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <Box sx={{ bgcolor: 'primary.main', color: 'white', borderRadius: '50%', width: 24, height: 24, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: 'bold' }}>
-                        {selectedIds.size}
-                    </Box>
-                    <span className="hidden sm:inline">Itens Selecionados</span>
-                </Box>
-                <Box sx={{ height: 24, width: 1, bgcolor: 'rgba(255,255,255,0.2)' }} />
-                <Box sx={{ display: 'flex', gap: 1 }}>
-                    <Button 
-                        variant="contained"
-                        color="error"
-                        size="small"
-                        startIcon={<DeleteIcon />}
-                        onClick={handleBulkDelete}
-                        sx={{ borderRadius: 4 }}
-                    >
-                        Excluir
-                    </Button>
-                    <Button
-                        size="small"
-                        onClick={() => setSelectedIds(new Set())}
-                        aria-label="Cancelar seleção"
-                        sx={{ color: 'rgba(255,255,255,0.7)', minWidth: 0, p: 1, borderRadius: '50%' }}
-                    >
-                        <CloseIcon />
-                    </Button>
-                </Box>
-            </Paper>
+            <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 animate-slide-up">
+                <div className="bg-orbital-surface border border-orbital-border rounded-full shadow-glow-lg px-6 py-3 flex items-center gap-4">
+                    <div className="flex items-center gap-2">
+                        <span className="flex items-center justify-center w-6 h-6 rounded-full bg-orbital-accent text-orbital-bg text-xs font-bold">
+                            {selectedIds.size}
+                        </span>
+                        <span className="hidden sm:inline text-sm font-medium text-orbital-text">Itens Selecionados</span>
+                    </div>
+                    <div className="h-6 w-px bg-orbital-border" />
+                    <div className="flex items-center gap-2">
+                        <OrbitalButton
+                            variant="danger"
+                            size="sm"
+                            icon={<Trash2 size={14} />}
+                            onClick={handleBulkDelete}
+                            className="rounded-full"
+                        >
+                            Excluir
+                        </OrbitalButton>
+                        <button
+                            onClick={() => setSelectedIds(new Set())}
+                            className="p-2 text-orbital-subtext hover:text-orbital-text transition-colors rounded-full hover:bg-orbital-bg"
+                            aria-label="Cancelar seleção"
+                        >
+                            <X size={18} />
+                        </button>
+                    </div>
+                </div>
+            </div>
         )}
     </PageContainer>
   );

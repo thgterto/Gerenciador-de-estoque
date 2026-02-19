@@ -1,5 +1,5 @@
 import React, { useCallback, useRef, useMemo, useEffect, useState } from 'react';
-import { Card, Box, Checkbox, Typography, Button } from '@mui/material';
+import { OrbitalCard } from '../ui/orbital/OrbitalCard';
 import { EmptyState } from '../ui/EmptyState';
 import {
     InventoryChildRow,
@@ -10,6 +10,7 @@ import {
 import { VariableSizeList } from 'react-window';
 import AutoSizer from 'react-virtualized-auto-sizer';
 import { UserRole } from '../../types';
+import { OrbitalButton } from '../ui/orbital/OrbitalButton';
 
 const GRID_TEMPLATE = "40px minmax(240px, 3fr) 120px minmax(180px, 1.5fr) 100px 100px 130px 110px";
 
@@ -76,7 +77,6 @@ const InventoryRow = React.memo(({ index, style, data }: { index: number, style:
         onActions,
         toggleGroupExpand,
         copyToClipboard,
-        getCategoryIcon,
         hasRole
     } = data;
 
@@ -93,7 +93,6 @@ const InventoryRow = React.memo(({ index, style, data }: { index: number, style:
                   toggleExpand={() => toggleGroupExpand(rowItem.data.groupKey)}
                   selectedChildIds={selectedIds}
                   onSelectGroup={handleSelectGroup}
-                  getCategoryIcon={getCategoryIcon}
                   copyToClipboard={copyToClipboard}
               />
             );
@@ -106,7 +105,6 @@ const InventoryRow = React.memo(({ index, style, data }: { index: number, style:
                 toggleExpand={() => toggleGroupExpand(rowItem.data.groupKey)}
                 selectedChildIds={selectedIds}
                 onSelectGroup={handleSelectGroup}
-                getCategoryIcon={getCategoryIcon}
                 copyToClipboard={copyToClipboard}
             />
         );
@@ -151,7 +149,6 @@ const MobileNativeList = ({
     toggleGroupExpand,
     selectedIds,
     handleSelectGroup,
-    getCategoryIcon,
     copyToClipboard
 }: any) => {
     const [visibleCount, setVisibleCount] = useState(50);
@@ -164,7 +161,7 @@ const MobileNativeList = ({
     const visibleItems = flatList.slice(0, visibleCount);
 
     return (
-        <Box sx={{ pb: 10 }}>
+        <div className="pb-24">
             {visibleItems.map((rowItem: any) => {
                 const isSelected = rowItem.type !== 'GROUP' && selectedIds.has(rowItem.data.id);
 
@@ -181,7 +178,6 @@ const MobileNativeList = ({
                             toggleExpand={() => toggleGroupExpand(rowItem.data.groupKey)}
                             selectedChildIds={selectedIds}
                             onSelectGroup={handleSelectGroup}
-                            getCategoryIcon={getCategoryIcon}
                             copyToClipboard={copyToClipboard}
                         />
                     );
@@ -203,17 +199,17 @@ const MobileNativeList = ({
             })}
 
             {visibleCount < flatList.length && (
-                <Box sx={{ p: 2, display: 'flex', justifyContent: 'center' }}>
-                    <Button
-                        variant="outlined"
+                <div className="p-4 flex justify-center">
+                    <OrbitalButton
+                        variant="outline"
                         onClick={() => setVisibleCount(prev => prev + 50)}
-                        fullWidth
+                        className="w-full"
                     >
                         Carregar Mais ({flatList.length - visibleCount} restantes)
-                    </Button>
-                </Box>
+                    </OrbitalButton>
+                </div>
             )}
-        </Box>
+        </div>
     );
 };
 
@@ -249,7 +245,7 @@ export const InventoryList: React.FC<InventoryListProps> = ({
     onActions,
     toggleGroupExpand,
     copyToClipboard,
-    getCategoryIcon,
+    // getCategoryIcon, // Removed from destructuring as unused
     hasRole,
     onAddNew,
     totalGroups,
@@ -269,7 +265,7 @@ export const InventoryList: React.FC<InventoryListProps> = ({
     const getItemSize = useCallback((index: number) => {
         const item = flatList[index];
         // Note: Mobile size not used in variable list anymore, but kept for logic safety
-        return item.type === 'GROUP' ? 64 : 48;
+        return item.type === 'GROUP' ? 48 : 40; // Reduced height for denser "tech" look
     }, [flatList]);
 
     const itemKey = useCallback((index: number) => flatList[index]?.id || index, [flatList]);
@@ -283,50 +279,34 @@ export const InventoryList: React.FC<InventoryListProps> = ({
         onActions,
         toggleGroupExpand,
         copyToClipboard,
-        getCategoryIcon,
         hasRole
-    }), [flatList, isMobile, selectedIds, handleSelectGroup, handleSelectRow, onActions, toggleGroupExpand, copyToClipboard, getCategoryIcon, hasRole]);
+    }), [flatList, isMobile, selectedIds, handleSelectGroup, handleSelectRow, onActions, toggleGroupExpand, copyToClipboard, hasRole]);
 
     return (
-        <Card
-            elevation={0}
-            sx={{
-                flexGrow: 1,
-                display: 'flex',
-                flexDirection: 'column',
-                minHeight: 0,
-                border: isMobile ? 'none' : 1,
-                borderColor: 'divider',
-                bgcolor: isMobile ? 'transparent' : 'background.paper'
-            }}
-        >
+        <OrbitalCard noPadding className="flex-1 flex flex-col min-h-0 border-orbital-border bg-orbital-bg">
              {!isMobile && (
-                 <Box sx={{
-                     bgcolor: 'background.default',
-                     borderBottom: 1,
-                     borderColor: 'divider',
-                     py: 1.5
-                 }}>
-                    <Box sx={{ display: 'grid', gridTemplateColumns: GRID_TEMPLATE, px: 2, alignItems: 'center' }}>
-                        <Box display="flex" justifyContent="center">
-                            <Checkbox
-                                size="small"
+                 <div className="bg-orbital-surface border-b border-orbital-border py-2 px-4 shadow-sm z-10">
+                    <div className="grid items-center" style={{ gridTemplateColumns: GRID_TEMPLATE }}>
+                        <div className="flex justify-center">
+                            <input
+                                type="checkbox"
+                                className="accent-orbital-accent w-4 h-4 cursor-pointer"
                                 checked={filteredItemsCount > 0 && selectedIds.size === filteredItemsCount}
                                 onChange={(e) => handleSelectAll(e.target.checked)}
                             />
-                        </Box>
-                        <Box px={1}><Typography variant="caption" fontWeight="bold">PRODUTO / SKU</Typography></Box>
-                        <Box px={1}><Typography variant="caption" fontWeight="bold">CATEGORIA</Typography></Box>
-                        <Box px={1}><Typography variant="caption" fontWeight="bold">LOCAIS</Typography></Box>
-                        <Box px={1} textAlign="right"><Typography variant="caption" fontWeight="bold">QTD. TOTAL</Typography></Box>
-                        <Box px={1} textAlign="right"><Typography variant="caption" fontWeight="bold">VALIDADE</Typography></Box>
-                        <Box px={1} textAlign="center"><Typography variant="caption" fontWeight="bold">STATUS</Typography></Box>
-                        <Box />
-                    </Box>
-                 </Box>
+                        </div>
+                        <div className="px-2 text-[10px] font-bold uppercase tracking-wider text-orbital-subtext">PRODUTO / SKU</div>
+                        <div className="px-2 text-[10px] font-bold uppercase tracking-wider text-orbital-subtext">CATEGORIA</div>
+                        <div className="px-2 text-[10px] font-bold uppercase tracking-wider text-orbital-subtext">LOCAIS</div>
+                        <div className="px-2 text-right text-[10px] font-bold uppercase tracking-wider text-orbital-subtext">QTD. TOTAL</div>
+                        <div className="px-2 text-right text-[10px] font-bold uppercase tracking-wider text-orbital-subtext">VALIDADE</div>
+                        <div className="px-2 text-center text-[10px] font-bold uppercase tracking-wider text-orbital-subtext">STATUS</div>
+                        <div />
+                    </div>
+                 </div>
              )}
 
-             <Box sx={{ flexGrow: 1, position: 'relative' }}>
+             <div className="flex-grow relative bg-orbital-bg">
                 {flatList.length > 0 ? (
                     isMobile ? (
                         /* Mobile: Native Scroll List with Pagination */
@@ -338,7 +318,6 @@ export const InventoryList: React.FC<InventoryListProps> = ({
                             toggleGroupExpand={toggleGroupExpand}
                             selectedIds={selectedIds}
                             handleSelectGroup={handleSelectGroup}
-                            getCategoryIcon={getCategoryIcon}
                             copyToClipboard={copyToClipboard}
                         />
                     ) : (
@@ -353,6 +332,7 @@ export const InventoryList: React.FC<InventoryListProps> = ({
                                     itemKey={itemKey}
                                     width={width}
                                     itemData={itemData}
+                                    className="custom-scrollbar"
                                 >
                                     {InventoryRow}
                                 </VariableSizeList>
@@ -367,14 +347,14 @@ export const InventoryList: React.FC<InventoryListProps> = ({
                         onAction={onAddNew}
                     />
                 )}
-             </Box>
+             </div>
 
              {!isMobile && (
-                 <Box sx={{ bgcolor: 'background.default', px: 2, py: 1.5, borderTop: 1, borderColor: 'divider', display: 'flex', justifyContent: 'space-between' }}>
-                     <Typography variant="caption" color="text.secondary">{totalGroups} Produtos • {filteredItemsCount} Lotes Individuais</Typography>
-                     <Typography variant="caption" color="text.secondary">{hideZeroStock ? 'Ocultando itens sem estoque' : 'Exibindo todos os itens'}</Typography>
-                 </Box>
+                 <div className="bg-orbital-surface px-4 py-2 border-t border-orbital-border flex justify-between items-center text-[10px] text-orbital-subtext font-mono uppercase tracking-wide">
+                     <span>{totalGroups} Produtos • {filteredItemsCount} Lotes Individuais</span>
+                     <span>{hideZeroStock ? 'Ocultando itens sem estoque' : 'Exibindo todos os itens'}</span>
+                 </div>
              )}
-        </Card>
+        </OrbitalCard>
     );
 };

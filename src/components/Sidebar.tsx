@@ -1,31 +1,25 @@
 import React from 'react';
-import { NavLink, useLocation } from 'react-router-dom';
-import {
-    Box, Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText,
-    Toolbar, Divider, Typography, Avatar, IconButton, Tooltip, Badge
-} from '@mui/material';
-import { useTheme } from '@mui/material/styles';
+import { NavLink } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-
-// Icons
-import DashboardIcon from '@mui/icons-material/Dashboard';
-import InventoryIcon from '@mui/icons-material/Inventory2';
-import GridViewIcon from '@mui/icons-material/GridView';
-import HistoryIcon from '@mui/icons-material/History';
-import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
-import BarChartIcon from '@mui/icons-material/BarChart';
-import SettingsIcon from '@mui/icons-material/Settings';
-import ScienceIcon from '@mui/icons-material/Science';
-import SyncIcon from '@mui/icons-material/Sync';
-import LogoutIcon from '@mui/icons-material/Logout';
+import {
+    LayoutDashboard,
+    Package,
+    LayoutGrid,
+    History,
+    ShoppingCart,
+    BarChart3,
+    Settings,
+    FlaskConical,
+    RefreshCw,
+    LogOut
+} from 'lucide-react';
 
 interface SidebarProps {
     onLogout: () => void;
     notificationsCount: number;
     onSync: () => void;
-    isMobileOpen: boolean;
+    isMobileOpen: boolean; // Kept for interface compatibility but largely unused
     onClose: () => void;
-    onTransitionEnd: () => void;
     drawerWidth: number;
 }
 
@@ -33,163 +27,113 @@ export const Sidebar: React.FC<SidebarProps> = ({
     onLogout,
     notificationsCount,
     onSync,
-    isMobileOpen,
-    onClose,
-    onTransitionEnd,
     drawerWidth
 }) => {
     const { user } = useAuth();
-    const location = useLocation();
-    const theme = useTheme();
 
     const menuItems = [
-        { path: '/dashboard', icon: <DashboardIcon />, label: 'Dashboard' },
-        { path: '/inventory', icon: <InventoryIcon />, label: 'Inventário' },
-        { path: '/storage', icon: <GridViewIcon />, label: 'Armazenamento' },
-        { path: '/history', icon: <HistoryIcon />, label: 'Histórico' },
-        { path: '/purchases', icon: <ShoppingCartIcon />, label: 'Compras' },
-        { path: '/reports', icon: <BarChartIcon />, label: 'Relatórios' },
-        { path: '/settings', icon: <SettingsIcon />, label: 'Configurações' },
+        { path: '/dashboard', icon: <LayoutDashboard size={20} />, label: 'Dashboard' },
+        { path: '/inventory', icon: <Package size={20} />, label: 'Inventário' },
+        { path: '/storage', icon: <LayoutGrid size={20} />, label: 'Armazenamento' },
+        { path: '/history', icon: <History size={20} />, label: 'Histórico' },
+        { path: '/purchases', icon: <ShoppingCart size={20} />, label: 'Compras' },
+        { path: '/reports', icon: <BarChart3 size={20} />, label: 'Relatórios' },
+        { path: '/settings', icon: <Settings size={20} />, label: 'Configurações' },
     ];
 
-    const drawerContent = (
-        <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-            {/* Header / Logo */}
-            <Toolbar sx={{ display: 'flex', alignItems: 'center', gap: 1.5, px: 3 }}>
-                <Box sx={{
-                    p: 0.5,
-                    borderRadius: 1,
-                    bgcolor: 'primary.main',
-                    color: 'primary.contrastText',
-                    display: 'flex'
-                }}>
-                    <ScienceIcon fontSize="medium" aria-hidden="true" />
-                </Box>
-                <Typography variant="h6" noWrap component="div" sx={{ fontWeight: 'bold' }}>
-                    Lab<Box component="span" sx={{ color: 'secondary.main' }}>Control</Box>
-                </Typography>
-            </Toolbar>
-            <Divider />
-
-            {/* Navigation Items */}
-            <List sx={{ flexGrow: 1, px: 2, py: 2 }}>
-                {menuItems.map((item) => {
-                    const isActive = location.pathname.startsWith(item.path);
-                    return (
-                        <ListItem key={item.path} disablePadding sx={{ mb: 0.5 }}>
-                            <ListItemButton
-                                component={NavLink}
-                                to={item.path}
-                                selected={isActive}
-                                onClick={onClose} // Close drawer on mobile click
-                                sx={{
-                                    borderRadius: 2,
-                                    '&.active': {
-                                        bgcolor: 'primary.main', // Should be primary.light with opacity usually, but 'selected' handles it partially
-                                        color: 'primary.contrastText',
-                                        '& .MuiListItemIcon-root': {
-                                            color: 'inherit',
-                                        },
-                                    },
-                                    // Custom active styling override if needed
-                                    ...(isActive && {
-                                        bgcolor: theme.palette.primary.light + '20', // 20% opacity
-                                        color: theme.palette.primary.main,
-                                        '&:hover': {
-                                             bgcolor: theme.palette.primary.light + '30',
-                                        }
-                                    })
-                                }}
-                            >
-                                <ListItemIcon sx={{ minWidth: 40, color: isActive ? 'inherit' : 'text.secondary' }}>
-                                    {item.label === 'Inventário' && notificationsCount > 0 ? (
-                                        <Badge badgeContent={notificationsCount} color="error" variant="dot">
-                                            {item.icon}
-                                        </Badge>
-                                    ) : (
-                                        item.icon
-                                    )}
-                                </ListItemIcon>
-                                <ListItemText
-                                    primary={item.label}
-                                    primaryTypographyProps={{ fontSize: '0.9rem', fontWeight: isActive ? 600 : 400 }}
-                                />
-                            </ListItemButton>
-                        </ListItem>
-                    );
-                })}
-            </List>
-
-            <Divider />
-
-            {/* Footer Actions */}
-            <Box sx={{ p: 2, bgcolor: 'background.paper' }}>
-                <ListItemButton onClick={onSync} sx={{ borderRadius: 2, mb: 1 }}>
-                    <ListItemIcon sx={{ minWidth: 40 }}><SyncIcon aria-hidden="true" /></ListItemIcon>
-                    <ListItemText primary="Sincronizar" secondary="Backup manual" />
-                </ListItemButton>
-
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mt: 1, p: 1 }}>
-                    <Avatar
-                        src={user?.avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=Aneka'}
-                        alt={user?.name}
-                        sx={{ width: 40, height: 40, border: '2px solid', borderColor: 'divider' }}
-                    />
-                    <Box sx={{ flexGrow: 1, overflow: 'hidden' }}>
-                        <Typography variant="subtitle2" noWrap>{user?.name || 'Usuário'}</Typography>
-                        <Typography variant="caption" color="text.secondary" noWrap sx={{ textTransform: 'capitalize' }}>
-                            {user?.role === 'ADMIN' ? 'Administrator' : 'Operator'}
-                        </Typography>
-                    </Box>
-                    <Tooltip title="Sair">
-                        <IconButton
-                            onClick={onLogout}
-                            size="small"
-                            color="default"
-                            aria-label="sair"
-                        >
-                            <LogoutIcon fontSize="small" aria-hidden="true" />
-                        </IconButton>
-                    </Tooltip>
-                </Box>
-            </Box>
-        </Box>
-    );
-
     return (
-        <Box
-            component="nav"
-            sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}
-            aria-label="mailbox folders"
+        <aside
+            className="fixed top-0 bottom-0 left-0 z-50 bg-orbital-bg border-r border-orbital-border"
+            style={{ width: drawerWidth }}
         >
-            {/* Mobile Drawer */}
-            <Drawer
-                variant="temporary"
-                open={isMobileOpen}
-                onTransitionEnd={onTransitionEnd}
-                onClose={onClose}
-                ModalProps={{
-                    keepMounted: true, // Better open performance on mobile.
-                }}
-                sx={{
-                    display: { xs: 'block', sm: 'none' },
-                    '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth },
-                }}
-            >
-                {drawerContent}
-            </Drawer>
+            <div className="flex flex-col h-full">
+                {/* Header / Logo */}
+                <div className="flex items-center gap-3 px-6 h-16 border-b border-orbital-border bg-orbital-bg/50 backdrop-blur-sm">
+                    <div className="p-1.5 rounded bg-orbital-accent text-orbital-bg shadow-glow-sm">
+                        <FlaskConical size={20} />
+                    </div>
+                    <div className="text-xl font-display font-bold tracking-tight text-orbital-text">
+                        Lab<span className="text-orbital-accent">Control</span>
+                    </div>
+                </div>
 
-            {/* Desktop Drawer */}
-            <Drawer
-                variant="permanent"
-                sx={{
-                    display: { xs: 'none', sm: 'block' },
-                    '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth },
-                }}
-                open
-            >
-                {drawerContent}
-            </Drawer>
-        </Box>
+                {/* Navigation Items */}
+                <nav className="flex-1 overflow-y-auto py-6 px-3 space-y-1 custom-scrollbar">
+                    {menuItems.map((item) => {
+                        return (
+                            <NavLink
+                                key={item.path}
+                                to={item.path}
+                                className={({ isActive }) => `
+                                    flex items-center gap-3 px-3 py-2.5 rounded-none transition-all duration-200 group relative
+                                    ${isActive
+                                        ? 'bg-orbital-accent/10 text-orbital-accent'
+                                        : 'text-orbital-subtext hover:text-orbital-text hover:bg-orbital-surface'}
+                                `}
+                            >
+                                {({ isActive }) => (
+                                    <>
+                                        {isActive && (
+                                            <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-orbital-accent shadow-glow" />
+                                        )}
+                                        <div className={`relative ${isActive ? 'text-orbital-accent drop-shadow-[0_0_8px_rgba(6,182,212,0.5)]' : ''}`}>
+                                            {item.label === 'Inventário' && notificationsCount > 0 ? (
+                                                <div className="relative">
+                                                    {item.icon}
+                                                    <span className="absolute -top-1 -right-1 flex h-2.5 w-2.5">
+                                                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orbital-danger opacity-75"></span>
+                                                        <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-orbital-danger"></span>
+                                                    </span>
+                                                </div>
+                                            ) : (
+                                                item.icon
+                                            )}
+                                        </div>
+                                        <span className={`text-sm font-medium ${isActive ? 'text-glow' : ''}`}>
+                                            {item.label}
+                                        </span>
+                                    </>
+                                )}
+                            </NavLink>
+                        );
+                    })}
+                </nav>
+
+                {/* Footer Actions */}
+                <div className="p-4 bg-orbital-surface border-t border-orbital-border">
+                    <button
+                        onClick={onSync}
+                        className="flex items-center gap-3 w-full px-3 py-2 text-orbital-subtext hover:text-orbital-accent hover:bg-orbital-bg transition-colors mb-4 group"
+                    >
+                        <RefreshCw size={18} className="group-hover:rotate-180 transition-transform duration-500" />
+                        <div className="text-left">
+                            <div className="text-sm font-medium">Sincronizar</div>
+                            <div className="text-xs opacity-70">Backup manual</div>
+                        </div>
+                    </button>
+
+                    <div className="flex items-center gap-3 p-2 rounded border border-orbital-border bg-orbital-bg">
+                        <img
+                            src={user?.avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=Aneka'}
+                            alt={user?.name}
+                            className="w-9 h-9 rounded bg-orbital-surface object-cover border border-orbital-border"
+                        />
+                        <div className="flex-1 min-w-0">
+                            <div className="text-sm font-medium text-orbital-text truncate">{user?.name || 'Usuário'}</div>
+                            <div className="text-xs text-orbital-accent truncate capitalize">
+                                {user?.role === 'ADMIN' ? 'Administrator' : 'Operator'}
+                            </div>
+                        </div>
+                        <button
+                            onClick={onLogout}
+                            className="p-1.5 text-orbital-subtext hover:text-orbital-danger hover:bg-orbital-danger/10 rounded transition-colors"
+                            title="Sair"
+                        >
+                            <LogOut size={18} />
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </aside>
     );
 };

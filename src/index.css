@@ -5,30 +5,45 @@
 @layer base {
   :root {
     color-scheme: light;
-    /* Soft Modern Variables */
-    --color-primary: #005a7e;
-    --color-secondary: #96b400;
-    --color-cta: #ff681a;
-    --color-background: #F9FAFB;
-    --color-text: #1F2937;
+
+    /* Light Mode Variables */
+    --color-orbital-bg: #f8fafc;      /* Slate 50 */
+    --color-orbital-surface: #ffffff;  /* White */
+    --color-orbital-border: #e2e8f0;   /* Slate 200 */
+    --color-orbital-accent: #0891b2;   /* Cyan 600 */
+    --color-orbital-hover: #0e7490;    /* Cyan 700 */
+    --color-orbital-text: #0f172a;     /* Slate 900 */
+    --color-orbital-subtext: #64748b;  /* Slate 500 */
+
+    --color-orbital-success: #059669;  /* Emerald 600 */
+    --color-orbital-warning: #d97706;  /* Amber 600 */
+    --color-orbital-danger: #dc2626;   /* Red 600 */
   }
 
-  :root.dark {
+  .dark {
     color-scheme: dark;
-    --color-primary: #005a7e;
-    --color-background: #111827;
-    --color-text: #F3F4F6;
+
+    /* Dark Mode Variables (Original Orbital Theme) */
+    --color-orbital-bg: #09090b;      /* Zinc 950 */
+    --color-orbital-surface: #18181b; /* Zinc 900 */
+    --color-orbital-border: #27272a;  /* Zinc 800 */
+    --color-orbital-accent: #06b6d4;  /* Cyan 500 */
+    --color-orbital-hover: #0891b2;   /* Cyan 600 */
+    --color-orbital-text: #f4f4f5;    /* Zinc 100 */
+    --color-orbital-subtext: #a1a1aa; /* Zinc 400 */
+
+    --color-orbital-success: #10b981; /* Emerald 500 */
+    --color-orbital-warning: #f59e0b; /* Amber 500 */
+    --color-orbital-danger: #ef4444;  /* Red 500 */
   }
 
   html, body {
     height: 100%;
-    height: 100dvh;
     width: 100%;
     margin: 0;
     padding: 0;
     overflow: hidden;
-    overscroll-behavior-y: contain;
-    @apply bg-background text-text font-sans antialiased;
+    @apply bg-orbital-bg text-orbital-text font-sans antialiased transition-colors duration-300;
   }
 
   #root {
@@ -38,118 +53,58 @@
     flex-direction: column;
     overflow: hidden;
   }
-  
-  .dark body {
-    @apply bg-gray-900 text-white;
-  }
 }
 
 @layer components {
-  /* Soft Modern Component Specs */
-
-  /* Primary Button */
-  .btn-primary {
-    @apply bg-primary text-white border-transparent shadow-sm hover:bg-primary-hover hover:shadow-md active:transform-none rounded-lg font-medium tracking-wide transition-all duration-200 ease-out cursor-pointer;
-    padding: 10px 20px;
+  /* Orbital Button */
+  .btn-orbital-primary {
+    @apply bg-orbital-accent text-orbital-bg font-display font-bold uppercase tracking-widest px-6 py-2 border border-orbital-accent hover:bg-orbital-hover hover:border-orbital-hover shadow-glow-sm transition-all duration-200 active:scale-[0.98];
   }
 
-  .dark .btn-primary {
-    @apply shadow-none;
+  .btn-orbital-outline {
+    @apply bg-transparent text-orbital-accent font-display font-bold uppercase tracking-widest px-6 py-2 border border-orbital-accent hover:bg-orbital-accent/10 hover:shadow-glow-sm transition-all duration-200 active:scale-[0.98];
   }
 
-  /* Secondary Button */
-  .btn-secondary {
-    @apply bg-white text-text-secondary border border-border hover:bg-gray-50 hover:text-text-main hover:border-gray-400 hover:shadow-sm active:transform-none rounded-lg font-medium tracking-wide transition-all duration-200 ease-out cursor-pointer;
-    padding: 10px 20px;
+  .btn-orbital-ghost {
+    @apply bg-transparent text-orbital-subtext font-display font-medium uppercase tracking-wide px-4 py-2 hover:text-orbital-text hover:bg-orbital-surface transition-colors duration-200;
   }
 
-  /* Cards - Soft Elevation */
-  .card {
-    @apply bg-white dark:bg-gray-800 rounded-xl border border-border-light shadow-sm hover:shadow-md transition-shadow duration-300 ease-in-out p-6;
+  /* Orbital Card */
+  .card-orbital {
+    @apply bg-orbital-surface border border-orbital-border relative overflow-hidden transition-colors duration-300;
   }
 
-  .dark .card {
-    @apply border-gray-700 shadow-none;
+  .card-orbital::before {
+      content: '';
+      @apply absolute top-0 left-0 w-2 h-2 border-t border-l border-orbital-accent opacity-50;
+  }
+  .card-orbital::after {
+      content: '';
+      @apply absolute bottom-0 right-0 w-2 h-2 border-b border-r border-orbital-accent opacity-50;
   }
 
-  /* Inputs */
-  .input {
-    @apply bg-white border border-border rounded-lg text-sm text-text-main shadow-sm transition-colors duration-200 font-sans px-4 py-2.5;
-  }
-
-  .input:focus {
-    @apply outline-none border-primary ring-2 ring-primary/20;
-  }
-
-  .input:disabled {
-    @apply bg-gray-50 text-text-light cursor-not-allowed;
-  }
-
-  /* Modals - Clean & Soft */
-  .modal-overlay {
-    @apply bg-gray-900/50 backdrop-blur-sm transition-opacity duration-300;
-  }
-
-  .modal {
-    @apply bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-border-light p-8 max-w-lg w-[90%];
-  }
-
-  .dark .modal {
-    @apply border-gray-700;
+  /* Orbital Input */
+  .input-orbital {
+    @apply bg-orbital-bg/50 border-b border-orbital-border text-orbital-text font-mono px-3 py-2 outline-none focus:border-orbital-accent focus:shadow-[0_1px_0_0_rgba(6,182,212,1)] transition-all duration-200 w-full placeholder-orbital-subtext/50;
   }
 }
 
 @layer utilities {
-  /* Custom Scrollbar - Soft */
-  .custom-scrollbar {
-    scrollbar-width: thin;
-    scrollbar-color: #D1D5DB transparent;
+  .text-glow {
+      text-shadow: 0 0 10px rgba(6, 182, 212, 0.5);
   }
   
-  .dark .custom-scrollbar {
-    scrollbar-color: #4B5563 transparent;
-  }
-
-  .custom-scrollbar::-webkit-scrollbar {
+  /* Scrollbar override for Orbital theme */
+  ::-webkit-scrollbar {
     width: 6px;
     height: 6px;
   }
   
-  .custom-scrollbar::-webkit-scrollbar-track {
-    background: transparent;
+  ::-webkit-scrollbar-track {
+    @apply bg-orbital-bg;
   }
   
-  .custom-scrollbar::-webkit-scrollbar-thumb {
-    @apply bg-gray-300 rounded-full hover:bg-gray-400 transition-colors;
+  ::-webkit-scrollbar-thumb {
+    @apply bg-orbital-border hover:bg-orbital-subtext;
   }
-  
-  .dark .custom-scrollbar::-webkit-scrollbar-thumb {
-    @apply bg-gray-600 hover:bg-gray-500;
-  }
-
-  /* Hide Scrollbar */
-  .no-scrollbar::-webkit-scrollbar {
-    display: none;
-  }
-  .no-scrollbar {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-  }
-
-  /* Animation Delays */
-  .delay-100 { animation-delay: 100ms; }
-  .delay-200 { animation-delay: 200ms; }
-  .delay-300 { animation-delay: 300ms; }
-}
-
-/* Scroll Optimization */
-.overflow-auto, .overflow-y-auto, [role="rowgroup"] { 
-  -webkit-overflow-scrolling: touch;
-  overscroll-behavior: contain;
-  touch-action: pan-y;
-  transform: translateZ(0);
-}
-
-.apexcharts-canvas, .apexcharts-canvas svg {
-  touch-action: pan-y !important;
 }

@@ -1,8 +1,10 @@
 
 import React, { useMemo } from 'react';
 import { InventoryItem } from '../types';
-import { Card, ColorScheme } from './ui/Card';
-import { Button } from './ui/Button';
+import { OrbitalCard } from './ui/orbital/OrbitalCard';
+import { OrbitalButton } from './ui/orbital/OrbitalButton';
+import { OrbitalBadge } from './ui/orbital/OrbitalBadge';
+import { PlusCircle } from 'lucide-react';
 
 interface Props {
     item: InventoryItem;
@@ -15,9 +17,9 @@ export const PurchaseAlertCard: React.FC<Props> = React.memo(({ item, onAdd, rea
     const config = useMemo(() => {
         if (item.quantity === 0) {
             return {
-                scheme: 'neutral' as ColorScheme,
-                badge: 'Esgotado',
-                badgeColor: 'bg-slate-100 text-slate-600 border-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700'
+                borderColor: 'border-orbital-subtext/30',
+                badge: 'DEPLETED',
+                badgeVariant: 'neutral' as const
             };
         }
         
@@ -26,48 +28,46 @@ export const PurchaseAlertCard: React.FC<Props> = React.memo(({ item, onAdd, rea
                 ? Math.ceil((new Date(item.expiryDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)) 
                 : 0;
             return {
-                scheme: 'warning' as ColorScheme,
-                badge: `Vence: ${days} dias`,
-                badgeColor: undefined // Uses default warning scheme colors from Card
+                borderColor: 'border-orbital-warning/50',
+                badge: `EXP: ${days} DAYS`,
+                badgeVariant: 'warning' as const
             };
         }
 
         // Critical / Low Stock
         return {
-            scheme: 'danger' as ColorScheme,
-            badge: 'Crítico',
-            badgeColor: undefined // Uses default danger scheme colors from Card
+            borderColor: 'border-orbital-danger/50',
+            badge: 'CRITICAL',
+            badgeVariant: 'danger' as const
         };
     }, [item.quantity, item.expiryDate, reason]);
 
     return (
-        <Card
-            variant="item"
-            colorScheme={config.scheme}
+        <OrbitalCard
             title={item.name}
-            subtitle={`SAP: ${item.sapCode || 'N/A'}`}
-            badge={{ 
-                label: config.badge, 
-                color: config.badgeColor 
-            }}
             action={
-                <Button 
+                <OrbitalButton
                     variant="ghost"
                     size="sm"
                     onClick={() => onAdd(item)}
-                    className="text-primary font-bold hover:bg-primary/10"
-                    icon="add_circle"
+                    className="text-orbital-accent hover:bg-orbital-accent/10"
                 >
-                    Adicionar
-                </Button>
+                    <PlusCircle size={16} /> ADD
+                </OrbitalButton>
             }
+            className={config.borderColor}
         >
-            <div>
-                <p className="text-sm text-text-secondary dark:text-gray-400">Estoque Atual</p>
-                <p className="text-2xl font-bold text-text-main dark:text-white tracking-tight">
-                    {item.quantity}<span className="text-sm font-normal text-text-secondary ml-0.5">{item.baseUnit}</span>
+            <div className="flex justify-between items-start mb-2">
+                <span className="text-xs text-orbital-subtext font-mono">SAP: {item.sapCode || 'N/A'}</span>
+                <OrbitalBadge label={config.badge} variant={config.badgeVariant} />
+            </div>
+
+            <div className="mt-2">
+                <p className="text-xs text-orbital-subtext font-mono uppercase mb-1">Current Stock</p>
+                <p className="text-2xl font-bold text-orbital-text font-mono tracking-tight">
+                    {item.quantity}<span className="text-sm font-normal text-orbital-subtext ml-0.5">{item.baseUnit}</span>
                 </p>
             </div>
-        </Card>
+        </OrbitalCard>
     );
 });

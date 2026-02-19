@@ -1,10 +1,5 @@
 import React, { useMemo } from 'react';
 import { MovementRecord } from '../types';
-import {
-    Box, Chip, Typography, TextField, MenuItem, Button, Card, CardContent,
-    Tooltip, Stack, Select, FormControl, InputLabel
-} from '@mui/material';
-import { Grid } from '@mui/material';
 import { FixedSizeList as List } from 'react-window';
 import AutoSizer from 'react-virtualized-auto-sizer';
 import { useHistoryFilters } from '../hooks/useHistoryFilters';
@@ -12,20 +7,22 @@ import { ExportEngine } from '../utils/ExportEngine';
 import { formatDateTime } from '../utils/formatters';
 import { PageContainer } from './ui/PageContainer';
 import { PageHeader } from './ui/PageHeader';
-
-// Icons
-import ArrowCircleUpIcon from '@mui/icons-material/ArrowCircleUp';
-import ArrowCircleDownIcon from '@mui/icons-material/ArrowCircleDown';
-import TuneIcon from '@mui/icons-material/Tune';
-import DownloadIcon from '@mui/icons-material/Download';
-import FilterListIcon from '@mui/icons-material/FilterList';
-import CloseIcon from '@mui/icons-material/Close';
-import SearchIcon from '@mui/icons-material/Search';
-import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
-import LoginIcon from '@mui/icons-material/Login';
-import LogoutIcon from '@mui/icons-material/Logout';
-import HistoryToggleOffIcon from '@mui/icons-material/HistoryToggleOff';
-import NoteIcon from '@mui/icons-material/Note';
+import { OrbitalCard } from './ui/orbital/OrbitalCard';
+import { OrbitalButton } from './ui/orbital/OrbitalButton';
+import { OrbitalInput } from './ui/orbital/OrbitalInput';
+import { OrbitalSelect } from './ui/orbital/OrbitalSelect';
+import { OrbitalBadge } from './ui/orbital/OrbitalBadge';
+import {
+    Download,
+    Filter,
+    X,
+    Search,
+    LogIn,
+    LogOut,
+    SlidersHorizontal,
+    History,
+    FileText
+} from 'lucide-react';
 
 interface Props {
   history?: MovementRecord[]; 
@@ -36,47 +33,47 @@ interface Props {
 
 const GRID_TEMPLATE = "100px minmax(280px, 3fr) 140px minmax(150px, 2fr) 160px";
 
-const getTypeChip = (type: string) => {
-    if (type === 'ENTRADA') return <Chip icon={<ArrowCircleUpIcon />} label="Entrada" color="success" size="small" variant="outlined" />;
-    if (type === 'SAIDA') return <Chip icon={<ArrowCircleDownIcon />} label="Saída" color="error" size="small" variant="outlined" />;
-    return <Chip icon={<TuneIcon />} label="Ajuste" color="warning" size="small" variant="outlined" />;
+const getTypeBadge = (type: string) => {
+    if (type === 'ENTRADA') return <OrbitalBadge variant="success" label="Entrada" />;
+    if (type === 'SAIDA') return <OrbitalBadge variant="danger" label="Saída" />;
+    return <OrbitalBadge variant="warning" label="Ajuste" />;
 };
 
 const HistoryMobileRow = ({ item }: { item: MovementRecord }) => {
-    const amountColor = item.type === 'ENTRADA' ? 'success.main' : item.type === 'SAIDA' ? 'error.main' : 'warning.main';
+    const amountColor = item.type === 'ENTRADA' ? 'text-orbital-success' : item.type === 'SAIDA' ? 'text-orbital-danger' : 'text-orbital-warning';
     const sign = item.type === 'ENTRADA' ? '+' : item.type === 'SAIDA' ? '-' : '';
 
     return (
-        <Box sx={{ p: 2, borderBottom: 1, borderColor: 'divider', bgcolor: 'background.paper' }}>
-            <Box display="flex" justifyContent="space-between" mb={1}>
-                <Box display="flex" alignItems="center" gap={1}>
-                    {getTypeChip(item.type)}
-                    <Typography variant="caption" color="text.secondary">{formatDateTime(item.date)}</Typography>
-                </Box>
-                <Typography variant="body1" fontWeight="bold" fontFamily="monospace" color={amountColor}>
+        <div className="p-3 border-b border-orbital-border bg-orbital-surface/50 hover:bg-orbital-surface transition-colors">
+            <div className="flex justify-between items-center mb-1">
+                <div className="flex items-center gap-2">
+                    {getTypeBadge(item.type)}
+                    <span className="text-xs text-orbital-subtext">{formatDateTime(item.date)}</span>
+                </div>
+                <div className={`text-sm font-mono font-bold ${amountColor}`}>
                     {sign}{item.quantity} {item.unit}
-                </Typography>
-            </Box>
+                </div>
+            </div>
 
-            <Typography variant="body2" fontWeight="bold" noWrap gutterBottom>
-                {item.productName || <span style={{ fontStyle: 'italic', opacity: 0.7 }}>Item Arquivado</span>}
-            </Typography>
+            <div className="font-bold text-sm text-orbital-text truncate mb-1">
+                {item.productName || <span className="italic opacity-70">Item Arquivado</span>}
+            </div>
 
-            <Stack direction="row" spacing={1} mb={1}>
+            <div className="flex gap-2 items-center mb-1">
                 {item.batchId && (
-                    <Chip label={item.batchId.split('-').pop()} size="small" color="primary" variant="outlined" sx={{ height: 20, fontSize: '0.65rem' }} />
+                    <span className="px-1.5 py-0.5 text-[9px] border border-orbital-accent rounded text-orbital-accent font-mono">
+                        {item.batchId.split('-').pop()}
+                    </span>
                 )}
-                <Typography variant="caption" color="text.secondary" fontFamily="monospace">
-                    Lote: {item.lot || 'GEN'}
-                </Typography>
-            </Stack>
+                <span className="text-xs text-orbital-subtext font-mono">Lote: {item.lot || 'GEN'}</span>
+            </div>
 
             {item.observation && (
-                <Typography variant="caption" color="text.secondary" sx={{ display: 'block', fontStyle: 'italic', bgcolor: 'action.hover', p: 0.5, borderRadius: 1 }}>
+                <div className="text-xs text-orbital-subtext italic bg-orbital-bg/50 p-1.5 rounded border border-orbital-border/50">
                     Obs: {item.observation}
-                </Typography>
+                </div>
             )}
-        </Box>
+        </div>
     );
 };
 
@@ -84,70 +81,53 @@ const HistoryRow = ({ index, style, data }: { index: number, style: React.CSSPro
     const h = data.filtered[index];
     if (!h) return null;
     
-    const amountColor = h.type === 'ENTRADA' ? 'success.main' : h.type === 'SAIDA' ? 'error.main' : 'warning.main';
+    const amountColor = h.type === 'ENTRADA' ? 'text-orbital-success' : h.type === 'SAIDA' ? 'text-orbital-danger' : 'text-orbital-warning';
     const sign = h.type === 'ENTRADA' ? '+' : h.type === 'SAIDA' ? '-' : '';
 
     return (
       <div style={style}>
-          <Box
-            sx={{
-                height: '100%',
-                borderBottom: 1,
-                borderColor: 'divider',
-                bgcolor: 'background.paper',
-                '&:hover': { bgcolor: 'action.hover' },
-                display: 'grid',
-                gridTemplateColumns: GRID_TEMPLATE,
-                alignItems: 'center',
-                px: 2
-            }}
+          <div
+            className="h-full border-b border-orbital-border bg-orbital-bg hover:bg-orbital-surface/50 transition-colors grid items-center px-4"
+            style={{ gridTemplateColumns: GRID_TEMPLATE }}
           >
-              <Box>{getTypeChip(h.type)}</Box>
+              <div>{getTypeBadge(h.type)}</div>
 
-              <Box sx={{ pr: 2, overflow: 'hidden' }}>
-                  <Typography variant="body2" fontWeight="bold" noWrap>
-                      {h.productName || <Box component="span" fontStyle="italic" color="text.secondary">Item Arquivado</Box>}
-                  </Typography>
-                  <Stack direction="row" spacing={1} alignItems="center">
+              <div className="pr-4 overflow-hidden">
+                  <div className="font-bold text-sm text-orbital-text truncate">
+                      {h.productName || <span className="italic text-orbital-subtext">Item Arquivado</span>}
+                  </div>
+                  <div className="flex items-center gap-2">
                       {h.batchId && (
-                          <Chip label={`Batch: ${h.batchId}`} size="small" color="primary" variant="outlined" sx={{ height: 20, fontSize: '0.65rem' }} />
+                          <span className="text-[9px] px-1 border border-orbital-accent text-orbital-accent rounded">
+                              Batch: {h.batchId}
+                          </span>
                       )}
-                      <Typography variant="caption" color="text.secondary" fontFamily="monospace">
-                          Lote: {h.lot || 'GEN'}
-                      </Typography>
-                  </Stack>
-              </Box>
+                      <span className="text-xs text-orbital-subtext font-mono">Lote: {h.lot || 'GEN'}</span>
+                  </div>
+              </div>
 
-              <Box sx={{ textAlign: 'right', pr: 4 }}>
-                  <Typography variant="body2" fontWeight="bold" fontFamily="monospace" color={amountColor}>
+              <div className="text-right pr-4">
+                  <div className={`font-mono font-bold text-sm ${amountColor}`}>
                       {sign}{h.quantity}
-                  </Typography>
-                  <Typography variant="caption" color="text.secondary" fontWeight="bold">
-                      {h.unit || 'un'}
-                  </Typography>
-              </Box>
+                  </div>
+                  <div className="text-[10px] text-orbital-subtext font-bold uppercase">{h.unit || 'un'}</div>
+              </div>
 
-              <Box sx={{ pr: 2, overflow: 'hidden' }}>
+              <div className="pr-4 overflow-hidden">
                   {h.observation ? (
-                      <Tooltip title={h.observation}>
-                          <Stack direction="row" spacing={0.5} alignItems="center">
-                              <NoteIcon fontSize="inherit" color="action" />
-                              <Typography variant="caption" color="text.secondary" noWrap>
-                                  {h.observation}
-                              </Typography>
-                          </Stack>
-                      </Tooltip>
+                      <div className="flex items-center gap-1 text-orbital-subtext" title={h.observation}>
+                          <FileText size={12} />
+                          <span className="text-xs truncate">{h.observation}</span>
+                      </div>
                   ) : (
-                      <Typography variant="caption" color="text.disabled" fontStyle="italic">Sem obs.</Typography>
+                      <span className="text-xs text-orbital-border italic">Sem obs.</span>
                   )}
-              </Box>
+              </div>
 
-              <Box sx={{ textAlign: 'right' }}>
-                  <Typography variant="caption" color="text.secondary" fontWeight="medium">
-                      {formatDateTime(h.date)}
-                  </Typography>
-              </Box>
-          </Box>
+              <div className="text-right text-xs text-orbital-subtext font-medium">
+                  {formatDateTime(h.date)}
+              </div>
+          </div>
       </div>
     );
 };
@@ -164,7 +144,7 @@ export const HistoryTable: React.FC<Props> = ({ preselectedItemId, preselectedBa
 
   const sampleBatch = filtered.length > 0 ? filtered[0] : null;
   const itemData = useMemo(() => ({ filtered }), [filtered]);
-  const isMobile = window.innerWidth < 768; // Simple check, or use useMediaQuery/hook
+  const isMobile = window.innerWidth < 768;
 
   return (
     <PageContainer scrollable={true}>
@@ -172,160 +152,150 @@ export const HistoryTable: React.FC<Props> = ({ preselectedItemId, preselectedBa
             title="Histórico de Movimentações" 
             description="Auditoria completa de entradas, saídas e ajustes de inventário."
         >
-            <Button
-                variant="outlined"
-                startIcon={<DownloadIcon />}
+            <OrbitalButton
+                variant="outline"
+                icon={<Download size={16} />}
                 onClick={() => {
                     const data = ExportEngine.prepareHistoryData(filtered);
                     ExportEngine.generateExcel([{ name: 'Historico Filtrado', data }], 'Historico_Movimentacoes');
                 }}
             >
                 Exportar Relatório
-            </Button>
+            </OrbitalButton>
         </PageHeader>
         
         {/* Traceability Banner */}
         {preselectedBatchId && sampleBatch && (
-            <Card sx={{ mb: 3, borderLeft: 6, borderColor: 'primary.main' }}>
-                <CardContent sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <Box>
-                        <Chip label="Rastreabilidade" color="primary" size="small" sx={{ mb: 1, fontWeight: 'bold' }} />
-                        <Typography variant="h6" fontWeight="bold">{sampleBatch.productName}</Typography>
-                        <Stack direction="row" spacing={2} mt={1}>
-                            <Typography variant="body2" fontFamily="monospace">Lote: <strong>{sampleBatch.lot}</strong></Typography>
-                            <Typography variant="body2" color="text.secondary">ID: {preselectedBatchId}</Typography>
-                        </Stack>
-                    </Box>
-                    <Box sx={{ textAlign: 'right' }}>
-                        <Typography variant="caption" display="block" fontWeight="bold" color="text.secondary">SALDO CALCULADO</Typography>
-                        <Typography variant="h4" fontWeight="bold" color={stats.batchBalance < 0 ? 'error.main' : 'primary.main'} fontFamily="monospace">
-                            {stats.batchBalance.toFixed(3)} <Typography component="span" variant="caption">{sampleBatch.unit}</Typography>
-                        </Typography>
-                    </Box>
-                </CardContent>
-            </Card>
+            <OrbitalCard className="mb-6 border-l-4 border-l-orbital-accent">
+                <div className="flex justify-between items-center">
+                    <div>
+                        <OrbitalBadge label="Rastreabilidade" variant="primary" className="mb-2" />
+                        <h3 className="text-xl font-bold text-orbital-text">{sampleBatch.productName}</h3>
+                        <div className="flex gap-4 mt-2 text-sm">
+                            <span className="font-mono text-orbital-accent">Lote: <strong>{sampleBatch.lot}</strong></span>
+                            <span className="text-orbital-subtext font-mono">ID: {preselectedBatchId}</span>
+                        </div>
+                    </div>
+                    <div className="text-right">
+                        <span className="block text-xs font-bold text-orbital-subtext uppercase tracking-wider">SALDO CALCULADO</span>
+                        <div className={`text-3xl font-mono font-bold ${stats.batchBalance < 0 ? 'text-orbital-danger' : 'text-orbital-accent'}`}>
+                            {stats.batchBalance.toFixed(3)} <span className="text-sm font-normal text-orbital-subtext">{sampleBatch.unit}</span>
+                        </div>
+                    </div>
+                </div>
+            </OrbitalCard>
         )}
 
         {!preselectedBatchId && (
-            <Grid container spacing={2} sx={{ mb: 3 }}>
-                <Grid size={{ xs: 12, md: 4 }}>
-                    <StatCard title="Entradas" value={stats.totalEntries} subValue="regs" icon={<LoginIcon />} color="success" />
-                </Grid>
-                <Grid size={{ xs: 12, md: 4 }}>
-                    <StatCard title="Saídas" value={stats.totalExits} subValue="regs" icon={<LogoutIcon />} color="error" />
-                </Grid>
-                <Grid size={{ xs: 12, md: 4 }}>
-                    <StatCard title="Ajustes" value={stats.totalAdjustments} subValue="regs" icon={<TuneIcon />} color="warning" />
-                </Grid>
-            </Grid>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <StatCard title="Entradas" value={stats.totalEntries} subValue="regs" icon={<LogIn size={20} />} color="text-orbital-success" />
+                <StatCard title="Saídas" value={stats.totalExits} subValue="regs" icon={<LogOut size={20} />} color="text-orbital-danger" />
+                <StatCard title="Ajustes" value={stats.totalAdjustments} subValue="regs" icon={<SlidersHorizontal size={20} />} color="text-orbital-warning" />
+            </div>
         )}
 
         {/* Filters */}
-        <Card sx={{ mb: 3, p: 2 }} variant="outlined">
-            {(preselectedItemId || preselectedBatchId) && (
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2, bgcolor: 'primary.light', p: 1, borderRadius: 1, color: 'primary.contrastText' }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <FilterListIcon />
-                        <Typography variant="subtitle2">
-                            {preselectedBatchId ? 'Rastreando Lote Específico' : 'Filtrando por Item Selecionado'}
-                        </Typography>
-                    </Box>
-                    <Button 
-                        size="small"
-                        onClick={onClearFilter}
-                        sx={{ color: 'inherit', borderColor: 'inherit' }}
-                        endIcon={<CloseIcon />}
-                    >
-                        Limpar
-                    </Button>
-                </Box>
-            )}
-            
-            <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} alignItems="end">
-                 <TextField
-                    label="Busca"
-                    placeholder="Buscar por item, lote ou código..."
-                    value={term}
-                    onChange={e => setTerm(e.target.value)}
-                    fullWidth
-                    InputProps={{
-                        startAdornment: <SearchIcon color="action" sx={{ mr: 1 }} />,
-                    }}
-                    size="small"
-                />
+        <OrbitalCard className="mb-6" noPadding>
+            <div className="p-4">
+                {(preselectedItemId || preselectedBatchId) && (
+                    <div className="flex justify-between items-center mb-4 bg-orbital-accent/10 p-2 rounded border border-orbital-accent/30 text-orbital-accent">
+                        <div className="flex items-center gap-2 text-sm font-bold">
+                            <Filter size={16} />
+                            <span>
+                                {preselectedBatchId ? 'Rastreando Lote Específico' : 'Filtrando por Item Selecionado'}
+                            </span>
+                        </div>
+                        <button
+                            onClick={onClearFilter}
+                            className="text-orbital-accent hover:text-white hover:bg-orbital-accent/20 rounded p-1 transition-colors"
+                        >
+                            <X size={16} />
+                        </button>
+                    </div>
+                )}
 
-                <FormControl size="small" sx={{ minWidth: 200 }}>
-                    <InputLabel>Tipo de Movimento</InputLabel>
-                    <Select
-                        value={typeFilter}
-                        label="Tipo de Movimento"
-                        onChange={(e) => setTypeFilter(e.target.value as any)}
-                    >
-                        <MenuItem value="ALL">Todos</MenuItem>
-                        <MenuItem value="ENTRADA">Entradas</MenuItem>
-                        <MenuItem value="SAIDA">Saídas</MenuItem>
-                        <MenuItem value="AJUSTE">Ajustes</MenuItem>
-                    </Select>
-                </FormControl>
+                <div className="flex flex-col md:flex-row gap-4 items-end">
+                     <OrbitalInput
+                        label="Busca"
+                        placeholder="Buscar por item, lote ou código..."
+                        value={term}
+                        onChange={e => setTerm(e.target.value)}
+                        fullWidth
+                        startAdornment={<Search size={16} />}
+                        className="md:w-96"
+                    />
 
-                <FormControl size="small" sx={{ minWidth: 200 }}>
-                    <InputLabel>Período</InputLabel>
-                    <Select
-                        value={dateFilter}
-                        label="Período"
-                        onChange={(e) => setDateFilter(e.target.value as any)}
-                        startAdornment={<CalendarTodayIcon fontSize="small" sx={{ mr: 1, color: 'text.secondary' }} />}
-                    >
-                        <MenuItem value="ALL">Todo o Período</MenuItem>
-                        <MenuItem value="TODAY">Hoje</MenuItem>
-                        <MenuItem value="WEEK">Últimos 7 dias</MenuItem>
-                        <MenuItem value="MONTH">Últimos 30 dias</MenuItem>
-                    </Select>
-                </FormControl>
-            </Stack>
-        </Card>
+                    <div className="w-full md:w-64">
+                        <OrbitalSelect
+                            label="Tipo de Movimento"
+                            value={typeFilter}
+                            onChange={(e) => setTypeFilter(e.target.value as any)}
+                            options={[
+                                { value: "ALL", label: "Todos" },
+                                { value: "ENTRADA", label: "Entradas" },
+                                { value: "SAIDA", label: "Saídas" },
+                                { value: "AJUSTE", label: "Ajustes" }
+                            ]}
+                            fullWidth
+                        />
+                    </div>
+
+                    <div className="w-full md:w-64">
+                        <OrbitalSelect
+                            label="Período"
+                            value={dateFilter}
+                            onChange={(e) => setDateFilter(e.target.value as any)}
+                            options={[
+                                { value: "ALL", label: "Todo o Período" },
+                                { value: "TODAY", label: "Hoje" },
+                                { value: "WEEK", label: "Últimos 7 dias" },
+                                { value: "MONTH", label: "Últimos 30 dias" }
+                            ]}
+                            fullWidth
+                        />
+                    </div>
+                </div>
+            </div>
+        </OrbitalCard>
 
         {/* Table Area */}
-        <Card sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', height: isMobile ? 'auto' : 600, minHeight: 300 }} variant="outlined">
+        <OrbitalCard className="flex-grow flex flex-col min-h-[400px]" noPadding>
              {!isMobile && (
-                 <Box sx={{
-                     display: 'grid',
-                     gridTemplateColumns: GRID_TEMPLATE,
-                     px: 2,
-                     py: 1.5,
-                     bgcolor: 'background.default',
-                     borderBottom: 1,
-                     borderColor: 'divider'
-                 }}>
-                    <Typography variant="caption" fontWeight="bold">TIPO</Typography>
-                    <Typography variant="caption" fontWeight="bold">ITEM / DETALHES</Typography>
-                    <Typography variant="caption" fontWeight="bold" align="right" sx={{ pr: 4 }}>QUANTIDADE</Typography>
-                    <Typography variant="caption" fontWeight="bold">JUSTIFICATIVA</Typography>
-                    <Typography variant="caption" fontWeight="bold" align="right">DATA</Typography>
-                 </Box>
+                 <div
+                    className="grid px-4 py-2 border-b border-orbital-border bg-orbital-surface text-xs font-bold text-orbital-subtext uppercase tracking-wider"
+                    style={{ gridTemplateColumns: GRID_TEMPLATE }}
+                 >
+                    <div>TIPO</div>
+                    <div>ITEM / DETALHES</div>
+                    <div className="text-right pr-4">QUANTIDADE</div>
+                    <div>JUSTIFICATIVA</div>
+                    <div className="text-right">DATA</div>
+                 </div>
              )}
 
-             <Box sx={{ flexGrow: 1 }}>
+             <div className="flex-grow relative bg-orbital-bg">
                 {loading ? (
-                    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: 200 }}>
-                        <Typography>Carregando...</Typography>
-                    </Box>
+                    <div className="absolute inset-0 flex flex-col items-center justify-center text-orbital-subtext">
+                        <div className="animate-spin mb-2 w-6 h-6 border-2 border-orbital-accent border-t-transparent rounded-full" />
+                        <span>Carregando...</span>
+                    </div>
                 ) : filtered.length > 0 ? (
                     isMobile ? (
-                        <Box>
+                        <div>
                             {filtered.map((item, index) => (
                                 <HistoryMobileRow key={index} item={item} />
                             ))}
-                        </Box>
+                        </div>
                     ) : (
                         <AutoSizer>
                             {({ height, width }: { height: number; width: number }) => (
                                 <List
                                     height={height}
                                     itemCount={filtered.length}
-                                    itemSize={72}
+                                    itemSize={56} // reduced height for cleaner look
                                     width={width}
                                     itemData={itemData}
+                                    className="custom-scrollbar"
                                 >
                                     {HistoryRow}
                                 </List>
@@ -333,38 +303,38 @@ export const HistoryTable: React.FC<Props> = ({ preselectedItemId, preselectedBa
                         </AutoSizer>
                     )
                 ) : (
-                    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', minHeight: 200, color: 'text.secondary' }}>
-                        <HistoryToggleOffIcon sx={{ fontSize: 60, mb: 2, opacity: 0.5 }} />
-                        <Typography variant="h6">Nenhuma movimentação</Typography>
-                        <Typography variant="body2">Ajuste os filtros para encontrar registros.</Typography>
-                    </Box>
+                    <div className="absolute inset-0 flex flex-col items-center justify-center text-orbital-subtext opacity-50">
+                        <History size={48} className="mb-2" />
+                        <h3 className="text-lg font-bold">Nenhuma movimentação</h3>
+                        <p className="text-sm">Ajuste os filtros para encontrar registros.</p>
+                    </div>
                 )}
-             </Box>
+             </div>
              
              {!isMobile && (
-                 <Box sx={{ p: 1.5, borderTop: 1, borderColor: 'divider', display: 'flex', justifyContent: 'space-between' }}>
-                     <Typography variant="caption" color="text.secondary">Total: {filtered.length} registros</Typography>
-                 </Box>
+                 <div className="p-2 border-t border-orbital-border bg-orbital-surface flex justify-between items-center text-xs text-orbital-subtext">
+                     <span>Total: {filtered.length} registros</span>
+                 </div>
              )}
-        </Card>
+        </OrbitalCard>
     </PageContainer>
   )
 };
 
 const StatCard = ({ title, icon, value, subValue, color }: any) => (
-    <Card variant="outlined">
-        <CardContent sx={{ display: 'flex', alignItems: 'center', gap: 2, py: 2 }}>
-            <Box sx={{ p: 1, borderRadius: 1, bgcolor: `${color}.light`, color: `${color}.main` }}>
+    <OrbitalCard>
+        <div className="flex items-center gap-3">
+            <div className={`p-2 rounded bg-orbital-bg border border-orbital-border ${color}`}>
                 {icon}
-            </Box>
-            <Box>
-                <Typography variant="caption" color="text.secondary" fontWeight="bold" textTransform="uppercase">
+            </div>
+            <div>
+                <div className="text-xs font-bold uppercase tracking-wider text-orbital-subtext">
                     {title}
-                </Typography>
-                <Typography variant="h5" fontWeight="bold">
-                    {value} <Typography component="span" variant="caption" color="text.secondary">{subValue}</Typography>
-                </Typography>
-            </Box>
-        </CardContent>
-    </Card>
+                </div>
+                <div className="text-2xl font-mono font-bold text-orbital-text">
+                    {value} <span className="text-xs font-normal text-orbital-subtext">{subValue}</span>
+                </div>
+            </div>
+        </div>
+    </OrbitalCard>
 );
