@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link as RouterLink } from 'react-router-dom';
-import { ChevronRight } from 'lucide-react';
+import { Box, Typography, Breadcrumbs, Link, Stack } from '@mui/material';
+import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 
 interface BreadcrumbItem {
     label: string;
@@ -23,50 +24,64 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
     className = '' 
 }) => {
     return (
-        <div className={`mb-6 ${className}`}>
+        <Box sx={{ mb: 4 }} className={className}>
             {breadcrumbs && (
-                <nav className="flex items-center text-sm text-orbital-subtext mb-4">
-                    <RouterLink to="/dashboard" className="hover:text-orbital-accent transition-colors">
+                <Breadcrumbs
+                    separator={<NavigateNextIcon fontSize="small" />}
+                    aria-label="breadcrumb"
+                    sx={{ mb: 2 }}
+                >
+                    <Link underline="hover" color="inherit" component={RouterLink} to="/dashboard">
                         Home
-                    </RouterLink>
+                    </Link>
                     {breadcrumbs.map((crumb, idx) => (
-                        <div key={idx} className="flex items-center">
-                            <ChevronRight size={14} className="mx-2 text-orbital-border" />
-                            {crumb.path ? (
-                                <RouterLink
-                                    to={crumb.path}
-                                    className="hover:text-orbital-accent transition-colors"
-                                >
-                                    {crumb.label}
-                                </RouterLink>
-                            ) : (
-                                <span className="text-orbital-text font-medium">
-                                    {crumb.label}
-                                </span>
-                            )}
-                        </div>
+                        crumb.path ? (
+                            <Link
+                                key={idx}
+                                underline="hover"
+                                color="inherit"
+                                component={RouterLink}
+                                to={crumb.path}
+                            >
+                                {crumb.label}
+                            </Link>
+                        ) : (
+                            <Typography key={idx} color="text.primary">
+                                {crumb.label}
+                            </Typography>
+                        )
                     ))}
-                </nav>
+                </Breadcrumbs>
             )}
 
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 border-b border-orbital-border pb-4">
-                <div>
-                    <h1 className="text-3xl font-display font-bold uppercase tracking-tight text-orbital-text mb-1">
+            <Stack
+                direction={{ xs: 'column', md: 'row' }}
+                justifyContent="space-between"
+                alignItems={{ xs: 'flex-start', md: 'flex-end' }}
+                spacing={2}
+                sx={{
+                    borderBottom: 1,
+                    borderColor: 'divider',
+                    pb: 2
+                }}
+            >
+                <Box>
+                    <Typography variant="h4" component="h1" fontWeight="bold" gutterBottom>
                         {title}
-                    </h1>
+                    </Typography>
                     {description && (
-                        <p className="text-orbital-subtext text-sm">
+                        <Typography variant="body1" color="text.secondary">
                             {description}
-                        </p>
+                        </Typography>
                     )}
-                </div>
+                </Box>
 
                 {children && (
-                    <div className="flex gap-3">
+                    <Box sx={{ display: 'flex', gap: 2 }}>
                         {children}
-                    </div>
+                    </Box>
                 )}
-            </div>
-        </div>
+            </Stack>
+        </Box>
     );
 };

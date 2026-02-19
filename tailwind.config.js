@@ -8,81 +8,134 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Orbital Theme - Using CSS Variables for Light/Dark mode
-        orbital: {
-            bg: 'var(--color-orbital-bg)',
-            surface: 'var(--color-orbital-surface)',
-            border: 'var(--color-orbital-border)',
-            accent: 'var(--color-orbital-accent)',
-            hover: 'var(--color-orbital-hover)',
-            text: 'var(--color-orbital-text)',
-            subtext: 'var(--color-orbital-subtext)',
-            success: 'var(--color-orbital-success)',
-            warning: 'var(--color-orbital-warning)',
-            danger: 'var(--color-orbital-danger)',
-        },
-        // Legacy Support (Mapping to Orbital)
+        // Soft Modern / Clean SaaS Palette
         primary: {
-            DEFAULT: 'var(--color-orbital-accent)',
-            hover: 'var(--color-orbital-hover)',
-            light: '#22d3ee',
-            foreground: 'var(--color-orbital-bg)'
+            DEFAULT: '#005a7e', // Deep Blue
+            hover: '#004a66',
+            light: '#E0F2F7',
+            foreground: '#FFFFFF'
         },
         secondary: {
-            DEFAULT: 'var(--color-orbital-subtext)',
-            hover: '#71717a',
-            light: '#d4d4d8',
-            foreground: 'var(--color-orbital-bg)'
+            DEFAULT: '#96b400', // Olive/Lime
+            hover: '#7a9400',
+            light: '#F4F9CC',
+            foreground: '#FFFFFF'
+        },
+        accent: {
+            DEFAULT: '#ff681a', // Orange Red
+            hover: '#e65000',
+            light: '#FFF0E6'
+        },
+        cta: {
+            DEFAULT: '#ff681a', // Orange Red
+            hover: '#e65000',
         },
         background: {
-           DEFAULT: 'var(--color-orbital-bg)',
-           light: '#f8fafc',
-           dark: '#09090b'
+           DEFAULT: '#F9FAFB',  // Light Gray (Cool)
+           light: '#FFFFFF',
+           dark: '#111827'      // Gray 900
         },
         surface: {
-           DEFAULT: 'var(--color-orbital-surface)',
-           light: '#ffffff',
-           dark: '#18181b'
+           DEFAULT: '#FFFFFF',  // White for cards
+           light: '#FFFFFF',
+           dark: '#1F2937'      // Gray 800
+        },
+        text: {
+           DEFAULT: '#1F2937',  // Gray 800
+           main: '#111827',     // Gray 900
+           secondary: '#4B5563', // Gray 600
+           light: '#9CA3AF',     // Gray 400
+           inverse: '#FFFFFF'
+        },
+        sidebar: {
+            DEFAULT: '#1A1C1E', // Deep Charcoal/Gunmetal
+            hover: '#2C2E33',
+            active: '#2C2E33',
+            border: '#2C2E33'
         },
         border: {
-           DEFAULT: 'var(--color-orbital-border)',
-           light: '#e2e8f0',
-           dark: '#27272a'
+           light: '#E5E7EB',    // Gray 200
+           DEFAULT: '#D1D5DB',  // Gray 300
+           dark: '#374151'      // Gray 700
+        },
+
+        // Semantic Colors
+        success: {
+            DEFAULT: '#10B981', // Emerald 500
+            bg: '#ECFDF5',
+            text: '#065F46'
+        },
+        warning: {
+            DEFAULT: '#F59E0B', // Amber 500
+            bg: '#FFFBEB',
+            text: '#92400E'
+        },
+        danger: {
+            DEFAULT: '#EF4444', // Red 500
+            bg: '#FEF2F2',
+            text: '#991B1B'
+        },
+        info: {
+            DEFAULT: '#3B82F6', // Blue 500
+            bg: '#EFF6FF',
+            text: '#1E40AF'
         }
       },
       fontFamily: { 
-        sans: ['"Inter"', 'sans-serif'],
-        display: ['"Space Grotesk"', 'sans-serif'],
-        mono: ['"JetBrains Mono"', 'monospace'],
+        sans: ['"Inter"', '"Space Grotesk"', 'sans-serif'],
+        mono: ['"JetBrains Mono"', '"Roboto Mono"', 'monospace'],
+        display: ['"Space Grotesk"', 'sans-serif']
+      },
+      spacing: {
+        'xs': '4px',
+        'sm': '8px',
+        'md': '16px',
+        'lg': '24px',
+        'xl': '32px',
+        '2xl': '48px',
+        '3xl': '64px',
+      },
+      boxShadow: {
+        'none': 'none',
+        'sm': '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+        'md': '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+        'lg': '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+        'xl': '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+        'inner': 'inset 0 2px 4px 0 rgba(0, 0, 0, 0.06)',
       },
       borderRadius: {
         'none': '0',
-        'sm': '0', // Force sharp
-        'DEFAULT': '0', // Force sharp
-        'md': '0', // Force sharp
-        'lg': '0', // Force sharp
-        'xl': '0', // Force sharp
-        '2xl': '0', // Force sharp
-        '3xl': '0', // Force sharp
-        'full': '9999px', // Keep pill shape for badges/avatars
-      },
-      boxShadow: {
-        'glow': '0 0 15px rgba(6, 182, 212, 0.3)',
-        'glow-sm': '0 0 8px rgba(6, 182, 212, 0.2)',
-        'glow-lg': '0 0 25px rgba(6, 182, 212, 0.4)',
+        'sm': '0.125rem',
+        'DEFAULT': '0.25rem',
+        'md': '0.375rem',
+        'lg': '0.5rem',
+        'xl': '0.75rem',
+        '2xl': '1rem',
+        '3xl': '1.5rem',
+        'full': '9999px',
       },
       animation: {
         'fade-in': 'fadeIn 0.3s ease-out forwards',
-        'scanline': 'scanline 8s linear infinite',
+        'slide-up': 'slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+        'slide-left': 'slideLeft 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+        'scale-in': 'scaleIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards',
       },
       keyframes: {
         fadeIn: {
           '0%': { opacity: '0' },
           '100%': { opacity: '1' },
         },
-        scanline: {
-            '0%': { transform: 'translateY(-100%)' },
-            '100%': { transform: 'translateY(100%)' }
+        slideUp: {
+          '0%': { opacity: '0', transform: 'translateY(10px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+        slideLeft: {
+          '0%': { opacity: '0', transform: 'translateX(10px)' },
+          '100%': { opacity: '1', transform: 'translateX(0)' },
+        },
+        scaleIn: {
+          '0%': { opacity: '0', transform: 'scale(0.98)' },
+          '100%': { opacity: '1', transform: 'scale(1)' },
         }
       }
     },

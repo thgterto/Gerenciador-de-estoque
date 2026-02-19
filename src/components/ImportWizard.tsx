@@ -6,10 +6,10 @@ import { InventoryItem, MovementRecord, RiskFlags, ImportResult } from '../types
 import { ImportService } from '../services/ImportService';
 import { generateInventoryId, generateHash } from '../utils/stringUtils'; 
 import { useAlert } from '../context/AlertContext';
-import { OrbitalModal } from './ui/orbital/OrbitalModal';
-import { OrbitalButton } from './ui/orbital/OrbitalButton';
+import { Modal } from './ui/Modal';
+import { MetricCard } from './ui/MetricCard';
 import { mapMovementType } from '../utils/businessRules';
-import { Upload, FileSpreadsheet, CheckCircle, AlertTriangle, ArrowRight, Play, Database, RefreshCw, XCircle } from 'lucide-react';
+import { Button } from './ui/Button';
 
 interface Props {
   isOpen: boolean;
@@ -17,6 +17,7 @@ interface Props {
   mode: ImportMode;
 }
 
+// Estados visuais da pipeline
 type ProcessingStage = 'IDLE' | 'PARSING' | 'HASHING' | 'MERGING' | 'COMMITTING' | 'DONE';
 
 export const ImportWizard: React.FC<Props> = ({ isOpen, onClose, mode }) => {
@@ -77,7 +78,7 @@ export const ImportWizard: React.FC<Props> = ({ isOpen, onClose, mode }) => {
           const tables = ImportEngine.detectDataTables(worksheet, mode);
           
           if (tables.length === 0) {
-              addToast('Warning', 'warning', 'No clear table structure found. Using first row.');
+              addToast('Aviso', 'warning', 'Nenhuma tabela clara detectada. Usando primeira linha.');
               processTableData(worksheet, 0); 
           } else if (tables.length === 1) {
               processTableData(worksheet, tables[0].rowIndex);
@@ -87,7 +88,7 @@ export const ImportWizard: React.FC<Props> = ({ isOpen, onClose, mode }) => {
           }
       } catch (err) {
           console.error(err);
-          addToast('Error', 'error', 'Failed to analyze sheet.');
+          addToast('Erro', 'error', 'Falha ao analisar a planilha.');
       }
   };
 
@@ -100,7 +101,7 @@ export const ImportWizard: React.FC<Props> = ({ isOpen, onClose, mode }) => {
         setHeaders(detectedHeaders);
 
         const rows = XLSX.utils.sheet_to_json<any>(worksheet, { range: headerRowIndex });
-        if (rows.length === 0) throw new Error("Empty table.");
+        if (rows.length === 0) throw new Error("Tabela vazia.");
         setRawFile(rows);
         
         const suggestions = ImportEngine.suggestMapping(detectedHeaders, rows, mode);
@@ -113,15 +114,16 @@ export const ImportWizard: React.FC<Props> = ({ isOpen, onClose, mode }) => {
             initialConf[key] = val.confidence;
         });
 
+        // Validation Check for Missing Required Fields
         const schema = ImportEngine.getSchema(mode);
         const missingRequired = schema
             .filter(f => f.required && !initialMap[f.key])
             .map(f => f.label);
 
         if (missingRequired.length > 0) {
-            addToast('Attention', 'warning', `Missing required columns: ${missingRequired.join(', ')}. Please map manually.`);
+            addToast('Atenção', 'warning', `Colunas obrigatórias não identificadas: ${missingRequired.join(', ')}. Por favor, mapeie manualmente.`);
         } else {
-            addToast('Success', 'success', 'Columns mapped automatically.');
+            addToast('Sucesso', 'success', 'Colunas mapeadas automaticamente.');
         }
 
         setMapping(initialMap);
@@ -129,7 +131,7 @@ export const ImportWizard: React.FC<Props> = ({ isOpen, onClose, mode }) => {
         setStep(2); 
       } catch (err) {
         console.error(err);
-        addToast('Error', 'error', 'Error processing table data.');
+        addToast('Erro', 'error', 'Erro ao processar dados da tabela.');
       }
   };
 
@@ -143,7 +145,7 @@ export const ImportWizard: React.FC<Props> = ({ isOpen, onClose, mode }) => {
         const data = new Uint8Array(evt.target?.result as ArrayBuffer);
         const wb = XLSX.read(data, { type: 'array' });
         
-        if (wb.SheetNames.length === 0) throw new Error("File has no sheets");
+        if (wb.SheetNames.length === 0) throw new Error("Arquivo sem abas");
 
         setWorkbook(wb);
         setAvailableSheets(wb.SheetNames);
@@ -156,7 +158,7 @@ export const ImportWizard: React.FC<Props> = ({ isOpen, onClose, mode }) => {
         }
       } catch (err) {
         console.error(err);
-        addToast('Error', 'error', 'Failed to read file.');
+        addToast('Erro', 'error', 'Falha ao ler arquivo.');
       }
     };
     reader.readAsArrayBuffer(file);
@@ -169,7 +171,7 @@ export const ImportWizard: React.FC<Props> = ({ isOpen, onClose, mode }) => {
               const worksheet = workbook.Sheets[selectedSheet];
               processTableData(worksheet, detectedTables[selectedTableIndex].rowIndex);
           } else {
-              addToast('Selection Required', 'warning', 'Please select a table.');
+              addToast('Seleção Necessária', 'warning', 'Selecione uma das tabelas detectadas.');
           }
       } else {
           analyzeSheet(workbook, selectedSheet);
@@ -196,15 +198,17 @@ export const ImportWizard: React.FC<Props> = ({ isOpen, onClose, mode }) => {
 
   const runPipeline = async () => {
       if (stats.valid === 0) {
-          addToast('Import Blocked', 'error', 'No valid records to import.');
+          addToast('Importação Bloqueada', 'error', 'Não há registros válidos.');
           return;
       }
 
       try {
+            // ETAPA 1: PARSING
             setStage('PARSING');
-            await new Promise(r => setTimeout(r, 400));
+            await new Promise(r => setTimeout(r, 400)); // UI delay
             const validRows = previewData.filter(r => r.isValid).map(r => r.data);
             
+            // ETAPA 2: HASHING & DEDUPLICAÇÃO
             setStage('HASHING');
             await new Promise(r => setTimeout(r, 400));
             
@@ -214,6 +218,7 @@ export const ImportWizard: React.FC<Props> = ({ isOpen, onClose, mode }) => {
                 const processedIds = new Set();
 
                 validRows.forEach((d) => {
+                    // USO DE ID DETERMINÍSTICO PARA PERMITIR SMART MERGE
                     const id = generateInventoryId(d.sapCode, d.name, d.lotNumber);
                     
                     if (processedIds.has(id)) return; 
@@ -223,37 +228,47 @@ export const ImportWizard: React.FC<Props> = ({ isOpen, onClose, mode }) => {
 
                     itemsToSave.push({
                         id,
-                        name: d.name || 'Imported Product',
+                        name: d.name || 'Produto Importado',
                         sapCode: d.sapCode || '',
                         lotNumber: d.lotNumber || 'GEN',
+                        // FORÇA ZERO NA DEFINIÇÃO MESTRA (Solicitado)
                         quantity: 0, 
                         baseUnit: d.baseUnit || 'UN',
-                        category: d.category || 'General',
+                        category: d.category || 'Geral',
                         expiryDate: d.expiryDate || '',
                         location: { warehouse: d.warehouse || 'Central', cabinet: d.cabinet || '', shelf: d.shelf || '', position: d.position || '' },
                         risks: finalRisks,
                         minStockLevel: Number(d.minStockLevel) || 0,
                         supplier: d.supplier || '',
                         type: 'ROH',
-                        materialGroup: 'General',
-                        itemStatus: 'Ativo', // Fixed: 'Active' -> 'Ativo'
+                        materialGroup: 'Geral',
+                        itemStatus: 'Ativo',
                         isControlled: false,
                         casNumber: d.casNumber || '', 
                         lastUpdated: new Date().toISOString(),
                         dateAcquired: new Date().toISOString(),
                         unitCost: 0,
                         currency: 'BRL',
+                        // IDs relacionais também determinísticos
                         batchId: `BAT-${id}`,
                         catalogId: `CAT-${id}`
                     });
                 });
 
+                // ETAPA 3: MERGING & PERSISTÊNCIA
                 setStage('MERGING');
                 const result = await ImportService.importBulk(itemsToSave, replaceMode);
                 setImportStats(result);
 
                 if (initialHistoryRecords.length > 0) {
                     await ImportService.importHistoryBulk(initialHistoryRecords, true);
+
+                    // Dispara auditoria rápida para alinhar o saldo V1 com o histórico V2 recém criado
+                    // ImportService não tem acesso ao InventoryService (para evitar circular),
+                    // mas o importHistoryBulk deve cuidar da persistência V2.
+                    // Para garantir V1 correto, o ideal é que a auditoria seja chamada pelo consumidor (Settings.tsx)
+                    // ou que ImportService.importBulk já considere isso.
+                    // Neste caso, deixaremos o hook de UI do usuário (ex: Settings) rodar a auditoria se necessário.
                 }
 
             } else {
@@ -267,13 +282,13 @@ export const ImportWizard: React.FC<Props> = ({ isOpen, onClose, mode }) => {
                         itemId: '', 
                         date: d.date,
                         type: mapMovementType(d.type),
-                        productName: d.productName || 'Imported Item',
+                        productName: d.productName || 'Item Importado',
                         sapCode: d.sapCode || '',
                         lot: d.lotNumber || 'GEN',
                         quantity: d.quantity,
                         unit: d.unit || 'UN',
-                        observation: d.observation || 'History Import',
-                        location_warehouse: d.warehouse || 'Imported',
+                        observation: d.observation || 'Importação de Histórico',
+                        location_warehouse: d.warehouse || 'Importado',
                         supplier: d.supplier || ''
                     };
                 });
@@ -287,7 +302,7 @@ export const ImportWizard: React.FC<Props> = ({ isOpen, onClose, mode }) => {
             
       } catch (e) {
             console.error(e);
-            addToast('Error', 'error', 'Import failed.');
+            addToast('Erro', 'error', 'Falha na importação.');
             setStage('IDLE');
       }
   };
@@ -295,64 +310,77 @@ export const ImportWizard: React.FC<Props> = ({ isOpen, onClose, mode }) => {
   const isTableSelection = detectedTables.length > 1;
   const isUpload = !workbook;
 
-  const StageIndicator = ({ current, target, label }: { current: ProcessingStage, target: ProcessingStage, label: string }) => {
+  // --- UI Components ---
+
+  const StageIndicator = ({ current, target, label, icon }: { current: ProcessingStage, target: ProcessingStage, label: string, icon: string }) => {
       const isActive = current === target;
-      const steps = ['IDLE', 'PARSING', 'HASHING', 'MERGING', 'COMMITTING', 'DONE'];
-      const isDone = steps.indexOf(current) > steps.indexOf(target);
+      const isDone = ['DONE', 'COMMITTING', 'MERGING', 'HASHING', 'PARSING'].indexOf(current) > ['DONE', 'COMMITTING', 'MERGING', 'HASHING', 'PARSING'].indexOf(target);
       
-      let colorClass = "text-orbital-subtext border-orbital-border bg-orbital-bg";
-      if (isActive) colorClass = "text-orbital-accent border-orbital-accent bg-orbital-accent/10 animate-pulse";
-      if (isDone) colorClass = "text-orbital-success border-orbital-success bg-orbital-success/10";
+      let colorClass = "text-gray-400 border-gray-200 bg-gray-50";
+      if (isActive) colorClass = "text-primary border-primary bg-primary/10 animate-pulse";
+      if (isDone) colorClass = "text-green-600 border-green-500 bg-green-50";
 
       return (
-          <div className={`flex flex-col items-center gap-2 p-3 border ${colorClass} transition-all w-32`}>
-              <span className="font-mono text-[10px] uppercase tracking-wider font-bold">{label}</span>
+          <div className={`flex flex-col items-center gap-2 p-3 rounded-lg border-2 ${colorClass} transition-all w-32`}>
+              <span className="material-symbols-outlined text-2xl">{isDone ? 'check_circle' : icon}</span>
+              <span className="text-xs font-bold uppercase">{label}</span>
           </div>
       );
   };
 
   return (
-    <OrbitalModal
+    <Modal
         isOpen={isOpen} 
         onClose={onClose} 
-        title={`IMPORT ${mode === 'MASTER' ? 'INVENTORY' : 'HISTORY'}`}
+        title={`Importar ${mode === 'MASTER' ? 'Inventário' : 'Histórico'}`}
         className="max-w-6xl h-[90vh] max-h-[850px] w-full"
+        hideHeader
+        noPadding={true}
     >
-        <div className="flex flex-col h-full">
-            {/* Steps Indicator */}
-            <div className="px-8 py-4 border-b border-orbital-border flex justify-center bg-orbital-surface flex-shrink-0">
+        <div className="flex flex-col h-full bg-white dark:bg-surface-dark">
+            <div className="px-6 py-4 border-b border-border-light dark:border-border-dark flex justify-between items-center bg-slate-50 dark:bg-slate-800/50 flex-shrink-0">
+                <h2 className="text-xl font-bold text-text-main dark:text-white flex items-center gap-2">
+                    <span className="material-symbols-outlined text-primary">upload_file</span>
+                    Importar {mode === 'MASTER' ? 'Inventário' : 'Histórico'}
+                </h2>
+                <button onClick={onClose} className="text-gray-400 hover:text-gray-600 dark:hover:text-white transition-colors">
+                    <span className="material-symbols-outlined">close</span>
+                </button>
+            </div>
+
+            <div className="px-8 py-4 border-b border-border-light dark:border-border-dark flex justify-center bg-white dark:bg-surface-dark flex-shrink-0">
                  <div className="flex items-center gap-2">
-                    <div className={`size-8 flex items-center justify-center text-sm font-bold font-mono border ${step >= 1 ? 'bg-orbital-accent text-black border-orbital-accent' : 'bg-orbital-bg text-orbital-subtext border-orbital-border'}`}>1</div>
-                    <span className="text-xs font-mono uppercase text-orbital-text">Upload</span>
-                    <div className="w-12 h-px bg-orbital-border"></div>
-                    <div className={`size-8 flex items-center justify-center text-sm font-bold font-mono border ${step >= 2 ? 'bg-orbital-accent text-black border-orbital-accent' : 'bg-orbital-bg text-orbital-subtext border-orbital-border'}`}>2</div>
-                    <span className="text-xs font-mono uppercase text-orbital-text">Map</span>
-                    <div className="w-12 h-px bg-orbital-border"></div>
-                    <div className={`size-8 flex items-center justify-center text-sm font-bold font-mono border ${step >= 3 ? 'bg-orbital-accent text-black border-orbital-accent' : 'bg-orbital-bg text-orbital-subtext border-orbital-border'}`}>3</div>
-                    <span className="text-xs font-mono uppercase text-orbital-text">Process</span>
+                    <div className={`size-8 rounded-full flex items-center justify-center text-sm font-bold ${step >= 1 ? 'bg-primary text-white' : 'bg-gray-200 text-gray-500'}`}>1</div>
+                    <span className="text-sm font-medium">Upload</span>
+                    <div className="w-12 h-1 bg-gray-200 rounded-full overflow-hidden"><div className={`h-full bg-primary transition-all duration-500 ${step > 1 ? 'w-full' : 'w-0'}`}></div></div>
+                    <div className={`size-8 rounded-full flex items-center justify-center text-sm font-bold ${step >= 2 ? 'bg-primary text-white' : 'bg-gray-200 text-gray-500'}`}>2</div>
+                    <span className="text-sm font-medium">Mapear</span>
+                    <div className="w-12 h-1 bg-gray-200 rounded-full overflow-hidden"><div className={`h-full bg-primary transition-all duration-500 ${step > 2 ? 'w-full' : 'w-0'}`}></div></div>
+                    <div className={`size-8 rounded-full flex items-center justify-center text-sm font-bold ${step >= 3 ? 'bg-primary text-white' : 'bg-gray-200 text-gray-500'}`}>3</div>
+                    <span className="text-sm font-medium">Processar</span>
                  </div>
             </div>
 
-            {/* Content Container */}
-            <div className="flex-1 overflow-hidden flex flex-col p-6 bg-orbital-bg">
+            {/* Container de Conteúdo */}
+            <div className="flex-1 overflow-hidden flex flex-col p-6 bg-background-light dark:bg-background-dark">
                 {step === 1 && (
                     <div className="h-full flex flex-col items-center justify-center overflow-y-auto">
                         {isUpload ? (
-                            <div className="w-full max-w-2xl h-64 flex flex-col items-center justify-center border border-dashed border-orbital-border bg-orbital-surface hover:bg-orbital-accent/5 transition-colors relative group cursor-pointer">
+                            <div className="w-full max-w-2xl h-64 flex flex-col items-center justify-center border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-slate-800/50 hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors relative group cursor-pointer">
                                 <input type="file" onChange={handleFileUpload} className="absolute inset-0 opacity-0 cursor-pointer z-10" accept=".xlsx,.xls,.csv,.xlsm" />
-                                <div className="text-orbital-accent mb-4 group-hover:scale-110 transition-transform">
-                                    <Upload size={48} strokeWidth={1} />
+                                <div className="bg-primary/10 p-6 rounded-full text-primary mb-4 group-hover:scale-110 transition-transform">
+                                    <span className="material-symbols-outlined text-5xl">cloud_upload</span>
                                 </div>
-                                <h3 className="text-lg font-bold text-orbital-text font-display uppercase tracking-wider">Drag & Drop Spreadsheet</h3>
-                                <p className="text-orbital-subtext text-xs font-mono mt-2">Supports .xlsx, .xlsm, .xls, .csv</p>
+                                <h3 className="text-lg font-bold text-text-main dark:text-white">Arraste sua planilha aqui</h3>
+                                <p className="text-text-secondary dark:text-gray-400 text-sm mt-2">Suporta .xlsx, .xlsm, .xls e .csv</p>
                             </div>
                         ) : isTableSelection ? (
-                             <div className="w-full max-w-4xl flex flex-col gap-4 overflow-y-auto">
-                                <div className="bg-orbital-warning/10 border border-orbital-warning p-4 flex items-center gap-3 mb-2">
-                                    <AlertTriangle className="text-orbital-warning" />
+                             <div className="w-full max-w-4xl flex flex-col gap-4 animate-fade-in overflow-y-auto">
+                                <div className="bg-amber-50 border border-amber-100 p-4 rounded-lg flex items-center gap-3 mb-2">
+                                    <span className="material-symbols-outlined text-amber-600">table_view</span>
                                     <div>
-                                        <h4 className="font-bold text-orbital-warning font-display uppercase text-sm">Multiple Tables Detected</h4>
-                                        <p className="text-xs text-orbital-subtext font-mono">Select the data range you wish to import.</p>
+                                        <h4 className="font-bold text-amber-900">Múltiplas Tabelas Detectadas</h4>
+                                        <p className="text-sm text-amber-800">Identificamos mais de uma estrutura de dados. Selecione qual deseja importar:</p>
                                     </div>
                                 </div>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -361,53 +389,53 @@ export const ImportWizard: React.FC<Props> = ({ isOpen, onClose, mode }) => {
                                             key={table.id}
                                             onClick={() => setSelectedTableIndex(idx)}
                                             className={`
-                                                cursor-pointer p-4 border transition-all hover:bg-orbital-accent/5
-                                                ${selectedTableIndex === idx ? 'border-orbital-accent bg-orbital-accent/10' : 'border-orbital-border bg-orbital-surface'}
+                                                cursor-pointer p-4 rounded-xl border-2 transition-all hover:shadow-md
+                                                ${selectedTableIndex === idx ? 'border-primary bg-primary/5' : 'border-border-light bg-white dark:bg-slate-800 dark:border-gray-700 hover:border-primary/50'}
                                             `}
                                         >
                                             <div className="flex justify-between items-start mb-2">
-                                                <span className="text-xs font-bold uppercase tracking-wider text-orbital-subtext">Option {idx + 1}</span>
-                                                <span className={`text-[10px] font-bold px-1.5 py-0.5 border ${table.confidence > 80 ? 'border-orbital-success text-orbital-success' : 'border-orbital-warning text-orbital-warning'}`}>
-                                                    {table.confidence}% CONF
+                                                <span className="text-xs font-bold uppercase tracking-wider text-text-secondary">Opção {idx + 1}</span>
+                                                <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${table.confidence > 80 ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>
+                                                    {table.confidence}% Confiança
                                                 </span>
                                             </div>
-                                            <div className="text-sm text-orbital-text mb-3 font-mono">
-                                                Start Row {table.rowIndex + 1} • ~{table.rowCountEstimate} Records
+                                            <div className="text-sm text-text-main dark:text-white mb-3">
+                                                Inicia na <strong>Linha {table.rowIndex + 1}</strong> • ~{table.rowCountEstimate} Registros
                                             </div>
-                                            <div className="bg-orbital-bg p-2 border border-orbital-border text-[10px] font-mono text-orbital-subtext truncate">
+                                            <div className="bg-slate-100 dark:bg-slate-900 p-2 rounded text-xs font-mono text-text-secondary truncate">
                                                 {table.preview.join(' | ')}
                                             </div>
                                         </div>
                                     ))}
                                 </div>
-                                <OrbitalButton variant="primary" fullWidth onClick={handleConfirmSelection} className="mt-4">
-                                    CONFIRM SELECTION
-                                </OrbitalButton>
+                                <Button variant="primary" fullWidth onClick={handleConfirmSelection} className="mt-4">
+                                    Confirmar Seleção
+                                </Button>
                              </div>
                         ) : (
-                            <div className="w-full max-w-lg flex flex-col gap-6 text-center">
-                                 <div className="bg-orbital-success/10 p-6 rounded-full mx-auto text-orbital-success border border-orbital-success">
-                                     <FileSpreadsheet size={48} strokeWidth={1} />
+                            <div className="w-full max-w-lg flex flex-col gap-6 animate-fade-in text-center">
+                                 <div className="bg-green-50 dark:bg-green-900/20 p-6 rounded-full mx-auto text-green-600">
+                                     <span className="material-symbols-outlined text-6xl">check_circle</span>
                                  </div>
                                  <div>
-                                     <h3 className="text-xl font-bold text-orbital-text font-display uppercase">File Analyzed</h3>
-                                     <p className="text-orbital-subtext font-mono text-sm mt-2">
-                                         Sheet: <strong className="text-orbital-accent">{selectedSheet}</strong>
+                                     <h3 className="text-xl font-bold text-text-main dark:text-white">Arquivo Analisado</h3>
+                                     <p className="text-text-secondary dark:text-gray-400 mt-2">
+                                         Planilha: <strong>{selectedSheet}</strong>
                                      </p>
                                  </div>
                                  {availableSheets.length > 1 && (
                                      <div className="flex flex-col gap-2 text-left">
-                                         <label className="text-xs font-bold text-orbital-subtext uppercase">Switch Sheet</label>
+                                         <label className="text-sm font-bold">Alterar Aba:</label>
                                          <select 
                                             value={selectedSheet}
                                             onChange={e => { setSelectedSheet(e.target.value); analyzeSheet(workbook!, e.target.value); }}
-                                            className="w-full bg-orbital-surface border border-orbital-border text-orbital-text text-sm p-2 focus:border-orbital-accent focus:outline-none font-mono"
+                                            className="w-full rounded-lg border-gray-300 dark:bg-slate-800"
                                          >
                                              {availableSheets.map(s => <option key={s} value={s}>{s}</option>)}
                                          </select>
                                      </div>
                                  )}
-                                 <OrbitalButton variant="primary" fullWidth onClick={handleConfirmSelection}>CONTINUE TO MAPPING</OrbitalButton>
+                                 <Button variant="primary" fullWidth onClick={handleConfirmSelection}>Continuar para Mapeamento</Button>
                             </div>
                         )}
                     </div>
@@ -415,12 +443,12 @@ export const ImportWizard: React.FC<Props> = ({ isOpen, onClose, mode }) => {
 
                 {step === 2 && (
                     <div className="flex flex-col gap-6 h-full overflow-y-auto">
-                        <div className="bg-orbital-accent/5 border border-orbital-accent/30 p-4 flex items-start gap-3 shrink-0">
-                            <Database className="text-orbital-accent" size={20} />
+                        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 p-4 rounded-lg flex items-start gap-3 shrink-0">
+                            <span className="material-symbols-outlined text-blue-600 dark:text-blue-400">auto_fix</span>
                             <div>
-                                <h4 className="text-sm font-bold text-orbital-accent font-display uppercase">Header Detected (Row {detectedRowIndex + 1})</h4>
-                                <p className="text-xs text-orbital-subtext font-mono mt-1">
-                                    System has analyzed data structure to suggest optimal mapping.
+                                <h4 className="text-sm font-bold text-blue-800 dark:text-blue-300">Cabeçalho Detectado (Linha {detectedRowIndex + 1})</h4>
+                                <p className="text-xs text-blue-700 dark:text-blue-400 mt-1">
+                                    O sistema analisou os dados para sugerir o melhor mapeamento.
                                 </p>
                             </div>
                         </div>
@@ -431,23 +459,23 @@ export const ImportWizard: React.FC<Props> = ({ isOpen, onClose, mode }) => {
                                 const isMapped = !!selectedHeader;
                                 
                                 return (
-                                    <div key={field.key} className={`p-3 border flex flex-col gap-2 transition-colors ${isMapped ? 'bg-orbital-surface border-orbital-border' : 'bg-orbital-bg border-dashed border-orbital-border'}`}>
+                                    <div key={field.key} className={`p-3 rounded-lg border shadow-sm flex flex-col gap-2 transition-colors ${isMapped ? 'bg-white dark:bg-slate-800 border-border-light' : 'bg-gray-50 dark:bg-slate-900 border-dashed border-gray-300'}`}>
                                         <div className="flex justify-between items-center">
-                                            <span className="text-xs font-bold text-orbital-text uppercase tracking-wider flex items-center gap-1">
-                                                {field.label} {field.required && <span className="text-orbital-danger" title="Required">*</span>}
+                                            <span className="text-sm font-bold text-text-main dark:text-white flex items-center gap-1">
+                                                {field.label} {field.required && <span className="text-danger" title="Obrigatório">*</span>}
                                             </span>
                                             {isMapped && (
-                                                <span className={`text-[10px] px-1.5 border ${confidence > 80 ? 'border-orbital-success text-orbital-success' : 'border-orbital-subtext text-orbital-subtext'}`}>
-                                                    {confidence}% MATCH
+                                                <span className={`text-[10px] px-1.5 rounded ${confidence > 80 ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}`}>
+                                                    {confidence}% match
                                                 </span>
                                             )}
                                         </div>
                                         <select 
                                             value={selectedHeader} 
                                             onChange={(e) => setMapping(prev => ({...prev, [field.key]: e.target.value}))}
-                                            className={`w-full text-xs bg-orbital-bg border ${isMapped ? 'border-orbital-accent/50 text-orbital-accent' : 'border-orbital-border text-orbital-subtext'} p-2 focus:outline-none focus:border-orbital-accent font-mono`}
+                                            className={`w-full text-sm rounded-md ${isMapped ? 'border-primary/50 ring-1 ring-primary/20' : 'border-gray-300'} dark:bg-slate-900 dark:text-white`}
                                         >
-                                            <option value="">(Skip Column)</option>
+                                            <option value="">(Ignorar Coluna)</option>
                                             {headers.map((h, i) => (
                                                 <option key={`${h}-${i}`} value={h}>{h}</option>
                                             ))}
@@ -463,85 +491,69 @@ export const ImportWizard: React.FC<Props> = ({ isOpen, onClose, mode }) => {
                     <div className="flex flex-col h-full gap-6 items-center justify-center overflow-hidden relative">
                         {/* VISUAL PIPELINE */}
                         {stage !== 'IDLE' && stage !== 'DONE' && (
-                            <div className="flex items-center gap-4 absolute inset-0 z-50 bg-orbital-bg/95 flex-col justify-center backdrop-blur-sm">
-                                <h3 className="text-2xl font-bold text-orbital-accent font-display uppercase tracking-widest animate-pulse mb-8">PROCESSING DATA STREAM...</h3>
+                            <div className="flex items-center gap-4 animate-fade-in absolute inset-0 z-50 bg-white/90 dark:bg-slate-900/90 flex-col justify-center">
+                                <h3 className="text-2xl font-bold text-primary mb-8">Processando Dados...</h3>
                                 <div className="flex gap-4">
-                                    <StageIndicator current={stage} target="PARSING" label="Parsing" />
-                                    <div className="h-px w-8 bg-orbital-border self-center"></div>
-                                    <StageIndicator current={stage} target="HASHING" label="Indexing" />
-                                    <div className="h-px w-8 bg-orbital-border self-center"></div>
-                                    <StageIndicator current={stage} target="MERGING" label="Merging" />
-                                    <div className="h-px w-8 bg-orbital-border self-center"></div>
-                                    <StageIndicator current={stage} target="COMMITTING" label="Saving" />
+                                    <StageIndicator current={stage} target="PARSING" label="Lendo Arquivo" icon="file_open" />
+                                    <div className="h-1 w-8 bg-gray-200 self-center"></div>
+                                    <StageIndicator current={stage} target="HASHING" label="Gerando IDs" icon="fingerprint" />
+                                    <div className="h-1 w-8 bg-gray-200 self-center"></div>
+                                    <StageIndicator current={stage} target="MERGING" label="Smart Merge" icon="merge_type" />
+                                    <div className="h-1 w-8 bg-gray-200 self-center"></div>
+                                    <StageIndicator current={stage} target="COMMITTING" label="Salvando" icon="save" />
                                 </div>
                             </div>
                         )}
 
                         {stage === 'DONE' && importStats ? (
-                            <div className="w-full max-w-3xl flex flex-col gap-6 animate-in zoom-in-95 duration-300">
-                                <div className="text-center border border-orbital-success bg-orbital-success/5 p-8 relative overflow-hidden">
-                                    <div className="absolute top-0 left-0 w-full h-1 bg-orbital-success"></div>
-                                    <div className="inline-flex p-4 border border-orbital-success rounded-full text-orbital-success mb-4 bg-orbital-success/10">
-                                        <CheckCircle size={48} />
+                            <div className="w-full max-w-3xl flex flex-col gap-6 animate-scale-in">
+                                <div className="text-center">
+                                    <div className="inline-flex p-4 rounded-full bg-green-100 text-green-600 mb-4">
+                                        <span className="material-symbols-outlined text-4xl">check_circle</span>
                                     </div>
-                                    <h2 className="text-2xl font-bold text-orbital-text font-display uppercase tracking-widest">IMPORT COMPLETE</h2>
-                                    <p className="text-orbital-subtext font-mono mt-2">Database successfully synchronized.</p>
+                                    <h2 className="text-2xl font-bold text-text-main dark:text-white">Importação Concluída!</h2>
+                                    <p className="text-text-secondary dark:text-gray-400">O banco de dados foi atualizado com sucesso.</p>
                                 </div>
 
                                 <div className="grid grid-cols-2 gap-4">
-                                    <div className="bg-orbital-surface border border-orbital-border p-4 flex flex-col items-center">
-                                        <span className="text-2xl font-bold text-orbital-success font-mono">{importStats.created}</span>
-                                        <span className="text-xs text-orbital-subtext uppercase tracking-wider">New Items</span>
-                                    </div>
-                                    <div className="bg-orbital-surface border border-orbital-border p-4 flex flex-col items-center">
-                                        <span className="text-2xl font-bold text-orbital-accent font-mono">{importStats.updated}</span>
-                                        <span className="text-xs text-orbital-subtext uppercase tracking-wider">Updated</span>
-                                    </div>
+                                    <MetricCard title="Novos Itens" icon="add_circle" value={importStats.created} variant="success" className="bg-green-50" />
+                                    <MetricCard title="Atualizados (Merge)" icon="update" value={importStats.updated} variant="info" className="bg-blue-50" />
                                 </div>
                                 
                                 <div className="flex justify-center mt-4">
-                                    <OrbitalButton onClick={onClose} variant="primary" size="lg">RETURN TO INVENTORY</OrbitalButton>
+                                    <Button onClick={onClose} variant="primary" size="lg">Voltar ao Inventário</Button>
                                 </div>
                             </div>
                         ) : (
-                            /* PRE-IMPORT CONFIG */
+                            /* CONFIGURAÇÃO PRE-IMPORT */
                             <div className="w-full h-full flex flex-col gap-4">
                                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 shrink-0">
-                                    <div className="bg-orbital-surface border border-l-4 border-orbital-accent p-4 border-y-orbital-border border-r-orbital-border">
-                                        <div className="text-xs text-orbital-subtext uppercase tracking-wider">Total Detected</div>
-                                        <div className="text-2xl font-bold text-orbital-text font-mono">{stats.total}</div>
-                                    </div>
-                                    <div className="bg-orbital-surface border border-l-4 border-orbital-success p-4 border-y-orbital-border border-r-orbital-border">
-                                        <div className="text-xs text-orbital-subtext uppercase tracking-wider">Valid Records</div>
-                                        <div className="text-2xl font-bold text-orbital-text font-mono">{stats.valid}</div>
-                                    </div>
-                                    <div className="bg-orbital-surface border border-l-4 border-orbital-danger p-4 border-y-orbital-border border-r-orbital-border">
-                                        <div className="text-xs text-orbital-subtext uppercase tracking-wider">Validation Errors</div>
-                                        <div className="text-2xl font-bold text-orbital-text font-mono">{stats.error}</div>
-                                    </div>
+                                    <MetricCard title="Total Detectado" icon="table_rows" value={stats.total} className="border-l-4 border-l-primary" variant="primary" />
+                                    <MetricCard title="Registros Válidos" icon="check_circle" value={stats.valid} className="border-l-4 border-l-success" variant="success" />
+                                    <MetricCard title="Erros de Validação" icon="warning" value={stats.error} className="border-l-4 border-l-danger bg-danger-bg/20" variant="danger" />
                                 </div>
                                 
-                                <div className="bg-orbital-surface p-6 border border-orbital-border flex flex-col gap-4 shrink-0">
-                                    <h4 className="text-sm font-bold text-orbital-text font-display uppercase tracking-wider mb-1">Import Strategy</h4>
+                                <div className="bg-slate-50 dark:bg-slate-800 p-6 rounded-lg border border-border-light dark:border-gray-700 flex flex-col gap-4 shrink-0">
+                                    <h4 className="text-lg font-bold text-text-main dark:text-white mb-1">Estratégia de Importação</h4>
                                     
                                     {mode === 'MASTER' && (
                                         <div className="flex flex-col gap-3">
-                                             <label className={`flex items-start gap-3 p-3 border cursor-pointer transition-all ${!replaceMode ? 'border-orbital-accent bg-orbital-accent/5' : 'border-orbital-border hover:bg-orbital-accent/5'}`}>
-                                                <input type="radio" checked={!replaceMode} onChange={() => setReplaceMode(false)} className="mt-1 text-orbital-accent bg-transparent border-orbital-border focus:ring-0" />
+                                             <label className={`flex items-start gap-3 p-3 rounded-lg border-2 cursor-pointer transition-all ${!replaceMode ? 'border-primary bg-primary/5' : 'border-transparent hover:bg-gray-100 dark:hover:bg-slate-700'}`}>
+                                                <input type="radio" checked={!replaceMode} onChange={() => setReplaceMode(false)} className="mt-1 text-primary focus:ring-primary" />
                                                 <div>
-                                                    <span className="font-bold text-orbital-text text-sm uppercase tracking-wide block">Smart Merge (Recommended)</span>
-                                                    <span className="text-xs text-orbital-subtext font-mono">
-                                                        Updates existing balances and creates new items. Preserves manually enriched data.
+                                                    <span className="font-bold text-text-main dark:text-white block">Smart Merge (Recomendado)</span>
+                                                    <span className="text-xs text-text-secondary dark:text-gray-400">
+                                                        Atualiza o saldo de itens existentes e cria novos. Mantém dados enriquecidos manualmente (Fórmulas, Riscos) intactos.
                                                     </span>
                                                 </div>
                                             </label>
 
-                                            <label className={`flex items-start gap-3 p-3 border cursor-pointer transition-all ${replaceMode ? 'border-orbital-danger bg-orbital-danger/5' : 'border-orbital-border hover:bg-orbital-danger/5'}`}>
-                                                <input type="radio" checked={replaceMode} onChange={() => setReplaceMode(true)} className="mt-1 text-orbital-danger bg-transparent border-orbital-border focus:ring-0" />
+                                            <label className={`flex items-start gap-3 p-3 rounded-lg border-2 cursor-pointer transition-all ${replaceMode ? 'border-red-500 bg-red-50 dark:bg-red-900/20' : 'border-transparent hover:bg-gray-100 dark:hover:bg-slate-700'}`}>
+                                                <input type="radio" checked={replaceMode} onChange={() => setReplaceMode(true)} className="mt-1 text-red-600 focus:ring-red-500" />
                                                 <div>
-                                                    <span className="font-bold text-orbital-danger text-sm uppercase tracking-wide block">Total Wipe & Load</span>
-                                                    <span className="text-xs text-orbital-subtext font-mono">
-                                                        WARNING: ERASES entire database before import. Use only for full system reload.
+                                                    <span className="font-bold text-red-700 dark:text-red-300 block">Substituição Total (Wipe & Load)</span>
+                                                    <span className="text-xs text-text-secondary dark:text-gray-400">
+                                                        APAGA todo o banco de dados atual antes de importar. Use apenas para recarga completa do sistema.
                                                     </span>
                                                 </div>
                                             </label>
@@ -555,12 +567,12 @@ export const ImportWizard: React.FC<Props> = ({ isOpen, onClose, mode }) => {
                                                 id="updateStock" 
                                                 checked={updateStockBalance} 
                                                 onChange={e => setUpdateStockBalance(e.target.checked)}
-                                                className="mt-1 appearance-none w-4 h-4 border border-orbital-accent checked:bg-orbital-accent cursor-pointer"
+                                                className="mt-1 rounded text-primary focus:ring-primary border-gray-300 cursor-pointer"
                                             />
                                             <label htmlFor="updateStock" className="cursor-pointer">
-                                                <span className="text-sm font-bold text-orbital-text uppercase tracking-wide">Update Stock Balances</span>
-                                                <p className="text-xs text-orbital-subtext font-mono">
-                                                    Recalculates item balances based on these history records.
+                                                <span className="text-sm font-bold text-text-main dark:text-white">Atualizar Saldo de Estoque</span>
+                                                <p className="text-xs text-text-secondary dark:text-gray-400">
+                                                    Recalcula o saldo dos itens baseado nas entradas/saídas deste histórico.
                                                 </p>
                                             </label>
                                         </div>
@@ -568,38 +580,38 @@ export const ImportWizard: React.FC<Props> = ({ isOpen, onClose, mode }) => {
                                 </div>
 
                                 {/* Preview Data Grid */}
-                                <div className="flex-1 overflow-hidden border border-orbital-border bg-orbital-bg relative flex flex-col">
+                                <div className="flex-1 overflow-hidden border border-border-light dark:border-gray-700 rounded-lg bg-white dark:bg-slate-800 shadow-inner relative flex flex-col">
                                     <div className="absolute top-2 right-2 z-20">
                                         <button 
                                             onClick={() => setShowErrorsOnly(!showErrorsOnly)}
-                                            className={`text-[10px] px-3 py-1 font-bold font-mono uppercase tracking-wider border ${showErrorsOnly ? 'bg-orbital-danger text-black border-orbital-danger' : 'bg-orbital-surface text-orbital-subtext border-orbital-border'}`}
+                                            className={`text-xs px-3 py-1.5 rounded-full font-bold shadow-sm transition-all ${showErrorsOnly ? 'bg-red-500 text-white' : 'bg-white text-text-secondary border'}`}
                                         >
-                                            {showErrorsOnly ? 'Showing Errors Only' : 'Show Errors'}
+                                            {showErrorsOnly ? 'Mostrando Apenas Erros' : 'Mostrar Erros'}
                                         </button>
                                     </div>
                                     <div className="flex-1 overflow-auto custom-scrollbar">
-                                        <table className="w-full text-left text-xs whitespace-nowrap text-orbital-text">
-                                            <thead className="bg-orbital-bg border-b border-orbital-border sticky top-0 z-10">
+                                        <table className="w-full text-left text-xs whitespace-nowrap text-gray-700 dark:text-gray-300">
+                                            <thead className="bg-gray-50 dark:bg-slate-900 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-10 shadow-sm">
                                                 <tr>
-                                                    <th className="px-4 py-3 font-bold uppercase tracking-wider text-orbital-subtext font-display w-24">Status</th>
-                                                    {schema.map(f => <th key={f.key} className="px-4 py-3 font-bold uppercase tracking-wider text-orbital-subtext font-display">{f.label}</th>)}
+                                                    <th className="px-4 py-3 font-bold w-24 bg-gray-50 dark:bg-slate-900">Status</th>
+                                                    {schema.map(f => <th key={f.key} className="px-4 py-3 font-bold bg-gray-50 dark:bg-slate-900">{f.label}</th>)}
                                                 </tr>
                                             </thead>
-                                            <tbody className="divide-y divide-orbital-border/30">
+                                            <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
                                                 {displayedData.map((row, i) => (
-                                                    <tr key={i} className={!row.isValid ? 'bg-orbital-danger/5' : ''}>
-                                                        <td className="px-4 py-2 font-mono">
+                                                    <tr key={i} className={!row.isValid ? 'bg-red-50 dark:bg-red-900/10' : ''}>
+                                                        <td className="px-4 py-2">
                                                             {row.isValid ? (
-                                                                <span className="text-orbital-success flex items-center gap-1"><CheckCircle size={12} /> OK</span>
+                                                                <span className="text-green-600 font-bold flex items-center gap-1"><span className="material-symbols-outlined text-[14px]">check</span> OK</span>
                                                             ) : (
                                                                 <div className="flex flex-col">
-                                                                    <span className="text-orbital-danger flex items-center gap-1"><XCircle size={12} /> ERR</span>
-                                                                    <span className="text-[10px] text-orbital-danger opacity-70 truncate max-w-[100px]" title={row.errors.join(', ')}>{row.errors[0]}</span>
+                                                                    <span className="text-red-600 font-bold flex items-center gap-1"><span className="material-symbols-outlined text-[14px]">error</span> Erro</span>
+                                                                    <span className="text-[10px] text-red-500 truncate max-w-[100px]" title={row.errors.join(', ')}>{row.errors[0]}</span>
                                                                 </div>
                                                             )}
                                                         </td>
                                                         {schema.map(f => (
-                                                            <td key={f.key} className="px-4 py-2 max-w-[150px] truncate font-mono text-orbital-subtext" title={String(row.data[f.key])}>
+                                                            <td key={f.key} className="px-4 py-2 max-w-[150px] truncate" title={String(row.data[f.key])}>
                                                                 {String(row.data[f.key] || '')}
                                                             </td>
                                                         ))}
@@ -615,35 +627,35 @@ export const ImportWizard: React.FC<Props> = ({ isOpen, onClose, mode }) => {
                 )}
             </div>
 
-            <div className="px-6 py-4 border-t border-orbital-border bg-orbital-surface flex justify-between flex-shrink-0">
+            <div className="px-6 py-4 border-t border-border-light dark:border-border-dark bg-white dark:bg-surface-dark flex justify-between flex-shrink-0">
                 {step > 1 && stage === 'IDLE' ? (
-                     <OrbitalButton variant="secondary" onClick={() => setStep(step - 1)}>Back</OrbitalButton>
+                     <button onClick={() => setStep(step - 1)} className="px-4 py-2 text-text-secondary dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-700 rounded-lg font-bold text-sm transition-colors">Voltar</button>
                 ) : <div></div>}
                 
                 {step === 2 && (
-                    <OrbitalButton
-                        variant="primary"
+                    <button
                         onClick={() => setStep(step + 1)} 
                         disabled={Object.values(mapping).filter(Boolean).length === 0}
+                        className="px-6 py-2 bg-primary hover:bg-primary-hover text-white rounded-lg font-bold text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-md"
                     >
-                        VALIDATE DATA <ArrowRight size={16} className="ml-2" />
-                    </OrbitalButton>
+                        Validar Dados
+                    </button>
                 )}
                 
                 {step === 3 && stage === 'IDLE' && (
                     <div className="flex items-center gap-4">
-                        <OrbitalButton
-                            variant={replaceMode ? 'danger' : 'success'}
+                        <button
                             onClick={runPipeline}
                             disabled={stats.valid === 0}
+                            className={`px-6 py-2 text-white rounded-lg font-bold text-sm transition-colors flex items-center gap-2 shadow-md disabled:opacity-50 disabled:cursor-not-allowed ${replaceMode ? 'bg-red-600 hover:bg-red-700' : 'bg-success hover:bg-emerald-600'}`}
                         >
-                            {replaceMode ? <RefreshCw size={16} className="mr-2" /> : <Play size={16} className="mr-2" />}
-                            {replaceMode ? 'INITIATE WIPE & LOAD' : 'EXECUTE IMPORT'}
-                        </OrbitalButton>
+                            <span className="material-symbols-outlined text-[18px]">play_arrow</span>
+                            {replaceMode ? 'Iniciar Substituição' : 'Iniciar Importação'}
+                        </button>
                     </div>
                 )}
             </div>
         </div>
-    </OrbitalModal>
+    </Modal>
   );
 };

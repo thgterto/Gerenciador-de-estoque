@@ -1,17 +1,19 @@
-
-import React from 'react';
-import { OrbitalButton } from './orbital/OrbitalButton';
+import React, { ButtonHTMLAttributes } from 'react';
+import { Button as MuiButton, CircularProgress, SxProps, Theme } from '@mui/material';
 import { Icon } from './Icon';
-import { Loader2 } from 'lucide-react';
 
-interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-    variant?: 'primary' | 'secondary' | 'success' | 'danger' | 'ghost' | 'outline' | 'outlined' | 'white' | 'warning' | 'info' | 'contained' | 'text';
-    size?: 'sm' | 'md' | 'lg';
+type ButtonVariant = 'primary' | 'secondary' | 'success' | 'danger' | 'ghost' | 'outline' | 'outlined' | 'white' | 'warning' | 'info' | 'contained' | 'text';
+type ButtonSize = 'sm' | 'md' | 'lg';
+
+interface ButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'size' | 'color'> {
+    variant?: ButtonVariant;
+    size?: ButtonSize;
     icon?: string;
     isLoading?: boolean;
     fullWidth?: boolean;
     startIcon?: React.ReactNode;
     endIcon?: React.ReactNode;
+    sx?: SxProps<Theme>;
 }
 
 export const Button: React.FC<ButtonProps> = ({ 
@@ -25,31 +27,44 @@ export const Button: React.FC<ButtonProps> = ({
     fullWidth = false,
     startIcon,
     endIcon,
+    sx,
     ...props 
 }) => {
     
-    // Map legacy variants to Orbital variants
-    let orbitalVariant: 'primary' | 'secondary' | 'danger' | 'ghost' | 'outline' = 'primary';
+    let color: 'primary' | 'secondary' | 'error' | 'warning' | 'info' | 'success' | 'inherit' = 'primary';
+    let muiVariant: 'contained' | 'outlined' | 'text' = 'contained';
 
-    if (variant === 'secondary' || variant === 'info') orbitalVariant = 'secondary';
-    if (variant === 'danger' || variant === 'warning') orbitalVariant = 'danger';
-    if (variant === 'ghost' || variant === 'text') orbitalVariant = 'ghost';
-    if (variant === 'outline' || variant === 'outlined' || variant === 'white') orbitalVariant = 'outline';
-    if (variant === 'success') orbitalVariant = 'primary'; // Map success to primary (cyan) for now, or add success to OrbitalButton
+    switch (variant) {
+        case 'primary': color = 'primary'; break;
+        case 'contained': color = 'primary'; break;
+        case 'secondary': color = 'secondary'; break;
+        case 'success': color = 'success'; break;
+        case 'danger': color = 'error'; break;
+        case 'warning': color = 'warning'; break;
+        case 'info': color = 'info'; break;
+        case 'ghost': muiVariant = 'text'; color = 'inherit'; break;
+        case 'text': muiVariant = 'text'; color = 'inherit'; break;
+        case 'outline': muiVariant = 'outlined'; color = 'inherit'; break;
+        case 'outlined': muiVariant = 'outlined'; color = 'inherit'; break;
+        case 'white': muiVariant = 'outlined'; color = 'inherit'; break;
+    }
+
+    const muiSize = size === 'sm' ? 'small' : size === 'lg' ? 'large' : 'medium';
 
     return (
-        <OrbitalButton
-            variant={orbitalVariant}
-            size={size}
-            isLoading={isLoading}
-            disabled={disabled}
+        <MuiButton
+            variant={muiVariant}
+            color={color}
+            size={muiSize}
             fullWidth={fullWidth}
+            disabled={disabled || isLoading}
+            startIcon={isLoading ? <CircularProgress size={16} /> : (startIcon || (icon ? <Icon name={icon} /> : null))}
+            endIcon={endIcon}
             className={className}
-            {...props}
+            sx={sx}
+            {...(props as any)}
         >
-            {isLoading ? <Loader2 className="animate-spin mr-2" size={16} /> : (startIcon || (icon ? <Icon name={icon} className="mr-2" /> : null))}
             {children}
-            {endIcon}
-        </OrbitalButton>
+        </MuiButton>
     );
 };

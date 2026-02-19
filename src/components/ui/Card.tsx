@@ -1,26 +1,26 @@
-
 import React from 'react';
-import { OrbitalCard } from './orbital/OrbitalCard';
-import { OrbitalBadge } from './orbital/OrbitalBadge';
+import { Card as MuiCard, CardContent, CardHeader, Box, Typography, SxProps, Theme } from '@mui/material';
 import { Icon } from './Icon';
+import { Badge } from './Badge';
 
 export type CardVariant = 'default' | 'metric' | 'item' | 'interactive' | 'flat' | 'outlined';
 export type ColorScheme = 'neutral' | 'primary' | 'warning' | 'danger' | 'success' | 'info';
 
-interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
-    title?: string;
-    subtitle?: string | React.ReactNode;
+interface CardProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'title'> {
+    title?: React.ReactNode;
+    subtitle?: React.ReactNode;
     value?: string | number;
-    icon?: string | React.ReactNode;
+    icon?: string;
     variant?: CardVariant;
     colorScheme?: ColorScheme;
     padding?: string;
     className?: string;
     noBorder?: boolean;
-    badge?: { label: string; color?: string; }; // Color ignored in mapping
+    badge?: { label: string; color?: string; };
     action?: React.ReactNode;
     onClick?: () => void;
     delay?: number;
+    sx?: SxProps<Theme>;
 }
 
 export const Card: React.FC<CardProps> = ({ 
@@ -31,54 +31,81 @@ export const Card: React.FC<CardProps> = ({
     className = '',
     noBorder = false,
     badge, action, onClick, delay,
+    sx,
     ...props
 }) => {
     
-    // Helper to render icon whether it's a string name or a ReactNode
-    const renderIcon = () => {
-        if (!icon) return null;
-        if (typeof icon === 'string') {
-            return <Icon name={icon} className="text-orbital-accent" />;
-        }
-        return icon;
-    };
-
-    // Metric Card Layout Mapping
+    // Metric Card Layout
     if (variant === 'metric') {
         return (
-            <OrbitalCard
-                className={`${className} cursor-pointer hover:bg-orbital-accent/5 transition-colors`}
+            <MuiCard
                 onClick={onClick}
-                {...props}
+                sx={{
+                    height: '100%',
+                    cursor: onClick ? 'pointer' : 'default',
+                    position: 'relative',
+                    border: '1px solid',
+                    borderColor: 'divider',
+                    bgcolor: 'background.paper',
+                    transition: 'box-shadow 0.3s',
+                    '&:hover': onClick ? { boxShadow: 4 } : {},
+                    ...sx
+                }}
+                elevation={0}
+                className={className}
+                {...(props as any)}
             >
-                <div className="flex justify-between items-start mb-2">
-                    {title && <span className="text-xs font-bold text-orbital-subtext uppercase tracking-wider">{title}</span>}
-                    {icon && renderIcon()}
-                </div>
-                <div className="text-3xl font-bold text-orbital-text font-mono">{value}</div>
-                {subtitle && <div className="text-xs text-orbital-subtext mt-1">{subtitle}</div>}
-            </OrbitalCard>
+                <CardContent>
+                    <Box display="flex" justifyContent="space-between" alignItems="start" mb={1}>
+                        {title && <Typography variant="overline" color="text.secondary" fontWeight="bold">{title}</Typography>}
+                        {icon && (
+                            <Box p={1} borderRadius={1} bgcolor={`${colorScheme}.light`} color={`${colorScheme}.main`}>
+                                <Icon name={icon} size={20} />
+                            </Box>
+                        )}
+                    </Box>
+                    <Typography variant="h4" fontWeight="bold">{value}</Typography>
+                    {subtitle && <Typography variant="caption" color="text.secondary">{subtitle}</Typography>}
+                </CardContent>
+            </MuiCard>
         );
     }
 
-    // Interactive/Item/Default Mapping
+    // Default Layout
     return (
-        <OrbitalCard
-            title={title}
-            action={action}
-            className={`${className} ${onClick ? 'cursor-pointer hover:bg-orbital-accent/5' : ''}`}
+        <MuiCard
             onClick={onClick}
-            noPadding={padding === 'p-0'}
-            {...props}
+            sx={{
+                cursor: onClick ? 'pointer' : 'default',
+                transition: 'box-shadow 0.3s',
+                '&:hover': onClick ? { boxShadow: 4 } : {},
+                border: (noBorder || variant === 'outlined') ? 'none' : '1px solid',
+                borderColor: 'divider',
+                height: '100%',
+                ...sx
+            }}
+            variant={variant === 'outlined' ? 'outlined' : 'elevation'}
+            elevation={0}
+            className={className}
+            {...(props as any)}
         >
-            {(subtitle || badge || icon) && (
-                <div className="flex items-center gap-2 mb-4 px-1">
-                    {icon && renderIcon()}
-                    {subtitle && <span className="text-sm text-orbital-subtext">{subtitle}</span>}
-                    {badge && <OrbitalBadge label={badge.label} variant={badge.color as any} />}
-                </div>
+            {(title || subtitle || action || icon || badge) && (
+                 <CardHeader
+                    title={title}
+                    subheader={subtitle}
+                    avatar={icon ? <Box p={1} bgcolor="action.hover" borderRadius={1}><Icon name={icon} /></Box> : null}
+                    action={
+                        <Box display="flex" alignItems="center" gap={1}>
+                            {badge && <Badge variant={badge.color as any}>{badge.label}</Badge>}
+                            {action}
+                        </Box>
+                    }
+                    titleTypographyProps={{ variant: 'h6', fontWeight: 'bold' }}
+                 />
             )}
-            {children}
-        </OrbitalCard>
+            <CardContent className={padding === 'p-0' ? '!p-0' : ''}>
+                {children}
+            </CardContent>
+        </MuiCard>
     );
 };

@@ -1,6 +1,9 @@
 import React from 'react';
-import { Package, AlertTriangle, XCircle } from 'lucide-react';
-import { OrbitalCard } from '../ui/orbital/OrbitalCard';
+import { Card, CardContent, Typography, Box } from '@mui/material';
+import { Grid } from '@mui/material';
+import Inventory2Icon from '@mui/icons-material/Inventory2';
+import WarningIcon from '@mui/icons-material/Warning';
+import EventBusyIcon from '@mui/icons-material/EventBusy';
 
 interface InventoryStats {
     totalItems: number;
@@ -14,49 +17,55 @@ interface InventoryKPIsProps {
 
 export const InventoryKPIs: React.FC<InventoryKPIsProps> = ({ stats }) => {
     return (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-             <MetricCard
-                title="Itens Ativos"
-                icon={<Package className="text-orbital-accent" size={32} />}
-                value={stats.totalItems}
-                subValue="Lotes totais"
-                color="text-orbital-accent"
-             />
-             <MetricCard
-                title="Baixo Estoque"
-                icon={<AlertTriangle className="text-orbital-warning" size={32} />}
-                value={stats.lowStockCount}
-                subValue="Requer atenção"
-                color="text-orbital-warning"
-             />
-             <MetricCard
-                title="Vencidos"
-                icon={<XCircle className="text-orbital-danger" size={32} />}
-                value={stats.expiredCount}
-                subValue="Descartar"
-                color="text-orbital-danger"
-             />
-        </div>
+        <Grid container spacing={2} sx={{ mb: 3 }}>
+             <Grid size={{ xs: 12, sm: 4 }}>
+                 <MetricCard
+                    title="Itens Ativos"
+                    icon={<Inventory2Icon fontSize="large" />}
+                    value={stats.totalItems}
+                    subValue="Lotes totais"
+                    color="primary"
+                 />
+             </Grid>
+             <Grid size={{ xs: 12, sm: 4 }}>
+                 <MetricCard
+                    title="Baixo Estoque"
+                    icon={<WarningIcon fontSize="large" />}
+                    value={stats.lowStockCount}
+                    subValue="Requer atenção"
+                    color="warning"
+                 />
+             </Grid>
+             <Grid size={{ xs: 12, sm: 4 }}>
+                 <MetricCard
+                    title="Vencidos"
+                    icon={<EventBusyIcon fontSize="large" />}
+                    value={stats.expiredCount}
+                    subValue="Descartar"
+                    color="error"
+                 />
+             </Grid>
+        </Grid>
     );
 };
 
 const MetricCard = ({ title, icon, value, subValue, color }: any) => (
-    <OrbitalCard className="h-full group hover:bg-orbital-surface/80 transition-colors">
-        <div className="flex items-center justify-between">
-            <div>
-                <div className="text-xs font-display font-bold uppercase tracking-widest text-orbital-subtext mb-1">
+    <Card sx={{ height: '100%' }} variant="outlined">
+        <CardContent sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', p: 2, '&:last-child': { pb: 2 } }}>
+            <Box>
+                <Typography variant="overline" color="text.secondary" fontWeight="bold">
                     {title}
-                </div>
-                <div className={`text-4xl font-mono font-bold ${color} drop-shadow-lg`}>
+                </Typography>
+                <Typography variant="h4" fontWeight="bold">
                     {value}
-                </div>
-                <div className="text-xs text-orbital-subtext mt-1 opacity-70">
+                </Typography>
+                <Typography variant="caption" color="text.secondary">
                     {subValue}
-                </div>
-            </div>
-            <div className="p-3 bg-orbital-bg rounded-lg border border-orbital-border group-hover:border-orbital-accent/50 transition-colors shadow-inner">
+                </Typography>
+            </Box>
+            <Box sx={{ p: 1.5, borderRadius: 2, bgcolor: `${color}.light`, color: `${color}.main` }}>
                 {icon}
-            </div>
-        </div>
-    </OrbitalCard>
+            </Box>
+        </CardContent>
+    </Card>
 );
