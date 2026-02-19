@@ -1,7 +1,5 @@
 
 import React, { useState, useEffect, useLayoutEffect } from 'react';
-import { OrbitalButton } from './ui/orbital/OrbitalButton';
-import { X, ArrowRight, ArrowLeft } from 'lucide-react';
 
 interface Props {
   isOpen: boolean;
@@ -11,7 +9,7 @@ interface Props {
 
 interface Step {
   targetId?: string; 
-  mobileTargetId?: string;
+  mobileTargetId?: string; // Alvo alternativo para mobile
   title: string;
   desc: string;
   position?: 'right' | 'bottom' | 'left' | 'center' | 'top';
@@ -26,74 +24,76 @@ export const TutorialModal: React.FC<Props> = ({ isOpen, onClose, setTab }) => {
   const [isReady, setIsReady] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
+  // Definição dos Passos do Tour (Atualizado com UX Writing Comercial)
   const steps: Step[] = [
     {
-      title: "SYSTEM INITIALIZED",
-      desc: "Welcome to LabControl. This orbital interface is designed for high-efficiency inventory management.",
+      title: "Boas-vindas ao LabControl",
+      desc: "Descubra em 1 minuto como simplificar sua gestão laboratorial. Otimize tempo, reduza perdas e garanta a conformidade do seu estoque.",
       position: 'center'
     },
     {
       targetId: 'tour-sidebar',
       mobileTargetId: 'tour-mobile-nav',
-      title: "NAVIGATION ARRAY",
-      desc: "Access core modules: Inventory, Audit Logs, Storage Matrix, and Purchase Planning.",
+      title: "Navegação Centralizada",
+      desc: "Acesso rápido a todos os módulos essenciais: Inventário, Histórico de Auditoria, Matriz de Armazenamento e Planejamento de Compras.",
       position: 'right'
     },
     {
       targetId: 'tour-kpi',
-      title: "TELEMETRY",
-      desc: "Real-time metrics on system health, critical items, and operational efficiency.",
+      title: "Visão Estratégica (KPIs)",
+      desc: "Monitore a saúde do seu laboratório em tempo real. Identifique gargalos, itens críticos e oportunidades de reposição instantaneamente.",
       position: 'bottom',
       forceTab: 'dashboard'
     },
     {
       targetId: 'tour-inv-filters',
-      title: "QUERY PARAMETERS",
-      desc: "Filter data streams by Batch, SKU, Location, or Category for rapid retrieval.",
+      title: "Busca Inteligente & Filtros",
+      desc: "Localize qualquer insumo em segundos cruzando dados de Lote, SKU, Localização e Categoria. Ideal para auditorias rápidas.",
       position: 'bottom',
       forceTab: 'inventory'
     },
     {
       targetId: 'tour-storage-grid',
-      title: "SPATIAL MAPPING",
-      desc: "Visual representation of physical storage units. Manage capacity and compatibility.",
+      title: "Mapeamento Físico",
+      desc: "Gerencie visualmente a ocupação de geladeiras e armários. Evite a superlotação e organize itens por compatibilidade.",
       position: 'right', 
       forceTab: 'storage'
     },
     {
       targetId: 'tour-audit-btn',
-      title: "COMPLIANCE MODE",
-      desc: "Activate inspection overlays to identify expired items or hazardous storage violations.",
+      title: "Compliance (Auditoria)",
+      desc: "Ative o modo de inspeção para destacar visualmente inconformidades, como itens vencidos ou riscos químicos (GHS) armazenados incorretamente.",
       position: 'bottom',
       forceTab: 'storage'
     },
     {
       targetId: 'tour-purchases-export',
-      title: "ACQUISITION LOGIC",
-      desc: "Automated replenishment calculations based on consumption velocity.",
+      title: "Gestão de Aquisições",
+      desc: "Automatize sua lista de reposição baseada em consumo real. Exporte pedidos prontos para o departamento de compras com um clique.",
       position: 'left',
       forceTab: 'purchases'
     },
     {
       targetId: 'tour-add-btn',
-      title: "COMMAND FUNCTIONS",
-      desc: "Execute item creation, manual backups, and system alerts.",
+      title: "Menu de Ação Rápida",
+      desc: "Atalhos de produtividade: Adicione novos itens, realize backups de segurança manuais e verifique notificações do sistema.",
       position: 'bottom',
       forceTab: 'dashboard'
     },
     {
-      title: "CONFIGURATION",
-      desc: "Import legacy datasets, manage backups, or re-initialize this tutorial sequence.",
+      title: "Personalização & Dados",
+      desc: "Acesse as Configurações para importar planilhas legadas, gerenciar backups ou reativar este guia interativo quando precisar.",
       position: 'center',
       forceTab: 'settings'
     },
     {
-      title: "SYSTEM READY",
-      desc: "Initialization complete. You have control.",
+      title: "Tudo Pronto!",
+      desc: "Você está no controle. Mantenha seu inventário atualizado para extrair o máximo de inteligência do sistema.",
       position: 'center'
     }
   ];
 
+  // Detect Mobile Resize
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
     window.addEventListener('resize', handleResize);
@@ -105,6 +105,7 @@ export const TutorialModal: React.FC<Props> = ({ isOpen, onClose, setTab }) => {
 
     if (step.forceTab) {
         setTab(step.forceTab);
+        // Delay para permitir renderização e animação de troca de aba
         setTimeout(() => calculateLayout(step), 450); 
     } else {
         calculateLayout(step);
@@ -115,12 +116,13 @@ export const TutorialModal: React.FC<Props> = ({ isOpen, onClose, setTab }) => {
     const targetId = (isMobile && step.mobileTargetId) ? step.mobileTargetId : step.targetId;
 
     if (!targetId) {
+        // Centralizado
         setSpotlightStyle({
             top: '50%',
             left: '50%',
             width: 0,
             height: 0,
-            boxShadow: '0 0 0 9999px rgba(0, 0, 0, 0.85)',
+            boxShadow: '0 0 0 9999px rgba(0, 0, 0, 0.75)',
             opacity: 0 
         });
         setTooltipStyle({
@@ -144,21 +146,22 @@ export const TutorialModal: React.FC<Props> = ({ isOpen, onClose, setTab }) => {
             const rect = element.getBoundingClientRect();
             const padding = isMobile ? 8 : 12;
 
+            // Spotlight (Holofote)
             setSpotlightStyle({
                 top: rect.top - padding,
                 left: rect.left - padding,
                 width: rect.width + (padding * 2),
                 height: rect.height + (padding * 2),
-                borderRadius: '0px',
+                borderRadius: '12px',
                 position: 'fixed',
-                boxShadow: '0 0 0 9999px rgba(0, 0, 0, 0.85)',
+                boxShadow: '0 0 0 9999px rgba(0, 0, 0, 0.75)',
                 zIndex: 100,
                 opacity: 1,
                 pointerEvents: 'none',
-                border: '1px solid rgba(0, 243, 255, 0.5)',
                 transition: 'all 0.5s ease-in-out'
             });
 
+            // Tooltip Position Logic
             let toolTop = 0;
             let toolLeft = 0;
             let transform = '';
@@ -189,6 +192,7 @@ export const TutorialModal: React.FC<Props> = ({ isOpen, onClose, setTab }) => {
                     zIndex: 101,
                 });
             } else {
+                // Desktop
                 switch (step.position) {
                     case 'right':
                         toolTop = rect.top + (rect.height / 2);
@@ -216,6 +220,7 @@ export const TutorialModal: React.FC<Props> = ({ isOpen, onClose, setTab }) => {
                         transform = 'translate(-50%, -50%)';
                 }
 
+                // Boundary Checks
                 if (toolLeft + (tooltipWidth/2) > window.innerWidth) {
                     toolLeft = window.innerWidth - tooltipWidth - 20;
                     if (step.position === 'bottom' || step.position === 'top') {
@@ -241,12 +246,13 @@ export const TutorialModal: React.FC<Props> = ({ isOpen, onClose, setTab }) => {
             setIsReady(true);
         }, 500);
     } else {
+        // Fallback
         setSpotlightStyle({
             top: '50%',
             left: '50%',
             width: 0,
             height: 0,
-            boxShadow: '0 0 0 9999px rgba(0, 0, 0, 0.85)',
+            boxShadow: '0 0 0 9999px rgba(0, 0, 0, 0.75)',
             opacity: 0
         });
         setTooltipStyle({
@@ -262,6 +268,7 @@ export const TutorialModal: React.FC<Props> = ({ isOpen, onClose, setTab }) => {
 
   useLayoutEffect(() => {
       if (isOpen) {
+          // eslint-disable-next-line react-hooks/set-state-in-effect
           setIsReady(false);
           updatePosition();
           window.addEventListener('resize', updatePosition);
@@ -269,6 +276,7 @@ export const TutorialModal: React.FC<Props> = ({ isOpen, onClose, setTab }) => {
               window.removeEventListener('resize', updatePosition);
           };
       }
+      // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentStep, isOpen]);
 
   const handleNext = () => {
@@ -296,7 +304,7 @@ export const TutorialModal: React.FC<Props> = ({ isOpen, onClose, setTab }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[100] overflow-hidden font-sans">
+    <div className="fixed inset-0 z-[100] overflow-hidden">
         {/* Spotlight Effect */}
         <div 
             className="absolute transition-all duration-700 ease-[cubic-bezier(0.25,0.46,0.45,0.94)] pointer-events-none"
@@ -305,67 +313,60 @@ export const TutorialModal: React.FC<Props> = ({ isOpen, onClose, setTab }) => {
 
         {/* Content Card */}
         <div 
-            className={`
-                bg-orbital-surface border border-orbital-accent shadow-[0_0_30px_rgba(0,243,255,0.1)]
-                flex flex-col transition-all duration-500 ease-out
-                ${isReady ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}
-                max-h-[90vh] overflow-y-auto custom-scrollbar
-            `}
+            className={`bg-surface-light dark:bg-surface-dark rounded-xl shadow-2xl border border-border-light dark:border-border-dark flex flex-col transition-all duration-500 ease-out ${isReady ? 'opacity-100 scale-100' : 'opacity-0 scale-95'} max-h-[90vh] overflow-y-auto custom-scrollbar`}
             style={tooltipStyle}
         >
-            <div className="h-0.5 bg-orbital-accent w-full shadow-[0_0_10px_rgba(0,243,255,0.5)]"></div>
+            <div className="h-1.5 bg-gradient-to-r from-primary to-primary-hover w-full rounded-t-xl"></div>
             
             <div className="p-6">
                 <div className="flex justify-between items-center mb-5">
-                     <span className="text-[10px] font-bold text-orbital-accent bg-orbital-accent/5 border border-orbital-accent/20 px-2.5 py-1 uppercase tracking-wider font-display">
-                        Sequence {currentStep + 1} / {steps.length}
+                     <span className="text-[10px] font-bold text-primary bg-primary/5 border border-primary/10 px-2.5 py-1 rounded-full uppercase tracking-wider">
+                        Dica {currentStep + 1} de {steps.length}
                     </span>
-                    <button onClick={handleFinish} className="text-orbital-subtext hover:text-orbital-accent transition-colors">
-                        <X size={16} />
+                    <button onClick={handleFinish} className="text-text-light hover:text-text-secondary dark:text-gray-500 dark:hover:text-gray-300 transition-colors">
+                        <span className="material-symbols-outlined text-[20px]">close</span>
                     </button>
                 </div>
 
-                <h3 className="text-lg font-bold text-orbital-text mb-2 leading-tight font-display uppercase tracking-wide">
+                <h3 className="text-lg font-bold text-text-main dark:text-white mb-2 leading-tight">
                     {steps[currentStep].title}
                 </h3>
                 
-                <p className="text-orbital-subtext text-sm leading-relaxed mb-6 font-mono">
+                <p className="text-text-secondary dark:text-gray-300 text-sm leading-relaxed mb-6 font-medium">
                     {steps[currentStep].desc}
                 </p>
 
                 <div className="flex justify-between items-center gap-3 mt-auto">
                     {currentStep > 0 ? (
-                        <OrbitalButton
-                            variant="secondary"
+                        <button
                             onClick={handlePrev}
-                            className="w-auto"
+                            className="text-text-secondary dark:text-gray-300 hover:text-text-main dark:hover:text-white text-sm font-bold px-4 py-2 transition-colors rounded-lg hover:bg-background-light dark:hover:bg-slate-700"
                         >
-                            <ArrowLeft size={14} className="mr-1"/> BACK
-                        </OrbitalButton>
+                            Voltar
+                        </button>
                     ) : (
                          <div className="flex-1"></div>
                     )}
 
-                    <OrbitalButton
-                        variant="primary"
+                    <button
                         onClick={handleNext}
-                        className="w-auto"
+                        className="bg-primary hover:bg-primary-hover text-white text-sm font-bold px-6 py-2.5 rounded-lg shadow-md shadow-primary/20 transition-all active:scale-95 flex items-center gap-2"
                     >
-                        {currentStep === steps.length - 1 ? 'ENGAGE' : 'NEXT'}
-                        {currentStep < steps.length - 1 && <ArrowRight size={14} className="ml-1"/>}
-                    </OrbitalButton>
+                        {currentStep === steps.length - 1 ? 'Começar Agora' : 'Próximo'}
+                        {currentStep < steps.length - 1 && <span className="material-symbols-outlined text-[16px]">arrow_forward</span>}
+                    </button>
                 </div>
 
-                <div className="mt-5 pt-4 border-t border-orbital-border flex justify-center">
+                <div className="mt-5 pt-4 border-t border-border-light dark:border-border-dark flex justify-center">
                     <label className="flex items-center gap-2 cursor-pointer group select-none opacity-80 hover:opacity-100 transition-opacity">
                         <input 
                             type="checkbox" 
-                            className="appearance-none w-3.5 h-3.5 border border-orbital-border bg-orbital-bg checked:bg-orbital-accent checked:border-orbital-accent focus:ring-0 transition-colors"
+                            className="rounded border-border-light dark:border-gray-600 text-primary focus:ring-primary w-3.5 h-3.5 cursor-pointer dark:bg-slate-800"
                             checked={dontShowAgain}
                             onChange={(e) => setDontShowAgain(e.target.checked)}
                         />
-                        <span className="text-[10px] font-mono font-medium text-orbital-subtext group-hover:text-orbital-accent transition-colors uppercase tracking-wider">
-                            Disable future guidance
+                        <span className="text-[11px] font-medium text-text-secondary dark:text-gray-400 group-hover:text-primary transition-colors">
+                            Não mostrar novamente
                         </span>
                     </label>
                 </div>

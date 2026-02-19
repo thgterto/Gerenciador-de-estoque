@@ -1,22 +1,15 @@
+
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { InventoryItem, MovementRecord } from '../types';
 import { PageContainer } from './ui/PageContainer';
 import { PageHeader } from './ui/PageHeader';
-import { OrbitalCard } from './ui/orbital/OrbitalCard';
-import { OrbitalButton } from './ui/orbital/OrbitalButton';
-import { OrbitalTable, OrbitalHead, OrbitalBody, OrbitalRow, OrbitalTh, OrbitalTd } from './ui/orbital/OrbitalTable';
-import { OrbitalBadge } from './ui/orbital/OrbitalBadge';
+import { Card } from './ui/Card';
+import { Button } from './ui/Button';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui/Table';
 import { useReportsAnalytics } from '../hooks/useReportsAnalytics';
 import { useECharts } from '../hooks/useECharts';
 import { formatDate } from '../utils/formatters';
-import {
-    BarChart3,
-    DollarSign,
-    ArrowRightLeft,
-    ShieldCheck,
-    CalendarX,
-    Printer
-} from 'lucide-react';
+import { Badge } from './ui/Badge';
 
 interface Props {
   items: InventoryItem[];
@@ -32,20 +25,20 @@ const ABCChart = React.memo(({ dataA, dataB, dataC }: { dataA: number, dataB: nu
         if (chart) {
             const option = {
                 tooltip: { trigger: 'item' },
-                legend: { top: '5%', left: 'center', textStyle: { color: '#f4f4f5' } },
+                legend: { top: '5%', left: 'center' },
                 series: [
                     {
                         name: 'Classificação ABC',
                         type: 'pie',
                         radius: ['40%', '70%'],
                         avoidLabelOverlap: false,
-                        itemStyle: { borderRadius: 4, borderColor: '#09090b', borderWidth: 2 },
+                        itemStyle: { borderRadius: 10, borderColor: '#fff', borderWidth: 2 },
                         label: { show: false, position: 'center' },
-                        emphasis: { label: { show: true, fontSize: 20, fontWeight: 'bold', color: '#fff' } },
+                        emphasis: { label: { show: true, fontSize: 20, fontWeight: 'bold' } },
                         data: [
-                            { value: dataA, name: 'Classe A (80%)', itemStyle: { color: '#10b981' } },
-                            { value: dataB, name: 'Classe B (15%)', itemStyle: { color: '#f59e0b' } },
-                            { value: dataC, name: 'Classe C (5%)', itemStyle: { color: '#ef4444' } }
+                            { value: dataA, name: 'Classe A (80% Consumo)', itemStyle: { color: '#10B981' } },
+                            { value: dataB, name: 'Classe B (15% Consumo)', itemStyle: { color: '#F59E0B' } },
+                            { value: dataC, name: 'Classe C (5% Consumo)', itemStyle: { color: '#EF4444' } }
                         ]
                     }
                 ]
@@ -70,8 +63,7 @@ const FlowChart = React.memo(({ labels, dataIn, dataOut }: { labels: string[], d
                 },
                 legend: {
                     data: ['Entradas', 'Saídas'],
-                    bottom: 0,
-                    textStyle: { color: '#f4f4f5' }
+                    bottom: 0
                 },
                 grid: {
                     left: '3%', right: '4%', bottom: '10%', top: '3%', containLabel: true
@@ -80,28 +72,26 @@ const FlowChart = React.memo(({ labels, dataIn, dataOut }: { labels: string[], d
                     type: 'category',
                     data: labels,
                     axisLine: { show: false },
-                    axisTick: { show: false },
-                    axisLabel: { color: '#a1a1aa' }
+                    axisTick: { show: false }
                 },
                 yAxis: {
                     type: 'value',
-                    splitLine: { lineStyle: { type: 'dashed', color: '#27272a' } },
-                    axisLabel: { color: '#a1a1aa' }
+                    splitLine: { lineStyle: { type: 'dashed', color: '#E2E8F0' } }
                 },
                 series: [
                     {
                         name: 'Entradas',
                         type: 'bar',
                         data: dataIn,
-                        itemStyle: { color: '#10b981', borderRadius: [4, 4, 0, 0] },
-                        barMaxWidth: 20
+                        itemStyle: { color: '#10B981', borderRadius: [4, 4, 0, 0] },
+                        barMaxWidth: 30
                     },
                     {
                         name: 'Saídas',
                         type: 'bar',
                         data: dataOut,
-                        itemStyle: { color: '#ef4444', borderRadius: [4, 4, 0, 0] },
-                        barMaxWidth: 20
+                        itemStyle: { color: '#EF4444', borderRadius: [4, 4, 0, 0] },
+                        barMaxWidth: 30
                     }
                 ]
             };
@@ -131,26 +121,26 @@ export const Reports: React.FC<Props> = ({ items, history }) => {
                 title="Relatórios Gerenciais" 
                 description="Análise estratégica de estoque, consumo e conformidade."
             >
-                <div className="flex bg-orbital-surface p-1 rounded-none border border-orbital-border overflow-x-auto no-scrollbar">
+                <div className="flex bg-surface-light dark:bg-surface-dark p-1 rounded-lg border border-border-light dark:border-border-dark overflow-x-auto no-scrollbar">
                     {[
-                        { id: 'ABC', label: 'Curva ABC', icon: <BarChart3 size={16} /> },
-                        { id: 'COST', label: 'Financeiro', icon: <DollarSign size={16} /> },
-                        { id: 'FLOW', label: 'Fluxo', icon: <ArrowRightLeft size={16} /> },
-                        { id: 'CONTROLLED', label: 'Controlados', icon: <ShieldCheck size={16} /> },
-                        { id: 'EXPIRY', label: 'Validade', icon: <CalendarX size={16} /> }
+                        { id: 'ABC', label: 'Curva ABC', icon: 'analytics' },
+                        { id: 'COST', label: 'Financeiro', icon: 'attach_money' },
+                        { id: 'FLOW', label: 'Fluxo', icon: 'swap_vert' },
+                        { id: 'CONTROLLED', label: 'Controlados', icon: 'verified_user' },
+                        { id: 'EXPIRY', label: 'Validade', icon: 'event_busy' }
                     ].map(tab => (
                         <button
                             key={tab.id}
                             onClick={() => setActiveTab(tab.id as any)}
                             className={`
-                                flex items-center gap-2 px-4 py-2 text-sm font-bold uppercase tracking-wider transition-all whitespace-nowrap border-b-2
+                                flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all whitespace-nowrap
                                 ${activeTab === tab.id 
-                                    ? 'bg-orbital-accent/10 border-orbital-accent text-orbital-accent'
-                                    : 'border-transparent text-orbital-subtext hover:text-orbital-text hover:bg-orbital-bg'
+                                    ? 'bg-primary text-white shadow-sm'
+                                    : 'text-text-secondary hover:text-text-main dark:text-gray-400 dark:hover:text-white hover:bg-background-light dark:hover:bg-slate-700'
                                 }
                             `}
                         >
-                            {tab.icon}
+                            <span className="material-symbols-outlined text-[18px]">{tab.icon}</span>
                             <span className="hidden sm:inline">{tab.label}</span>
                         </button>
                     ))}
@@ -161,66 +151,62 @@ export const Reports: React.FC<Props> = ({ items, history }) => {
             {activeTab === 'COST' && (
                 <div className="flex flex-col gap-6 animate-fade-in">
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                         <OrbitalCard className="bg-orbital-accent/5 border-orbital-accent/20">
-                             <h3 className="text-xs font-bold text-orbital-accent uppercase tracking-widest">Valor Total em Estoque</h3>
-                             <p className="text-3xl font-mono font-black text-orbital-text mt-2">
+                         <Card padding="p-6" className="bg-primary/5 border-primary/20">
+                             <h3 className="text-sm font-bold text-primary uppercase tracking-wide">Valor Total em Estoque</h3>
+                             <p className="text-3xl font-black text-text-main dark:text-white mt-2">
                                  {costAnalysis.totalValue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
                              </p>
-                         </OrbitalCard>
-                         <OrbitalCard>
-                             <h3 className="text-xs font-bold text-orbital-subtext uppercase tracking-widest">Item Mais Valioso</h3>
+                         </Card>
+                         <Card padding="p-6">
+                             <h3 className="text-sm font-bold text-text-secondary uppercase tracking-wide">Item Mais Valioso</h3>
                              {costAnalysis.items.length > 0 ? (
                                  <div className="mt-2">
-                                     <p className="text-xl font-bold text-orbital-text truncate" title={costAnalysis.items[0].name}>{costAnalysis.items[0].name}</p>
-                                     <p className="text-sm font-mono text-orbital-subtext">{costAnalysis.items[0].totalValue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</p>
+                                     <p className="text-xl font-bold text-text-main dark:text-white truncate" title={costAnalysis.items[0].name}>{costAnalysis.items[0].name}</p>
+                                     <p className="text-sm text-text-secondary">{costAnalysis.items[0].totalValue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</p>
                                  </div>
-                             ) : <p className="mt-2 text-orbital-subtext italic">--</p>}
-                         </OrbitalCard>
+                             ) : <p className="mt-2 text-text-secondary italic">--</p>}
+                         </Card>
                     </div>
 
-                    <OrbitalCard noPadding className="flex flex-col overflow-hidden">
-                        <div className="px-6 py-4 border-b border-orbital-border bg-orbital-bg/50 flex justify-between items-center">
-                            <h3 className="font-bold text-orbital-text uppercase">Detalhamento de Custos</h3>
+                    <Card padding="p-0" className="flex flex-col overflow-hidden">
+                        <div className="px-6 py-4 border-b border-border-light dark:border-border-dark bg-background-light/50 dark:bg-slate-800/50 flex justify-between items-center">
+                            <h3 className="font-bold text-text-main dark:text-white">Detalhamento de Custos</h3>
                         </div>
-                        <OrbitalTable className="border-0">
-                            <OrbitalHead>
-                                <OrbitalRow isHoverable={false}>
-                                    <OrbitalTh>Produto</OrbitalTh>
-                                    <OrbitalTh align="right">Qtd</OrbitalTh>
-                                    <OrbitalTh align="right">Custo Unit.</OrbitalTh>
-                                    <OrbitalTh align="right">Total</OrbitalTh>
-                                </OrbitalRow>
-                            </OrbitalHead>
-                            <OrbitalBody>
+                        <Table>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead>Produto</TableHead>
+                                    <TableHead className="text-right">Qtd</TableHead>
+                                    <TableHead className="text-right">Custo Unit.</TableHead>
+                                    <TableHead className="text-right font-bold">Total</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
                                 {costAnalysis.items.slice(0, 50).map(item => (
-                                    <OrbitalRow key={item.id}>
-                                        <OrbitalTd>
-                                            <div className="font-bold text-orbital-text">{item.name}</div>
-                                            <div className="text-xs text-orbital-subtext font-mono">{item.lotNumber}</div>
-                                        </OrbitalTd>
-                                        <OrbitalTd align="right"><span className="font-mono">{item.quantity} {item.baseUnit}</span></OrbitalTd>
-                                        <OrbitalTd align="right">
-                                            <span className="font-mono text-orbital-subtext">
-                                                {item.unitCost ? item.unitCost.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) : '-'}
-                                            </span>
-                                        </OrbitalTd>
-                                        <OrbitalTd align="right">
-                                            <span className="font-bold font-mono text-orbital-text">
-                                                {item.totalValue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
-                                            </span>
-                                        </OrbitalTd>
-                                    </OrbitalRow>
+                                    <TableRow key={item.id}>
+                                        <TableCell>
+                                            <div className="font-medium">{item.name}</div>
+                                            <div className="text-xs text-text-secondary">{item.lotNumber}</div>
+                                        </TableCell>
+                                        <TableCell className="text-right font-mono">{item.quantity} {item.baseUnit}</TableCell>
+                                        <TableCell className="text-right font-mono text-text-secondary">
+                                            {item.unitCost ? item.unitCost.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) : '-'}
+                                        </TableCell>
+                                        <TableCell className="text-right font-bold">
+                                            {item.totalValue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                                        </TableCell>
+                                    </TableRow>
                                 ))}
                                 {costAnalysis.items.length === 0 && (
-                                    <OrbitalRow isHoverable={false}>
-                                        <td colSpan={4} className="text-center text-orbital-subtext opacity-60 py-12">
+                                    <TableRow>
+                                        <TableCell colSpan={4} className="text-center text-text-secondary opacity-60 py-12">
                                             Sem dados de custo registrados.
-                                        </td>
-                                    </OrbitalRow>
+                                        </TableCell>
+                                    </TableRow>
                                 )}
-                            </OrbitalBody>
-                        </OrbitalTable>
-                    </OrbitalCard>
+                            </TableBody>
+                        </Table>
+                    </Card>
                 </div>
             )}
 
@@ -228,46 +214,47 @@ export const Reports: React.FC<Props> = ({ items, history }) => {
             {activeTab === 'ABC' && (
                 <div className="flex flex-col gap-6 animate-fade-in">
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                        <OrbitalCard className="lg:col-span-1 min-h-[300px]">
-                            <h3 className="font-bold text-orbital-text mb-4 uppercase">Distribuição de Consumo</h3>
+                        <Card padding="p-6" className="lg:col-span-1 min-h-[300px]">
+                            <h3 className="font-bold text-text-main dark:text-white mb-4">Distribuição de Consumo</h3>
                             {abcAnalysis.length > 0 ? (
                                 <ABCChart dataA={chartData.A} dataB={chartData.B} dataC={chartData.C} />
                             ) : (
-                                <div className="h-full flex items-center justify-center text-orbital-subtext italic">
+                                <div className="h-full flex items-center justify-center text-text-secondary italic">
                                     Sem dados de movimentação suficientes.
                                 </div>
                             )}
-                        </OrbitalCard>
-                        <OrbitalCard noPadding className="lg:col-span-2 flex flex-col overflow-hidden">
-                            <div className="px-6 py-4 border-b border-orbital-border bg-orbital-bg/50">
-                                <h3 className="font-bold text-orbital-text uppercase">Top Itens (Classe A)</h3>
+                        </Card>
+                        <Card padding="p-0" className="lg:col-span-2 flex flex-col overflow-hidden">
+                            <div className="px-6 py-4 border-b border-border-light dark:border-border-dark bg-background-light/50 dark:bg-slate-800/50">
+                                <h3 className="font-bold text-text-main dark:text-white">Top Itens (Classe A)</h3>
                             </div>
-                            <OrbitalTable className="border-0">
-                                <OrbitalHead>
-                                    <OrbitalRow isHoverable={false}>
-                                        <OrbitalTh>Item</OrbitalTh>
-                                        <OrbitalTh align="right">Consumo Total</OrbitalTh>
-                                        <OrbitalTh align="right">% Acumulado</OrbitalTh>
-                                        <OrbitalTh align="center">Classe</OrbitalTh>
-                                    </OrbitalRow>
-                                </OrbitalHead>
-                                <OrbitalBody>
+                            <Table>
+                                <TableHeader>
+                                    <TableRow>
+                                        <TableHead>Item</TableHead>
+                                        <TableHead className="text-right">Consumo Total</TableHead>
+                                        <TableHead className="text-right">% Acumulado</TableHead>
+                                        <TableHead className="text-center">Classe</TableHead>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
                                     {abcAnalysis.slice(0, 10).map((item) => (
-                                        <OrbitalRow key={item.id}>
-                                            <OrbitalTd><span className="font-bold text-orbital-text">{item.name}</span></OrbitalTd>
-                                            <OrbitalTd align="right"><span className="font-mono">{item.consumption.toFixed(2)}</span></OrbitalTd>
-                                            <OrbitalTd align="right"><span className="font-mono text-orbital-subtext">{item.cumulative.toFixed(1)}%</span></OrbitalTd>
-                                            <OrbitalTd align="center">
-                                                <OrbitalBadge
+                                        <TableRow key={item.id}>
+                                            <TableCell className="font-medium">{item.name}</TableCell>
+                                            <TableCell className="text-right font-mono">{item.consumption.toFixed(2)}</TableCell>
+                                            <TableCell className="text-right font-mono text-text-secondary">{item.cumulative.toFixed(1)}%</TableCell>
+                                            <TableCell className="text-center">
+                                                <Badge
                                                     variant={item.class === 'A' ? 'success' : item.class === 'B' ? 'warning' : 'danger'}
-                                                    label={`Classe ${item.class}`}
-                                                />
-                                            </OrbitalTd>
-                                        </OrbitalRow>
+                                                >
+                                                    Classe {item.class}
+                                                </Badge>
+                                            </TableCell>
+                                        </TableRow>
                                     ))}
-                                </OrbitalBody>
-                            </OrbitalTable>
-                        </OrbitalCard>
+                                </TableBody>
+                            </Table>
+                        </Card>
                     </div>
                 </div>
             )}
@@ -275,35 +262,35 @@ export const Reports: React.FC<Props> = ({ items, history }) => {
             {/* TAB CONTENT: FLUXO */}
             {activeTab === 'FLOW' && (
                  <div className="flex flex-col gap-6 animate-fade-in">
-                    <OrbitalCard className="min-h-[400px]">
+                    <Card padding="p-6" className="min-h-[400px]">
                         <div className="flex justify-between items-center mb-6">
                             <div>
-                                <h3 className="font-bold text-orbital-text text-lg uppercase">Fluxo de Movimentação</h3>
-                                <p className="text-sm text-orbital-subtext">Entradas vs. Saídas (Últimos 12 meses)</p>
+                                <h3 className="font-bold text-text-main dark:text-white text-lg">Fluxo de Movimentação</h3>
+                                <p className="text-sm text-text-secondary dark:text-gray-400">Entradas vs. Saídas (Últimos 12 meses)</p>
                             </div>
                         </div>
                         {history.length > 0 ? (
                             <FlowChart labels={monthlyFlow.labels} dataIn={monthlyFlow.dataIn} dataOut={monthlyFlow.dataOut} />
                         ) : (
-                            <div className="h-[300px] flex items-center justify-center text-orbital-subtext">
+                            <div className="h-[300px] flex items-center justify-center text-text-secondary">
                                 <div className="text-center">
-                                    <ArrowRightLeft size={48} className="mx-auto mb-2 opacity-20" />
+                                    <span className="material-symbols-outlined text-4xl opacity-50 mb-2">bar_chart_off</span>
                                     <p>Nenhuma movimentação registrada.</p>
                                 </div>
                             </div>
                         )}
-                    </OrbitalCard>
+                    </Card>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="p-4 rounded border bg-orbital-success/10 border-orbital-success/20">
-                            <h4 className="text-xs font-bold text-orbital-success uppercase tracking-widest">Total Entradas (Ano)</h4>
-                            <p className="text-2xl font-mono font-black text-orbital-success mt-1">
+                        <div className="p-4 rounded-xl bg-emerald-50 dark:bg-emerald-900/10 border border-emerald-100 dark:border-emerald-900/30">
+                            <h4 className="text-sm font-bold text-emerald-800 dark:text-emerald-300 uppercase tracking-wide">Total Entradas (Ano)</h4>
+                            <p className="text-2xl font-black text-emerald-600 dark:text-emerald-400 mt-1">
                                 {monthlyFlow.dataIn.reduce((a, b) => a + b, 0).toLocaleString()} <span className="text-sm font-medium opacity-70">unidades</span>
                             </p>
                         </div>
-                        <div className="p-4 rounded border bg-orbital-danger/10 border-orbital-danger/20">
-                            <h4 className="text-xs font-bold text-orbital-danger uppercase tracking-widest">Total Saídas (Ano)</h4>
-                            <p className="text-2xl font-mono font-black text-orbital-danger mt-1">
+                        <div className="p-4 rounded-xl bg-red-50 dark:bg-red-900/10 border border-red-100 dark:border-red-900/30">
+                            <h4 className="text-sm font-bold text-red-800 dark:text-red-300 uppercase tracking-wide">Total Saídas (Ano)</h4>
+                            <p className="text-2xl font-black text-red-600 dark:text-red-400 mt-1">
                                 {monthlyFlow.dataOut.reduce((a, b) => a + b, 0).toLocaleString()} <span className="text-sm font-medium opacity-70">unidades</span>
                             </p>
                         </div>
@@ -314,95 +301,95 @@ export const Reports: React.FC<Props> = ({ items, history }) => {
             {/* TAB CONTENT: CONTROLLED */}
             {activeTab === 'CONTROLLED' && (
                 <div className="flex flex-col gap-6 animate-fade-in">
-                     <OrbitalCard noPadding className="flex flex-col overflow-hidden">
-                        <div className="px-6 py-4 border-b border-orbital-border bg-orbital-bg/50 flex justify-between items-center">
-                            <h3 className="font-bold text-orbital-text uppercase">Mapa de Produtos Controlados</h3>
-                            <OrbitalButton variant="outline" size="sm" icon={<Printer size={16} />} onClick={() => window.print()}>Imprimir</OrbitalButton>
+                     <Card padding="p-0" className="flex flex-col overflow-hidden">
+                        <div className="px-6 py-4 border-b border-border-light dark:border-border-dark bg-background-light/50 dark:bg-slate-800/50 flex justify-between items-center">
+                            <h3 className="font-bold text-text-main dark:text-white">Mapa de Produtos Controlados</h3>
+                            <Button variant="outline" size="sm" icon="print" onClick={() => window.print()}>Imprimir</Button>
                         </div>
-                        <OrbitalTable className="border-0">
-                            <OrbitalHead>
-                                <OrbitalRow isHoverable={false}>
-                                    <OrbitalTh>Produto</OrbitalTh>
-                                    <OrbitalTh>CAS</OrbitalTh>
-                                    <OrbitalTh align="right">Saldo Inicial</OrbitalTh>
-                                    <OrbitalTh align="right" className="text-orbital-success">Entradas</OrbitalTh>
-                                    <OrbitalTh align="right" className="text-orbital-danger">Saídas</OrbitalTh>
-                                    <OrbitalTh align="right">Saldo Atual</OrbitalTh>
-                                </OrbitalRow>
-                            </OrbitalHead>
-                            <OrbitalBody>
+                        <Table>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead>Produto</TableHead>
+                                    <TableHead>CAS</TableHead>
+                                    <TableHead className="text-right">Saldo Inicial (Est.)</TableHead>
+                                    <TableHead className="text-right text-emerald-600">Entradas</TableHead>
+                                    <TableHead className="text-right text-red-600">Saídas</TableHead>
+                                    <TableHead className="text-right font-bold">Saldo Atual</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
                                 {controlledReport.map(item => (
-                                    <OrbitalRow key={item.id}>
-                                        <OrbitalTd>
-                                            <div className="font-bold text-orbital-text">{item.name}</div>
-                                            <div className="text-xs text-orbital-subtext font-mono">{item.sapCode}</div>
-                                        </OrbitalTd>
-                                        <OrbitalTd className="font-mono text-orbital-subtext">{item.casNumber || '-'}</OrbitalTd>
-                                        <OrbitalTd align="right" className="text-orbital-subtext">{(item.quantity - item.totalEntry + item.totalExit).toFixed(3)} {item.baseUnit}</OrbitalTd>
-                                        <OrbitalTd align="right" className="text-orbital-success font-bold font-mono">{item.totalEntry.toFixed(3)}</OrbitalTd>
-                                        <OrbitalTd align="right" className="text-orbital-danger font-bold font-mono">{item.totalExit.toFixed(3)}</OrbitalTd>
-                                        <OrbitalTd align="right" className="font-black font-mono text-orbital-accent">{item.quantity.toFixed(3)} {item.baseUnit}</OrbitalTd>
-                                    </OrbitalRow>
+                                    <TableRow key={item.id}>
+                                        <TableCell>
+                                            <div className="font-medium">{item.name}</div>
+                                            <div className="text-xs text-text-secondary font-mono">{item.sapCode}</div>
+                                        </TableCell>
+                                        <TableCell className="font-mono text-text-secondary">{item.casNumber || '-'}</TableCell>
+                                        <TableCell className="text-right text-text-secondary">{(item.quantity - item.totalEntry + item.totalExit).toFixed(3)} {item.baseUnit}</TableCell>
+                                        <TableCell className="text-right text-emerald-600 font-medium">{item.totalEntry.toFixed(3)}</TableCell>
+                                        <TableCell className="text-right text-red-600 font-medium">{item.totalExit.toFixed(3)}</TableCell>
+                                        <TableCell className="text-right font-bold bg-primary/5">{item.quantity.toFixed(3)} {item.baseUnit}</TableCell>
+                                    </TableRow>
                                 ))}
                                 {controlledReport.length === 0 && (
-                                    <OrbitalRow isHoverable={false}>
-                                        <td colSpan={6} className="text-center text-orbital-subtext opacity-60 py-12">
+                                    <TableRow>
+                                        <TableCell colSpan={6} className="text-center text-text-secondary opacity-60 py-12">
                                             Nenhum produto marcado como "Controlado" no inventário.
-                                        </td>
-                                    </OrbitalRow>
+                                        </TableCell>
+                                    </TableRow>
                                 )}
-                            </OrbitalBody>
-                        </OrbitalTable>
-                    </OrbitalCard>
+                            </TableBody>
+                        </Table>
+                    </Card>
                 </div>
             )}
 
              {/* TAB CONTENT: EXPIRY RISK */}
              {activeTab === 'EXPIRY' && (
                 <div className="flex flex-col gap-6 animate-fade-in">
-                    <OrbitalCard noPadding className="flex flex-col overflow-hidden">
-                         <div className="px-6 py-4 border-b border-orbital-border bg-orbital-bg/50">
-                            <h3 className="font-bold text-orbital-text uppercase">Risco de Vencimento (Próximos 90 Dias)</h3>
+                    <Card padding="p-0" className="flex flex-col overflow-hidden">
+                         <div className="px-6 py-4 border-b border-border-light dark:border-border-dark bg-background-light/50 dark:bg-slate-800/50">
+                            <h3 className="font-bold text-text-main dark:text-white">Risco de Vencimento (Próximos 90 Dias)</h3>
                         </div>
-                        <OrbitalTable className="border-0">
-                            <OrbitalHead>
-                                <OrbitalRow isHoverable={false}>
-                                    <OrbitalTh>Produto</OrbitalTh>
-                                    <OrbitalTh>Lote</OrbitalTh>
-                                    <OrbitalTh>Validade</OrbitalTh>
-                                    <OrbitalTh align="center">Status</OrbitalTh>
-                                    <OrbitalTh align="right">Qtd em Risco</OrbitalTh>
-                                </OrbitalRow>
-                            </OrbitalHead>
-                            <OrbitalBody>
+                        <Table>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead>Produto</TableHead>
+                                    <TableHead>Lote</TableHead>
+                                    <TableHead>Validade</TableHead>
+                                    <TableHead className="text-center">Status</TableHead>
+                                    <TableHead className="text-right">Quantidade em Risco</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
                                 {expiryRisk.map(item => {
                                     const days = Math.ceil((new Date(item.expiryDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
                                     return (
-                                        <OrbitalRow key={item.id}>
-                                            <OrbitalTd><span className="font-bold text-orbital-text">{item.name}</span></OrbitalTd>
-                                            <OrbitalTd className="font-mono text-orbital-subtext">{item.lotNumber}</OrbitalTd>
-                                            <OrbitalTd className="font-bold text-orbital-text">{formatDate(item.expiryDate)}</OrbitalTd>
-                                            <OrbitalTd align="center">
+                                        <TableRow key={item.id}>
+                                            <TableCell className="font-medium">{item.name}</TableCell>
+                                            <TableCell className="font-mono text-text-secondary">{item.lotNumber}</TableCell>
+                                            <TableCell className="font-bold text-text-main dark:text-gray-300">{formatDate(item.expiryDate)}</TableCell>
+                                            <TableCell className="text-center">
                                                 {days < 0 ? (
-                                                    <OrbitalBadge variant="danger" label="Vencido" />
+                                                    <Badge variant="danger">Vencido</Badge>
                                                 ) : (
-                                                    <OrbitalBadge variant="warning" label={`Vence em ${days} dias`} />
+                                                    <Badge variant="warning">Vence em {days} dias</Badge>
                                                 )}
-                                            </OrbitalTd>
-                                            <OrbitalTd align="right" className="font-mono">{item.quantity} {item.baseUnit}</OrbitalTd>
-                                        </OrbitalRow>
+                                            </TableCell>
+                                            <TableCell className="text-right font-mono">{item.quantity} {item.baseUnit}</TableCell>
+                                        </TableRow>
                                     );
                                 })}
                                 {expiryRisk.length === 0 && (
-                                    <OrbitalRow isHoverable={false}>
-                                         <td colSpan={5} className="text-center text-orbital-subtext opacity-60 py-12">
+                                    <TableRow>
+                                         <TableCell colSpan={5} className="text-center text-text-secondary opacity-60 py-12">
                                             Nenhum item vencendo nos próximos 90 dias.
-                                        </td>
-                                    </OrbitalRow>
+                                        </TableCell>
+                                    </TableRow>
                                 )}
-                            </OrbitalBody>
-                        </OrbitalTable>
-                    </OrbitalCard>
+                            </TableBody>
+                        </Table>
+                    </Card>
                 </div>
              )}
         </PageContainer>

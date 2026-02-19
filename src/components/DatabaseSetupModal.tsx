@@ -1,7 +1,6 @@
 
 import React from 'react';
-import { OrbitalModal } from './ui/orbital/OrbitalModal';
-import { CheckSquare, Database } from 'lucide-react';
+import { Modal } from './ui/Modal';
 
 interface Props {
   isOpen: boolean;
@@ -10,15 +9,15 @@ interface Props {
 
 export const DatabaseSetupModal: React.FC<Props> = ({ isOpen, onSelect }) => {
   return (
-    <OrbitalModal isOpen={isOpen} onClose={() => {}} title="" className="max-w-3xl border-orbital-accent/50 shadow-[0_0_50px_rgba(0,243,255,0.15)]">
+    <Modal isOpen={isOpen} hideHeader className="max-w-2xl">
         {/* Header */}
         <div className="text-center pt-8 pb-4 px-6">
-            <div className="inline-flex items-center justify-center size-20 border border-orbital-accent bg-orbital-accent/10 rounded-full mb-6 text-orbital-accent animate-pulse-slow">
-                <Database size={40} strokeWidth={1.5} />
+            <div className="inline-flex items-center justify-center size-16 bg-primary/10 rounded-full mb-4 text-primary">
+                <span className="material-symbols-outlined text-4xl">science</span>
             </div>
-            <h1 className="text-3xl font-bold text-orbital-text font-display uppercase tracking-widest mb-2">Initialize System</h1>
-            <p className="text-orbital-subtext font-mono max-w-md mx-auto">
-                Select database initialization protocol.
+            <h1 className="text-2xl font-black text-text-main dark:text-white tracking-tight">Bem-vindo ao LabControl</h1>
+            <p className="text-text-secondary dark:text-gray-400 mt-2 max-w-md mx-auto">
+                Para começar, escolha como deseja iniciar seu banco de dados de inventário.
             </p>
         </div>
 
@@ -27,49 +26,51 @@ export const DatabaseSetupModal: React.FC<Props> = ({ isOpen, onSelect }) => {
             {/* Option 1: Empty */}
             <button 
                 onClick={() => onSelect('EMPTY')}
-                className="group relative flex flex-col items-center text-center p-8 border border-orbital-border bg-orbital-surface hover:bg-orbital-accent/5 hover:border-orbital-accent transition-all duration-300"
+                className="group relative flex flex-col items-center text-center p-6 rounded-xl border-2 border-dashed border-border-light dark:border-border-dark hover:border-secondary hover:bg-secondary/5 dark:hover:bg-secondary/10 transition-all duration-300"
             >
-                <div className="size-12 border border-orbital-subtext text-orbital-subtext group-hover:border-orbital-accent group-hover:text-orbital-accent flex items-center justify-center mb-4 transition-colors">
-                    <CheckSquare size={24} />
+                <div className="size-12 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-gray-400 group-hover:bg-white dark:group-hover:bg-slate-700 group-hover:text-secondary flex items-center justify-center mb-3 transition-colors shadow-sm">
+                    <span className="material-symbols-outlined text-2xl">check_box_outline_blank</span>
                 </div>
-                <h3 className="font-bold text-lg text-orbital-text font-display uppercase tracking-wider mb-2">Zero State</h3>
-                <p className="text-xs text-orbital-subtext font-mono leading-relaxed mb-6">
-                    Initialize empty database structure. Manual entry required.
+                <h3 className="font-bold text-lg text-text-main dark:text-white mb-1">Começar do Zero</h3>
+                <p className="text-sm text-text-secondary dark:text-gray-400 leading-relaxed">
+                    Inicie com um banco de dados limpo para cadastrar seus próprios itens e movimentações desde o início.
                 </p>
-                <span className="px-4 py-2 border border-orbital-border text-xs font-bold font-display uppercase tracking-widest text-orbital-subtext group-hover:bg-orbital-accent group-hover:text-black group-hover:border-orbital-accent transition-all">
-                    SELECT EMPTY
+                <span className="mt-4 px-4 py-2 rounded-lg bg-white dark:bg-slate-800 border border-border-light dark:border-border-dark text-sm font-bold text-text-secondary dark:text-gray-300 group-hover:border-secondary group-hover:text-secondary transition-all shadow-sm">
+                    Selecionar Vazio
                 </span>
             </button>
 
             {/* Option 2: Demo Data */}
             <button 
                 onClick={() => onSelect('DEMO')}
-                className="group relative flex flex-col items-center text-center p-8 border border-orbital-accent/50 bg-orbital-accent/5 hover:bg-orbital-accent/10 hover:border-orbital-accent transition-all duration-300 shadow-[0_0_20px_rgba(0,243,255,0.05)]"
+                className="group relative flex flex-col items-center text-center p-6 rounded-xl border-2 border-primary/20 bg-primary/5 hover:bg-primary/10 hover:border-primary transition-all duration-300"
             >
-                <div className="absolute top-3 right-3 flex h-3 w-3">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orbital-accent opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-3 w-3 bg-orbital-accent"></span>
+                <div className="absolute top-3 right-3">
+                    <span className="flex h-3 w-3">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-3 w-3 bg-primary"></span>
+                    </span>
                 </div>
-
-                <div className="size-12 border border-orbital-accent text-orbital-accent bg-orbital-accent/20 flex items-center justify-center mb-4 transition-colors">
-                    <Database size={24} />
+                <div className="size-12 rounded-full bg-white dark:bg-slate-800 text-primary flex items-center justify-center mb-3 shadow-sm">
+                    <span className="material-symbols-outlined text-2xl">dataset</span>
                 </div>
-                <h3 className="font-bold text-lg text-orbital-text font-display uppercase tracking-wider mb-2">Load Sample Data</h3>
-                <p className="text-xs text-orbital-subtext font-mono leading-relaxed mb-6">
-                    Populate system with LIMS sample dataset (Products, Batches, History).
+                <h3 className="font-bold text-lg text-text-main dark:text-white mb-1">Dados LIMS (Real)</h3>
+                <p className="text-sm text-text-secondary dark:text-gray-400 leading-relaxed">
+                    Carregue a base de dados consolidada do sistema legado (LIMS) com produtos, lotes e histórico.
                 </p>
-                <span className="px-4 py-2 bg-orbital-accent text-black text-xs font-bold font-display uppercase tracking-widest shadow-[0_0_15px_rgba(0,243,255,0.4)] group-hover:scale-105 transition-all">
-                    LOAD DATASET
+                <span className="mt-4 px-4 py-2 rounded-lg bg-primary text-white text-sm font-bold shadow-md shadow-primary/20 group-hover:scale-105 transition-all">
+                    Carregar Dados
                 </span>
             </button>
         </div>
 
         {/* Footer */}
-        <div className="bg-orbital-bg p-4 text-center border-t border-orbital-border">
-            <p className="text-[10px] text-orbital-subtext font-mono uppercase tracking-wider">
-                Local Storage Encryption Active
+        <div className="bg-slate-50 dark:bg-slate-900/50 p-4 text-center border-t border-border-light dark:border-border-dark">
+            <p className="text-xs text-text-secondary dark:text-gray-500 flex items-center justify-center gap-1">
+                <span className="material-symbols-outlined text-[14px]">lock</span>
+                Seus dados são armazenados localmente no navegador.
             </p>
         </div>
-    </OrbitalModal>
+    </Modal>
   );
 };

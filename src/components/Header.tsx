@@ -1,16 +1,60 @@
 import React, { useRef, useEffect } from 'react';
-import { useTheme } from '../context/ThemeContext';
 import {
-    Menu,
-    Search,
-    ScanLine,
-    Plus,
-    Sun,
-    Moon,
-    RefreshCw,
-    Bell,
-    FlaskConical
-} from 'lucide-react';
+    AppBar, Toolbar, IconButton, InputBase, Box, Badge, Tooltip
+} from '@mui/material';
+import { styled, alpha } from '@mui/material/styles';
+import { useTheme } from '../context/ThemeContext';
+
+// Icons
+import MenuIcon from '@mui/icons-material/Menu';
+import SearchIcon from '@mui/icons-material/Search';
+import QrCodeScannerIcon from '@mui/icons-material/QrCodeScanner';
+import AddIcon from '@mui/icons-material/Add';
+import LightModeIcon from '@mui/icons-material/LightMode';
+import DarkModeIcon from '@mui/icons-material/DarkMode';
+import CloudSyncIcon from '@mui/icons-material/CloudSync';
+import NotificationsIcon from '@mui/icons-material/Notifications';
+import ScienceIcon from '@mui/icons-material/Science';
+
+const Search = styled('div')(({ theme }) => ({
+  position: 'relative',
+  borderRadius: theme.shape.borderRadius,
+  backgroundColor: alpha(theme.palette.common.white, 0.15),
+  '&:hover': {
+    backgroundColor: alpha(theme.palette.common.white, 0.25),
+  },
+  marginRight: theme.spacing(2),
+  marginLeft: 0,
+  width: '100%',
+  [theme.breakpoints.up('sm')]: {
+    marginLeft: theme.spacing(3),
+    width: 'auto',
+  },
+}));
+
+const SearchIconWrapper = styled('div')(({ theme }) => ({
+  padding: theme.spacing(0, 2),
+  height: '100%',
+  position: 'absolute',
+  pointerEvents: 'none',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+}));
+
+const StyledInputBase = styled(InputBase)(({ theme }) => ({
+  color: 'inherit',
+  '& .MuiInputBase-input': {
+    padding: theme.spacing(1, 1, 1, 0),
+    // vertical padding + font size from searchIcon
+    paddingLeft: `calc(1em + ${theme.spacing(4)})`,
+    transition: theme.transitions.create('width'),
+    width: '100%',
+    [theme.breakpoints.up('md')]: {
+      width: '40ch',
+    },
+  },
+}));
 
 interface HeaderProps {
     onToggleTheme: () => void;
@@ -23,7 +67,6 @@ interface HeaderProps {
 }
 
 export const Header: React.FC<HeaderProps> = ({ 
-    onToggleTheme,
     onBackup, 
     onAddClick,
     onScanClick, 
@@ -31,7 +74,7 @@ export const Header: React.FC<HeaderProps> = ({
     onMenuClick,
     drawerWidth = 240
 }) => {
-    const { theme } = useTheme();
+    const { theme, toggleTheme } = useTheme();
     const searchInputRef = useRef<HTMLInputElement>(null);
 
     // Hotkey: Ctrl + K (or Cmd + K) to focus search
@@ -48,92 +91,107 @@ export const Header: React.FC<HeaderProps> = ({
     }, []);
 
     return (
-        <header
-            className="fixed top-0 right-0 left-0 z-30 h-16 bg-orbital-bg/80 backdrop-blur border-b border-orbital-border transition-all duration-300"
-            style={{ paddingLeft: `max(env(safe-area-inset-left), ${drawerWidth}px)` }}
+        <AppBar
+            position="fixed"
+            sx={{
+                width: { sm: `calc(100% - ${drawerWidth}px)` },
+                ml: { sm: `${drawerWidth}px` },
+                bgcolor: 'background.paper',
+                color: 'text.primary',
+                boxShadow: 1
+            }}
         >
-            <div className="flex items-center justify-between h-full px-4 sm:px-6">
+            <Toolbar>
+                <IconButton
+                    color="inherit"
+                    aria-label="abrir menu"
+                    edge="start"
+                    onClick={onMenuClick}
+                    sx={{ mr: 2, display: { sm: 'none' } }}
+                >
+                    <MenuIcon aria-hidden="true" />
+                </IconButton>
 
-                {/* Mobile Menu & Logo */}
-                <div className="flex items-center gap-3 sm:hidden">
-                    <button
-                        onClick={onMenuClick}
-                        className="p-2 -ml-2 text-orbital-subtext hover:text-orbital-accent rounded hover:bg-orbital-surface transition-colors"
-                        aria-label="Abrir menu"
-                    >
-                        <Menu size={24} />
-                    </button>
-                    <FlaskConical className="text-orbital-accent" size={24} />
-                </div>
+                {/* Mobile Logo */}
+                <Box sx={{ display: { xs: 'flex', sm: 'none' }, alignItems: 'center', mr: 2 }}>
+                    <ScienceIcon color="primary" aria-hidden="true" />
+                </Box>
 
-                {/* Search Bar */}
-                <div className="hidden md:flex flex-1 max-w-lg relative group">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-orbital-subtext group-focus-within:text-orbital-accent transition-colors">
-                        <Search size={18} />
-                    </div>
-                    <input
-                        ref={searchInputRef}
-                        type="text"
+                <Search sx={{ display: { xs: 'none', md: 'block' }, bgcolor: 'action.hover' }}>
+                    <SearchIconWrapper>
+                        <SearchIcon aria-hidden="true" />
+                    </SearchIconWrapper>
+                    <StyledInputBase
                         placeholder="Busca global (Ctrl + K)..."
-                        className="w-full bg-orbital-surface border border-orbital-border text-orbital-text text-sm rounded-none py-2 pl-10 pr-4 placeholder-orbital-subtext/50 focus:outline-none focus:border-orbital-accent focus:shadow-glow-sm transition-all duration-200"
+                        inputProps={{ 'aria-label': 'pesquisar' }}
+                        inputRef={searchInputRef}
                     />
-                    <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                        <kbd className="hidden sm:inline-block px-1.5 py-0.5 text-xs text-orbital-subtext border border-orbital-border rounded bg-orbital-bg font-mono">⌘K</kbd>
-                    </div>
-                </div>
+                </Search>
 
-                {/* Right Actions */}
-                <div className="flex items-center gap-1 sm:gap-2">
-                    {onAddClick && (
-                        <button
-                            onClick={onAddClick}
-                            className="p-2 text-orbital-accent hover:text-white hover:bg-orbital-accent rounded transition-all duration-200 hover:shadow-glow-sm active:scale-95"
-                            title="Adicionar Item"
-                        >
-                            <Plus size={20} />
-                        </button>
+                <Box sx={{ flexGrow: 1 }} />
+
+                <Box sx={{ display: 'flex' }}>
+                     {onAddClick && (
+                        <Tooltip title="Adicionar Item">
+                            <IconButton
+                                onClick={onAddClick}
+                                color="primary"
+                                size="large"
+                                aria-label="adicionar item"
+                            >
+                                <AddIcon aria-hidden="true" />
+                            </IconButton>
+                        </Tooltip>
                     )}
 
                     {onScanClick && (
-                         <button
-                            onClick={onScanClick}
-                            className="p-2 text-orbital-subtext hover:text-orbital-text hover:bg-orbital-surface rounded transition-colors"
-                            title="Scanner"
-                        >
-                            <ScanLine size={20} />
-                        </button>
+                         <Tooltip title="Scanner">
+                            <IconButton
+                                onClick={onScanClick}
+                                color="inherit"
+                                size="large"
+                                aria-label="scanner"
+                            >
+                                <QrCodeScannerIcon aria-hidden="true" />
+                            </IconButton>
+                        </Tooltip>
                     )}
 
-                    <button
-                        onClick={onBackup}
-                        className="p-2 text-orbital-subtext hover:text-orbital-text hover:bg-orbital-surface rounded transition-colors group"
-                        title="Sincronizar"
-                    >
-                        <RefreshCw size={20} className="group-hover:rotate-180 transition-transform duration-500" />
-                    </button>
+                    <Tooltip title="Sincronizar">
+                        <IconButton
+                            onClick={onBackup}
+                            color="inherit"
+                            size="large"
+                            aria-label="sincronizar"
+                        >
+                            <CloudSyncIcon aria-hidden="true" />
+                        </IconButton>
+                    </Tooltip>
 
-                    <button
-                        onClick={onToggleTheme}
-                        className="p-2 text-orbital-subtext hover:text-orbital-warning hover:bg-orbital-surface rounded transition-colors"
-                        title={theme === 'dark' ? 'Modo Claro' : 'Modo Escuro'}
-                    >
-                        {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
-                    </button>
+                    <Tooltip title={theme === 'dark' ? 'Modo Claro' : 'Modo Escuro'}>
+                        <IconButton
+                            onClick={toggleTheme}
+                            color="inherit"
+                            size="large"
+                            aria-label={theme === 'dark' ? 'ativar modo claro' : 'ativar modo escuro'}
+                        >
+                            {theme === 'dark' ? <LightModeIcon aria-hidden="true" /> : <DarkModeIcon aria-hidden="true" />}
+                        </IconButton>
+                    </Tooltip>
 
-                    <button
-                        className="p-2 text-orbital-subtext hover:text-orbital-text hover:bg-orbital-surface rounded transition-colors relative"
-                        title="Notificações"
-                    >
-                        <Bell size={20} />
-                        {notificationsCount > 0 && (
-                            <span className="absolute top-1.5 right-1.5 flex h-2.5 w-2.5">
-                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orbital-danger opacity-75"></span>
-                                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-orbital-danger"></span>
-                            </span>
-                        )}
-                    </button>
-                </div>
-            </div>
-        </header>
+                    <Tooltip title="Notificações">
+                        <IconButton
+                            size="large"
+                            color="inherit"
+                            aria-label="notificações"
+                        >
+                            <Badge badgeContent={notificationsCount} color="error">
+                                <NotificationsIcon aria-hidden="true" />
+                            </Badge>
+                        </IconButton>
+                    </Tooltip>
+                </Box>
+            </Toolbar>
+        </AppBar>
     );
 };

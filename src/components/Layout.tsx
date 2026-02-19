@@ -1,10 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { Box, Toolbar } from '@mui/material';
 import { Sidebar } from './Sidebar';
 import { Header } from './Header';
-import { BottomNav } from './BottomNav';
-import { useTheme } from '../context/ThemeContext';
 
-const drawerWidth = 260;
+const drawerWidth = 260; // Slightly wider for better legibility
 
 interface LayoutProps {
     children: React.ReactNode;
@@ -27,47 +26,66 @@ export const Layout: React.FC<LayoutProps> = ({
     onAddClick,
     onScanClick
 }) => {
-    const { toggleTheme } = useTheme();
+    const [mobileOpen, setMobileOpen] = useState(false);
+    const [isClosing, setIsClosing] = useState(false);
+
+    const handleDrawerClose = () => {
+        setIsClosing(true);
+        setMobileOpen(false);
+    };
+
+    const handleDrawerTransitionEnd = () => {
+        setIsClosing(false);
+    };
+
+    const handleDrawerToggle = () => {
+        if (!isClosing) {
+            setMobileOpen(!mobileOpen);
+        }
+    };
 
     return (
-        <div className="flex h-screen overflow-hidden bg-orbital-bg text-orbital-text">
+        <Box sx={{ display: 'flex', height: '100vh', overflow: 'hidden', bgcolor: 'background.default' }}>
             <Header
-                onToggleTheme={toggleTheme}
+                onToggleTheme={() => {}} // Theme toggle is handled inside Header or Context now
                 onBackup={onBackupForce}
                 onAddClick={onAddClick}
                 onScanClick={onScanClick}
                 notificationsCount={alertsCount}
-                onMenuClick={() => {}}
+                onMenuClick={handleDrawerToggle}
                 drawerWidth={drawerWidth}
             />
 
-            {/* Desktop Sidebar (hidden on mobile) */}
-            <div className="hidden sm:block">
-                <Sidebar
-                    onLogout={onLogout}
-                    notificationsCount={notificationsCount}
-                    onSync={onSync}
-                    isMobileOpen={false}
-                    onClose={() => {}}
-                    drawerWidth={drawerWidth}
-                />
-            </div>
+            <Sidebar
+                onLogout={onLogout}
+                notificationsCount={notificationsCount}
+                onSync={onSync}
+                isMobileOpen={mobileOpen}
+                onTransitionEnd={handleDrawerTransitionEnd}
+                onClose={handleDrawerClose}
+                drawerWidth={drawerWidth}
+            />
 
-            <main
-                className="flex-1 flex flex-col min-w-0 transition-all duration-300 sm:pl-[260px]"
+            <Box
+                component="main"
+                sx={{
+                    flexGrow: 1,
+                    // Remove padding from here to let PageContainer control it or use it as a flex container
+                    // But we keep it if children expect it. PageContainer has its own padding.
+                    // To prevent double scrolling, we make this a flex column.
+                    display: 'flex',
+                    flexDirection: 'column',
+                    width: { sm: `calc(100% - ${drawerWidth}px)` },
+                    height: '100vh',
+                    bgcolor: 'background.default',
+                    overflow: 'hidden'
+                }}
             >
-                {/* Header Spacer */}
-                <div className="h-16 shrink-0" />
-
-                {/* Scrollable Content Area */}
-                <div className="flex-1 overflow-hidden flex flex-col relative pb-16 sm:pb-0">
-                    {/* Added pb-16 for mobile bottom nav spacer */}
+                <Toolbar /> {/* Spacer to push content below AppBar */}
+                <Box sx={{ flexGrow: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
                     {children}
-                </div>
-            </main>
-
-            {/* Mobile Bottom Navigation */}
-            <BottomNav />
-        </div>
+                </Box>
+            </Box>
+        </Box>
     );
 };

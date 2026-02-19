@@ -2,10 +2,10 @@ import React, { useState, useEffect, useRef } from 'react';
 import { InventoryItem, CreateItemDTO, ItemType, RiskFlags } from '../types';
 import { InventoryService } from '../services/InventoryService'; 
 import { useAlert } from '../context/AlertContext';
-import { OrbitalInput } from './ui/orbital/OrbitalInput';
-import { OrbitalButton } from './ui/orbital/OrbitalButton';
-import { OrbitalSelect } from './ui/orbital/OrbitalSelect';
-import { OrbitalCard } from './ui/orbital/OrbitalCard';
+import { Input } from './ui/Input';
+import { Button } from './ui/Button';
+import { Card } from './ui/Card';
+import { Select } from './ui/Select';
 import { BatchList } from './BatchList'; 
 import { useDebounce } from '../hooks/useDebounce';
 import { useItemForm } from '../hooks/useItemForm';
@@ -15,7 +15,16 @@ import { RiskSelector } from './item-form/RiskSelector';
 import { BatchInfo } from './item-form/BatchInfo';
 import { StorageInfo } from './item-form/StorageInfo';
 import { CasApiService } from '../services/CasApiService';
-import { Package, FlaskConical, Search, ScanLine, Save, X, History, QrCode } from 'lucide-react';
+import { Box, Typography, Stack, Paper, List, ListItemButton, ListItemText, IconButton } from '@mui/material';
+import { Grid } from '@mui/material';
+import Inventory2Icon from '@mui/icons-material/Inventory2';
+import ScienceIcon from '@mui/icons-material/Science';
+import SearchIcon from '@mui/icons-material/Search';
+import QrCodeScannerIcon from '@mui/icons-material/QrCodeScanner';
+import QrCode2Icon from '@mui/icons-material/QrCode2';
+import SaveIcon from '@mui/icons-material/Save';
+import CloseIcon from '@mui/icons-material/Close';
+import HistoryIcon from '@mui/icons-material/History';
 
 interface ItemFormProps {
     initialData?: Partial<InventoryItem>;
@@ -145,190 +154,216 @@ export const ItemForm: React.FC<ItemFormProps> = ({
 
     return (
         <form onSubmit={handleSubmit} autoComplete="off">
-            <div className="flex flex-col gap-6 pb-20">
+            <Stack spacing={3} pb={10}>
                 <TypeSelector currentType={itemType} onChange={handleTypeChange} />
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <Grid container spacing={3}>
                     {/* COLUNA ESQUERDA: DADOS BÁSICOS */}
-                    <div className="flex flex-col gap-6">
-                        <OrbitalCard>
-                            <div className="flex items-center gap-2 mb-4 text-orbital-subtext border-b border-orbital-border pb-2">
-                                <Package size={18} />
-                                <h4 className="font-bold text-sm uppercase tracking-wide">Definição do Produto</h4>
-                            </div>
-
-                            <div className="flex flex-col gap-4">
-                                <div className="relative" ref={suggestionsRef}>
-                                    <OrbitalInput
-                                        label="Nome do Item"
-                                        required
-                                        value={formData.name || ''}
-                                        onChange={e => handleNameChange(e.target.value)}
-                                        error={errors.name}
-                                        placeholder={itemType === 'REAGENT' ? "Ex: Ácido Sulfúrico" : "Nome do item"}
-                                    />
-                                    {showSuggestions && suggestions.length > 0 && (
-                                        <div className="absolute top-full left-0 right-0 z-50 mt-1 bg-orbital-surface border border-orbital-border shadow-glow-lg rounded max-h-60 overflow-y-auto">
-                                            {suggestions.map((item) => (
-                                                <button
-                                                    key={item.id}
-                                                    type="button"
-                                                    onClick={() => selectSuggestion(item)}
-                                                    className="w-full text-left px-4 py-2 hover:bg-orbital-bg transition-colors"
-                                                >
-                                                    <div className="text-sm font-bold text-orbital-text">{item.name}</div>
-                                                    <div className="text-xs text-orbital-subtext">{item.sapCode}</div>
-                                                </button>
-                                            ))}
-                                        </div>
-                                    )}
-                                </div>
-
-                                <div className="grid grid-cols-2 gap-4">
-                                    <OrbitalSelect
-                                        label="Categoria"
-                                        required
-                                        value={formData.category || ''}
-                                        onChange={e => handleChange('category', e.target.value)}
-                                        error={errors.category}
-                                        options={[
-                                            ...getCategoriesByType(itemType).map(c => ({ label: c, value: c })),
-                                            { label: 'Outros', value: 'Outros' }
-                                        ]}
-                                    />
-                                    <OrbitalInput
-                                        label="Unidade (Base)"
-                                        required
-                                        value={formData.baseUnit || ''}
-                                        onChange={e => handleChange('baseUnit', e.target.value)}
-                                        error={errors.baseUnit}
-                                        placeholder="Ex: UN, L, kg"
-                                    />
-                                </div>
-
-                                <OrbitalInput
-                                    label="Código SAP / SKU"
-                                    value={formData.sapCode || ''}
-                                    onChange={e => handleChange('sapCode', e.target.value)}
-                                    placeholder="Opcional"
-                                    startAdornment={
-                                        onScan && (
-                                            <button type="button" onClick={() => onScan('sapCode')} aria-label="Escanear Código SAP" className="hover:text-orbital-accent p-1">
-                                                <ScanLine size={16} />
-                                            </button>
-                                        )
-                                    }
-                                />
-                            </div>
-                        </OrbitalCard>
-
-                        {itemType === 'REAGENT' && (
-                            <OrbitalCard className="border-orbital-danger/30 bg-orbital-danger/5">
-                                <div className="flex items-center gap-2 mb-4 text-orbital-danger border-b border-orbital-danger/30 pb-2">
-                                    <FlaskConical size={18} />
-                                    <h4 className="font-bold text-sm uppercase tracking-wide">Dados Químicos (GHS)</h4>
-                                </div>
-                                <div className="flex flex-col gap-4">
-                                    <OrbitalInput
-                                        label="CAS Number"
-                                        value={formData.casNumber || ''}
-                                        onChange={e => handleChange('casNumber', e.target.value)}
-                                        placeholder="Ex: 67-64-1"
-                                        disabled={isCasLoading}
-                                        startAdornment={
-                                            <button type="button" onClick={onCasSearch} disabled={isCasLoading} aria-label="Buscar CAS" className="hover:text-orbital-accent p-1">
-                                                <Search size={16} />
-                                            </button>
-                                        }
-                                    />
-
-                                    {casResult && (
-                                        <div className="p-3 border border-orbital-border rounded bg-orbital-surface flex gap-3 items-center">
-                                            <img
-                                                src={`https://commonchemistry.cas.org/api/image?cas_rn=${CasApiService.normalizeCas(formData.casNumber || '')}`}
-                                                alt={`Chemical Structure of ${casResult.name}`}
-                                                className="w-12 h-12 object-contain bg-white rounded border border-orbital-border"
-                                                onError={(e: any) => e.target.style.display = 'none'}
+                    <Grid size={{ xs: 12, md: 6 }}>
+                        <Stack spacing={3}>
+                            <Card variant="outlined">
+                                <Box p={2} borderBottom={1} borderColor="divider" display="flex" alignItems="center" gap={1}>
+                                    <Inventory2Icon color="action" />
+                                    <Typography variant="subtitle2" fontWeight="bold" textTransform="uppercase" color="text.secondary">
+                                        Definição do Produto
+                                    </Typography>
+                                </Box>
+                                <Box p={2}>
+                                    <Stack spacing={2}>
+                                        <Box position="relative" ref={suggestionsRef}>
+                                            <Input
+                                                label="Nome do Item"
+                                                required
+                                                value={formData.name || ''}
+                                                onChange={e => handleNameChange(e.target.value)}
+                                                error={errors.name}
+                                                placeholder={itemType === 'REAGENT' ? "Ex: Ácido Sulfúrico" : "Nome do item"}
                                             />
-                                            <div>
-                                                <div className="font-bold text-orbital-text">{casResult.name}</div>
-                                                <div className="text-xs text-orbital-subtext font-mono">
-                                                    {casResult.molecularFormula} • MW: {casResult.molecularMass}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    )}
+                                            {showSuggestions && suggestions.length > 0 && (
+                                                <Paper sx={{ position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 10, mt: 0.5 }} elevation={3}>
+                                                    <List dense>
+                                                        {suggestions.map((item) => (
+                                                            <ListItemButton key={item.id} onClick={() => selectSuggestion(item)}>
+                                                                <ListItemText
+                                                                    primary={item.name}
+                                                                    secondary={item.sapCode}
+                                                                    primaryTypographyProps={{ fontWeight: 'medium' }}
+                                                                />
+                                                            </ListItemButton>
+                                                        ))}
+                                                    </List>
+                                                </Paper>
+                                            )}
+                                        </Box>
 
-                                    <RiskSelector
-                                        risks={formData.risks || INITIAL_RISKS}
-                                        onChange={(r) => handleChange('risks', r)}
-                                    />
-                                </div>
-                            </OrbitalCard>
-                        )}
-                    </div>
+                                        <Grid container spacing={2}>
+                                            <Grid size={{ xs: 6 }}>
+                                                <Select
+                                                    label="Categoria"
+                                                    required
+                                                    value={formData.category || ''}
+                                                    onChange={e => handleChange('category', e.target.value)}
+                                                    error={errors.category}
+                                                    options={[
+                                                        ...getCategoriesByType(itemType).map(c => ({ label: c, value: c })),
+                                                        { label: 'Outros', value: 'Outros' }
+                                                    ]}
+                                                />
+                                            </Grid>
+                                            <Grid size={{ xs: 6 }}>
+                                                <Input
+                                                    label="Unidade (Base)"
+                                                    required
+                                                    value={formData.baseUnit || ''}
+                                                    onChange={e => handleChange('baseUnit', e.target.value)}
+                                                    error={errors.baseUnit}
+                                                    placeholder="Ex: UN, L, kg"
+                                                />
+                                            </Grid>
+                                        </Grid>
+
+                                        <Input
+                                            label="Código SAP / SKU"
+                                            value={formData.sapCode || ''}
+                                            onChange={e => handleChange('sapCode', e.target.value)}
+                                            placeholder="Opcional"
+                                            rightElement={
+                                                onScan && (
+                                                    <IconButton size="small" onClick={() => onScan('sapCode')}>
+                                                        <QrCodeScannerIcon fontSize="small" />
+                                                    </IconButton>
+                                                )
+                                            }
+                                        />
+                                    </Stack>
+                                </Box>
+                            </Card>
+
+                            {itemType === 'REAGENT' && (
+                                <Card variant="outlined" sx={{ borderColor: 'error.main', bgcolor: 'error.lighter' }}>
+                                    <Box p={2} borderBottom={1} borderColor="error.main" display="flex" alignItems="center" gap={1}>
+                                        <ScienceIcon color="error" />
+                                        <Typography variant="subtitle2" fontWeight="bold" textTransform="uppercase" color="error.main">
+                                            Dados Químicos (GHS)
+                                        </Typography>
+                                    </Box>
+                                    <Box p={2}>
+                                        <Stack spacing={2}>
+                                            <Input
+                                                label="CAS Number"
+                                                value={formData.casNumber || ''}
+                                                onChange={e => handleChange('casNumber', e.target.value)}
+                                                placeholder="Ex: 67-64-1"
+                                                isLoading={isCasLoading}
+                                                rightElement={
+                                                    <IconButton size="small" onClick={onCasSearch} disabled={isCasLoading}>
+                                                        <SearchIcon fontSize="small" />
+                                                    </IconButton>
+                                                }
+                                            />
+
+                                            {casResult && (
+                                                <Paper variant="outlined" sx={{ p: 1.5, display: 'flex', gap: 2, alignItems: 'center' }}>
+                                                    <Box
+                                                        component="img"
+                                                        src={`https://commonchemistry.cas.org/api/image?cas_rn=${CasApiService.normalizeCas(formData.casNumber || '')}`}
+                                                        sx={{ width: 48, height: 48, objectFit: 'contain', bgcolor: 'white', borderRadius: 1, border: 1, borderColor: 'divider' }}
+                                                        onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => e.currentTarget.style.display = 'none'}
+                                                    />
+                                                    <Box>
+                                                        <Typography variant="subtitle2" fontWeight="bold">{casResult.name}</Typography>
+                                                        <Typography variant="caption" color="text.secondary">
+                                                            {casResult.molecularFormula} • MW: {casResult.molecularMass}
+                                                        </Typography>
+                                                    </Box>
+                                                </Paper>
+                                            )}
+
+                                            <RiskSelector
+                                                risks={formData.risks || INITIAL_RISKS}
+                                                onChange={(r) => handleChange('risks', r)}
+                                            />
+                                        </Stack>
+                                    </Box>
+                                </Card>
+                            )}
+                        </Stack>
+                    </Grid>
 
                     {/* COLUNA DIREITA: LOGÍSTICA */}
-                    <div className="flex flex-col gap-6">
-                        <BatchInfo
-                            formData={formData}
-                            onChange={handleChange}
-                            errors={errors}
-                            itemType={itemType}
-                            isEditMode={isEditMode}
-                            onGenerateInternalBatch={handleGenerateInternalBatch}
-                            onScan={onScan}
-                        />
+                    <Grid size={{ xs: 12, md: 6 }}>
+                        <Stack spacing={3}>
+                            <BatchInfo
+                                formData={formData}
+                                onChange={handleChange}
+                                errors={errors}
+                                itemType={itemType}
+                                isEditMode={isEditMode}
+                                onGenerateInternalBatch={handleGenerateInternalBatch}
+                                onScan={onScan}
+                            />
 
-                        <StorageInfo
-                            location={formData.location || { warehouse: '', cabinet: '', shelf: '', position: '' }}
-                            onChange={handleChange}
-                            errors={errors}
-                        />
-                    </div>
-                </div>
+                            <StorageInfo
+                                location={formData.location || { warehouse: '', cabinet: '', shelf: '', position: '' }}
+                                onChange={handleChange}
+                                errors={errors}
+                            />
+                        </Stack>
+                    </Grid>
+                </Grid>
 
                 {/* BATCH HISTORY (EDIT MODE ONLY) */}
                 {isEditMode && initialData?.id && (
-                    <OrbitalCard>
-                        <div className="flex items-center gap-2 mb-4 text-orbital-subtext border-b border-orbital-border pb-2">
-                            <History size={18} />
-                            <h4 className="font-bold text-sm uppercase tracking-wide">Histórico de Lotes</h4>
-                        </div>
-                        <BatchList itemId={initialData.id!} onViewHistory={onViewBatchHistory} />
-                    </OrbitalCard>
+                    <Card variant="outlined">
+                        <Box p={2} borderBottom={1} borderColor="divider" display="flex" alignItems="center" gap={1}>
+                            <HistoryIcon color="primary" />
+                            <Typography variant="subtitle2" fontWeight="bold">
+                                Histórico de Lotes deste Produto
+                            </Typography>
+                        </Box>
+                        <Box p={2}>
+                            <BatchList itemId={initialData.id!} onViewHistory={onViewBatchHistory} />
+                        </Box>
+                    </Card>
                 )}
-            </div>
+            </Stack>
 
             {/* Sticky Footer */}
-            <div className="fixed bottom-0 left-0 right-0 p-4 bg-orbital-bg/90 backdrop-blur border-t border-orbital-border z-40 flex justify-between items-center shadow-glow-lg">
-                <div>
+            <Paper
+                elevation={3}
+                sx={{
+                    position: 'fixed', bottom: 0, left: 0, right: 0,
+                    p: 2, zIndex: 100,
+                    borderTop: 1, borderColor: 'divider',
+                    display: 'flex', justifyContent: 'space-between'
+                }}
+            >
+                <Box>
                     {onGenerateQR && isEditMode && (
-                        <OrbitalButton
-                            variant="outline"
-                            type="button"
+                        <Button
+                            variant="outlined"
+                            startIcon={<QrCode2Icon />}
                             onClick={() => onGenerateQR(formData)}
-                            icon={<QrCode size={16} />}
-                            className="hidden sm:flex"
+                            sx={{ display: { xs: 'none', sm: 'flex' } }}
                         >
                             Etiqueta
-                        </OrbitalButton>
+                        </Button>
                     )}
-                </div>
-                <div className="flex gap-4">
-                    <OrbitalButton variant="ghost" type="button" onClick={onCancel} disabled={isSubmitting} icon={<X size={16} />}>
+                </Box>
+                <Stack direction="row" spacing={2}>
+                    <Button variant="text" onClick={onCancel} disabled={isSubmitting} startIcon={<CloseIcon />}>
                         Cancelar
-                    </OrbitalButton>
-                    <OrbitalButton
+                    </Button>
+                    <Button
                         type="submit"
-                        variant="primary"
+                        variant="contained"
+                        startIcon={<SaveIcon />}
                         isLoading={isSubmitting}
-                        icon={<Save size={16} />}
                     >
                         {submitLabel}
-                    </OrbitalButton>
-                </div>
-            </div>
+                    </Button>
+                </Stack>
+            </Paper>
         </form>
     );
 };

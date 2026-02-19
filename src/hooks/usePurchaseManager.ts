@@ -67,7 +67,7 @@ export const usePurchaseManager = () => {
             name: item.name,
             sapCode: item.sapCode,
             currentStock: item.quantity,
-            suggestedQty: quantity || (item.minStockLevel > 0 ? item.minStockLevel * 2 : 10),
+            requestedQty: quantity || (item.minStockLevel > 0 ? item.minStockLevel * 2 : 10),
             unit: item.baseUnit,
             reason: reason,
             status: 'PENDING'
@@ -113,7 +113,7 @@ export const usePurchaseManager = () => {
 
         const updatedOrder = {
             ...currentOrder,
-            items: currentOrder.items.map(p => p.id === itemId ? { ...p, suggestedQty: Math.max(1, newQty) } : p),
+            items: currentOrder.items.map(p => p.id === itemId ? { ...p, requestedQty: Math.max(1, newQty) } : p),
             updatedAt: new Date().toISOString()
         };
 

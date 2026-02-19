@@ -1,4 +1,5 @@
 import React from 'react';
+import { Box } from '@mui/material';
 
 interface PageContainerProps {
     children: React.ReactNode;
@@ -12,16 +13,22 @@ export const PageContainer: React.FC<PageContainerProps> = ({
     scrollable = false 
 }) => {
     return (
-        <div
-            className={`
-                w-full h-full flex flex-col mx-auto max-w-[1600px]
-                ${scrollable ? 'overflow-y-auto' : 'overflow-hidden'}
-                overflow-x-hidden
-                p-4 md:p-6
-                ${className}
-            `}
+        <Box
+            component="div"
+            sx={{
+                width: '100%',
+                height: '100%',
+                display: 'flex',
+                flexDirection: 'column',
+                mx: 'auto',
+                maxWidth: 1600, // Matches max-w-[1600px]
+                overflowY: scrollable ? 'auto' : 'hidden',
+                overflowX: 'hidden',
+                p: { xs: 2, md: 3 },
+            }}
+            className={className} // Keep support for custom classes if needed via Tailwind or emotion
         >
             {children}
-        </div>
+        </Box>
     );
 };

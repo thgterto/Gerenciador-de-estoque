@@ -291,16 +291,13 @@ export interface StockTransactionDTO {
   toLocationId?: string;
 }
 
-// Alias for PurchaseRequestItem to maintain backward compatibility with PurchaseItem
-export type PurchaseItem = PurchaseRequestItem;
-
 export interface PurchaseRequestItem {
   id: string; 
   itemId: string; 
   name: string;
   sapCode: string;
   currentStock: number;
-  suggestedQty: number; // Renamed from requestedQty to match UI
+  requestedQty: number;
   unit: string;
   reason: 'LOW_STOCK' | 'EXPIRING' | 'MANUAL';
   status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'ORDERED';
