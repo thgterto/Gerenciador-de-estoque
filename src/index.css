@@ -43,6 +43,7 @@
     margin: 0;
     padding: 0;
     overflow: hidden;
+    scroll-behavior: smooth;
     @apply bg-orbital-bg text-orbital-text font-sans antialiased transition-colors duration-300;
   }
 

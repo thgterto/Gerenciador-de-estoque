@@ -115,7 +115,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     <div className="flex items-center gap-3 p-2 rounded border border-orbital-border bg-orbital-bg">
                         <img
                             src={user?.avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=Aneka'}
-                            alt={user?.name}
+                            alt={`Avatar of ${user?.name || 'User'}`}
                             className="w-9 h-9 rounded bg-orbital-surface object-cover border border-orbital-border"
                         />
                         <div className="flex-1 min-w-0">
@@ -126,10 +126,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
                         </div>
                         <button
                             onClick={onLogout}
-                            className="p-1.5 text-orbital-subtext hover:text-orbital-danger hover:bg-orbital-danger/10 rounded transition-colors"
+                            className="p-2 text-orbital-subtext hover:text-orbital-danger hover:bg-orbital-danger/10 rounded transition-colors"
                             title="Sair"
+                            aria-label="Sair"
                         >
-                            <LogOut size={18} />
+                            <LogOut size={20} />
                         </button>
                     </div>
                 </div>
