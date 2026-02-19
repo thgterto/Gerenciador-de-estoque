@@ -308,12 +308,12 @@ export const MovementModal: React.FC<MovementModalProps> = ({ isOpen, onClose, i
 
     useEffect(() => {
         if(isOpen) {
-            // eslint-disable-next-line
             if (quantity !== 1) setQuantity(1);
             if (observation !== '') setObservation('');
             if (type !== 'SAIDA') setType('SAIDA');
             setIsSubmitting(false);
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isOpen]);
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -413,11 +413,11 @@ export const RequestModal: React.FC<RequestModalProps> = ({ isOpen, onClose, onC
 
     useEffect(() => {
         if(isOpen) {
-             // eslint-disable-next-line
              if (selectedId !== '') setSelectedId('');
              if (qty !== 1) setQty(1);
              if (searchTerm !== '') setSearchTerm('');
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isOpen]);
 
     const handleSubmit = (e: React.FormEvent) => {

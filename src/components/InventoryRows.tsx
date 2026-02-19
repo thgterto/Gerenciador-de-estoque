@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion, PanInfo, useAnimation } from 'framer-motion';
+import { motion, PanInfo, useAnimation, useMotionValue, useTransform } from 'framer-motion';
 import { InventoryItem } from '../types';
 import { InventoryGroup } from '../hooks/useInventoryFilters';
 import { getItemStatus } from '../utils/businessRules';
@@ -336,18 +336,26 @@ export const InventoryMobileChildRow = React.memo(({
 }: ChildRowProps) => {
     const status = getItemStatus(item);
     const controls = useAnimation();
+    const x = useMotionValue(0);
     
+    // Animations based on drag position
+    const leftIconScale = useTransform(x, [0, 80], [0.8, 1.2]);
+    const rightIconScale = useTransform(x, [-80, 0], [1.2, 0.8]);
+    const leftIconOpacity = useTransform(x, [0, 40], [0.5, 1]);
+    const rightIconOpacity = useTransform(x, [-40, 0], [1, 0.5]);
+
     let validityInfo = formatDate(item.expiryDate);
     if (item.itemType === 'EQUIPMENT' && item.maintenanceDate) validityInfo = `Manut: ${formatDate(item.maintenanceDate)}`;
     else if (item.itemType === 'GLASSWARE' && item.glassVolume) validityInfo = item.glassVolume;
 
     const handleDragEnd = async ( _event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
         const offset = info.offset.x;
-        if (offset < -100) {
+        // Reduced threshold for easier triggering and increased elastic feel
+        if (offset < -80) {
             await controls.start({ x: -100 });
             onActions.edit(item);
             controls.start({ x: 0 });
-        } else if (offset > 100) {
+        } else if (offset > 80) {
             await controls.start({ x: 100 });
             onActions.move(item);
             controls.start({ x: 0 });
@@ -360,20 +368,24 @@ export const InventoryMobileChildRow = React.memo(({
         <div style={style} className="px-3 pl-6 pb-1">
              <div className="absolute inset-y-1 left-4 right-3 rounded flex overflow-hidden">
                 <div className="w-1/2 bg-orbital-accent flex items-center pl-4 text-orbital-bg font-bold">
-                    <ArrowRightLeft size={20} />
+                    <motion.div style={{ scale: leftIconScale, opacity: leftIconOpacity }}>
+                        <ArrowRightLeft size={20} />
+                    </motion.div>
                 </div>
                 <div className="w-1/2 bg-orbital-warning flex items-center justify-end pr-4 text-orbital-bg font-bold">
-                    <Edit size={20} />
+                    <motion.div style={{ scale: rightIconScale, opacity: rightIconOpacity }}>
+                        <Edit size={20} />
+                    </motion.div>
                 </div>
              </div>
 
              <motion.div
                 drag="x"
                 dragConstraints={{ left: 0, right: 0 }}
-                dragElastic={0.2}
+                dragElastic={0.7}
                 onDragEnd={handleDragEnd}
                 animate={controls}
-                style={{ position: 'relative', zIndex: 10 }}
+                style={{ position: 'relative', zIndex: 10, x }}
              >
                 <div className="bg-orbital-surface rounded border border-orbital-border shadow-sm p-3">
                     <div className="flex justify-between mb-2">
