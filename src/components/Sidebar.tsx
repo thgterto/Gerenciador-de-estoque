@@ -126,10 +126,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
                         </div>
                         <button
                             onClick={onLogout}
-                            className="p-1.5 text-orbital-subtext hover:text-orbital-danger hover:bg-orbital-danger/10 rounded transition-colors"
+                            className="p-2 text-orbital-subtext hover:text-orbital-danger hover:bg-orbital-danger/10 rounded transition-colors"
                             title="Sair"
+                            aria-label="Sair"
                         >
-                            <LogOut size={18} />
+                            <LogOut size={20} />
                         </button>
                     </div>
                 </div>

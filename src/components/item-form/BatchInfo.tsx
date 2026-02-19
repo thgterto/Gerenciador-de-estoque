@@ -40,11 +40,11 @@ export const BatchInfo: React.FC<BatchInfoProps> = ({
                         placeholder={itemType === 'EQUIPMENT' ? "Ex: PAT-001" : "Vazio p/ auto"}
                         startAdornment={
                             <div className="flex gap-1 pr-2">
-                                <button type="button" onClick={onGenerateInternalBatch} title="Gerar Lote" className="hover:text-orbital-accent">
+                                <button type="button" onClick={onGenerateInternalBatch} aria-label="Gerar Lote" title="Gerar Lote" className="hover:text-orbital-accent p-1">
                                     <RefreshCw size={14} />
                                 </button>
                                 {onScan && (
-                                    <button type="button" onClick={() => onScan('lotNumber')} title="Escanear" className="hover:text-orbital-accent">
+                                    <button type="button" onClick={() => onScan('lotNumber')} aria-label="Escanear" title="Escanear" className="hover:text-orbital-accent p-1">
                                         <ScanLine size={14} />
                                     </button>
                                 )}
