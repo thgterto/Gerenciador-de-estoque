@@ -1,23 +1,23 @@
-
 import { useState, useEffect, MutableRefObject } from 'react';
+import * as echarts from 'echarts';
 
 export const useECharts = (chartRef: MutableRefObject<HTMLDivElement | null>) => {
-    const [chartInstance, setChartInstance] = useState<any>(null);
+    const [chartInstance, setChartInstance] = useState<echarts.EChartsType | null>(null);
 
     useEffect(() => {
-        let instance: any = null;
+        let instance: echarts.EChartsType | null | undefined = null;
         let resizeObserver: ResizeObserver | null = null;
 
         const initChart = () => {
-            if (chartRef.current && (window as any).echarts) {
-                instance = (window as any).echarts.getInstanceByDom(chartRef.current);
+            if (chartRef.current) {
+                instance = echarts.getInstanceByDom(chartRef.current);
                 if (!instance) {
-                    instance = (window as any).echarts.init(chartRef.current);
+                    instance = echarts.init(chartRef.current);
                 }
                 setChartInstance(instance);
                 
                 resizeObserver = new ResizeObserver(() => {
-                    instance.resize();
+                    instance?.resize();
                 });
                 resizeObserver.observe(chartRef.current);
             }
@@ -31,7 +31,7 @@ export const useECharts = (chartRef: MutableRefObject<HTMLDivElement | null>) =>
             if (resizeObserver) resizeObserver.disconnect();
             if (instance) instance.dispose();
         };
-    }, [chartRef]); // Added chartRef to dependencies as requested
+    }, [chartRef]);
 
     return chartInstance;
 };
