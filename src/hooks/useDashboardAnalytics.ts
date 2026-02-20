@@ -16,6 +16,7 @@ export const useDashboardAnalytics = (items: InventoryItem[], history: MovementR
         // 2. KPIs Básicos
         const next30Days = new Date(now);
         next30Days.setDate(now.getDate() + 30);
+        const next30DaysISO = next30Days.toISOString().split('T')[0];
         
         const lowStockItems = [];
         const expiringItems = [];
@@ -23,12 +24,14 @@ export const useDashboardAnalytics = (items: InventoryItem[], history: MovementR
         let totalValue = 0;
 
         for (const item of activeItems) {
-            const status = getItemStatus(item, now);
+            const status = getItemStatus(item); // Optimized check
             if (status.isLowStock) lowStockItems.push(item);
-            if (status.isExpired) expiringItems.push(item);
-            else if (item.expiryDate) {
-                const expDate = new Date(item.expiryDate);
-                if (expDate < next30Days && expDate >= now) expiringItems.push(item);
+
+            if (status.isExpired) {
+                expiringItems.push(item);
+            } else if (item.expiryDate && item.expiryDate <= next30DaysISO) {
+                // Check if expiring in next 30 days (String comparison is faster)
+                expiringItems.push(item);
             }
 
             if (item.quantity <= 0) outOfStockItems.push(item);
