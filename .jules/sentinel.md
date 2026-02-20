@@ -7,3 +7,11 @@
 **Vulnerability:** The Electron `setWindowOpenHandler` was configured to `allow` non-http/https URLs by default (`return { action: 'allow' }`). This could allow `file://` URLs to open a new window if a malicious link was clicked, potentially exposing local files (Local File Inclusion).
 **Learning:** Defaulting to `allow` in security handlers is a violation of "Deny by Default". In Electron, `allow` inherits permissions and can open local files if the URL scheme is `file://`.
 **Prevention:** Always configure `setWindowOpenHandler` to `deny` by default. Explicitly whitelist protocols (e.g., `https:`, `mailto:`) that should be handled externally via `shell.openExternal`.
+
+## 2025-05-25 - Hardcoded JWT Secret & Insecure Bind in Legacy Backend
+**Vulnerability:** The `server/` backend (used by the portable `EstoqueNode_Corp.exe`) contained a hardcoded JWT secret (`supersecret_change_me_in_prod`) and bound to `0.0.0.0` by default. This allowed any local network attacker to forge tokens and access the API.
+**Learning:** Even "unused" or "legacy" components bundled in the release are attack vectors. `start.bat` executed this server by default, exposing users even if they only used the frontend.
+**Prevention:**
+1. Never hardcode secrets. Use dynamic generation for self-contained apps.
+2. Bind to `127.0.0.1` by default for local tools.
+3. Audit all entry points (like `start.bat`) to understand what code is actually running.
