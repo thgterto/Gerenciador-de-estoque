@@ -1,4 +1,4 @@
-import React, { InputHTMLAttributes, forwardRef } from 'react';
+import React, { InputHTMLAttributes, forwardRef, useId } from 'react';
 
 interface OrbitalInputProps extends InputHTMLAttributes<HTMLInputElement> {
     label?: string;
@@ -19,12 +19,19 @@ export const OrbitalInput = forwardRef<HTMLInputElement, OrbitalInputProps>(({
     helpText,
     rightIcon,
     leftIcon,
+    id: providedId,
     ...props
 }, ref) => {
+    const generatedId = useId();
+    const inputId = providedId || generatedId;
+
     return (
         <div className={`flex flex-col gap-1.5 ${fullWidth ? 'w-full' : ''}`}>
             {label && (
-                <label className="text-xs font-display font-bold uppercase tracking-wider text-orbital-subtext pl-1">
+                <label
+                    htmlFor={inputId}
+                    className="text-xs font-display font-bold uppercase tracking-wider text-orbital-subtext pl-1"
+                >
                     {label}
                 </label>
             )}
@@ -35,6 +42,7 @@ export const OrbitalInput = forwardRef<HTMLInputElement, OrbitalInputProps>(({
                     </div>
                 )}
                 <input
+                    id={inputId}
                     ref={ref}
                     className={`
                         w-full bg-orbital-bg/50 border-b border-orbital-border
