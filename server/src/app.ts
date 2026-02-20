@@ -106,8 +106,17 @@ const start = async () => {
 
     // Start server
     const port = config.port;
-    await app.listen({ port, host: '0.0.0.0' });
-    console.log(`Server running at http://localhost:${port}`);
+
+    // Security: Bind to 127.0.0.1 (localhost) to prevent network exposure.
+    // This tool is designed to be used locally.
+    await app.listen({ port, host: '127.0.0.1' });
+
+    // Security Warning: Check for default JWT secret
+    if (config.jwtSecret === 'supersecret_change_me_in_prod') {
+      console.warn('⚠️  WARNING: Using default JWT secret! Set JWT_SECRET environment variable for production safety.');
+    }
+
+    console.log(`Server running at http://127.0.0.1:${port}`);
   } catch (err) {
     app.log.error(err);
     process.exit(1);
