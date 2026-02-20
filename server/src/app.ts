@@ -47,8 +47,10 @@ const inventoryController = new InventoryController(getInventory, logTransaction
 const authController = new AuthController(registerUser, loginUser);
 
 // Register plugins
+// Restrict CORS in production to prevent arbitrary origins from accessing the API
+const isDev = process.env.NODE_ENV === 'development';
 app.register(cors, {
-  origin: '*', // Allow all origins for local tool
+  origin: isDev ? '*' : false,
 });
 
 app.register(jwt, {
@@ -106,8 +108,9 @@ const start = async () => {
 
     // Start server
     const port = config.port;
-    await app.listen({ port, host: '0.0.0.0' });
-    console.log(`Server running at http://localhost:${port}`);
+    // Use configured host (default 127.0.0.1) instead of hardcoded 0.0.0.0
+    await app.listen({ port, host: config.host });
+    console.log(`Server running at http://${config.host}:${port}`);
   } catch (err) {
     app.log.error(err);
     process.exit(1);
