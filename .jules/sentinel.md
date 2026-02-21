@@ -7,3 +7,8 @@
 **Vulnerability:** The Electron `setWindowOpenHandler` was configured to `allow` non-http/https URLs by default (`return { action: 'allow' }`). This could allow `file://` URLs to open a new window if a malicious link was clicked, potentially exposing local files (Local File Inclusion).
 **Learning:** Defaulting to `allow` in security handlers is a violation of "Deny by Default". In Electron, `allow` inherits permissions and can open local files if the URL scheme is `file://`.
 **Prevention:** Always configure `setWindowOpenHandler` to `deny` by default. Explicitly whitelist protocols (e.g., `https:`, `mailto:`) that should be handled externally via `shell.openExternal`.
+
+## 2026-02-21 - XSS in Electron Print Window
+**Vulnerability:** The QR Code generator was using `document.write()` to build a new print window using user-controlled data (`item.name`, `item.lotNumber`) without escaping HTML characters. This could allow execution of arbitrary JavaScript if the item name contained malicious payloads.
+**Learning:** `document.write()` in Electron (or webviews generally) treats interpolated strings as raw HTML. Even if the main UI is React (which escapes by default), dynamically generated content for print windows bypasses this protection.
+**Prevention:** Always escape user input when constructing raw HTML strings, especially for `document.write` or `innerHTML`. Use a utility function like `escapeHtml` to sanitize input.
