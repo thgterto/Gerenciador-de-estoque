@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { normalizeUnit, generateInventoryId, calculateSimilarity } from '../../src/utils/stringUtils';
+import { normalizeUnit, generateInventoryId, calculateSimilarity, escapeHtml } from '../../src/utils/stringUtils';
 
 describe('stringUtils', () => {
     describe('normalizeUnit', () => {
@@ -37,6 +37,32 @@ describe('stringUtils', () => {
 
         it('should return high score for substring', () => {
             expect(calculateSimilarity('data de validade', 'validade')).toBeGreaterThan(0.9);
+        });
+    });
+
+    describe('escapeHtml', () => {
+        it('should return empty string for null/undefined/empty', () => {
+            expect(escapeHtml('')).toBe('');
+            expect(escapeHtml(null as any)).toBe('');
+            expect(escapeHtml(undefined as any)).toBe('');
+        });
+
+        it('should not change safe strings', () => {
+            expect(escapeHtml('Hello World')).toBe('Hello World');
+            expect(escapeHtml('12345')).toBe('12345');
+        });
+
+        it('should escape HTML special characters', () => {
+            expect(escapeHtml('<script>')).toBe('&lt;script&gt;');
+            expect(escapeHtml('User "Name"')).toBe('User &quot;Name&quot;');
+            expect(escapeHtml("User 'Name'")).toBe("User &#039;Name&#039;");
+            expect(escapeHtml('A & B')).toBe('A &amp; B');
+        });
+
+        it('should handle mixed content', () => {
+             const input = '<div class="test">Hello & Welcome</div>';
+             const expected = '&lt;div class=&quot;test&quot;&gt;Hello &amp; Welcome&lt;/div&gt;';
+             expect(escapeHtml(input)).toBe(expected);
         });
     });
 });
