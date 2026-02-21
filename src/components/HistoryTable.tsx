@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { MovementRecord } from '../types';
 import { useHistoryFilters } from '../hooks/useHistoryFilters';
 import { ExportEngine } from '../utils/ExportEngine';
@@ -129,10 +129,6 @@ const HistoryRow = ({ item }: { item: MovementRecord }) => {
 
 const NativeHistoryList = ({ filtered, isMobile }: { filtered: MovementRecord[], isMobile: boolean }) => {
     const [visibleCount, setVisibleCount] = useState(50);
-
-    useEffect(() => {
-        setVisibleCount(50);
-    }, [filtered.length]);
 
     const visibleItems = filtered.slice(0, visibleCount);
 
@@ -307,7 +303,7 @@ export const HistoryTable: React.FC<Props> = ({ preselectedItemId, preselectedBa
                         <span>Carregando...</span>
                     </div>
                 ) : filtered.length > 0 ? (
-                    <NativeHistoryList filtered={filtered} isMobile={isMobile} />
+                    <NativeHistoryList key={filtered.length} filtered={filtered} isMobile={isMobile} />
                 ) : (
                     <div className="flex flex-col items-center justify-center p-12 text-orbital-subtext opacity-50">
                         <History size={48} className="mb-2" />

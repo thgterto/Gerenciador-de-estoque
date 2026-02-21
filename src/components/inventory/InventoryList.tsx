@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { OrbitalCard } from '../ui/orbital/OrbitalCard';
 import { EmptyState } from '../ui/EmptyState';
 import {
@@ -25,11 +25,6 @@ const NativeList = ({
     isMobile
 }: any) => {
     const [visibleCount, setVisibleCount] = useState(50);
-
-    // Reset visible count when list changes significantly (e.g. filters)
-    useEffect(() => {
-        setVisibleCount(50);
-    }, [flatList.length]);
 
     const visibleItems = flatList.slice(0, visibleCount);
 
@@ -180,6 +175,7 @@ export const InventoryList: React.FC<InventoryListProps> = ({
              <div className="flex-grow relative bg-orbital-bg">
                 {flatList.length > 0 ? (
                     <NativeList
+                        key={flatList.length}
                         flatList={flatList}
                         isMobile={isMobile}
                         onActions={onActions}
@@ -194,7 +190,7 @@ export const InventoryList: React.FC<InventoryListProps> = ({
                     <EmptyState
                         title="Nenhum item encontrado"
                         description="Tente ajustar os filtros ou adicionar um novo item ao inventário."
-                        actionLabel="Adicionar Item"
+                        actionLabel="Criar Primeiro Item"
                         onAction={onAddNew}
                     />
                 )}
