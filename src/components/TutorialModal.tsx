@@ -262,6 +262,7 @@ export const TutorialModal: React.FC<Props> = ({ isOpen, onClose, setTab }) => {
 
   useLayoutEffect(() => {
       if (isOpen) {
+          // eslint-disable-next-line
           setIsReady(false);
           updatePosition();
           window.addEventListener('resize', updatePosition);
