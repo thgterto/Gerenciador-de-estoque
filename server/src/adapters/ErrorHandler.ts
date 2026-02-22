@@ -1,6 +1,7 @@
 
 import { FastifyError, FastifyReply, FastifyRequest } from 'fastify';
 import { z } from 'zod';
+import { config } from '../config';
 
 export function errorHandler(error: FastifyError, request: FastifyRequest, reply: FastifyReply) {
   if (error instanceof z.ZodError) {
@@ -30,9 +31,14 @@ export function errorHandler(error: FastifyError, request: FastifyRequest, reply
 
   request.log.error(error);
 
+  // Sentinel Security: Prevent leaking sensitive info in production
+  const message = config.isProduction
+    ? 'Internal Server Error'
+    : (error.message || 'An unexpected error occurred');
+
   return reply.status(500).send({
     statusCode: 500,
     error: 'Internal Server Error',
-    message: error.message || 'An unexpected error occurred',
+    message: message,
   });
 }
