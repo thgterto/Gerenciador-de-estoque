@@ -62,6 +62,14 @@ function createWindow() {
     return { action: 'deny' };
   });
 
+  // Security: Prevent in-app navigation to external URLs
+  mainWindow.webContents.on('will-navigate', (event, url) => {
+    if (url.startsWith('https:') || url.startsWith('http:') || url.startsWith('mailto:')) {
+      event.preventDefault();
+      shell.openExternal(url);
+    }
+  });
+
   mainWindow.on('closed', () => {
     mainWindow = null;
   });
