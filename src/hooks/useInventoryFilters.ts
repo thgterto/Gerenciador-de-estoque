@@ -37,7 +37,6 @@ export const useInventoryFilters = (items: InventoryItem[]) => {
     const baseFilteredItems = useMemo(() => {
         if (!catFilter && !locationFilter && statusFilter === 'ALL' && !hideZeroStock) return items;
 
-        const now = new Date(); // Optimize status check
         return items.filter(i => {
             // Filtro de Estoque Zero
             if (hideZeroStock && (i.quantity || 0) <= 0) return false;
@@ -48,7 +47,7 @@ export const useInventoryFilters = (items: InventoryItem[]) => {
 
             // Filtro de Status
             if (statusFilter !== 'ALL') {
-                const status = getItemStatus(i, now);
+                const status = getItemStatus(i);
                 if (statusFilter === 'EXPIRED' && !status.isExpired) return false;
                 if (statusFilter === 'LOW_STOCK' && !status.isLowStock) return false;
                 if (statusFilter === 'OK' && (status.isExpired || status.isLowStock)) return false;
@@ -105,14 +104,13 @@ export const useInventoryFilters = (items: InventoryItem[]) => {
         }
   
         // Processa Status Agregado e Ordenação
-        const now = new Date(); // Reuse date
         const result = Object.values(groups).map(grp => {
             let hasExpired = false;
             let hasLowStock = false;
             
             // Verifica status de todos os filhos para resumir o pai
             for (const i of grp.items) {
-                const s = getItemStatus(i, now);
+                const s = getItemStatus(i);
                 if (s.isExpired) hasExpired = true;
                 if (s.isLowStock) hasLowStock = true;
                 if (hasExpired && hasLowStock) break;
@@ -175,9 +173,8 @@ export const useInventoryFilters = (items: InventoryItem[]) => {
     const stats = useMemo(() => {
         let expired = 0;
         let low = 0;
-        const now = new Date(); // Reuse
         items.forEach(i => {
-            const status = getItemStatus(i, now);
+            const status = getItemStatus(i);
             if (status.isExpired) expired++;
             if (status.isLowStock) low++;
         });
