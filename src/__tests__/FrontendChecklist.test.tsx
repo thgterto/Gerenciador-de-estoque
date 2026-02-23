@@ -147,7 +147,7 @@ describe('Frontend Verification Checklist', () => {
             render(<OrbitalButton variant="primary">Test Button</OrbitalButton>);
             const btn = screen.getByRole('button', { name: /test button/i });
 
-            expect(btn).toHaveClass('shadow-glow-sm');
+            expect(btn).toHaveClass('shadow-sm');
             expect(btn).toHaveClass('uppercase');
             expect(btn).toHaveClass('font-display');
         });

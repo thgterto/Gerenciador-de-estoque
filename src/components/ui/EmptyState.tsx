@@ -21,8 +21,8 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
 }) => {
   return (
     <div className={`flex flex-col items-center justify-center py-16 px-4 text-center h-full animate-fade-in ${className}`}>
-      <div className="bg-slate-50 dark:bg-slate-800/50 p-6 rounded-2xl mb-5 shadow-sm border border-slate-100 dark:border-slate-700">
-        <span className="material-symbols-outlined text-5xl text-slate-300 dark:text-slate-500">
+      <div className="p-4 mb-4">
+        <span className="material-symbols-outlined text-6xl text-slate-200 dark:text-slate-700">
           {icon}
         </span>
       </div>
@@ -31,7 +31,7 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
         {title}
       </h3>
       
-      <p className="text-sm text-text-secondary dark:text-gray-400 max-w-md mx-auto mb-8 leading-relaxed">
+      <p className="text-sm text-slate-500 dark:text-slate-400 max-w-md mx-auto mb-8 leading-relaxed">
         {description}
       </p>
       
