@@ -32,6 +32,7 @@ export const SyncQueueService = {
         if ((window as any)._isSyncing) return;
         (window as any)._isSyncing = true;
 
+        let pendingItems: SyncQueueItem[] = [];
         try {
             const count = await this.getQueueSize();
             if (count === 0) return;
@@ -41,7 +42,7 @@ export const SyncQueueService = {
             // Simple ping check logic implied by calling request
             
             // Fetch pending items (FIFO)
-            const pendingItems = await db.rawDb.syncQueue.orderBy('id').limit(5).toArray();
+            pendingItems = await db.rawDb.syncQueue.orderBy('id').limit(5).toArray();
             
             if (pendingItems.length === 0) return;
 
