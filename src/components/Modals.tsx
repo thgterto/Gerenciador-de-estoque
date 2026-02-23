@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { InventoryItem, QRCodeDataDTO, CreateItemDTO } from '../types';
 import * as ReactQRCode from 'react-qr-code';
 const QRCode = (ReactQRCode as any).default || ReactQRCode;
+import { escapeHtml } from '../utils/stringUtils';
 
 import { ItemForm } from './ItemForm';
 import { AddItem } from './AddItem';
@@ -156,7 +157,7 @@ export const QRGeneratorModal: React.FC<QRGeneratorModalProps> = ({ isOpen, onCl
             printWindow.document.write(`
                 <html>
                     <head>
-                        <title>${item.name}</title>
+                        <title>${escapeHtml(item.name)}</title>
                         <style>
                             @page { size: auto; margin: 0; }
                             body { margin: 0; padding: 10px; font-family: monospace; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; }
@@ -167,10 +168,10 @@ export const QRGeneratorModal: React.FC<QRGeneratorModalProps> = ({ isOpen, onCl
                     </head>
                     <body>
                         <div class="label">
-                            <div class="title">${item.name}</div>
-                            <div class="meta">Lote: ${item.lotNumber} | Val: ${item.expiryDate ? new Date(item.expiryDate).toLocaleDateString() : 'N/A'}</div>
+                            <div class="title">${escapeHtml(item.name)}</div>
+                            <div class="meta">Lote: ${escapeHtml(item.lotNumber)} | Val: ${item.expiryDate ? new Date(item.expiryDate).toLocaleDateString() : 'N/A'}</div>
                             ${svgHtml}
-                            <div class="meta" style="margin-top: 5px;">${item.id}</div>
+                            <div class="meta" style="margin-top: 5px;">${escapeHtml(item.id)}</div>
                         </div>
                         <script>setTimeout(() => { window.print(); window.close(); }, 500);</script>
                     </body>
