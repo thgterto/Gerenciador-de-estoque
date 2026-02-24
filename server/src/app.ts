@@ -106,8 +106,9 @@ const start = async () => {
 
     // Start server
     const port = config.port;
-    await app.listen({ port, host: '0.0.0.0' });
-    console.log(`Server running at http://localhost:${port}`);
+    const host = process.env.HOST || '127.0.0.1'; // SECURITY: Bind to localhost by default
+    await app.listen({ port, host });
+    console.log(`Server running at http://${host}:${port}`);
   } catch (err) {
     app.log.error(err);
     process.exit(1);
