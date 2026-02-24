@@ -320,6 +320,7 @@ export const StorageMatrix: React.FC<Props> = ({ items, onActions }) => {
                             {viewMode === 'GRID' ? 'Lista' : 'Grid'}
                         </OrbitalButton>
                         <OrbitalButton
+                            id="tour-audit-btn"
                             onClick={() => setAuditMode(!auditMode)}
                             variant={auditMode ? 'warning' : 'outline'}
                             icon={auditMode ? <Eye size={16} /> : <EyeOff size={16} />}
@@ -333,7 +334,7 @@ export const StorageMatrix: React.FC<Props> = ({ items, onActions }) => {
             
             <div className={`flex-1 relative`}>
                 {!selectedLocKey ? (
-                    <div>
+                    <div id="tour-storage-grid">
                         {Object.keys(locations).length === 0 ? (
                             <div className="flex flex-col items-center justify-center h-64 text-orbital-subtext opacity-60">
                                 <Warehouse size={64} className="mb-4 text-orbital-border" />

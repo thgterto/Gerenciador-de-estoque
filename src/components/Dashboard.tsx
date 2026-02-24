@@ -88,7 +88,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ items, history, onAddToPur
 
       <div className="grid grid-cols-1 gap-6 pb-10">
         {/* Metrics */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div id="tour-kpi" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
              <MetricCard
                 title="Total de Itens"
                 value={totalItems}

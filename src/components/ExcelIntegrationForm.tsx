@@ -21,7 +21,7 @@ export const ExcelIntegrationForm: React.FC = () => {
         setLoading(true);
 
         try {
-            // @ts-ignore - electronAPI is extended in window
+            // @ts-expect-error - electronAPI is extended in window
             const result = await window.electronAPI.request('send_to_excel', { name, email });
 
             if (result.success) {

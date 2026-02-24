@@ -127,8 +127,10 @@ function setSystemConfig(key, value, category = 'General') {
 }
 
 function processOfflineQueue() {
-    // Placeholder for retry logic
-    console.log("Processing offline queue (not implemented yet)");
+    // In Portable/Local mode, the backend is local (SQLite), so "offline" queueing
+    // for a remote server is not currently active.
+    // This function is a placeholder for future Cloud Sync features.
+    console.log("[Sync] Offline queue processing skipped (Local Mode active)");
 }
 
 // BACKUP FUNCTIONALITY

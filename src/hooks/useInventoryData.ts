@@ -68,13 +68,9 @@ export const useInventoryData = () => {
                 const dbCount = await db.rawDb.items.count();
                 // const setupDone = localStorage.getItem(SESSION_KEYS.SETUP_COMPLETED) === 'true'; // Unused
                 
-                // CRITICAL FIX: Populate database automatically if empty
+                // Show setup modal if database is empty
                 if (dbCount === 0) {
-                     console.log('Database empty, starting auto-seed...');
-                     await seedDatabase(true);
-                     localStorage.setItem(SESSION_KEYS.SETUP_COMPLETED, 'true');
-                     localStorage.setItem(SESSION_KEYS.DATA_VERSION, CURRENT_DATA_VERSION);
-                     // setShowDbSetup(true); // Disable manual setup modal
+                     setShowDbSetup(true);
                 } else {
                     // Se já existem dados, apenas atualizamos a flag de versão para evitar prompts futuros
                     localStorage.setItem(SESSION_KEYS.DATA_VERSION, CURRENT_DATA_VERSION);

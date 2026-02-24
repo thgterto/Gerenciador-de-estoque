@@ -65,6 +65,7 @@ export const Purchases: React.FC<Props> = ({
         >
             <div className="flex gap-3">
                 <OrbitalButton
+                    id="tour-purchases-export"
                     variant="outline"
                     icon={<FileText size={16} />}
                     onClick={() => {}} // TODO: Export list

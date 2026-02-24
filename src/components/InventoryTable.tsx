@@ -122,6 +122,7 @@ export const InventoryTable: React.FC<Props> = ({ items, onActions, onAddNew }) 
                 </OrbitalButton>
                 {onAddNew && (
                     <OrbitalButton
+                        id="tour-add-btn"
                         variant="primary"
                         icon={<Plus size={16} />}
                         onClick={onAddNew}
@@ -134,16 +135,18 @@ export const InventoryTable: React.FC<Props> = ({ items, onActions, onAddNew }) 
 
         <InventoryKPIs stats={stats} />
 
-        <InventoryFilters
-            term={term} setTerm={setTerm}
-            catFilter={catFilter} setCatFilter={setCatFilter}
-            locationFilter={locationFilter} setLocationFilter={setLocationFilter}
-            statusFilter={statusFilter} setStatusFilter={setStatusFilter}
-            hideZeroStock={hideZeroStock} setHideZeroStock={setHideZeroStock}
-            uniqueLocations={uniqueLocations}
-            uniqueCategories={uniqueCategories}
-            getCategoryIcon={getCategoryIcon}
-        />
+        <div id="tour-inv-filters">
+            <InventoryFilters
+                term={term} setTerm={setTerm}
+                catFilter={catFilter} setCatFilter={setCatFilter}
+                locationFilter={locationFilter} setLocationFilter={setLocationFilter}
+                statusFilter={statusFilter} setStatusFilter={setStatusFilter}
+                hideZeroStock={hideZeroStock} setHideZeroStock={setHideZeroStock}
+                uniqueLocations={uniqueLocations}
+                uniqueCategories={uniqueCategories}
+                getCategoryIcon={getCategoryIcon}
+            />
+        </div>
 
         <InventoryList
             flatList={flatList}

@@ -43,6 +43,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
     return (
         <aside
+            id="tour-sidebar"
             className="fixed top-0 bottom-0 left-0 z-50 bg-orbital-bg border-r border-orbital-border"
             style={{ width: drawerWidth }}
         >
