@@ -66,14 +66,21 @@ export const useInventoryData = () => {
                 await InventoryService.initialize();
 
                 const dbCount = await db.rawDb.items.count();
-                // const setupDone = localStorage.getItem(SESSION_KEYS.SETUP_COMPLETED) === 'true'; // Unused
+                const setupDone = localStorage.getItem(SESSION_KEYS.SETUP_COMPLETED) === 'true';
                 
-                // CRITICAL FIX: Populate database automatically if empty
-                if (dbCount === 0) {
+                // CRITICAL FIX: Populate database automatically if empty and not already seeded
+                if (dbCount === 0 && !setupDone) {
                      console.log('Database empty, starting auto-seed...');
-                     await seedDatabase(true);
+                     // Set flag immediately to prevent race conditions in React Strict Mode
                      localStorage.setItem(SESSION_KEYS.SETUP_COMPLETED, 'true');
-                     localStorage.setItem(SESSION_KEYS.DATA_VERSION, CURRENT_DATA_VERSION);
+
+                     try {
+                        await seedDatabase(true);
+                        localStorage.setItem(SESSION_KEYS.DATA_VERSION, CURRENT_DATA_VERSION);
+                     } catch (e) {
+                        localStorage.removeItem(SESSION_KEYS.SETUP_COMPLETED); // Revert on failure
+                        throw e;
+                     }
                      // setShowDbSetup(true); // Disable manual setup modal
                 } else {
                     // Se já existem dados, apenas atualizamos a flag de versão para evitar prompts futuros
@@ -96,12 +103,17 @@ export const useInventoryData = () => {
         
         init();
 
+        let timeoutId: NodeJS.Timeout;
         const unsubscribe = db.subscribe(() => {
-            if (isMounted.current) loadData(false);
+            clearTimeout(timeoutId);
+            timeoutId = setTimeout(() => {
+                if (isMounted.current) loadData(false);
+            }, 500);
         });
 
         return () => {
             isMounted.current = false;
+            clearTimeout(timeoutId);
             unsubscribe();
         };
     }, [loadData]);

@@ -133,5 +133,9 @@ export const SyncQueueService = {
             window.clearInterval(this._intervalId);
             this._intervalId = null;
         }
+        if ((window as any)._syncOnlineListener) {
+            window.removeEventListener('online', (window as any)._syncOnlineListener);
+            delete (window as any)._syncOnlineListener;
+        }
     }
 };
