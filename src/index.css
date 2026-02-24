@@ -20,23 +20,6 @@
     --color-orbital-danger: #dc2626;   /* Red 600 */
   }
 
-  .dark {
-    color-scheme: dark;
-
-    /* Dark Mode Variables (Original Orbital Theme) */
-    --color-orbital-bg: #09090b;      /* Zinc 950 */
-    --color-orbital-surface: #18181b; /* Zinc 900 */
-    --color-orbital-border: #27272a;  /* Zinc 800 */
-    --color-orbital-accent: #06b6d4;  /* Cyan 500 */
-    --color-orbital-hover: #0891b2;   /* Cyan 600 */
-    --color-orbital-text: #f4f4f5;    /* Zinc 100 */
-    --color-orbital-subtext: #a1a1aa; /* Zinc 400 */
-
-    --color-orbital-success: #10b981; /* Emerald 500 */
-    --color-orbital-warning: #f59e0b; /* Amber 500 */
-    --color-orbital-danger: #ef4444;  /* Red 500 */
-  }
-
   html, body {
     height: 100%;
     width: 100%;

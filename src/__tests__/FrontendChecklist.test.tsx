@@ -43,16 +43,15 @@ describe('Frontend Verification Checklist', () => {
     // 1. Theming & Aesthetics
     describe('1. Theming & Aesthetics', () => {
         const ThemeTester = () => {
-            const { theme, toggleTheme } = useTheme();
+            const { theme } = useTheme();
             return (
                 <div>
                     <span data-testid="theme-value">{theme}</span>
-                    <button onClick={toggleTheme}>Toggle Theme</button>
                 </div>
             );
         };
 
-        it('should load default theme and persist it', () => {
+        it('should load default theme (light)', () => {
             localStorage.clear();
             render(
                 <ThemeProvider>
@@ -60,31 +59,10 @@ describe('Frontend Verification Checklist', () => {
                 </ThemeProvider>
             );
 
-            // Default should be light (assuming no system preference mock yet)
+            // Default must be light
             expect(screen.getByTestId('theme-value')).toHaveTextContent('light');
             expect(document.documentElement.classList.contains('light')).toBe(true);
-        });
-
-        it('should toggle theme and update html class', () => {
-            render(
-                <ThemeProvider>
-                    <ThemeTester />
-                </ThemeProvider>
-            );
-
-            const toggleBtn = screen.getByText('Toggle Theme');
-
-            // Toggle to Dark
-            fireEvent.click(toggleBtn);
-            expect(screen.getByTestId('theme-value')).toHaveTextContent('dark');
-            expect(document.documentElement.classList.contains('dark')).toBe(true);
-            expect(localStorage.getItem('LC_THEME')).toBe('dark');
-
-            // Toggle back to Light
-            fireEvent.click(toggleBtn);
-            expect(screen.getByTestId('theme-value')).toHaveTextContent('light');
-            expect(document.documentElement.classList.contains('light')).toBe(true);
-            expect(localStorage.getItem('LC_THEME')).toBe('light');
+            expect(document.documentElement.classList.contains('dark')).toBe(false);
         });
     });
 

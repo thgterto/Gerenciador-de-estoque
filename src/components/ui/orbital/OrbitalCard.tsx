@@ -22,10 +22,6 @@ export const OrbitalCard: React.FC<OrbitalCardProps> = ({
             className={`card-orbital ${className} ${onClick ? 'cursor-pointer hover:bg-orbital-accent/5' : ''}`}
             onClick={onClick}
         >
-            {/* Decorative Corner Markers */}
-            <div className="absolute top-0 right-0 w-3 h-3 border-t-2 border-r-2 border-orbital-accent/30 rounded-bl-lg" />
-            <div className="absolute bottom-0 left-0 w-3 h-3 border-b-2 border-l-2 border-orbital-accent/30 rounded-tr-lg" />
-
             {(title || action) && (
                 <div className="flex items-center justify-between p-4 border-b border-orbital-border bg-orbital-bg/30">
                     {title && (

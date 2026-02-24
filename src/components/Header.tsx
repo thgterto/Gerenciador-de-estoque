@@ -1,19 +1,15 @@
 import React, { useRef, useEffect } from 'react';
-import { useTheme } from '../context/ThemeContext';
 import {
     Menu,
     Search,
     ScanLine,
     Plus,
-    Sun,
-    Moon,
     RefreshCw,
     Bell,
     FlaskConical
 } from 'lucide-react';
 
 interface HeaderProps {
-    onToggleTheme: () => void;
     onBackup: () => void;
     onAddClick?: () => void;
     onScanClick?: () => void;
@@ -23,7 +19,6 @@ interface HeaderProps {
 }
 
 export const Header: React.FC<HeaderProps> = ({ 
-    onToggleTheme,
     onBackup, 
     onAddClick,
     onScanClick, 
@@ -31,7 +26,6 @@ export const Header: React.FC<HeaderProps> = ({
     onMenuClick,
     drawerWidth = 240
 }) => {
-    const { theme } = useTheme();
     const searchInputRef = useRef<HTMLInputElement>(null);
 
     // Hotkey: Ctrl + K (or Cmd + K) to focus search
@@ -111,14 +105,6 @@ export const Header: React.FC<HeaderProps> = ({
                         title="Sincronizar"
                     >
                         <RefreshCw size={20} className="group-hover:rotate-180 transition-transform duration-500" />
-                    </button>
-
-                    <button
-                        onClick={onToggleTheme}
-                        className="p-2 text-orbital-subtext hover:text-orbital-warning hover:bg-orbital-surface rounded transition-colors"
-                        title={theme === 'dark' ? 'Modo Claro' : 'Modo Escuro'}
-                    >
-                        {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
                     </button>
 
                     <button
