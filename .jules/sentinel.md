@@ -7,3 +7,8 @@
 **Vulnerability:** The Electron `setWindowOpenHandler` was configured to `allow` non-http/https URLs by default (`return { action: 'allow' }`). This could allow `file://` URLs to open a new window if a malicious link was clicked, potentially exposing local files (Local File Inclusion).
 **Learning:** Defaulting to `allow` in security handlers is a violation of "Deny by Default". In Electron, `allow` inherits permissions and can open local files if the URL scheme is `file://`.
 **Prevention:** Always configure `setWindowOpenHandler` to `deny` by default. Explicitly whitelist protocols (e.g., `https:`, `mailto:`) that should be handled externally via `shell.openExternal`.
+
+## 2025-05-24 - Missing Navigation Restrictions (Open Redirect Risk)
+**Vulnerability:** The Electron main window lacked a `will-navigate` handler. While `setWindowOpenHandler` protected against new windows, the main window itself could still be navigated to external malicious sites via `window.location` or direct links, potentially replacing the app UI with a phishing page.
+**Learning:** Securing `window.open` is not enough. You must also secure the main window's navigation events. This is a common oversight in Electron security checklist.
+**Prevention:** Always implement `will-navigate` handler to block external navigation in the main window.
