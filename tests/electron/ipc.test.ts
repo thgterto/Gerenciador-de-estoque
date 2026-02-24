@@ -83,4 +83,37 @@ describe('Electron IPC Handlers', () => {
     expect(config.app.getVersion).toHaveBeenCalled();
     expect(result).toBe('1.2.3');
   });
+
+  it('excel:send-data should call fetch with correct payload', async () => {
+    // Mock fetch
+    global.fetch = vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({})
+    });
+    // Mock process.env
+    process.env.POWER_AUTOMATE_WEBHOOK_URL = 'http://mock-webhook';
+
+    const ipcHandlers = new Map();
+    const ipcMain = {
+        handle: (channel: string, handler: any) => ipcHandlers.set(channel, handler)
+    };
+
+    const db = {};
+    const controllers = { InventoryController: {}, ImportController: {} };
+    const config = { app: { getVersion: vi.fn() }, dialog: {}, getMainWindow: vi.fn() };
+
+    registerIpcHandlers(ipcMain as any, db as any, controllers as any, config as any);
+
+    const handler = ipcHandlers.get('excel:send-data');
+    const payload = { name: 'Test User', email: 'test@example.com' };
+
+    const result = await handler({}, payload);
+
+    expect(global.fetch).toHaveBeenCalledWith('http://mock-webhook', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+    });
+    expect(result).toEqual({ success: true });
+  });
 });
