@@ -6,6 +6,7 @@ const logPath = process.env.LOG_PATH || path.resolve(process.cwd(), 'logs', 'aud
 
 export const config = {
   port: process.env.PORT ? parseInt(process.env.PORT) : 3000,
+  host: process.env.HOST || '127.0.0.1', // Default to localhost for security
   jwtSecret: process.env.JWT_SECRET || 'supersecret_change_me_in_prod',
   dbPath,
   logPath,
