@@ -10,4 +10,5 @@ export const config = {
   dbPath,
   logPath,
   logDir: path.dirname(logPath),
+  isProduction: process.env.NODE_ENV === 'production' || !!(process as any).pkg,
 };
