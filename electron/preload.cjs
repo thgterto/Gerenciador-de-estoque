@@ -12,7 +12,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
         'upsert_item': 'db:upsert-item',
         'delete_item': 'db:delete-item',
         'log_movement': 'db:log-movement',
-        'sync_transaction': 'db:sync-transaction'
+        'sync_transaction': 'db:sync-transaction',
+        'send_to_excel': 'excel:send-data'
     };
 
     const channel = channelMap[action];

@@ -2,9 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { db } from '../db';
 import { InventoryService } from '../services/InventoryService';
 import { ImportService } from '../services/ImportService';
-import { GoogleSheetsService } from '../services/GoogleSheetsService';
 import { seedDatabase } from '../services/DatabaseSeeder'; 
-import { GOOGLE_CONFIG } from '../config/apiConfig';
 import { useAlert } from '../context/AlertContext';
 import { ApiClient } from '../services/ApiClient';
 import { ImportWizard } from './ImportWizard';
@@ -15,6 +13,7 @@ import { OrbitalModal } from './ui/orbital/OrbitalModal';
 import { PageContainer } from './ui/PageContainer'; 
 import { OrbitalInput } from './ui/orbital/OrbitalInput';
 import { ExportEngine } from '../utils/ExportEngine';
+import { ExcelIntegrationForm } from './ExcelIntegrationForm';
 import {
     Upload,
     Package,
@@ -27,10 +26,7 @@ import {
     AlertTriangle,
     CheckCircle,
     Table2,
-    Wifi,
-    WifiOff,
     Save,
-    RefreshCw,
     Download,
     Code,
     BookmarkCheck,
@@ -47,10 +43,6 @@ export const Settings: React.FC = () => {
     const [loading, setLoading] = useState(false);
     const isElectron = ApiClient.isElectron();
     
-    // Cloud Config
-    const [googleUrl, setGoogleUrl] = useState('');
-    const [isCloudConnected, setIsCloudConnected] = useState(false);
-
     // Enrichment State
     const [enriching, setEnriching] = useState(false);
     const [enrichProgress, setEnrichProgress] = useState(0);
@@ -70,19 +62,9 @@ export const Settings: React.FC = () => {
     const [auditStats, setAuditStats] = useState<{ matches: number, mismatches: number, corrections: number } | null>(null);
 
     useEffect(() => {
-        // Init Cloud Config
-        const url = GOOGLE_CONFIG.getWebUrl();
-        setGoogleUrl(url);
-        if (url) checkConnection();
-
         // Check for Custom Seed
         checkCustomSeed();
     }, []);
-
-    const checkConnection = async () => {
-        const connected = await GoogleSheetsService.testConnection();
-        setIsCloudConnected(connected);
-    };
 
     const checkCustomSeed = async () => {
         try {
@@ -90,60 +72,6 @@ export const Settings: React.FC = () => {
             setHasCustomSeed(!!seed);
         } catch (e) {
             console.error(e);
-        }
-    };
-
-    const handleSaveGoogleConfig = async () => {
-        let cleanUrl = googleUrl.trim();
-        
-        if (!cleanUrl) {
-            addToast('URL Inválida', 'warning', 'Preencha a URL do Google Web App.');
-            return;
-        }
-
-        if (cleanUrl.includes('/edit')) {
-            addToast('URL Corrigida', 'info', 'Detectamos um link de edição. Tentando converter para link de execução...');
-            cleanUrl = cleanUrl.split('/edit')[0] + '/exec';
-            setGoogleUrl(cleanUrl);
-        } else if (!cleanUrl.endsWith('/exec')) {
-             if (!cleanUrl.endsWith('/')) cleanUrl += '/';
-             if (!cleanUrl.includes('exec')) cleanUrl += 'exec';
-             setGoogleUrl(cleanUrl);
-        }
-
-        setLoading(true);
-        GOOGLE_CONFIG.setWebUrl(cleanUrl);
-        
-        const success = await GoogleSheetsService.testConnection();
-        setIsCloudConnected(success);
-        setLoading(false);
-        
-        if (success) {
-            addToast('Conectado', 'success', 'Conexão com Google Sheets estabelecida!');
-        } else {
-            addToast('Erro de Conexão', 'error', 'Não foi possível contatar o script. Verifique se implantou como "Web App" e acesso "Qualquer pessoa".');
-        }
-    };
-
-    const handleSync = async () => {
-        if (!isCloudConnected) {
-            addToast('Offline', 'error', 'Configure e salve a URL do Google Sheets primeiro.');
-            return;
-        }
-        
-        if (!confirm("Atenção: A sincronização irá baixar os dados da nuvem e mesclar com os locais. Em caso de conflito, os dados da nuvem prevalecerão. Continuar?")) {
-            return;
-        }
-
-        setLoading(true);
-        try {
-            await InventoryService.syncFromCloud();
-            addToast('Sincronizado', 'success', 'Dados atualizados da nuvem.');
-        } catch (e: any) {
-            console.error(e);
-            addToast('Erro', 'error', 'Falha na sincronização. Verifique o console.');
-        } finally {
-            setLoading(false);
         }
     };
 
@@ -414,43 +342,20 @@ export const Settings: React.FC = () => {
 
                     {/* Coluna 2: Integração e Sistema */}
                     <div className="flex flex-col gap-6">
-                        {/* Google Sheets */}
-                        <OrbitalCard className="border-l-4 border-l-[#0F9D58] relative overflow-hidden">
+                        {/* Excel / Power Automate Integration */}
+                        <OrbitalCard className="border-l-4 border-l-[#107C41] relative overflow-hidden">
                              <div className="flex items-center gap-3 mb-4 text-orbital-text relative z-10">
                                 <div className="p-2 bg-green-900/20 rounded text-green-400 border border-green-500/50">
                                     <Table2 size={24} />
                                 </div>
                                 <div className="flex-1">
-                                    <h3 className="text-lg font-bold font-display uppercase tracking-wide">Google Sheets</h3>
-                                    <p className="text-xs text-orbital-subtext font-mono">Integração com Apps Script</p>
+                                    <h3 className="text-lg font-bold font-display uppercase tracking-wide">Excel / Power Automate</h3>
+                                    <p className="text-xs text-orbital-subtext font-mono">Integração via Webhook</p>
                                 </div>
-                                {isCloudConnected ? (
-                                    <span className="bg-green-900/30 text-green-400 px-3 py-1 border border-green-500/50 rounded-none text-xs font-bold font-mono uppercase flex items-center gap-1 shadow-[0_0_10px_rgba(74,222,128,0.2)]">
-                                        <Wifi size={14} /> Online
-                                    </span>
-                                ) : (
-                                    <span className="bg-orbital-surface text-orbital-subtext px-3 py-1 border border-orbital-border rounded-none text-xs font-bold font-mono uppercase flex items-center gap-1">
-                                        <WifiOff size={14} /> Offline
-                                    </span>
-                                )}
                             </div>
 
-                            <div className="flex flex-col gap-4 relative z-10">
-                                <OrbitalInput
-                                    label="URL do Web App"
-                                    value={googleUrl}
-                                    onChange={e => setGoogleUrl(e.target.value)}
-                                    placeholder="https://script.google.com/..."
-                                    className="text-sm"
-                                />
-                                <div className="flex gap-3">
-                                    <OrbitalButton onClick={handleSaveGoogleConfig} variant="primary" disabled={loading} icon={<Save size={16} />} className="flex-1 text-sm">
-                                        Conectar
-                                    </OrbitalButton>
-                                    <OrbitalButton onClick={handleSync} variant="outline" disabled={!isCloudConnected || loading} icon={<RefreshCw size={16} />} className="flex-1 text-sm">
-                                        Sincronizar
-                                    </OrbitalButton>
-                                </div>
+                            <div className="relative z-10">
+                                <ExcelIntegrationForm />
                             </div>
                         </OrbitalCard>
 
