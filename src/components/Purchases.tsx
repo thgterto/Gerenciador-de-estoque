@@ -75,6 +75,7 @@ export const Purchases: React.FC<Props> = ({
                     variant="primary"
                     icon={<Plus size={16} />}
                     onClick={() => setShowRequestModal(true)}
+                    data-testid="purchases-add-button"
                 >
                     Adicionar Item
                 </OrbitalButton>

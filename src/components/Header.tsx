@@ -49,7 +49,7 @@ export const Header: React.FC<HeaderProps> = ({
 
     return (
         <header
-            className="fixed top-0 right-0 left-0 z-30 h-16 bg-orbital-bg/80 backdrop-blur border-b border-orbital-border transition-all duration-300"
+            className="fixed top-0 right-0 left-0 z-30 h-16 bg-orbital-bg/90 backdrop-blur border-b border-orbital-border/30 transition-all duration-300"
             style={{ paddingLeft: `max(env(safe-area-inset-left), ${drawerWidth}px)` }}
         >
             <div className="flex items-center justify-between h-full px-4 sm:px-6">
@@ -87,8 +87,9 @@ export const Header: React.FC<HeaderProps> = ({
                     {onAddClick && (
                         <button
                             onClick={onAddClick}
-                            className="p-2 text-orbital-accent hover:text-white hover:bg-orbital-accent rounded transition-all duration-200 hover:shadow-glow-sm active:scale-95"
+                            className="p-2 text-orbital-accent hover:text-white hover:bg-orbital-accent/90 rounded transition-all duration-200 hover:shadow-sm active:scale-[0.98]"
                             title="Adicionar Item"
+                            data-testid="header-add-button"
                         >
                             <Plus size={20} />
                         </button>

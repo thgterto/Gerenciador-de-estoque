@@ -23,8 +23,8 @@ export const OrbitalButton: React.FC<OrbitalButtonProps> = ({
     const baseStyles = "relative inline-flex items-center justify-center font-display font-bold uppercase tracking-widest transition-all duration-200 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed";
 
     const variants = {
-        primary: "bg-orbital-accent text-orbital-bg border border-orbital-accent hover:bg-orbital-hover hover:border-orbital-hover shadow-glow-sm",
-        outline: "bg-transparent text-orbital-accent border border-orbital-accent hover:bg-orbital-accent/10 hover:shadow-glow-sm",
+        primary: "bg-orbital-accent text-orbital-bg border border-orbital-accent hover:bg-orbital-hover hover:border-orbital-hover shadow-sm",
+        outline: "bg-transparent text-orbital-accent border border-orbital-accent hover:bg-orbital-accent/10 hover:shadow-sm",
         ghost: "bg-transparent text-orbital-subtext hover:text-orbital-text hover:bg-orbital-surface border border-transparent",
         danger: "bg-transparent text-orbital-danger border border-orbital-danger hover:bg-orbital-danger/10 hover:shadow-[0_0_10px_rgba(239,68,68,0.3)]",
         secondary: "bg-transparent text-orbital-subtext border border-orbital-subtext hover:text-orbital-text hover:border-orbital-text hover:bg-orbital-subtext/10",
@@ -48,10 +48,6 @@ export const OrbitalButton: React.FC<OrbitalButtonProps> = ({
             {!isLoading && icon && <span className="mr-2 flex items-center">{icon}</span>}
             {children}
 
-            {/* Tech Corner Accent for Primary/Outline */}
-            {(variant === 'primary' || variant === 'outline') && (
-                <span className="absolute -bottom-[1px] -right-[1px] w-2 h-2 bg-orbital-bg border-t border-l border-current opacity-50" />
-            )}
         </button>
     );
 };
