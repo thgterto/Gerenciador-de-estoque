@@ -112,7 +112,7 @@ const rawDb = new QStockDB();
 // 1. Prevent Catalog Deletion if Batches Exist
 rawDb.catalog.hook('deleting', function (primKey, _obj, transaction) {
     // Checks if any batch is linked to this catalog product
-    // @ts-ignore
+    // @ts-expect-error: Dexie hook types are tricky
     return transaction.table('batches').where('catalogId').equals(primKey).count().then(count => {
         if (count > 0) {
             throw new Error(`Integrity Error: Cannot delete Catalog Product because ${count} batches depend on it.`);
@@ -123,7 +123,7 @@ rawDb.catalog.hook('deleting', function (primKey, _obj, transaction) {
 // 2. Cascade Delete Balances when Batch is Deleted
 rawDb.batches.hook('deleting', function (primKey, _obj, transaction) {
     // Automatically delete orphaned balances to maintain clean state
-    // @ts-ignore
+    // @ts-expect-error: Dexie hook types are tricky
     transaction.table('balances').where('batchId').equals(primKey).delete();
 });
 
