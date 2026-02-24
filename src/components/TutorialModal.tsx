@@ -21,9 +21,8 @@ interface Step {
 export const TutorialModal: React.FC<Props> = ({ isOpen, onClose, setTab }) => {
   const [currentStep, setCurrentStep] = useState(0);
   const [dontShowAgain, setDontShowAgain] = useState(false);
-  const [spotlightStyle, setSpotlightStyle] = useState<React.CSSProperties>({});
-  const [tooltipStyle, setTooltipStyle] = useState<React.CSSProperties>({});
-  const [isReady, setIsReady] = useState(false);
+  const [spotlightStyle, setSpotlightStyle] = useState<React.CSSProperties>({ opacity: 0 });
+  const [tooltipStyle, setTooltipStyle] = useState<React.CSSProperties>({ opacity: 0 });
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
   const steps: Step[] = [
@@ -121,7 +120,7 @@ export const TutorialModal: React.FC<Props> = ({ isOpen, onClose, setTab }) => {
             width: 0,
             height: 0,
             boxShadow: '0 0 0 9999px rgba(0, 0, 0, 0.85)',
-            opacity: 0 
+            opacity: 0
         });
         setTooltipStyle({
             top: '50%',
@@ -129,9 +128,9 @@ export const TutorialModal: React.FC<Props> = ({ isOpen, onClose, setTab }) => {
             transform: 'translate(-50%, -50%)',
             position: 'fixed',
             width: isMobile ? '90%' : '420px',
-            maxWidth: '420px'
+            maxWidth: '420px',
+            opacity: 1
         });
-        setIsReady(true);
         return;
     }
 
@@ -187,6 +186,7 @@ export const TutorialModal: React.FC<Props> = ({ isOpen, onClose, setTab }) => {
                     width: '90%', 
                     maxWidth: '360px',
                     zIndex: 101,
+                    opacity: 1
                 });
             } else {
                 switch (step.position) {
@@ -236,9 +236,9 @@ export const TutorialModal: React.FC<Props> = ({ isOpen, onClose, setTab }) => {
                     position: 'fixed',
                     width: `${tooltipWidth}px`,
                     zIndex: 101,
+                    opacity: 1
                 });
             }
-            setIsReady(true);
         }, 500);
     } else {
         setSpotlightStyle({
@@ -254,15 +254,14 @@ export const TutorialModal: React.FC<Props> = ({ isOpen, onClose, setTab }) => {
             left: '50%',
             transform: 'translate(-50%, -50%)',
             position: 'fixed',
-            width: isMobile ? '90%' : '350px'
+            width: isMobile ? '90%' : '350px',
+            opacity: 1
         });
-        setIsReady(true);
     }
   };
 
   useLayoutEffect(() => {
       if (isOpen) {
-          setIsReady(false);
           updatePosition();
           window.addEventListener('resize', updatePosition);
           return () => {
@@ -308,7 +307,7 @@ export const TutorialModal: React.FC<Props> = ({ isOpen, onClose, setTab }) => {
             className={`
                 bg-orbital-surface border border-orbital-accent shadow-[0_0_30px_rgba(0,243,255,0.1)]
                 flex flex-col transition-all duration-500 ease-out
-                ${isReady ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}
+                scale-100
                 max-h-[90vh] overflow-y-auto custom-scrollbar
             `}
             style={tooltipStyle}
