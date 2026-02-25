@@ -1,570 +1,190 @@
 
-/app/App.tsx
-  131:17  warning  'id' is assigned a value but never used          @typescript-eslint/no-unused-vars
-  131:21  warning  'quantity' is assigned a value but never used    @typescript-eslint/no-unused-vars
-  131:31  warning  'lotNumber' is assigned a value but never used   @typescript-eslint/no-unused-vars
-  131:42  warning  'expiryDate' is assigned a value but never used  @typescript-eslint/no-unused-vars
+> labcontrol-umv@1.8.0 lint
+> eslint . --max-warnings 0
 
-/app/components/AddItem.tsx
-  22:37  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-  78:16  warning  'e' is defined but never used             @typescript-eslint/no-unused-vars
 
-/app/components/BatchList.tsx
-  42:8  warning  React Hook useEffect has a missing dependency: 'load'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+/app/server/src/adapters/controllers/InventoryController.ts
+   4:26  warning  'LogTransactionRequest' is defined but never used  @typescript-eslint/no-unused-vars
+   5:23  warning  'SaveProductRequest' is defined but never used     @typescript-eslint/no-unused-vars
+  46:35  warning  Unexpected any. Specify a different type           @typescript-eslint/no-explicit-any
 
-/app/components/Dashboard.tsx
-   32:100  warning  '_onAddStock' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                @typescript-eslint/no-unused-vars
-   71:40   warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               @typescript-eslint/no-explicit-any
-   82:68   warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               @typescript-eslint/no-explicit-any
-   83:67   warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               @typescript-eslint/no-explicit-any
-   86:73   warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               @typescript-eslint/no-explicit-any
-  129:15   error    Error: Cannot create components during render
+/app/server/src/infrastructure/database/SQLiteInventoryRepository.ts
+  83:19  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  99:19  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
 
-Components created during render will reset their state each time they are created. Declare components outside of render.
+/app/server/src/infrastructure/logging/FileLogger.ts
+  3:8  warning  'path' is defined but never used  @typescript-eslint/no-unused-vars
 
-/app/components/Dashboard.tsx:129:15
-  127 |         {/* Metrics */}
-  128 |         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-> 129 |              <MetricCard
-      |               ^^^^^^^^^^ This component is created during render
-  130 |                 title="Total de Itens"
-  131 |                 value={totalItems}
-  132 |                 icon={<Inventory2Icon />}
+/app/server/src/use-cases/LogTransaction.ts
+  4:10  warning  'Product' is defined but never used  @typescript-eslint/no-unused-vars
 
-/app/components/Dashboard.tsx:86:22
-   84 |   ];
-   85 |
->  86 |   const MetricCard = ({ title, value, icon, color, onClick, subtitle }: any) => (
-      |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
->  87 |       <Card
-      | ^^^^^^^^^^^
->  88 |         sx={{ height: '100%', cursor: onClick ? 'pointer' : 'default', position: 'relative' }}
-      …
-      | ^^^^^^^^^^^
-> 116 |       </Card>
-      | ^^^^^^^^^^^
-> 117 |   );
-      | ^^^^ The component is created during render here
-  118 |
-  119 |   return (
-  120 |     <PageContainer scrollable>                                                                 react-hooks/static-components
-  138:15   error    Error: Cannot create components during render
+/app/src/components/AddItem.tsx
+  21:37  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  77:16  warning  'e' is defined but never used             @typescript-eslint/no-unused-vars
 
-Components created during render will reset their state each time they are created. Declare components outside of render.
+/app/src/components/ExcelIntegrationForm.tsx
+  34:25  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
 
-/app/components/Dashboard.tsx:138:15
-  136 |         </Grid>
-  137 |         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-> 138 |              <MetricCard
-      |               ^^^^^^^^^^ This component is created during render
-  139 |                 title="Valor em Estoque"
-  140 |                 value={`R$ ${totalValue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`}
-  141 |                 icon={<PaymentsIcon />}
+/app/src/components/HistoryTable.tsx
+  260:78  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  275:78  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  331:60  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
 
-/app/components/Dashboard.tsx:86:22
-   84 |   ];
-   85 |
->  86 |   const MetricCard = ({ title, value, icon, color, onClick, subtitle }: any) => (
-      |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
->  87 |       <Card
-      | ^^^^^^^^^^^
->  88 |         sx={{ height: '100%', cursor: onClick ? 'pointer' : 'default', position: 'relative' }}
-      …
-      | ^^^^^^^^^^^
-> 116 |       </Card>
-      | ^^^^^^^^^^^
-> 117 |   );
-      | ^^^^ The component is created during render here
-  118 |
-  119 |   return (
-  120 |     <PageContainer scrollable>           react-hooks/static-components
-  146:15   error    Error: Cannot create components during render
+/app/src/components/ImportWizard.tsx
+   33:42  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   98:50  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  102:47  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
 
-Components created during render will reset their state each time they are created. Declare components outside of render.
+/app/src/components/InventoryRows.tsx
+  401:55  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  402:55  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  403:55  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  404:55  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  412:46  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  422:45  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
 
-/app/components/Dashboard.tsx:146:15
-  144 |         </Grid>
-  145 |         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-> 146 |              <MetricCard
-      |               ^^^^^^^^^^ This component is created during render
-  147 |                 title="Baixo Estoque"
-  148 |                 value={lowStockItems.length}
-  149 |                 subtitle={outOfStockItems.length > 0 ? `${outOfStockItems.length} zerados` : undefined}
+/app/src/components/ItemForm.tsx
+  251:62  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
 
-/app/components/Dashboard.tsx:86:22
-   84 |   ];
-   85 |
->  86 |   const MetricCard = ({ title, value, icon, color, onClick, subtitle }: any) => (
-      |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
->  87 |       <Card
-      | ^^^^^^^^^^^
->  88 |         sx={{ height: '100%', cursor: onClick ? 'pointer' : 'default', position: 'relative' }}
-      …
-      | ^^^^^^^^^^^
-> 116 |       </Card>
-      | ^^^^^^^^^^^
-> 117 |   );
-      | ^^^^ The component is created during render here
-  118 |
-  119 |   return (
-  120 |     <PageContainer scrollable>  react-hooks/static-components
-  155:15   error    Error: Cannot create components during render
-
-Components created during render will reset their state each time they are created. Declare components outside of render.
-
-/app/components/Dashboard.tsx:155:15
-  153 |         </Grid>
-  154 |         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-> 155 |              <MetricCard
-      |               ^^^^^^^^^^ This component is created during render
-  156 |                 title="A Vencer"
-  157 |                 value={expiringItems.length}
-  158 |                 icon={<EventBusyIcon />}
-
-/app/components/Dashboard.tsx:86:22
-   84 |   ];
-   85 |
->  86 |   const MetricCard = ({ title, value, icon, color, onClick, subtitle }: any) => (
-      |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
->  87 |       <Card
-      | ^^^^^^^^^^^
->  88 |         sx={{ height: '100%', cursor: onClick ? 'pointer' : 'default', position: 'relative' }}
-      …
-      | ^^^^^^^^^^^
-> 116 |       </Card>
-      | ^^^^^^^^^^^
-> 117 |   );
-      | ^^^^ The component is created during render here
-  118 |
-  119 |   return (
-  120 |     <PageContainer scrollable>                                                                      react-hooks/static-components
-
-/app/components/HistoryTable.tsx
-  130:62  warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      @typescript-eslint/no-explicit-any
-  191:22  error    Error: Cannot create components during render
-
-Components created during render will reset their state each time they are created. Declare components outside of render.
-
-/app/components/HistoryTable.tsx:191:22
-  189 |             <Grid container spacing={2} sx={{ mb: 3 }}>
-  190 |                 <Grid size={{ xs: 12, md: 4 }}>
-> 191 |                     <StatCard title="Entradas" value={stats.totalEntries} subValue="regs" icon={<LoginIcon />} color="success" />
-      |                      ^^^^^^^^ This component is created during render
-  192 |                 </Grid>
-  193 |                 <Grid size={{ xs: 12, md: 4 }}>
-  194 |                     <StatCard title="Saídas" value={stats.totalExits} subValue="regs" icon={<LogoutIcon />} color="error" />
-
-/app/components/HistoryTable.tsx:130:20
-  128 |   const itemData = useMemo(() => ({ filtered }), [filtered]);
-  129 |
-> 130 |   const StatCard = ({ title, icon, value, subValue, color }: any) => (
-      |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-> 131 |       <Card variant="outlined">
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-> 132 |           <CardContent sx={{ display: 'flex', alignItems: 'center', gap: 2, py: 2 }}>
-      …
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-> 145 |       </Card>
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-> 146 |   );
-      | ^^^^ The component is created during render here
-  147 |
-  148 |   return (
-  149 |     <PageContainer>  react-hooks/static-components
-  194:22  error    Error: Cannot create components during render
-
-Components created during render will reset their state each time they are created. Declare components outside of render.
-
-/app/components/HistoryTable.tsx:194:22
-  192 |                 </Grid>
-  193 |                 <Grid size={{ xs: 12, md: 4 }}>
-> 194 |                     <StatCard title="Saídas" value={stats.totalExits} subValue="regs" icon={<LogoutIcon />} color="error" />
-      |                      ^^^^^^^^ This component is created during render
-  195 |                 </Grid>
-  196 |                 <Grid size={{ xs: 12, md: 4 }}>
-  197 |                     <StatCard title="Ajustes" value={stats.totalAdjustments} subValue="regs" icon={<TuneIcon />} color="warning" />
-
-/app/components/HistoryTable.tsx:130:20
-  128 |   const itemData = useMemo(() => ({ filtered }), [filtered]);
-  129 |
-> 130 |   const StatCard = ({ title, icon, value, subValue, color }: any) => (
-      |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-> 131 |       <Card variant="outlined">
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-> 132 |           <CardContent sx={{ display: 'flex', alignItems: 'center', gap: 2, py: 2 }}>
-      …
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-> 145 |       </Card>
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-> 146 |   );
-      | ^^^^ The component is created during render here
-  147 |
-  148 |   return (
-  149 |     <PageContainer>                                react-hooks/static-components
-  197:22  error    Error: Cannot create components during render
-
-Components created during render will reset their state each time they are created. Declare components outside of render.
-
-/app/components/HistoryTable.tsx:197:22
-  195 |                 </Grid>
-  196 |                 <Grid size={{ xs: 12, md: 4 }}>
-> 197 |                     <StatCard title="Ajustes" value={stats.totalAdjustments} subValue="regs" icon={<TuneIcon />} color="warning" />
-      |                      ^^^^^^^^ This component is created during render
-  198 |                 </Grid>
-  199 |             </Grid>
-  200 |         )}
-
-/app/components/HistoryTable.tsx:130:20
-  128 |   const itemData = useMemo(() => ({ filtered }), [filtered]);
-  129 |
-> 130 |   const StatCard = ({ title, icon, value, subValue, color }: any) => (
-      |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-> 131 |       <Card variant="outlined">
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-> 132 |           <CardContent sx={{ display: 'flex', alignItems: 'center', gap: 2, py: 2 }}>
-      …
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-> 145 |       </Card>
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-> 146 |   );
-      | ^^^^ The component is created during render here
-  147 |
-  148 |   return (
-  149 |     <PageContainer>                                                                                                                                                                              react-hooks/static-components
-  241:74  warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      @typescript-eslint/no-explicit-any
-  255:74  warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      @typescript-eslint/no-explicit-any
-
-/app/components/ImportWizard.tsx
-   34:42  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-   99:50  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-  103:47  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-
-/app/components/ItemForm.tsx
-   31:22  warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           @typescript-eslint/no-explicit-any
-   81:32  error    Error: Calling setState synchronously within an effect can trigger cascading renders
-
-Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
-* Update external systems with the latest state from React.
-* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
-
-Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
-
-/app/components/ItemForm.tsx:81:32
-  79 |     // Initialize Search Term
-  80 |     useEffect(() => {
-> 81 |         if (initialData?.name) setSearchTerm(initialData.name);
-     |                                ^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
-  82 |     }, [initialData]);
-  83 |
-  84 |     const handleNameChange = (val: string) => {  react-hooks/set-state-in-effect
-  104:13  error    Error: Calling setState synchronously within an effect can trigger cascading renders
-
-Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
-* Update external systems with the latest state from React.
-* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
-
-Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
-
-/app/components/ItemForm.tsx:104:13
-  102 |              });
-  103 |         } else {
-> 104 |             setShowSuggestions(false);
-      |             ^^^^^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
-  105 |         }
-  106 |     }, [debouncedSearchTerm]);
-  107 |                                                                                 react-hooks/set-state-in-effect
-  275:70  warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           @typescript-eslint/no-explicit-any
-
-/app/components/LinkAdapter.tsx
+/app/src/components/LinkAdapter.tsx
   6:72  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
 
-/app/components/Login.tsx
+/app/src/components/Login.tsx
   29:18  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
 
-/app/components/Modals.tsx
-    4:32  warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
-  274:21  error    Error: Calling setState synchronously within an effect can trigger cascading renders
+/app/src/components/Modals.tsx
+    4:32  warning  Unexpected any. Specify a different type                                                                                                  @typescript-eslint/no-explicit-any
+  249:19  warning  'e' is defined but never used                                                                                                             @typescript-eslint/no-unused-vars
+  317:8   warning  React Hook useEffect has missing dependencies: 'observation', 'quantity', and 'type'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+  354:64  warning  Unexpected any. Specify a different type                                                                                                  @typescript-eslint/no-explicit-any
+  421:8   warning  React Hook useEffect has missing dependencies: 'qty', 'searchTerm', and 'selectedId'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
 
-Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
-* Update external systems with the latest state from React.
-* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+/app/src/components/Reports.tsx
+  144:67  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
 
-Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+/app/src/components/Settings.tsx
+  210:18  warning  'e' is defined but never used  @typescript-eslint/no-unused-vars
 
-/app/components/Modals.tsx:274:21
-  272 |   const { addToast } = useAlert();
-  273 |
-> 274 |   useEffect(() => { setEditedItem(item); }, [item, isOpen]);
-      |                     ^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
-  275 |
-  276 |   const handleScanSuccess = (decodedText: string) => {
-  277 |       setIsScannerOpen(false);  react-hooks/set-state-in-effect
-  284:19  warning  'e' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            @typescript-eslint/no-unused-vars
-  349:13  error    Error: Calling setState synchronously within an effect can trigger cascading renders
+/app/src/components/StorageMatrix.tsx
+  467:72  warning  '_id' is defined but never used  @typescript-eslint/no-unused-vars
 
-Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
-* Update external systems with the latest state from React.
-* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+/app/src/components/TutorialModal.tsx
+  273:6  warning  React Hook useLayoutEffect has a missing dependency: 'updatePosition'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
 
-Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
-
-/app/components/Modals.tsx:349:13
-  347 |     useEffect(() => {
-  348 |         if(isOpen) {
-> 349 |             setQuantity(1);
-      |             ^^^^^^^^^^^ Avoid calling setState() directly within an effect
-  350 |             setObservation('');
-  351 |             setType('SAIDA');
-  352 |             setIsSubmitting(false);                         react-hooks/set-state-in-effect
-  395:72  warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
-  459:22  error    Error: Calling setState synchronously within an effect can trigger cascading renders
-
-Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
-* Update external systems with the latest state from React.
-* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
-
-Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
-
-/app/components/Modals.tsx:459:22
-  457 |
-  458 |     useEffect(() => {
-> 459 |         if(isOpen) { setSelectedId(''); setQty(1); setSearchTerm(''); }
-      |                      ^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
-  460 |     }, [isOpen]);
-  461 |
-  462 |     const handleSubmit = (e: React.FormEvent) => {                    react-hooks/set-state-in-effect
-
-/app/components/Reports.tsx
-  134:67  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-
-/app/components/Settings.tsx
-  115:21  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-  238:18  warning  'e' is defined but never used             @typescript-eslint/no-unused-vars
-
-/app/components/StorageMatrix.tsx
-  367:72  warning  '_id' is defined but never used  @typescript-eslint/no-unused-vars
-
-/app/components/TutorialModal.tsx
-  271:11  warning  Unused eslint-disable directive (no problems were reported from 'react-hooks/set-state-in-effect')
-
-/app/components/inventory/InventoryFilters.tsx
+/app/src/components/inventory/InventoryFilters.tsx
   15:26  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
 
-/app/components/inventory/InventoryKPIs.tsx
-  19:66  warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
-  43:19  error    Error: Cannot create components during render
+/app/src/components/inventory/InventoryKPIs.tsx
+  43:62  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
 
-Components created during render will reset their state each time they are created. Declare components outside of render.
+/app/src/components/inventory/InventoryList.tsx
+   26:4   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   39:41  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  118:15  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  123:16  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
 
-/app/components/inventory/InventoryKPIs.tsx:43:19
-  41 |         <Grid container spacing={2} sx={{ mb: 3 }}>
-  42 |              <Grid size={{ xs: 12, sm: 4 }}>
-> 43 |                  <MetricCard
-     |                   ^^^^^^^^^^ This component is created during render
-  44 |                     title="Itens Ativos"
-  45 |                     icon={<Inventory2Icon fontSize="large" />}
-  46 |                     value={stats.totalItems}
+/app/src/components/item-form/BatchInfo.tsx
+  9:38  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
 
-/app/components/inventory/InventoryKPIs.tsx:19:24
-  17 |
-  18 | export const InventoryKPIs: React.FC<InventoryKPIsProps> = ({ stats }) => {
-> 19 |     const MetricCard = ({ title, icon, value, subValue, color }: any) => (
-     |                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-> 20 |         <Card sx={{ height: '100%' }} variant="outlined">
-     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-> 21 |             <CardContent sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', p: 2, '&:last-child': { pb: 2 } }}>
-     …
-     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-> 37 |         </Card>
-     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-> 38 |     );
-     | ^^^^^^ The component is created during render here
-  39 |
-  40 |     return (
-  41 |         <Grid container spacing={2} sx={{ mb: 3 }}>  react-hooks/static-components
-  52:19  error    Error: Cannot create components during render
+/app/src/components/ui/Card.tsx
+  29:5   warning  'colorScheme' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  32:5   warning  'noBorder' is assigned a value but never used     @typescript-eslint/no-unused-vars
+  33:29  warning  'delay' is defined but never used                 @typescript-eslint/no-unused-vars
+  78:89  warning  Unexpected any. Specify a different type          @typescript-eslint/no-explicit-any
 
-Components created during render will reset their state each time they are created. Declare components outside of render.
+/app/src/components/ui/Input.tsx
+  26:5  warning  'fullWidth' is defined but never used  @typescript-eslint/no-unused-vars
 
-/app/components/inventory/InventoryKPIs.tsx:52:19
-  50 |              </Grid>
-  51 |              <Grid size={{ xs: 12, sm: 4 }}>
-> 52 |                  <MetricCard
-     |                   ^^^^^^^^^^ This component is created during render
-  53 |                     title="Baixo Estoque"
-  54 |                     icon={<WarningIcon fontSize="large" />}
-  55 |                     value={stats.lowStockCount}
+/app/src/components/ui/MetricCard.tsx
+  30:27  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  34:35  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
 
-/app/components/inventory/InventoryKPIs.tsx:19:24
-  17 |
-  18 | export const InventoryKPIs: React.FC<InventoryKPIsProps> = ({ stats }) => {
-> 19 |     const MetricCard = ({ title, icon, value, subValue, color }: any) => (
-     |                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-> 20 |         <Card sx={{ height: '100%' }} variant="outlined">
-     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-> 21 |             <CardContent sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', p: 2, '&:last-child': { pb: 2 } }}>
-     …
-     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-> 37 |         </Card>
-     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-> 38 |     );
-     | ^^^^^^ The component is created during render here
-  39 |
-  40 |     return (
-  41 |         <Grid container spacing={2} sx={{ mb: 3 }}>                                react-hooks/static-components
-  61:19  error    Error: Cannot create components during render
-
-Components created during render will reset their state each time they are created. Declare components outside of render.
-
-/app/components/inventory/InventoryKPIs.tsx:61:19
-  59 |              </Grid>
-  60 |              <Grid size={{ xs: 12, sm: 4 }}>
-> 61 |                  <MetricCard
-     |                   ^^^^^^^^^^ This component is created during render
-  62 |                     title="Vencidos"
-  63 |                     icon={<EventBusyIcon fontSize="large" />}
-  64 |                     value={stats.expiredCount}
-
-/app/components/inventory/InventoryKPIs.tsx:19:24
-  17 |
-  18 | export const InventoryKPIs: React.FC<InventoryKPIsProps> = ({ stats }) => {
-> 19 |     const MetricCard = ({ title, icon, value, subValue, color }: any) => (
-     |                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-> 20 |         <Card sx={{ height: '100%' }} variant="outlined">
-     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-> 21 |             <CardContent sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', p: 2, '&:last-child': { pb: 2 } }}>
-     …
-     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-> 37 |         </Card>
-     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-> 38 |     );
-     | ^^^^^^ The component is created during render here
-  39 |
-  40 |     return (
-  41 |         <Grid container spacing={2} sx={{ mb: 3 }}>                                    react-hooks/static-components
-
-/app/components/inventory/InventoryList.tsx
-   17:109  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-   94:15   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-   99:16   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-  134:28   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-
-/app/components/item-form/BatchInfo.tsx
-  12:38  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-
-/app/components/ui/Button.tsx
-  65:27  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-
-/app/components/ui/Card.tsx
-  33:29  warning  'delay' is defined but never used         @typescript-eslint/no-unused-vars
-  56:31  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-  90:27  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-  99:70  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-
-/app/components/ui/Input.tsx
-  14:18  warning  Unexpected any. Specify a different type        @typescript-eslint/no-explicit-any
-  15:23  warning  Unexpected any. Specify a different type        @typescript-eslint/no-explicit-any
-  25:5   warning  'className' is assigned a value but never used  @typescript-eslint/no-unused-vars
-
-/app/components/ui/Select.tsx
-  24:5   warning  'icon' is defined but never used                         @typescript-eslint/no-unused-vars
-  27:5   warning  'children' is defined but never used                     @typescript-eslint/no-unused-vars
-  28:5   warning  'className' is assigned a value but never used           @typescript-eslint/no-unused-vars
-  37:9   error    'finalOptions' is never reassigned. Use 'const' instead  prefer-const
-  49:39  warning  Unexpected any. Specify a different type                 @typescript-eslint/no-explicit-any
-
-/app/context/AlertContext.tsx
+/app/src/context/AlertContext.tsx
   38:14  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
 
-/app/context/AuthContext.tsx
+/app/src/context/AuthContext.tsx
   27:18  warning  'e' is defined but never used                                                                                                   @typescript-eslint/no-unused-vars
   78:14  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
 
-/app/context/ThemeContext.tsx
-  49:14  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+/app/src/context/ThemeContext.tsx
+  44:14  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
 
-/app/db.ts
-  43:21  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-  44:25  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-  53:14  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-  66:14  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-  87:14  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-  92:14  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-  98:14  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+/app/src/db.ts
+   43:21  warning  Unexpected any. Specify a different type                                                                             @typescript-eslint/no-explicit-any
+   44:25  warning  Unexpected any. Specify a different type                                                                             @typescript-eslint/no-explicit-any
+   53:14  warning  Unexpected any. Specify a different type                                                                             @typescript-eslint/no-explicit-any
+   66:14  warning  Unexpected any. Specify a different type                                                                             @typescript-eslint/no-explicit-any
+   87:14  warning  Unexpected any. Specify a different type                                                                             @typescript-eslint/no-explicit-any
+   92:14  warning  Unexpected any. Specify a different type                                                                             @typescript-eslint/no-explicit-any
+   98:14  warning  Unexpected any. Specify a different type                                                                             @typescript-eslint/no-explicit-any
+  101:14  warning  Unexpected any. Specify a different type                                                                             @typescript-eslint/no-explicit-any
+  115:5   error    Use "@ts-expect-error" instead of "@ts-ignore", as "@ts-ignore" will do nothing if the following line is error-free  @typescript-eslint/ban-ts-comment
+  126:5   error    Use "@ts-expect-error" instead of "@ts-ignore", as "@ts-ignore" will do nothing if the following line is error-free  @typescript-eslint/ban-ts-comment
 
-/app/hooks/useCasSearch.ts
+/app/src/hooks/useCasSearch.ts
   35:18  warning  'e' is defined but never used  @typescript-eslint/no-unused-vars
 
-/app/hooks/useDashboardAnalytics.ts
-   73:22  warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              @typescript-eslint/no-explicit-any
-  113:32  warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              @typescript-eslint/no-explicit-any
-  184:13  error    Error: Cannot reassign variable after render completes
+/app/src/hooks/useDashboardAnalytics.ts
+   73:22  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  113:32  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  183:27  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
 
-Reassigning `accumulatedValue` after render has completed can cause inconsistent behavior on subsequent renders. Consider using state instead.
+/app/src/hooks/useECharts.ts
+   5:56  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   8:23  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  12:48  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  13:39  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  15:43  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
 
-/app/hooks/useDashboardAnalytics.ts:184:13
-  182 |
-  183 |         const paretoData = sortedCategories.slice(0, 10).map(([category, value]) => {
-> 184 |             accumulatedValue += value;
-      |             ^^^^^^^^^^^^^^^^ Cannot reassign `accumulatedValue` after render completes
-  185 |             return {
-  186 |                 category,
-  187 |                 value,  react-hooks/immutability
+/app/src/hooks/useInventoryData.ts
+  82:26  warning  'e' is defined but never used  @typescript-eslint/no-unused-vars
 
-/app/hooks/useECharts.ts
-   5:56  warning  Unexpected any. Specify a different type                                                                     @typescript-eslint/no-explicit-any
-   8:23  warning  Unexpected any. Specify a different type                                                                     @typescript-eslint/no-explicit-any
-  12:48  warning  Unexpected any. Specify a different type                                                                     @typescript-eslint/no-explicit-any
-  13:39  warning  Unexpected any. Specify a different type                                                                     @typescript-eslint/no-explicit-any
-  15:43  warning  Unexpected any. Specify a different type                                                                     @typescript-eslint/no-explicit-any
-  34:8   warning  React Hook useEffect has a missing dependency: 'chartRef'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
-
-/app/hooks/useInventoryData.ts
-  83:26  warning  'e' is defined but never used  @typescript-eslint/no-unused-vars
-
-/app/hooks/useItemForm.ts
+/app/src/hooks/useItemForm.ts
   10:22  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
   42:49  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
   48:75  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
 
-/app/hooks/usePurchaseManager.ts
-  19:18  warning  'e' is defined but never used  @typescript-eslint/no-unused-vars
-
-/app/hooks/useReportsAnalytics.ts
+/app/src/hooks/useReportsAnalytics.ts
   148:24  warning  '_' is assigned a value but never used  @typescript-eslint/no-unused-vars
 
-/app/hooks/useScanner.ts
-   22:68  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-   37:18  warning  'e' is defined but never used             @typescript-eslint/no-unused-vars
-  104:23  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+/app/src/hooks/useScanner.ts
+   23:68  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   38:18  warning  'e' is defined but never used             @typescript-eslint/no-unused-vars
+  112:23  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
 
-/app/hooks/useStockOperations.ts
+/app/src/hooks/useStockOperations.ts
   48:18  warning  'error' is defined but never used         @typescript-eslint/no-unused-vars
   60:22  warning  'error' is defined but never used         @typescript-eslint/no-unused-vars
   74:22  warning  'error' is defined but never used         @typescript-eslint/no-unused-vars
   90:33  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
 
-/app/limsData.ts
+/app/src/limsData.ts
   2:25  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
 
-/app/services/ApiClient.ts
-   5:12  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-  16:29  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-  19:44  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-  23:51  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-  29:29  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+/app/src/services/ApiClient.ts
+   6:12  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  17:29  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  26:44  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  30:51  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  35:29  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  44:30  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
 
-/app/services/CasApiService.ts
+/app/src/services/CasApiService.ts
     5:20  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
   129:22  warning  'e' is defined but never used             @typescript-eslint/no-unused-vars
 
-/app/services/DatabaseSeeder.ts
-   7:51  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-  34:73  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-  41:23  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-  61:39  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+/app/src/services/DatabaseSeeder.ts
+    8:33  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   10:51  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   18:85  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   19:83  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   20:98  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   21:87  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   70:85  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  135:73  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  142:23  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
 
-/app/services/GoogleSheetsService.ts
+/app/src/services/GoogleSheetsService.ts
    6:12  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
   49:44  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
   55:29  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
@@ -572,19 +192,31 @@ Reassigning `accumulatedValue` after render has completed can cause inconsistent
   86:25  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
   98:18  warning  'e' is defined but never used             @typescript-eslint/no-unused-vars
 
-/app/services/ImportService.ts
+/app/src/services/ImportService.ts
   213:36  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
 
-/app/services/InventoryService.ts
-  473:52  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-  495:53  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-  514:39  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+/app/src/services/InventoryService.ts
+  498:52  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  520:53  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  539:39  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
 
-/app/services/InventorySyncManager.ts
+/app/src/services/InventorySyncManager.ts
   50:49  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
   59:34  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
 
-/app/services/SyncQueueService.ts
+/app/src/services/LogService.ts
+  13:99  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/app/src/services/RestApiService.ts
+    6:12  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   14:60  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   32:27  warning  'e' is defined but never used             @typescript-eslint/no-unused-vars
+   39:25  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   55:56  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   87:39  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  100:32  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/app/src/services/SyncQueueService.ts
    11:44  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
    32:24  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
    33:20  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
@@ -596,21 +228,21 @@ Reassigning `accumulatedValue` after render has completed can cause inconsistent
   123:24  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
   127:58  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
 
-/app/types.ts
+/app/src/types.ts
     7:18   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
    11:43   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
    11:59   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-  351:14   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-  359:232  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-  360:45   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-  360:59   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-  360:81   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-  361:52   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-  361:180  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-  361:220  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-  366:56   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  355:14   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  363:232  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  364:45   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  364:59   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  364:81   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  365:52   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  365:180  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  365:220  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  370:56   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
 
-/app/utils/ExportEngine.ts
+/app/src/utils/ExportEngine.ts
     7:30  warning  Unexpected any. Specify a different type                  @typescript-eslint/no-explicit-any
     7:36  warning  Unexpected any. Specify a different type                  @typescript-eslint/no-explicit-any
    21:51  warning  Unexpected any. Specify a different type                  @typescript-eslint/no-explicit-any
@@ -621,7 +253,7 @@ Reassigning `accumulatedValue` after render has completed can cause inconsistent
   137:56  warning  Unexpected any. Specify a different type                  @typescript-eslint/no-explicit-any
   169:13  warning  'totalInventoryValue' is assigned a value but never used  @typescript-eslint/no-unused-vars
 
-/app/utils/HybridStorage.ts
+/app/src/utils/HybridStorage.ts
    45:39  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
    46:57  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
    54:38  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
@@ -631,22 +263,22 @@ Reassigning `accumulatedValue` after render has completed can cause inconsistent
    72:62  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
    88:41  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
    95:55  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-  214:26  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-  256:46  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  222:26  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  271:46  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
 
-/app/utils/ImportEngine.ts
+/app/src/utils/ImportEngine.ts
    14:23  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
    28:32  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
    67:34  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
    87:30  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-  141:54  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-  182:47  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-  234:49  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-  309:19  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-  309:84  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-  311:19  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  140:54  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  181:47  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  233:49  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  308:19  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  308:84  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  310:19  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
 
-/app/utils/parsers/DataMapper.ts
+/app/src/utils/parsers/DataMapper.ts
   132:31  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
   138:41  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
   143:29  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
@@ -656,12 +288,48 @@ Reassigning `accumulatedValue` after render has completed can cause inconsistent
   165:44  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
   242:55  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
 
-/app/utils/parsers/SqlParser.ts
+/app/src/utils/parsers/SqlParser.ts
   18:37  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
   32:23  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
 
-/app/vite-env.d.ts
+/app/src/vite-env.d.ts
   4:18  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
 
-✖ 186 problems (17 errors, 169 warnings)
-  1 error and 1 warning potentially fixable with the `--fix` option.
+/app/tests/benchmark_date_sort.ts
+  16:15  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  16:23  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  23:15  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  23:23  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  30:15  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  30:23  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/app/tests/electron/ipc.test.ts
+   11:36  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   11:47  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   11:67  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   11:82  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   27:44  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   34:36  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   34:47  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   34:67  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   34:82  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   43:44  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   55:36  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   55:47  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   55:67  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   55:82  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   67:44  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   78:36  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   78:47  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   78:67  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   78:82  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   98:44  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  105:36  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  105:47  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  105:67  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  105:82  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/app/tests/verify_item_status.ts
+  14:6  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+✖ 215 problems (2 errors, 213 warnings)

@@ -28,6 +28,7 @@ const NativeList = ({
 
     // Reset visible count when list changes significantly (e.g. filters)
     useEffect(() => {
+        // eslint-disable-next-line
         setVisibleCount(50);
     }, [flatList.length]);
 

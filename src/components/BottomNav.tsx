@@ -19,7 +19,7 @@ export const BottomNav: React.FC = () => {
     ];
 
     return (
-        <div className="fixed bottom-0 left-0 right-0 h-16 bg-orbital-bg/95 backdrop-blur-md border-t border-orbital-border z-50 flex items-center justify-around px-2 pb-safe sm:hidden">
+        <div id="tour-mobile-nav" className="fixed bottom-0 left-0 right-0 h-16 bg-orbital-bg/95 backdrop-blur-md border-t border-orbital-border z-50 flex items-center justify-around px-2 pb-safe sm:hidden">
             {mobileItems.map((item) => (
                 <NavLink
                     key={item.path}
