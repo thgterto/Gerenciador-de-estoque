@@ -13,7 +13,8 @@ import { OrbitalModal } from './ui/orbital/OrbitalModal';
 import { PageContainer } from './ui/PageContainer'; 
 import { OrbitalInput } from './ui/orbital/OrbitalInput';
 import { ExportEngine } from '../utils/ExportEngine';
-import { ExcelIntegrationForm } from './ExcelIntegrationForm';
+import { ExcelIntegrationForm } from './ExcelIntegrationForm'; // Mantemos para "Send to Excel"
+import { ExcelSetupModal } from './ExcelSetupModal';
 import {
     Upload,
     Package,
@@ -35,7 +36,9 @@ import {
     RotateCcw,
     AlertOctagon,
     RotateCw,
-    Trash2
+    Trash2,
+    Settings as SettingsIcon,
+    Wifi
 } from 'lucide-react';
 
 export const Settings: React.FC = () => {
@@ -51,6 +54,9 @@ export const Settings: React.FC = () => {
     // Import Wizard State
     const [wizardOpen, setWizardOpen] = useState(false);
     const [wizardMode, setWizardMode] = useState<ImportMode>('MASTER');
+
+    // Excel Setup Modal
+    const [excelSetupOpen, setExcelSetupOpen] = useState(false);
 
     // Reset & Seed State
     const [resetModalOpen, setResetModalOpen] = useState(false);
@@ -349,12 +355,23 @@ export const Settings: React.FC = () => {
                                     <Table2 size={24} />
                                 </div>
                                 <div className="flex-1">
-                                    <h3 className="text-lg font-bold font-display uppercase tracking-wide">Excel / Power Automate</h3>
-                                    <p className="text-xs text-orbital-subtext font-mono">Integração via Webhook</p>
+                                    <h3 className="text-lg font-bold font-display uppercase tracking-wide">Integração Excel</h3>
+                                    <p className="text-xs text-orbital-subtext font-mono">Conecte com Office 365 / Excel Online</p>
                                 </div>
+                                <OrbitalButton
+                                    onClick={() => setExcelSetupOpen(true)}
+                                    variant="outline"
+                                    icon={<SettingsIcon size={14} />}
+                                    className="text-xs"
+                                >
+                                    Configurar
+                                </OrbitalButton>
                             </div>
 
-                            <div className="relative z-10">
+                            <div className="relative z-10 space-y-4">
+                                <div className="bg-green-900/10 border border-green-500/20 p-3 rounded text-xs text-green-300">
+                                    Configure o Power Automate para sincronizar dados automaticamente.
+                                </div>
                                 <ExcelIntegrationForm />
                             </div>
                         </OrbitalCard>
@@ -493,6 +510,12 @@ export const Settings: React.FC = () => {
                     isOpen={wizardOpen} 
                     onClose={() => setWizardOpen(false)} 
                     mode={wizardMode} 
+                />
+
+                {/* Excel Setup Modal */}
+                <ExcelSetupModal
+                    isOpen={excelSetupOpen}
+                    onClose={() => setExcelSetupOpen(false)}
                 />
 
                 {/* Secure Reset Modal */}

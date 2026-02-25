@@ -1,7 +1,7 @@
-import { GOOGLE_CONFIG } from '../config/apiConfig';
+import { EXCEL_CONFIG } from '../config/apiConfig';
 import { InventoryItem, MovementRecord, CatalogProduct, InventoryBatch, StockBalance } from '../types';
 
-interface GasResponse {
+interface ExcelResponse {
     success: boolean;
     data?: any;
     message?: string;
@@ -15,20 +15,14 @@ interface FullDatabasePayload {
     balances: StockBalance[];
 }
 
-export const GoogleSheetsService = {
+export const ExcelIntegrationService = {
     
-    getUrl() {
-        const url = GOOGLE_CONFIG.getWebUrl();
-        // Não lançar erro aqui, retornar null para ser tratado pelo caller
-        return url;
+    getWebhookUrl() {
+        return EXCEL_CONFIG.getWebhookUrl();
     },
 
     isConfigured() {
-        // If running in Electron, we are always "configured" via local DB
-        if (typeof window !== 'undefined' && window.electronAPI) {
-            return true;
-        }
-        return !!GOOGLE_CONFIG.getWebUrl();
+        return !!EXCEL_CONFIG.getWebhookUrl();
     },
 
     async fetchWithRetry(url: string, options: RequestInit, retries = 3, delay = 1000): Promise<Response> {
@@ -46,47 +40,29 @@ export const GoogleSheetsService = {
         }
     },
 
-    async request(action: string, payload: any = {}): Promise<GasResponse> {
-        // 1. Electron IPC Priority
-        if (typeof window !== 'undefined' && window.electronAPI) {
-            try {
-                const response = await window.electronAPI.request(action, payload);
-                return response;
-            } catch (error: any) {
-                console.error(`[Electron] Error in ${action}:`, error);
-                return { success: false, error: error.toString() };
-            }
-        }
-
-        // 2. Google Sheets Fallback
+    async request(action: string, payload: any = {}): Promise<ExcelResponse> {
         if (!this.isConfigured()) {
-            // Silenciosamente ignora requisições se não estiver configurado
-            // Retorna falso sucesso para não quebrar a UI
             return { success: false, message: "Service not configured (Offline Mode)" };
         }
 
-        const url = this.getUrl();
-        if (!url) return { success: false, message: "URL Missing" };
+        const url = this.getWebhookUrl();
+        if (!url) return { success: false, message: "Webhook URL Missing" };
 
         try {
             const response = await this.fetchWithRetry(url, {
                 method: 'POST',
-                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ action, ...payload })
             });
 
-            if (!response.ok) throw new Error(`Erro HTTP: ${response.status}`);
+            if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
             
-            const text = await response.text();
-            try {
-                return JSON.parse(text);
-            } catch (e) {
-                throw new Error("Resposta inválida do servidor (HTML retornada ao invés de JSON).");
-            }
+            // Power Automate might return different structures, we expect JSON
+            const json = await response.json();
+            return json;
         } catch (error: any) {
-            console.error(`[GoogleSheets] Erro na ação ${action}:`, error);
-            // Propaga erro apenas se for crítico, senão falha silenciosa para não travar UI
-            throw error;
+            console.error(`[Excel] Error in ${action}:`, error);
+            return { success: false, error: error.toString() };
         }
     },
 
@@ -112,11 +88,11 @@ export const GoogleSheetsService = {
     },
 
     async fetchFullDatabase(): Promise<FullDatabasePayload> {
-        if (!this.isConfigured()) throw new Error("Google Sheets não configurado.");
+        if (!this.isConfigured()) throw new Error("Excel Integration not configured.");
         
         const res = await this.request('read_full_db');
         if (!res.success || !res.data) {
-            throw new Error("Falha ao baixar banco de dados completo.");
+            throw new Error("Failed to download full database.");
         }
         return {
             view: Array.isArray(res.data.view) ? res.data.view : [],
