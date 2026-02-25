@@ -1,38 +1,40 @@
-# PRD: Excel Automation Setup Modal
+# PRD: Excel Automation Setup & Migration
 
 ## 1. Contexto Técnico
-O sistema LabControl UMV suporta integração com planilhas online (Google Sheets ou Excel Online via Power Automate) para sincronização de dados e relatórios. Atualmente, a configuração depende de processos manuais (criar planilha, criar script, copiar URL) descritos em `EXCEL_INTEGRATION_GUIDE.md`. O usuário precisa de uma forma simplificada de configurar essa integração diretamente na interface, incluindo a geração automática ou assistida dos scripts necessários.
-
-A página de configurações (`src/components/Settings.tsx`) já possui um cartão "Excel / Power Automate" que usa o componente `ExcelIntegrationForm.tsx`. Este formulário atual apenas pede "Nome" e "Email" para enviar dados, mas não configura a *conexão* (URL do Webhook ou Script). O `GoogleSheetsService.ts` lê a URL de `localStorage` (`LC_GAS_WEBAPP_URL`), mas não há UI clara para definir isso além de edições manuais ou variáveis de ambiente.
+O sistema LabControl UMV está migrando sua arquitetura de integração de planilhas. A solução legada baseada em Google Apps Script (GAS) será completamente substituída por uma solução nativa de Excel Online, utilizando **Office Scripts** e **Power Automate**.
 
 ## 2. Problema a Resolver
-1.  **Configuração Obscura**: O usuário não tem onde colar a URL do Webhook/Script facilmente.
-2.  **Processo Manual**: O usuário precisa ler um guia markdown para saber como criar o script no Excel/Google Sheets.
-3.  **Falta de Automação**: Não há uma ferramenta que "gere" o código do script para o usuário copiar e colar no editor do Excel/GAS.
+1.  **Dependência de GAS**: O código atual depende de scripts do Google (`GoogleSheetsService.ts` e `backend/GoogleAppsScript.js`), que não atendem aos requisitos de conformidade de algumas organizações focadas em Microsoft 365.
+2.  **Configuração Manual**: A configuração de webhooks e scripts é complexa e manual.
+3.  **Falta de Ferramentas**: Não há assistente na interface para gerar os scripts necessários para o Excel.
 
 ## 3. Solução Proposta
-Criar um **Modal de Configuração de Automação** (`ExcelSetupModal`) que guie o usuário em três passos:
-1.  **Escolha da Plataforma**: Google Sheets (Legacy) ou Excel Online (Power Automate).
-2.  **Geração de Script**:
-    *   Para **Google Sheets**: Exibir o código `.gs` necessário para o Apps Script.
-    *   Para **Excel Online**: Exibir o esquema JSON para o Power Automate ou o código Office Script (`.osts`) para criar as tabelas.
-3.  **Conexão**: Campo para colar a URL do Webhook gerado (Power Automate) ou Web App URL (Google Apps Script).
-4.  **Teste**: Botão para enviar um "Ping" e verificar a conexão.
+Implementar uma nova camada de serviço `ExcelIntegrationService` que substitua integralmente o `GoogleSheetsService`. Criar um modal assistente (`ExcelSetupModal`) que automatize a geração de código para os scripts do Excel.
 
-Este modal será acionado a partir da página de Configurações, substituindo ou complementando o formulário atual.
+### Arquitetura V2 (Excel First)
+*   **Frontend**: React (Client) envia dados para um Webhook.
+*   **Middleware**: Power Automate (Webhook Receiver) ou Script direto.
+*   **Backend**: Excel Online (Armazenamento).
+
+### Componentes Chave
+1.  **Service Layer**: `ExcelIntegrationService.ts` substitui `GoogleSheetsService.ts`. Todas as chamadas (`logMovement`, `fetchInventory`, `addOrUpdateItem`) serão redirecionadas.
+2.  **Configuração**: Substituir `LC_GAS_WEBAPP_URL` por `LC_EXCEL_WEBHOOK_URL`.
+3.  **Automação (Script Generation)**:
+    *   O sistema deve fornecer o código TypeScript (Office Script) pronto para o usuário copiar e colar no Excel Online. Esse script criará as tabelas necessárias (`Inventory`, `Transactions`, `Catalog`, etc.).
+    *   O sistema deve orientar o usuário a criar um fluxo no Power Automate para receber os dados via HTTP (Webhook) e chamar o script ou inserir linhas.
 
 ## 4. Arquivos Afetados
-*   `src/components/Settings.tsx`: Adicionar botão para abrir o novo modal.
-*   `src/components/ExcelIntegrationForm.tsx`: Pode ser depreciado ou integrado ao novo fluxo.
-*   `src/components/ExcelSetupModal.tsx` (Novo): O componente principal do wizard.
-*   `src/services/GoogleSheetsService.ts`: Atualizar para suportar teste de conexão explícito e salvar URL.
-*   `src/utils/ExcelScriptGenerator.ts` (Novo): Utilitário para gerar os templates de código dinamicamente.
+*   `src/services/GoogleSheetsService.ts`: **DEPRECATED / REMOVER**.
+*   `src/services/ExcelIntegrationService.ts`: **NOVO**.
+*   `src/services/InventorySyncManager.ts`: Atualizar importações.
+*   `src/components/ExcelSetupModal.tsx`: **NOVO**.
+*   `src/components/Settings.tsx`: Atualizar UI.
 
-## 5. Referências Técnicas
-*   **Office Scripts**: TypeScript para Excel.
-*   **Google Apps Script**: JavaScript para GSheets.
-*   `GOOGLE_CONFIG` em `src/config/apiConfig.ts`: Gerencia o `localStorage`.
+## 5. Requisitos Funcionais do Modal
+O modal deve ter 3 etapas:
+1.  **Gerar Script**: Exibir código `.osts` (Office Script) que cria as tabelas no Excel. Botão "Copiar".
+2.  **Instrução Power Automate**: Exibir JSON Schema para o Webhook do Power Automate.
+3.  **Conexão**: Input para salvar a URL do Webhook do Power Automate. Teste de conexão (Ping).
 
 ## 6. Restrições
-*   Não é possível criar a planilha *diretamente* via API sem OAuth complexo (fora do escopo). A abordagem será "Copiar Código -> Colar no Excel -> Colar URL de volta".
-*   O sistema deve suportar ambos os modos (GSheets e Excel) se possível, ou focar no Excel conforme pedido recente ("automação em excel script"). O foco principal será **Excel Script**.
+*   A "construção" da planilha é feita pelo *usuário* executando o script fornecido pelo modal, pois a API Graph requer OAuth complexo. O fluxo "Copiar Script -> Colar no Excel" é o MVP aprovado.
