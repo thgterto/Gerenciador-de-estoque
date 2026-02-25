@@ -32,13 +32,13 @@ Este documento rastreia o progresso do desenvolvimento do LabControl rumo à arq
 *Objetivo: Otimizar o uso em tablets e celulares dentro do laboratório (PWA).*
 *   [x] **Scanner Nativo Otimizado:** Melhorias na estabilidade do `QuickScanModal` e `useScanner` (correção de double-mount).
 *   [x] **Responsividade Avançada:** Refatoração da `StorageMatrix` para scroll unificado (`PageContainer`) e suporte a subdivisão de prateleiras.
-*   [ ] **Ações de Deslizar (Swipe):** Implementar gestos nas listas mobile para Editar/Mover rapidamente.
-*   [ ] **Modo Offline Robusto:** Implementar `SyncQueue` para enfileirar transações caso a conexão caia durante o uso em zonas mortas do laboratório.
+*   [x] **Ações de Deslizar (Swipe):** Gestos implementados nas listas mobile para Editar/Mover rapidamente (via `framer-motion`).
+*   [x] **Modo Offline Robusto:** `SyncQueue` implementada no frontend; backend em modo "Portable" (local-only) preparado para futura sincronização remota.
 
-### 📅 Milestone 4: Relatórios & Compliance (FUTURO)
+### 📅 Milestone 4: Relatórios & Compliance (EM ANDAMENTO)
 *Objetivo: Atender requisitos legais (Polícia Federal/Anvisa) e Inteligência de Negócio.*
-*   [ ] **Relatório de Controlados:** Mapa automático de entradas e saídas de itens com flag `isControlled` (já preparado no backend).
-*   [ ] **Análise de Custo:** Dashboard financeiro detalhado (Custo Médio, Valor em Estoque por Local).
+*   [x] **Relatório de Controlados:** Mapa automático de entradas e saídas de itens com flag `isControlled`.
+*   [x] **Análise de Custo:** Dashboard financeiro detalhado (Custo Médio, Valor em Estoque por Local, Curva ABC).
 *   [ ] **Certificados Digitais:** Upload e anexo de PDFs (Laudos/CoAs) aos lotes V2.
 *   [ ] **Trilha de Auditoria Exportável:** Gerar PDF imutável com o log de ações do sistema.
 
