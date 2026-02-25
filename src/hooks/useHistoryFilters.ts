@@ -64,8 +64,9 @@ export const useHistoryFilters = (
                     collection = db.rawDb.history.where('batchId').equals(preselectedBatchId);
                 } else if (preselectedItemId) {
                     collection = db.rawDb.history.where('itemId').equals(preselectedItemId);
-                } else if (minDate && !debouncedTerm) {
-                    // Optimized: Use DB index for date range if no search term (which requires full scan unless using compound index)
+                } else if (minDate) {
+                    // Optimized: Use DB index for date range if we have a date constraint.
+                    // This creates a smaller candidate set for the text search.
                     collection = db.rawDb.history.where('date').aboveOrEqual(minDate);
                 } else {
                     // Ordenação padrão por data (índice composto seria ideal, mas 'date' funciona)
@@ -78,8 +79,13 @@ export const useHistoryFilters = (
                 // 3. Execução da Query com Filtragem no Worker do Dexie
                 // Nota: Usamos filter() JS dentro da chain do Dexie.
                 // Embora não use índice para tudo, evita carregar objetos desnecessários na memória do React.
+
+                // Hoist normalization out of the loop for performance
+                const termLower = debouncedTerm ? normalizeStr(debouncedTerm) : '';
+
                 const results = await collection.filter((h: MovementRecord) => {
                     // Filtro de Data
+                    // Redundant if index used, but harmless/fast double-check, keeps 'TODAY' string logic
                     if (minDate && h.date < minDate) return false;
                     if (dateFilter === 'TODAY' && !h.date.startsWith(todayStr)) return false;
 
@@ -87,8 +93,7 @@ export const useHistoryFilters = (
                     if (typeFilter !== 'ALL' && h.type !== typeFilter) return false;
 
                     // Busca Textual (Search Term)
-                    if (debouncedTerm) {
-                        const termLower = normalizeStr(debouncedTerm);
+                    if (termLower) {
                         const matches = 
                             (h.productName && normalizeStr(h.productName).includes(termLower)) || 
                             (h.sapCode && normalizeStr(h.sapCode).includes(termLower)) || 

@@ -1,15 +1,6 @@
 import { db } from '../db';
 import { ExcelIntegrationService } from './ExcelIntegrationService';
 
-interface SyncQueueItem {
-    id?: number;
-    action: string;
-    payload: any;
-    timestamp: number;
-    retryCount: number;
-    error?: string;
-}
-
 export const SyncQueueService = {
     
     _intervalId: null as number | null,
