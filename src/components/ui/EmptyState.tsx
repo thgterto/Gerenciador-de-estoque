@@ -42,6 +42,7 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
           onClick={onAction} 
           icon="add"
           className="px-6 shadow-md shadow-primary/20"
+          data-testid="empty-state-action-button"
         >
           {actionLabel}
         </Button>
