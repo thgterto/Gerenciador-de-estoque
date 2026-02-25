@@ -1,41 +1,38 @@
-# PRD: Backend Data Model Upgrade to V2
+# PRD: Excel Automation Setup Modal
 
 ## 1. Contexto Técnico
-O frontend do LabControl UMV evoluiu para uma arquitetura V2 (Ledger-based) que utiliza um modelo de dados rico contendo Catálogo, Lotes (Batches), Saldos (Balances) e Localizações. O backend atual (Node.js/Fastify/SQLite) opera em um modelo V1 simplificado (Produto e Transação simples), incapaz de suportar a sincronização completa e a persistência dos dados complexos gerados pelo frontend.
+O sistema LabControl UMV suporta integração com planilhas online (Google Sheets ou Excel Online via Power Automate) para sincronização de dados e relatórios. Atualmente, a configuração depende de processos manuais (criar planilha, criar script, copiar URL) descritos em `EXCEL_INTEGRATION_GUIDE.md`. O usuário precisa de uma forma simplificada de configurar essa integração diretamente na interface, incluindo a geração automática ou assistida dos scripts necessários.
+
+A página de configurações (`src/components/Settings.tsx`) já possui um cartão "Excel / Power Automate" que usa o componente `ExcelIntegrationForm.tsx`. Este formulário atual apenas pede "Nome" e "Email" para enviar dados, mas não configura a *conexão* (URL do Webhook ou Script). O `GoogleSheetsService.ts` lê a URL de `localStorage` (`LC_GAS_WEBAPP_URL`), mas não há UI clara para definir isso além de edições manuais ou variáveis de ambiente.
 
 ## 2. Problema a Resolver
-O backend atual não persiste nem retorna as entidades fundamentais do modelo V2:
-- `CatalogProduct` (Dados mestres enriquecidos: CAS, Fórmulas, Riscos).
-- `InventoryBatch` (Rastreabilidade: Lote, Validade).
-- `StockBalance` (Saldos por lote e localização).
-- `StorageLocation` (Estrutura física do armazém).
-- `StockMovement` (Transações detalhadas com origem/destino e vínculo com lotes).
+1.  **Configuração Obscura**: O usuário não tem onde colar a URL do Webhook/Script facilmente.
+2.  **Processo Manual**: O usuário precisa ler um guia markdown para saber como criar o script no Excel/Google Sheets.
+3.  **Falta de Automação**: Não há uma ferramenta que "gere" o código do script para o usuário copiar e colar no editor do Excel/GAS.
 
-Atualmente, o endpoint `GET /api/inventory` retorna apenas uma visão simplificada, e a sincronização (`fetchFullDatabase`) no frontend recebe arrays vazios para estas entidades, impedindo o funcionamento correto da aplicação em modo híbrido/conectado.
+## 3. Solução Proposta
+Criar um **Modal de Configuração de Automação** (`ExcelSetupModal`) que guie o usuário em três passos:
+1.  **Escolha da Plataforma**: Google Sheets (Legacy) ou Excel Online (Power Automate).
+2.  **Geração de Script**:
+    *   Para **Google Sheets**: Exibir o código `.gs` necessário para o Apps Script.
+    *   Para **Excel Online**: Exibir o esquema JSON para o Power Automate ou o código Office Script (`.osts`) para criar as tabelas.
+3.  **Conexão**: Campo para colar a URL do Webhook gerado (Power Automate) ou Web App URL (Google Apps Script).
+4.  **Teste**: Botão para enviar um "Ping" e verificar a conexão.
 
-## 3. Arquivos Afetados
-### Infraestrutura
-- `server/src/infrastructure/database/database.ts`: Migração de esquema para adicionar tabelas V2 (`catalog`, `batches`, `balances`, `locations`, `stock_movements`).
-- `server/src/infrastructure/database/SQLiteInventoryRepository.ts`: Adaptação para persistir e ler o grafo de objetos completo.
+Este modal será acionado a partir da página de Configurações, substituindo ou complementando o formulário atual.
 
-### Domínio
-- `server/src/domain/entities/`: Criação das novas entidades (`Catalog`, `Batch`, `Balance`, `Location`, `Movement`).
+## 4. Arquivos Afetados
+*   `src/components/Settings.tsx`: Adicionar botão para abrir o novo modal.
+*   `src/components/ExcelIntegrationForm.tsx`: Pode ser depreciado ou integrado ao novo fluxo.
+*   `src/components/ExcelSetupModal.tsx` (Novo): O componente principal do wizard.
+*   `src/services/GoogleSheetsService.ts`: Atualizar para suportar teste de conexão explícito e salvar URL.
+*   `src/utils/ExcelScriptGenerator.ts` (Novo): Utilitário para gerar os templates de código dinamicamente.
 
-### Casos de Uso
-- `server/src/use-cases/GetFullDatabase.ts` (Novo): Para retornar o dump completo do banco para o frontend.
-- `server/src/use-cases/SyncTransaction.ts` (Novo/Adaptação): Para processar transações complexas recebidas do frontend.
+## 5. Referências Técnicas
+*   **Office Scripts**: TypeScript para Excel.
+*   **Google Apps Script**: JavaScript para GSheets.
+*   `GOOGLE_CONFIG` em `src/config/apiConfig.ts`: Gerencia o `localStorage`.
 
-### Adaptadores
-- `server/src/adapters/controllers/InventoryController.ts`: Expor novos endpoints de sincronização.
-- `server/src/app.ts`: Registrar novas rotas.
-
-## 4. Referências Técnicas
-- Frontend `InventoryService.ts`: Define a estrutura esperada e lógica de sincronização.
-- Frontend `types/index.ts` (implícito): Define as interfaces dos objetos.
-- `EXCEL_INTEGRATION_GUIDE.md`: Menciona integração com Power Automate, que deve ser preservada ou suportada via Webhooks no futuro (fora do escopo imediato, mas manter compatibilidade).
-
-## 5. Restrições
-- **Banco de Dados**: SQLite (já em uso).
-- **Performance**: As operações de leitura completa (`GetFullDatabase`) devem ser otimizadas.
-- **Compatibilidade**: O backend deve ser a "Source of Truth".
-- **Segurança**: Manter autenticação JWT existente.
+## 6. Restrições
+*   Não é possível criar a planilha *diretamente* via API sem OAuth complexo (fora do escopo). A abordagem será "Copiar Código -> Colar no Excel -> Colar URL de volta".
+*   O sistema deve suportar ambos os modos (GSheets e Excel) se possível, ou focar no Excel conforme pedido recente ("automação em excel script"). O foco principal será **Excel Script**.
