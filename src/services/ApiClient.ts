@@ -1,4 +1,4 @@
-import { GoogleSheetsService } from './GoogleSheetsService';
+import { ExcelIntegrationService } from './ExcelIntegrationService';
 import { RestApiService } from './RestApiService';
 
 export interface ApiResponse {
@@ -17,9 +17,9 @@ export const ApiClient = {
         return !!(window as any).electronAPI;
     },
 
+    // Simple heuristic: if not Electron and not Excel (implied by ExcelIntegrationService config), try Server
+    // Or if running on localhost:3000 (default server port) or if specific API endpoint exists
     isServerMode(): boolean {
-        // Check if running on localhost:3000 (default server port) or if specific API endpoint exists
-        // Simple heuristic: if not Electron and not GAS (implied by GoogleSheetsService config), try Server
         return !this.isElectron() && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
     },
 
@@ -46,41 +46,22 @@ export const ApiClient = {
                  }
             }
             if (action === 'log_movement') {
-                return RestApiService.logTransaction(payload.record);
+                // If logMovement expects MovementRecord, payload might have 'record' key
+                const record = payload.record || payload;
+                return RestApiService.logTransaction(record);
             }
             if (action === 'upsert_item') {
-                 // Map InventoryItem to SaveProductRequest
-                 const item = payload.item;
-                 const productRequest = {
-                     id: item.id, // Ideally UUID, but might be legacy ID. Backend expects UUID optional.
-                     sku: item.sapCode,
-                     name: item.name,
-                     min_stock: Number(item.minStockLevel) || 0,
-                     safety_stock: 0 // Not present in V1 item
-                 };
-                 // If ID is not UUID format, backend might reject or create new.
-                 // Backend schema: id TEXT PRIMARY KEY. So any string is fine if consistent.
-                 // Zod validation in controller expects UUID for `id` if present.
-                 // If legacy ID is not UUID, we might have issues.
-                 // Let's assume legacy IDs are not UUIDs and let backend generate new ID if we don't pass one,
-                 // BUT this creates dupes if we edit.
-                 // Ideally backend should accept any string ID or we migrate IDs.
-                 // For now, pass it if it looks like UUID, else undefined (create new)?
-                 // Or better: update controller to accept string ID (not just UUID).
-
-                 // However, Zod schema in InventoryController.ts: id: z.string().uuid().optional()
-                 // I should update controller to allow non-UUID IDs if I want to support legacy IDs.
-
-                 return RestApiService.saveProduct(productRequest);
+                 const item = payload.item || payload;
+                 return RestApiService.saveProduct(item);
             }
             if (action === 'delete_item') {
-                 // Not implemented in backend yet
                  return { success: false, error: "Delete not supported in Server Mode yet." };
             }
+            // For general requests, fallback or error
             return { success: false, error: `Action ${action} not supported in Server Mode` };
         } else {
-            // Web/GAS request
-            return GoogleSheetsService.request(action, payload);
+            // Web/Excel request
+            return ExcelIntegrationService.request(action, payload);
         }
     },
 
@@ -94,7 +75,7 @@ export const ApiClient = {
         } else if (this.isServerMode()) {
             return RestApiService.fetchFullDatabase();
         } else {
-            return GoogleSheetsService.fetchFullDatabase();
+            return ExcelIntegrationService.fetchFullDatabase();
         }
     },
 

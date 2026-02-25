@@ -1,14 +1,15 @@
 import { db } from '../db';
 import { ApiClient } from './ApiClient';
 import { SyncQueueService } from './SyncQueueService';
+import { ExcelIntegrationService } from './ExcelIntegrationService';
 
 export const InventorySyncManager = {
     async syncFromCloud(): Promise<void> {
       try {
           // If NOT Electron and NOT configured, skip
           // If Electron, we always "configured" (local DB)
-          if (!ApiClient.isElectron() && !(await isGasConfigured())) {
-              console.log("Modo Offline: Google Sheets não configurado.");
+          if (!ApiClient.isElectron() && !(ExcelIntegrationService.isConfigured())) {
+              console.log("Modo Offline: Excel Integration não configurado.");
               return;
           }
 
@@ -22,16 +23,30 @@ export const InventorySyncManager = {
 
           console.log("Iniciando sincronização (Hybrid/Portable)...");
 
-          const { view, catalog, batches, balances } = await ApiClient.fetchFullDatabase();
+          // Use ExcelService for Web, ApiClient for Electron (if different)
+          // Actually ApiClient handles Electron logic internally.
+          // But for Web, we now use ExcelIntegrationService.
+          let view, catalog, batches, balances;
+
+          if (ApiClient.isElectron()) {
+               const data = await ApiClient.fetchFullDatabase();
+               view = data.view;
+               catalog = data.catalog;
+               batches = data.batches;
+               balances = data.balances;
+          } else {
+               const data = await ExcelIntegrationService.fetchFullDatabase();
+               view = data.view;
+               catalog = data.catalog;
+               batches = data.batches;
+               balances = data.balances;
+          }
 
           if (view && view.length > 0) {
               // Atomic Transaction
               await db.transaction('rw', [db.rawDb.items, db.rawDb.catalog, db.rawDb.batches, db.rawDb.balances], async () => {
                   await Promise.all([
-                      db.items.clear(), // Clear old cache? Or upsert?
-                      // Usually we might want to clear or smart merge.
-                      // For "read_full_db" usually it's a replace or we trust the source.
-                      // Let's stick to bulkPut which upserts.
+                      // db.items.clear(), // Optional: clear or upsert
                       db.items.bulkPut(view),
                       db.rawDb.catalog.bulkPut(catalog),
                       db.rawDb.batches.bulkPut(batches),
@@ -48,40 +63,32 @@ export const InventorySyncManager = {
     },
 
     async notifyChange(action: string, payload: any): Promise<void> {
-        // In Electron, we always request. In Web, check config.
-        if (ApiClient.isElectron() || (await isGasConfigured())) {
+        if (ApiClient.isElectron()) {
             ApiClient.request(action, payload)
+                .catch(() => SyncQueueService.enqueue(action, payload));
+        } else if (ExcelIntegrationService.isConfigured()) {
+            ExcelIntegrationService.request(action, payload)
                 .catch(() => SyncQueueService.enqueue(action, payload));
         }
     },
 
-    // Wrapper for legacy addOrUpdateItem pattern
     async notifyItemChange(item: any): Promise<void> {
-        if (ApiClient.isElectron() || (await isGasConfigured())) {
-             // ApiClient.request('upsert_item', { item })
-             // Legacy GoogleSheetsService had addOrUpdateItem wrapper.
-             // We can use request directly.
+        if (ApiClient.isElectron()) {
              ApiClient.request('upsert_item', { item })
+                .catch(() => SyncQueueService.enqueue('upsert_item', { item }));
+        } else if (ExcelIntegrationService.isConfigured()) {
+             ExcelIntegrationService.request('upsert_item', { item })
                 .catch(() => SyncQueueService.enqueue('upsert_item', { item }));
         }
     },
 
-    // Wrapper for legacy deleteItem pattern
     async notifyItemDelete(id: string): Promise<void> {
-        if (ApiClient.isElectron() || (await isGasConfigured())) {
+        if (ApiClient.isElectron()) {
              ApiClient.request('delete_item', { id })
+                .catch(() => SyncQueueService.enqueue('delete_item', { id }));
+        } else if (ExcelIntegrationService.isConfigured()) {
+             ExcelIntegrationService.request('delete_item', { id })
                 .catch(() => SyncQueueService.enqueue('delete_item', { id }));
         }
     }
 };
-
-// Helper to check GAS config (mock or import from service if needed)
-async function isGasConfigured(): Promise<boolean> {
-    // We can dynamically import GoogleSheetsService to avoid circular dep if needed,
-    // or just assume it's available.
-    // Given the previous file imported it, let's assume we can access it or duplicate logic.
-    // For now, let's import it dynamically to be safe or use ApiClient check?
-    // ApiClient doesn't expose isConfigured.
-    const { GoogleSheetsService } = await import('./GoogleSheetsService');
-    return GoogleSheetsService.isConfigured();
-}
