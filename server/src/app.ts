@@ -19,6 +19,8 @@ import { FileLogger } from './infrastructure/logging/FileLogger';
 import { GetInventory } from './use-cases/GetInventory';
 import { LogTransaction } from './use-cases/LogTransaction';
 import { SaveProduct } from './use-cases/SaveProduct';
+import { GetFullDatabase } from './use-cases/GetFullDatabase';
+import { SyncData } from './use-cases/SyncData';
 
 // Use Cases - Auth
 import { RegisterUser } from './use-cases/RegisterUser';
@@ -39,11 +41,20 @@ const logger = new FileLogger();
 const getInventory = new GetInventory(inventoryRepository);
 const logTransaction = new LogTransaction(inventoryRepository, logger);
 const saveProduct = new SaveProduct(inventoryRepository);
+const getFullDatabase = new GetFullDatabase(inventoryRepository);
+const syncData = new SyncData(inventoryRepository);
+
 const registerUser = new RegisterUser(userRepository);
 const loginUser = new LoginUser(userRepository);
 
 // 3. Controllers
-const inventoryController = new InventoryController(getInventory, logTransaction, saveProduct);
+const inventoryController = new InventoryController(
+    getInventory,
+    logTransaction,
+    saveProduct,
+    getFullDatabase,
+    syncData
+);
 const authController = new AuthController(registerUser, loginUser);
 
 // Register plugins
@@ -89,6 +100,29 @@ app.post('/api/inventory/product', {
     }
   }]
 }, (req, res) => inventoryController.saveProduct(req, res));
+
+// V2 Endpoints - Protected? Or Public?
+// Sync endpoints usually require auth.
+app.get('/api/inventory/full', {
+  onRequest: [async (request, reply) => {
+    try {
+      await request.jwtVerify();
+    } catch (err) {
+      reply.send(err);
+    }
+  }]
+}, (req, res) => inventoryController.getFullDatabase(req, res));
+
+app.post('/api/inventory/sync', {
+  onRequest: [async (request, reply) => {
+    try {
+      await request.jwtVerify();
+    } catch (err) {
+      reply.send(err);
+    }
+  }]
+}, (req, res) => inventoryController.syncData(req, res));
+
 
 // Fallback for SPA (Single Page Application)
 app.setNotFoundHandler((req, res) => {
