@@ -42,7 +42,6 @@ export const ExcelSetupModal: React.FC<ExcelSetupModalProps> = ({ isOpen, onClos
         }
 
         // Save temporarily to test
-        const originalUrl = EXCEL_CONFIG.getWebhookUrl();
         EXCEL_CONFIG.setWebhookUrl(webhookUrl);
 
         setTesting(true);

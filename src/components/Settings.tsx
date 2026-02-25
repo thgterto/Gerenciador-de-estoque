@@ -37,8 +37,7 @@ import {
     AlertOctagon,
     RotateCw,
     Trash2,
-    Settings as SettingsIcon,
-    Wifi
+    Settings as SettingsIcon
 } from 'lucide-react';
 
 export const Settings: React.FC = () => {
