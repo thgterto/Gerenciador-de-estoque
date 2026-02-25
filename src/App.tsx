@@ -142,8 +142,6 @@ const LabControlContent = () => {
 
   return (
     <>
-       <ToastContainer />
-       
        <Layout
             onLogout={logout}
             notificationsCount={purchaseList.length}
@@ -282,6 +280,7 @@ export default function App() {
         <Router>
             <ThemeProvider>
                 <AlertProvider>
+                    <ToastContainer />
                     <AuthProvider>
                         <LabControlContent />
                     </AuthProvider>
