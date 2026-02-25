@@ -398,10 +398,10 @@ export const InventoryMobileChildRow = React.memo(({
                     </div>
 
                     <div className="grid grid-cols-4 gap-2 pt-2 border-t border-orbital-border">
-                        <MobileActionBtn onClick={(e: any) => { e.stopPropagation(); onActions.move(item); }} icon={<ArrowRightLeft size={16} />} />
-                        <MobileActionBtn onClick={(e: any) => { e.stopPropagation(); onActions.clone(item); }} icon={<Copy size={16} />} />
-                        <MobileActionBtn onClick={(e: any) => { e.stopPropagation(); onActions.edit(item); }} icon={<Edit size={16} />} />
-                        <MobileActionBtn onClick={(e: any) => { e.stopPropagation(); onActions.qr(item); }} icon={<Printer size={16} />} />
+                        <MobileActionBtn onClick={(e: any) => { e.stopPropagation(); onActions.move(item); }} label="Movimentar" icon={<ArrowRightLeft size={16} />} />
+                        <MobileActionBtn onClick={(e: any) => { e.stopPropagation(); onActions.clone(item); }} label="Clonar" icon={<Copy size={16} />} />
+                        <MobileActionBtn onClick={(e: any) => { e.stopPropagation(); onActions.edit(item); }} label="Editar" icon={<Edit size={16} />} />
+                        <MobileActionBtn onClick={(e: any) => { e.stopPropagation(); onActions.qr(item); }} label="Imprimir etiqueta" icon={<Printer size={16} />} />
                     </div>
                 </div>
              </motion.div>
@@ -413,17 +413,24 @@ const ActionBtn = ({ onClick, title, icon }: any) => (
     <button
         onClick={(e) => { e.stopPropagation(); onClick(); }}
         title={title}
+        aria-label={title}
         className="p-1.5 text-orbital-subtext hover:text-orbital-accent hover:bg-orbital-accent/10 rounded transition-all duration-200"
     >
-        {icon}
+        <span aria-hidden="true" className="flex items-center justify-center">
+            {icon}
+        </span>
     </button>
 );
 
-const MobileActionBtn = ({ onClick, icon }: any) => (
+const MobileActionBtn = ({ onClick, icon, label }: any) => (
     <button
         onClick={onClick}
+        title={label}
+        aria-label={label}
         className="flex items-center justify-center p-2 rounded text-orbital-subtext hover:text-orbital-text hover:bg-orbital-bg transition-colors"
     >
-        {icon}
+        <span aria-hidden="true" className="flex items-center justify-center">
+            {icon}
+        </span>
     </button>
 );
