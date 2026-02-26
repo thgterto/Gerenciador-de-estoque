@@ -38,8 +38,10 @@ export const BatchList: React.FC<BatchListProps> = ({ itemId, onViewHistory }) =
             setLoading(true);
             load();
 
-            const unsubscribe = db.subscribe(() => {
-                load();
+            const unsubscribe = db.subscribe((changedTables) => {
+                if (changedTables.some(t => ['items', 'batches', 'balances'].includes(t))) {
+                    load();
+                }
             });
             return () => {
                 isMounted = false;
