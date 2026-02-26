@@ -38,5 +38,11 @@ export default tseslint.config(
       'no-unused-vars': 'warn',
       'no-undef': 'error',
     },
+  },
+  {
+    files: ['server/**/*.ts'],
+    languageOptions: {
+      globals: globals.node,
+    },
   }
 );
