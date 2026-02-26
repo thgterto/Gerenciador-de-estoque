@@ -1,4 +1,3 @@
-
 import { FastifyError, FastifyReply, FastifyRequest } from 'fastify';
 import { z } from 'zod';
 
@@ -8,7 +7,7 @@ export function errorHandler(error: FastifyError, request: FastifyRequest, reply
       statusCode: 400,
       error: 'Bad Request',
       message: 'Validation Error',
-      details: error.errors,
+      details: (error as z.ZodError<any>).errors,
     });
   }
 
