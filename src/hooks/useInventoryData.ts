@@ -25,34 +25,39 @@ export const useInventoryData = () => {
     const { addToast } = useAlert();
     const isMounted = useRef(true);
 
-    const loadData = useCallback(async (checkAlerts = false) => {
+    const loadData = useCallback(async (checkAlerts = false, reloadItems = true, reloadHistory = true) => {
         try {
-            const [fetchedItems, fetchedMetrics] = await Promise.all([
-                InventoryService.getAllItems(),
-                InventoryService.getDashboardMetrics()
-            ]);
+            if (reloadItems) {
+                const [fetchedItems, fetchedMetrics] = await Promise.all([
+                    InventoryService.getAllItems(),
+                    InventoryService.getDashboardMetrics()
+                ]);
 
-            if (isMounted.current) {
-                setItems(fetchedItems);
-                setMetrics(fetchedMetrics);
-                setLoading(false);
+                if (isMounted.current) {
+                    setItems(fetchedItems);
+                    setMetrics(fetchedMetrics);
+                    setLoading(false);
+                }
+
+                if (checkAlerts && fetchedMetrics.alertsCount > 0) {
+                    // Opcional: Feedback visual discreto
+                }
             }
 
-            if (checkAlerts && fetchedMetrics.alertsCount > 0) {
-                // Opcional: Feedback visual discreto
-            }
-
-            setLoadingHistory(true);
-            await new Promise(r => setTimeout(r, 100)); 
-            const fetchedHistory = await InventoryService.getHistory();
-            if (isMounted.current) {
-                setHistory(fetchedHistory);
-                setLoadingHistory(false);
+            if (reloadHistory) {
+                setLoadingHistory(true);
+                await new Promise(r => setTimeout(r, 100));
+                const fetchedHistory = await InventoryService.getHistory();
+                if (isMounted.current) {
+                    setHistory(fetchedHistory);
+                    setLoadingHistory(false);
+                }
             }
         } catch (e) {
             console.error("Failed to load data", e);
             if (isMounted.current) {
                 setLoading(false);
+                setLoadingHistory(false);
             }
         }
     }, []);
@@ -92,8 +97,16 @@ export const useInventoryData = () => {
         
         init();
 
-        const unsubscribe = db.subscribe(() => {
-            if (isMounted.current) loadData(false);
+        const unsubscribe = db.subscribe((changedTables) => {
+            if (!isMounted.current) return;
+
+            // Only reload if relevant tables changed
+            const shouldReloadItems = changedTables.some(t => ['items', 'batches', 'balances'].includes(t));
+            const shouldReloadHistory = changedTables.some(t => t === 'history');
+
+            if (shouldReloadItems || shouldReloadHistory) {
+                loadData(false, shouldReloadItems, shouldReloadHistory);
+            }
         });
 
         return () => {

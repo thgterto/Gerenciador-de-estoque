@@ -147,8 +147,10 @@ export const useHistoryFilters = (
 
         // Inscreve-se para mudanças no DB para atualizar a tabela em tempo real
         // Otimização: Apenas recarrega se houver mudanças na tabela 'history'
-        const unsubscribe = db.subscribe(() => {
-            fetchHistory();
+        const unsubscribe = db.subscribe((changedTables) => {
+            if (changedTables.includes('history')) {
+                fetchHistory();
+            }
         });
 
         return () => {
