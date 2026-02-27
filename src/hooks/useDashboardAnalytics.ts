@@ -8,14 +8,18 @@ export const useDashboardAnalytics = (items: InventoryItem[], history: MovementR
         const now = new Date();
         const todayStr = now.toDateString();
         
+        // Optimization: Pre-calculate ISO strings for date comparison to avoid new Date() in loop
+        const todayISO = now.toISOString().split('T')[0];
+        const next30DaysDate = new Date(now);
+        next30DaysDate.setDate(now.getDate() + 30);
+        const next30DaysISO = next30DaysDate.toISOString().split('T')[0];
+
         // 1. Filtragem de Contexto (Global vs Item Único)
         const activeItems = selectedItemId ? items.filter(i => i.id === selectedItemId) : items;
         // Filtrar histórico relevante apenas se um item estiver selecionado, senão usamos tudo
         const activeHistory = selectedItemId ? history.filter(h => h.itemId === selectedItemId) : history;
 
         // 2. KPIs Básicos
-        const next30Days = new Date(now);
-        next30Days.setDate(now.getDate() + 30);
         
         const lowStockItems = [];
         const expiringItems = [];
@@ -23,12 +27,16 @@ export const useDashboardAnalytics = (items: InventoryItem[], history: MovementR
         let totalValue = 0;
 
         for (const item of activeItems) {
-            const status = getItemStatus(item, now);
+            // Optimization: Remove 'now' argument to use string comparison path
+            const status = getItemStatus(item);
             if (status.isLowStock) lowStockItems.push(item);
             if (status.isExpired) expiringItems.push(item);
             else if (item.expiryDate) {
-                const expDate = new Date(item.expiryDate);
-                if (expDate < next30Days && expDate >= now) expiringItems.push(item);
+                // Optimization: String comparison instead of Date object creation
+                // Check if expiryDate is between today and next 30 days
+                if (item.expiryDate >= todayISO && item.expiryDate < next30DaysISO) {
+                    expiringItems.push(item);
+                }
             }
 
             if (item.quantity <= 0) outOfStockItems.push(item);
@@ -70,7 +78,8 @@ export const useDashboardAnalytics = (items: InventoryItem[], history: MovementR
 
         // --- 4. LÓGICA DE WATERFALL (Saldo Acumulado Diário) ---
         // Apenas calculada se um item específico estiver selecionado
-        let wSeries: any[] = [];
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        let wSeries: { data: any[] }[] = [];
         const wColors: string[] = [];
         
         if (selectedItemId && activeItems.length > 0) {
@@ -110,7 +119,8 @@ export const useDashboardAnalytics = (items: InventoryItem[], history: MovementR
              const startBalance = Math.max(0, currentQty - netChangeInWindow);
 
              // 4.3. Construção dos Dados do Gráfico
-             const dataPoints: any[] = [];
+             // eslint-disable-next-line @typescript-eslint/no-explicit-any
+             const dataPoints: { x: string; y: number[]; meta: any }[] = [];
              
              // Barra 1: Saldo Inicial
              dataPoints.push({
@@ -180,7 +190,7 @@ export const useDashboardAnalytics = (items: InventoryItem[], history: MovementR
         const totalParetoValue = sortedCategories.reduce((acc, curr) => acc + curr[1], 0);
 
         let accumulatedValue = 0;
-        const paretoData: any[] = [];
+        const paretoData: { category: string; value: number; accumulatedPercentage: number }[] = [];
 
         sortedCategories.slice(0, 10).forEach(([category, value]) => {
             accumulatedValue += value;
