@@ -12,11 +12,24 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Simulação de "Banco de Dados" de usuários
-const MOCK_USERS: Record<string, { pass: string, name: string, role: UserRole }> = {
-    'admin': { pass: 'admin', name: 'Dr. Administrador', role: 'ADMIN' },
-    'operador': { pass: 'operador', name: 'Téc. Operador', role: 'OPERATOR' }
+// Hashed Passwords (SHA-256)
+// admin -> 8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918
+// operador -> e257b110509437aaceddbd342bc63d05e74221d6bac056ed279d752ff8d3afcb
+const MOCK_USERS: Record<string, { hash: string, name: string, role: UserRole }> = {
+    'admin': { hash: '8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918', name: 'Dr. Administrador', role: 'ADMIN' },
+    'operador': { hash: 'e257b110509437aaceddbd342bc63d05e74221d6bac056ed279d752ff8d3afcb', name: 'Téc. Operador', role: 'OPERATOR' }
 };
+
+/**
+ * Hash password using SHA-256
+ */
+async function hashPassword(password: string): Promise<string> {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(password);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(() => {
@@ -38,19 +51,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       const target = MOCK_USERS[username.toLowerCase()];
       
-      if (target && target.pass === pass) {
-          const newUser: User = {
-              id: Math.random().toString(36).substr(2, 9),
-              username: username,
-              name: target.name,
-              role: target.role,
-              avatar: target.role === 'ADMIN' ? 'https://api.dicebear.com/7.x/avataaars/svg?seed=Felix' : 'https://api.dicebear.com/7.x/avataaars/svg?seed=Aneka',
-              active: true
-          };
-          
-          setUser(newUser);
-          localStorage.setItem('LC_AUTH_USER', JSON.stringify(newUser));
-          return true;
+      if (target) {
+          const inputHash = await hashPassword(pass);
+          if (target.hash === inputHash) {
+              const newUser: User = {
+                  id: Math.random().toString(36).substr(2, 9),
+                  username: username,
+                  name: target.name,
+                  role: target.role,
+                  avatar: target.role === 'ADMIN' ? 'https://api.dicebear.com/7.x/avataaars/svg?seed=Felix' : 'https://api.dicebear.com/7.x/avataaars/svg?seed=Aneka',
+                  active: true
+              };
+
+              setUser(newUser);
+              localStorage.setItem('LC_AUTH_USER', JSON.stringify(newUser));
+              return true;
+          }
       }
       
       return false;
