@@ -4,7 +4,6 @@
 // ============================================================================
 
 declare global {
-  const echarts: any;
   interface Window {
     electronAPI?: {
       getAppVersion: () => Promise<string>;
