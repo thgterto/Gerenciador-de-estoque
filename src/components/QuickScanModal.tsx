@@ -123,7 +123,7 @@ export const QuickScanModal: React.FC<Props> = ({ isOpen, onClose }) => {
                         {continuousMode ? 'AUTO MODE ACTIVE (-1 OUT)' : 'MANUAL CONFIRMATION MODE'}
                     </p>
                 </div>
-                <button onClick={onClose} className="pointer-events-auto text-orbital-text hover:text-orbital-accent bg-black/50 p-2 border border-orbital-border hover:border-orbital-accent transition-all">
+                <button aria-label="Close scanner" onClick={onClose} className="pointer-events-auto text-orbital-text hover:text-orbital-accent bg-black/50 p-2 border border-orbital-border hover:border-orbital-accent transition-all">
                     <X size={20} />
                 </button>
             </div>
@@ -207,19 +207,20 @@ export const QuickScanModal: React.FC<Props> = ({ isOpen, onClose }) => {
                             <div className="flex flex-col gap-4">
                                 <div className="flex items-center gap-3">
                                     <button 
-                                        className="size-10 border border-orbital-border hover:border-orbital-accent hover:bg-orbital-accent/10 flex items-center justify-center text-xl font-bold text-orbital-text transition-colors"
+                                        className="size-10 border border-orbital-border hover:border-orbital-accent hover:bg-orbital-accent/10 flex items-center justify-center text-xl font-bold text-orbital-text transition-colors" aria-label="Decrease quantity"
                                         onClick={() => setQuantity(String(Math.max(1, parseFloat(quantity) - 1)))}
                                     >-</button>
                                     <div className="flex-1">
                                          <input 
                                             type="number" 
                                             value={quantity}
+                                            aria-label="Quantity to register"
                                             onChange={(e) => setQuantity(e.target.value)}
                                             className="w-full text-center font-bold text-2xl bg-transparent border-b border-orbital-border text-orbital-accent py-1 focus:outline-none focus:border-orbital-accent font-mono"
                                          />
                                     </div>
                                     <button 
-                                        className="size-10 border border-orbital-border hover:border-orbital-accent hover:bg-orbital-accent/10 flex items-center justify-center text-xl font-bold text-orbital-text transition-colors"
+                                        className="size-10 border border-orbital-border hover:border-orbital-accent hover:bg-orbital-accent/10 flex items-center justify-center text-xl font-bold text-orbital-text transition-colors" aria-label="Increase quantity"
                                         onClick={() => setQuantity(String(parseFloat(quantity) + 1))}
                                     >+</button>
                                 </div>

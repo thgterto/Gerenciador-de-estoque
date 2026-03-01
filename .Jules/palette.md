@@ -9,3 +9,7 @@
 ## 2025-05-25 - Explicit Labels for Touch Targets
 **Learning:** Helper components for mobile actions (like `MobileActionBtn`) often get created without `label` props, assuming icons are self-explanatory. This creates barriers for screen reader users on mobile where hover tooltips don't exist.
 **Action:** Enforce a `label` prop on all mobile-specific action button components and map it to both `title` (for long-press) and `aria-label`.
+
+## 2026-03-01 - Input and Icon Button Accessibility in Modals
+**Learning:** Complex interactive elements like numeric steppers (with `+` and `-` buttons) and direct number inputs in modals (e.g., QuickScanModal) are often built with `div` or generic `button` elements that lack context for screen readers. A purely visual `+` or `-` does not convey "Increase quantity" or "Decrease quantity".
+**Action:** Always provide explicit `aria-label`s for icon-only buttons (like `+`/`-` or modal close buttons) and direct input fields that lack visible, associated `<label>` tags.
