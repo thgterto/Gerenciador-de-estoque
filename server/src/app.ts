@@ -14,6 +14,7 @@ import { config } from './config';
 import { SQLiteInventoryRepository } from './infrastructure/database/SQLiteInventoryRepository';
 import { SQLiteUserRepository } from './infrastructure/database/SQLiteUserRepository';
 import { FileLogger } from './infrastructure/logging/FileLogger';
+import { rateLimitCheck } from './infrastructure/security/RateLimiter';
 
 // Use Cases - Inventory
 import { GetInventory } from './use-cases/GetInventory';
@@ -77,8 +78,9 @@ app.register(staticFiles, {
 
 // API Routes - Public
 app.get('/api/inventory', (req, res) => inventoryController.getInventory(req, res));
-app.post('/api/auth/register', (req, res) => authController.register(req, res));
-app.post('/api/auth/login', (req, res) => authController.login(req, res));
+// Rate limit auth endpoints to prevent brute force
+app.post('/api/auth/register', { onRequest: rateLimitCheck }, (req, res) => authController.register(req, res));
+app.post('/api/auth/login', { onRequest: rateLimitCheck }, (req, res) => authController.login(req, res));
 
 // API Routes - Protected
 app.post('/api/inventory/transaction', {
