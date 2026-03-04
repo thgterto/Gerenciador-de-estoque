@@ -1,0 +1,40 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/package-solution.schema.json",
+  "solution": {
+    "name": "labcontrol-spfx-client-side-solution",
+    "id": "e67ff42e-d6d0-4e96-8d03-ad8f78ab07f6",
+    "version": "1.0.0.0",
+    "includeClientSideAssets": true,
+    "skipFeatureDeployment": true,
+    "isDomainIsolated": false,
+    "developer": {
+      "name": "",
+      "websiteUrl": "",
+      "privacyUrl": "",
+      "termsOfUseUrl": "",
+      "mpnId": "Undefined-1.22.2"
+    },
+    "metadata": {
+      "shortDescription": {
+        "default": "labcontrol-spfx description"
+      },
+      "longDescription": {
+        "default": "labcontrol-spfx description"
+      },
+      "screenshotPaths": [],
+      "videoUrl": "",
+      "categories": []
+    },
+    "features": [
+      {
+        "title": "labcontrol-spfx Feature",
+        "description": "The feature that activates elements of the labcontrol-spfx solution.",
+        "id": "fdcc6456-13de-44e5-81e0-9bc5c4881eeb",
+        "version": "1.0.0.0"
+      }
+    ]
+  },
+  "paths": {
+    "zippedPackage": "solution/labcontrol-spfx.sppkg"
+  }
+}

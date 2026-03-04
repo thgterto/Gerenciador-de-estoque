@@ -1,0 +1,23 @@
+{
+  "@microsoft/generator-sharepoint": {
+    "whichFolder": "subdir",
+    "solutionName": "labcontrol-spfx",
+    "environment": "spo",
+    "packageManager": "npm",
+    "useGulp": false,
+    "componentType": "webpart",
+    "template": "react",
+    "componentName": "LabControlApp",
+    "componentDescription": "LabControl UI Web Part",
+    "plusBeta": false,
+    "isCreatingSolution": true,
+    "nodeVersion": "22.22.0",
+    "sdksVersions": {},
+    "version": "1.22.2",
+    "libraryName": "labcontrol-spfx",
+    "libraryId": "e67ff42e-d6d0-4e96-8d03-ad8f78ab07f6",
+    "solutionShortDescription": "labcontrol-spfx description",
+    "skipFeatureDeployment": true,
+    "isDomainIsolated": false
+  }
+}
