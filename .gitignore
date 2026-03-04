@@ -26,3 +26,4 @@ dist-ssr
 # Python
 __pycache__/
 *.pyc
+labcontrol-spfx/labcontrol-spfx/node_modules/

@@ -1,0 +1,18 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/config.2.0.schema.json",
+  "version": "2.0",
+  "bundles": {
+    "lab-control-app-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/labControlApp/LabControlAppWebPart.js",
+          "manifest": "./src/webparts/labControlApp/LabControlAppWebPart.manifest.json"
+        }
+      ]
+    }
+  },
+  "externals": {},
+  "localizedResources": {
+    "LabControlAppWebPartStrings": "lib/webparts/labControlApp/loc/{locale}.js"
+  }
+}

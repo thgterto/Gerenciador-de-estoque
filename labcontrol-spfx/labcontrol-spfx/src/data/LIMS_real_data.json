@@ -1,0 +1,5459 @@
+
+{
+  "metadata": {
+    "gerado_em": "2025-12-23 14:15:23.151393",
+    "status": "REAL DATA (SANITIZED)"
+  },
+  "dml": {
+    "produtos": [
+      "INSERT INTO produtos VALUES ('10017228', 'CARTUCHO CONTRA VAPORES ORGÂNICOS', 'UN');",
+      "INSERT INTO produtos VALUES ('100857', 'KIT TESTE ANÁLISE SÍLICA ALTA 1.1-107MG/L', 'ML');",
+      "INSERT INTO produtos VALUES ('101813', 'KIT TESTE ANÁLISE SÍLICA ULR 0.5-50MG/L', 'ML');",
+      "INSERT INTO produtos VALUES ('109624', 'SULFATO DE COBRE 27382', 'G');",
+      "INSERT INTO produtos VALUES ('114761', 'KIT TESTE ANÁLISE FERRO 0.05-5MG/L', 'ML');",
+      "INSERT INTO produtos VALUES ('114794', 'KIT TESTE ANÁLISE SÍLICA BAIXA 0.21-10.7MG/L', 'ML');",
+      "INSERT INTO produtos VALUES ('114897', 'KIT TESTE ANÁLISE CLORETO 2.5-250MG/L', 'ML');",
+      "INSERT INTO produtos VALUES ('119151', 'KIT DEHA MERCK', 'UN');",
+      "INSERT INTO produtos VALUES ('201456', 'SOLUÇÃO TAMPÃO 6.86', 'ML');",
+      "INSERT INTO produtos VALUES ('201905', 'ELETRODO CV1 ÁGUAS', 'UN');",
+      "INSERT INTO produtos VALUES ('203910', 'DENSÍMETRO MANUAL HIDRATADO', 'UN');",
+      "INSERT INTO produtos VALUES ('203923', 'ERLENMEYER 50', 'UN');",
+      "INSERT INTO produtos VALUES ('204813', 'ÁCIDO CLORÍDRICO', 'ML');",
+      "INSERT INTO produtos VALUES ('2050006056', 'COROA COMPLETA CORTE DEDINE', 'UN');",
+      "INSERT INTO produtos VALUES ('205916', 'CONDUTIVÍMETRO DMC010M ÁGUAS', 'UN');",
+      "INSERT INTO produtos VALUES ('207076', 'OCTAPOL', 'G');",
+      "INSERT INTO produtos VALUES ('211453', 'MOLYBDATE 3 REAGENT FOR SILICA', 'ML');",
+      "INSERT INTO produtos VALUES ('212921', 'PADRÃO DE CONDUTIVIDADE 1412', 'ML');",
+      "INSERT INTO produtos VALUES ('212922', 'ÁCIDO SULFÚRICO PA', 'ML');",
+      "INSERT INTO produtos VALUES ('213751', 'AZUL DE NILO', 'G');",
+      "INSERT INTO produtos VALUES ('216000', 'TARTARATO DE SÓDIO E POTÁSSIO', 'G');",
+      "INSERT INTO produtos VALUES ('216004', 'GLICERINA', 'ML');",
+      "INSERT INTO produtos VALUES ('216014', 'DENSÍMETRO MANUAL ANIDRO', 'UN');",
+      "INSERT INTO produtos VALUES ('217572', 'ALFA NAFTOLFTALEINA', 'G');",
+      "INSERT INTO produtos VALUES ('217626', 'AERÔMETRO DE BAUMÉ', 'UN');",
+      "INSERT INTO produtos VALUES ('219197', 'CONDUTIVÍMETRO DMC01M ETANOL', 'UN');",
+      "INSERT INTO produtos VALUES ('220189', 'PAPEL FILTRO QUALITATIVO 18.5CM', 'UN');",
+      "INSERT INTO produtos VALUES ('221475', 'GRAXA DE SILICONE', 'G');",
+      "INSERT INTO produtos VALUES ('221718', 'CLORETO DE AMÔNIO', 'G');",
+      "INSERT INTO produtos VALUES ('221727', 'CLORETO DE POTÁSSIO', 'G');",
+      "INSERT INTO produtos VALUES ('221728', 'MOLIBDATO DE AMÔNIO', 'G');",
+      "INSERT INTO produtos VALUES ('221883', 'ÁCIDO ACÉTICO GLACIAL PA', 'ML');",
+      "INSERT INTO produtos VALUES ('221912', 'CLORETO DE CÁLCIO 2H2O', 'G');",
+      "INSERT INTO produtos VALUES ('222350', 'FRASCO DE AMOSTRA 50 NALGON', 'UN');",
+      "INSERT INTO produtos VALUES ('222926', 'SULFATO DE SÓDIO', 'G');",
+      "INSERT INTO produtos VALUES ('222988', 'LUVA LÁTEX P', 'UN');",
+      "INSERT INTO produtos VALUES ('223766', 'ALGODÃO HIDRÓFILO', 'G');",
+      "INSERT INTO produtos VALUES ('223972', 'DESSECADOR', 'UN');",
+      "INSERT INTO produtos VALUES ('224298', 'ELETRODO CV6 ETANOL', 'UN');",
+      "INSERT INTO produtos VALUES ('224702', 'BALÃO KOHLRAUSCH 20', 'UN');",
+      "INSERT INTO produtos VALUES ('225148', 'BECKER VIDRO 10', 'UN');",
+      "INSERT INTO produtos VALUES ('226286', 'BECKER PLÁSTICO 20', 'UN');",
+      "INSERT INTO produtos VALUES ('226287', 'BECKER VIDRO 10', 'UN');",
+      "INSERT INTO produtos VALUES ('226291', 'BECKER VIDRO 10', 'UN');",
+      "INSERT INTO produtos VALUES ('226292', 'FUNIL PLÁSTICO 11CM', 'UN');",
+      "INSERT INTO produtos VALUES ('226441', 'AMINO ÁCIDO F REAGENTE', 'ML');",
+      "INSERT INTO produtos VALUES ('226682', 'FERROZINE', 'ML');",
+      "INSERT INTO produtos VALUES ('227332', 'TRIGLYCERIDES FS', 'ML');",
+      "INSERT INTO produtos VALUES ('227448', 'CALDEIRA MICRODESTILADOR TE012C2', 'UN');",
+      "INSERT INTO produtos VALUES ('228313', 'ERITROSINA', 'G');",
+      "INSERT INTO produtos VALUES ('228910', 'BALÃO VOLUMÉTRICO 20', 'UN');",
+      "INSERT INTO produtos VALUES ('229022', 'BALÃO FUNDO CHATO 250', 'ML');",
+      "INSERT INTO produtos VALUES ('229384', 'BALÃO VOLUMÉTRICO 20', 'UN');",
+      "INSERT INTO produtos VALUES ('229707', 'HIDRÓXIDO DE SÓDIO EM PÉROLAS PA', 'G');",
+      "INSERT INTO produtos VALUES ('23038698', 'MICROPIPETA MONOCANAL 10 ML', 'ML');",
+      "INSERT INTO produtos VALUES ('2307294093', 'ALFA NAFTOL 2516865 2898', 'G');",
+      "INSERT INTO produtos VALUES ('2310195779', 'ÁCIDO SULFÚRICO PA', 'ML');",
+      "INSERT INTO produtos VALUES ('232502', 'ÁCIDO OXÁLICO', 'G');",
+      "INSERT INTO produtos VALUES ('232718', 'SACAROSE PA', 'G');",
+      "INSERT INTO produtos VALUES ('2332113', 'ÁCIDO CÍTRICO F REAGENTE', 'ML');",
+      "INSERT INTO produtos VALUES ('235115', 'SOLUÇÃO DE TAMPÃO 4.01', 'ML');",
+      "INSERT INTO produtos VALUES ('236151', 'BALÃO VOLUMÉTRICO 20', 'UN');",
+      "INSERT INTO produtos VALUES ('236210', 'BECKER PLÁSTICO 20', 'UN');",
+      "INSERT INTO produtos VALUES ('236262', 'BURETA 50', 'UN');",
+      "INSERT INTO produtos VALUES ('237900', 'CADINHO DE PORCELANA 250', 'UN');",
+      "INSERT INTO produtos VALUES ('241309', 'EDTA SAL DISSÓDICO', 'G');",
+      "INSERT INTO produtos VALUES ('242919', 'CELITE 545', 'G');",
+      "INSERT INTO produtos VALUES ('243462', 'IODATO DE POTÁSSIO', 'G');",
+      "INSERT INTO produtos VALUES ('244080', 'BASTÃO DE VIDRO', 'UN');",
+      "INSERT INTO produtos VALUES ('244107', 'BECKER PLÁSTICO 20', 'UN');",
+      "INSERT INTO produtos VALUES ('244803', 'CLORIDRATO DE HIDROXILAMINA 244807', 'G');",
+      "INSERT INTO produtos VALUES ('245158', 'SILICAGEL AZUL', 'G');",
+      "INSERT INTO produtos VALUES ('247408', 'ANTRONA', 'G');",
+      "INSERT INTO produtos VALUES ('2500751', 'FOSFATO DE SÓDIO BIBÁSICO ANIDRO', 'G');",
+      "INSERT INTO produtos VALUES ('2500929', 'DEXTRANA 2800 MG', 'G');",
+      "INSERT INTO produtos VALUES ('2501234', 'ERLENMEYER 50', 'UN');",
+      "INSERT INTO produtos VALUES ('2501311', 'PROVETA VIDRO 10 ML', 'ML');",
+      "INSERT INTO produtos VALUES ('250226', 'NITRATO DE PRATA', 'G');",
+      "INSERT INTO produtos VALUES ('2502873', 'BURETA 25', 'UN');",
+      "INSERT INTO produtos VALUES ('250331', 'CARBONO BLOCK DE 10', 'UN');",
+      "INSERT INTO produtos VALUES ('250357', 'DEIONIZADOR 10 WHITE', 'UN');",
+      "INSERT INTO produtos VALUES ('250560', 'BECKER VIDRO 10', 'UN');",
+      "INSERT INTO produtos VALUES ('250670', 'KCL 3M', 'ML');",
+      "INSERT INTO produtos VALUES ('2506979', 'ÁCIDO BENZÓICO', 'G');",
+      "INSERT INTO produtos VALUES ('250713', 'LICL', 'ML');",
+      "INSERT INTO produtos VALUES ('2507920', 'GLICOSE ANIDRA', 'G');",
+      "INSERT INTO produtos VALUES ('2507933', 'ACETATO DE SÓDIO ANIDRO', 'G');",
+      "INSERT INTO produtos VALUES ('2508047', 'FOSFATO DE POTÁSSIO MONOBÁSICO ANIDRO', 'G');",
+      "INSERT INTO produtos VALUES ('2508304', 'SUGARPOL', 'G');",
+      "INSERT INTO produtos VALUES ('250873', 'BECKER VIDRO 10', 'UN');",
+      "INSERT INTO produtos VALUES ('2509228', 'VIOLETA CRISTAL PA', 'G');",
+      "INSERT INTO produtos VALUES ('2510447', 'BM-LACTANTE', 'UN');",
+      "INSERT INTO produtos VALUES ('2510482', 'BIFTALATO DE POTÁSSIO', 'G');",
+      "INSERT INTO produtos VALUES ('2510490', 'MOLIBDATO DE SÓDIO DIHIDRATADO P A', 'G');",
+      "INSERT INTO produtos VALUES ('2510498', 'CUBETA 10 ML HACH 25MM', 'ML');",
+      "INSERT INTO produtos VALUES ('2516841', 'BANDEJA CONTENÇÃO 35X30X5 CM', 'UN');",
+      "INSERT INTO produtos VALUES ('2516866', 'BISSULFITO DE SÓDIO', 'G');",
+      "INSERT INTO produtos VALUES ('2516889', 'VERDE DE BROMOCRESOL', 'G');",
+      "INSERT INTO produtos VALUES ('2518091', 'LENTE ÓPTICA SACARÍMETRO ESF VD 15.5MM', 'UN');",
+      "INSERT INTO produtos VALUES ('2518296', 'PAPAÍNA', 'G');",
+      "INSERT INTO produtos VALUES ('2518477', 'PADRÃO SÍLICA 1000 PPM', 'ML');",
+      "INSERT INTO produtos VALUES ('2518522', 'VERMELHO DE METILA', 'G');",
+      "INSERT INTO produtos VALUES ('2522245', 'FRASCO DE AMOSTRA 50', 'UN');",
+      "INSERT INTO produtos VALUES ('2525957', 'SUPORTE ELETRODOS ARTIC ABS/AC G 360', 'G');",
+      "INSERT INTO produtos VALUES ('2527578', 'ELETRODO METROHM TITRINO', 'UN');",
+      "INSERT INTO produtos VALUES ('252936', 'BECKER PLÁSTICO 20', 'UN');",
+      "INSERT INTO produtos VALUES ('2531355', 'MIXER VERTICAL', 'UN');",
+      "INSERT INTO produtos VALUES ('2532113', 'ÁCIDO CÍTRICO F REAGENTE', 'ML');",
+      "INSERT INTO produtos VALUES ('2535561', 'LÂMPADA ESPECTROFOTÔMETRO HACH DR5000', 'UN');",
+      "INSERT INTO produtos VALUES ('2536010', 'SUPORTE ELETRODOS ARTIC ABS/AC G 360', 'G');",
+      "INSERT INTO produtos VALUES ('2538177', 'SOLUÇÃO DE CONDUTIVIDADE 5 MRC', 'ML');",
+      "INSERT INTO produtos VALUES ('2538622', 'TERMOCOMPENSADOR', 'UN');",
+      "INSERT INTO produtos VALUES ('2540595', 'PISSETA 50', 'UN');",
+      "INSERT INTO produtos VALUES ('2542405', 'FRASCO CONTA GOTAS 10 ML', 'ML');",
+      "INSERT INTO produtos VALUES ('2542826', 'PRETO DE ERIOCROMO', 'G');",
+      "INSERT INTO produtos VALUES ('2546181', 'FERROVER', 'UN');",
+      "INSERT INTO produtos VALUES ('2546222', 'FACA IRBI C01310', 'UN');",
+      "INSERT INTO produtos VALUES ('2546239', 'D GLUCOSE', 'G');",
+      "INSERT INTO produtos VALUES ('2546259', 'DISPENSADOR 0.5-5 ML', 'ML');",
+      "INSERT INTO produtos VALUES ('2546267', 'SOLUÇÃO TAMPÃO LIMP INORG TIOUREIA', 'ML');",
+      "INSERT INTO produtos VALUES ('2546268', 'ALARANJADO DE METILA', 'G');",
+      "INSERT INTO produtos VALUES ('2546962', 'TESTE COLILERT ÁGUA 100ML KIT20 TESTE', 'UN');",
+      "INSERT INTO produtos VALUES ('2547148', 'ÁCIDO BÓRICO PA', 'G');",
+      "INSERT INTO produtos VALUES ('254830', 'PISSETA 50', 'UN');",
+      "INSERT INTO produtos VALUES ('2548430', 'FRASCO DE AMOSTRA 50', 'UN');",
+      "INSERT INTO produtos VALUES ('2549175', 'MICRO FILTRO 25MM 0.5 MICRAS', 'UN');",
+      "INSERT INTO produtos VALUES ('2549176', 'FILTRO SERINGA PP 25MM 330µM CX6UN', 'UN');",
+      "INSERT INTO produtos VALUES ('2549277', 'PADRÃO PRIMÁRIO TURBIDEZ', 'UN');",
+      "INSERT INTO produtos VALUES ('2549548', 'CAMERA MICROSCÓPIO CAM500', 'UN');",
+      "INSERT INTO produtos VALUES ('2549962', 'AZUL DE METILENO', 'G');",
+      "INSERT INTO produtos VALUES ('2551152', 'SULFITO DE SÓDIO ANIDRO', 'G');",
+      "INSERT INTO produtos VALUES ('2551153', 'AMIDO SOLÚVEL', 'G');",
+      "INSERT INTO produtos VALUES ('2555296', 'PROTEÇÃO TECNAL TE012M', 'UN');",
+      "INSERT INTO produtos VALUES ('255755', 'CL 1 REAGENTE DE CLORO', 'ML');",
+      "INSERT INTO produtos VALUES ('255756', 'CL 1 REAGENTE DE CLORO', 'ML');",
+      "INSERT INTO produtos VALUES ('2559515', 'CLORETO DE ESTANHO OSO 2H20', 'G');",
+      "INSERT INTO produtos VALUES ('2560690', 'CUBETA 25ML HACH 25MM', 'UN');",
+      "INSERT INTO produtos VALUES ('2560704', 'BECKER VIDRO 10', 'UN');",
+      "INSERT INTO produtos VALUES ('2560713', 'KITASSATO 50', 'UN');",
+      "INSERT INTO produtos VALUES ('2564028', 'CUBETA POLIESTIRENO 25MM', 'UN');",
+      "INSERT INTO produtos VALUES ('2564872', 'KITASSATO 1000 ML', 'ML');",
+      "INSERT INTO produtos VALUES ('2565831', 'SOLUÇÃO PAD REDOX 228MV', 'ML');",
+      "INSERT INTO produtos VALUES ('2565889', 'SOLUÇÃO TAMPÃO LIMP ORG PEPSINA', 'ML');",
+      "INSERT INTO produtos VALUES ('2567819', 'CUBETA VD OPT 10ML 54X25MM', 'UN');",
+      "INSERT INTO produtos VALUES ('2570809', 'KIT TESTE CLORO', 'UN');",
+      "INSERT INTO produtos VALUES ('257411', 'CADINHO FUSÃO PORC 125ML', 'UN');",
+      "INSERT INTO produtos VALUES ('2575371', 'HYDRANAL COULOMAT COMPOSITE 5', 'ML');",
+      "INSERT INTO produtos VALUES ('2575393', 'BANDEJA CONTENÇÃO 65X45X8 CM', 'UN');",
+      "INSERT INTO produtos VALUES ('2575466', 'HYDRANAL METHANOL RAPID', 'ML');",
+      "INSERT INTO produtos VALUES ('2580599', 'REAGENTE MOLYBDATE PÓ', 'UN');",
+      "INSERT INTO produtos VALUES ('2580993', 'REAGENTE ÁCIDO', 'UN');",
+      "INSERT INTO produtos VALUES ('2580997', 'ÁCIDO CÍTRICO F REAGENTE', 'UN');",
+      "INSERT INTO produtos VALUES ('2582270', 'VÁLVULA CONTRA PESO VERT LT BSP 1/2', 'UN');",
+      "INSERT INTO produtos VALUES ('2584390', 'ELETRODO CV9 ANIDRO', 'UN');",
+      "INSERT INTO produtos VALUES ('2584424', 'HYDRANAL METHANOL RAPID', 'ML');",
+      "INSERT INTO produtos VALUES ('2586010', 'HYDRANAL COULOMAT AG', 'UN');",
+      "INSERT INTO produtos VALUES ('2591272', 'FRASCO DE AMOSTRA 50 NALGON', 'UN');",
+      "INSERT INTO produtos VALUES ('260368', 'CLORETO DE BÁRIO', 'G');",
+      "INSERT INTO produtos VALUES ('260570', 'KCL 3M 6659', 'ML');",
+      "INSERT INTO produtos VALUES ('264902', 'ÁLCOOL ETÍLICO ABSOLUTO', 'ML');",
+      "INSERT INTO produtos VALUES ('266441', 'AMINO ÁCIDO F REAGENTE', 'ML');",
+      "INSERT INTO produtos VALUES ('268437', 'FRASCO DE AMOSTRA 50', 'UN');",
+      "INSERT INTO produtos VALUES ('268620', 'DICROMATO DE POTÁSSIO', 'G');",
+      "INSERT INTO produtos VALUES ('268628', 'CLORETO DE SÓDIO', 'G');",
+      "INSERT INTO produtos VALUES ('268763', 'DEHA 2', 'ML');",
+      "INSERT INTO produtos VALUES ('268766', 'DEHA 1', 'UN');",
+      "INSERT INTO produtos VALUES ('268849', 'ERLENMEYER 50', 'UN');",
+      "INSERT INTO produtos VALUES ('269083', 'IODATO DE POTÁSSIO', 'G');",
+      "INSERT INTO produtos VALUES ('269221', 'TUBO KOLMER 15', 'UN');",
+      "INSERT INTO produtos VALUES ('271177', 'FUNIL VIDRO HASTE CURTA', 'UN');",
+      "INSERT INTO produtos VALUES ('273110', 'FACA TECNAL SG050DI', 'UN');",
+      "INSERT INTO produtos VALUES ('273462', 'IODATO DE POTÁSSIO', 'G');",
+      "INSERT INTO produtos VALUES ('273489', 'FUNIL VIDRO HASTE LONGA', 'UN');",
+      "INSERT INTO produtos VALUES ('273733', 'CARBONATO DE SÓDIO', 'G');",
+      "INSERT INTO produtos VALUES ('273737', 'CARBONATO DE SÓDIO', 'G');",
+      "INSERT INTO produtos VALUES ('273747', 'CITRATO DE SÓDIO', 'G');",
+      "INSERT INTO produtos VALUES ('273824', 'SULFATO DE COBRE', 'G');",
+      "INSERT INTO produtos VALUES ('274181', 'BALÃO VOLUMÉTRICO 20', 'UN');",
+      "INSERT INTO produtos VALUES ('275207', 'LUVA LÁTEX P', 'UN');",
+      "INSERT INTO produtos VALUES ('277444', 'DPD CLORO LIVRE', 'UN');",
+      "INSERT INTO produtos VALUES ('282574', 'BALÃO VOLUMÉTRICO 20', 'UN');",
+      "INSERT INTO produtos VALUES ('284670', 'TIOSSULFATO SÓDIO PENTAHIDRAT', 'G');",
+      "INSERT INTO produtos VALUES ('288007', 'BALÃO VOLUMÉTRICO 20', 'UN');",
+      "INSERT INTO produtos VALUES ('289888', 'ALFA NAFTOL', 'G');",
+      "INSERT INTO produtos VALUES ('289925', 'HIDRÓXIDO SÓDIO LÍQUIDO 50-52', 'ML');",
+      "INSERT INTO produtos VALUES ('290308', 'SOLUÇÃO DE TAMPÃO 4.01', 'ML');",
+      "INSERT INTO produtos VALUES ('291555', 'BECKER VIDRO 10', 'UN');",
+      "INSERT INTO produtos VALUES ('292642', 'BALÃO VOLUMÉTRICO 20', 'UN');",
+      "INSERT INTO produtos VALUES ('295219', 'TARTARATO DE SÓDIO E POTÁSSIO', 'G');",
+      "INSERT INTO produtos VALUES ('295638', 'CLORETO DE COBALTO', 'G');",
+      "INSERT INTO produtos VALUES ('295643', 'CITRATO DE AMÔNIO', 'G');",
+      "INSERT INTO produtos VALUES ('295660', 'CLORETO DE PRATA', 'G');",
+      "INSERT INTO produtos VALUES ('298198', 'BARRA MAGNÉTICA 8X20MM', 'UN');",
+      "INSERT INTO produtos VALUES ('304902', 'HIDRÓXIDO DE AMÔNIO PA', 'ML');",
+      "INSERT INTO produtos VALUES ('305599', 'CUBETA 40MM 14 ML FOSFATO', 'ML');",
+      "INSERT INTO produtos VALUES ('310138', 'CROMATO DE POTÁSSIO', 'G');",
+      "INSERT INTO produtos VALUES ('316259', 'SOLUÇÃO DE CONDUTIVIDADE 5 US/CM', 'ML');",
+      "INSERT INTO produtos VALUES ('317270', 'ÁCIDO TRICLOACÉTICO', 'G');",
+      "INSERT INTO produtos VALUES ('40700071', 'CONTROLADOR PRADETERMIN TESPRO', 'UN');",
+      "INSERT INTO produtos VALUES ('423739', 'SOLUÇÃO DE TAMPÃO 4.01', 'ML');",
+      "INSERT INTO produtos VALUES ('423747', 'SOLUÇÃO DE TAMPÃO MRC 6.86', 'ML');",
+      "INSERT INTO produtos VALUES ('425167', 'FENOLFTALEÍNA', 'G');",
+      "INSERT INTO produtos VALUES ('432899', 'CONEXÃO PNEUMÁTICA 10MM 1/4 TESPRO', 'UN');",
+      "INSERT INTO produtos VALUES ('462810', 'BALÃO FUNDO CHATO 250', 'UN');",
+      "INSERT INTO produtos VALUES ('464618', 'CARVÃO ATIVADO PÓ', 'G');",
+      "INSERT INTO produtos VALUES ('464675', 'ECOL MENTOL / ELON PHOTO-REX', 'G');",
+      "INSERT INTO produtos VALUES ('476721', 'CARBONATO DE CÁLCIO', 'G');",
+      "INSERT INTO produtos VALUES ('483782', 'CUBETA 1 CM 3.5 ML', 'ML');",
+      "INSERT INTO produtos VALUES ('485300', 'FERROZINE REAGENTE SOLUÇÃO ALMOFADA', 'UN');",
+      "INSERT INTO produtos VALUES ('50306001', 'CONEXÃO EMENDA 3/4 TESPRO', 'UN');",
+      "INSERT INTO produtos VALUES ('50317001', 'KIT REPARO INOX 304 3V TESPRO', 'UN');",
+      "INSERT INTO produtos VALUES ('50502003', 'BOBINA SOLENOIDE 220 TESPRO', 'UN');",
+      "INSERT INTO produtos VALUES ('50505001', 'FILTRO REGULADOR PRESSÃO TESPRO', 'UN');",
+      "INSERT INTO produtos VALUES ('50507002', 'CONEXÃO PNEUMÁTICA 10MM 1/4 TESPRO', 'UN');",
+      "INSERT INTO produtos VALUES ('50508001', 'COTOVELO MACHO 10MM TESPRO 1/4', 'UN');",
+      "INSERT INTO produtos VALUES ('50509001', 'BANJO PNEUMÁTICO CONTR TESPRO', 'UN');",
+      "INSERT INTO produtos VALUES ('50514006', 'KIT REPARO CILINDRO 40 MM TESPRO', 'UN');",
+      "INSERT INTO produtos VALUES ('50514007', 'KIT REPARO CILINDRO 63MM TESPRO', 'UN');",
+      "INSERT INTO produtos VALUES ('50514039', 'KIT PROTEÇÃO CILINDROS TESPRO', 'UN');",
+      "INSERT INTO produtos VALUES ('5058001', 'COTOVELO MACHO 8MM 1/4 TESPRO', 'UN');",
+      "INSERT INTO produtos VALUES ('50801006', 'CABO EXTENSOR C/ CONECTOR TESPRO', 'UN');",
+      "INSERT INTO produtos VALUES ('50802003', 'CABO EXTENSOR M8 3P TESPRO', 'UN');",
+      "INSERT INTO produtos VALUES ('51001001', 'CONTROLADOR TEMPERATURA TESPRO', 'UN');",
+      "INSERT INTO produtos VALUES ('51101009', 'CORREIA SINCRONIZADORA TESPRO', 'UN');",
+      "INSERT INTO produtos VALUES ('540012', 'JOGO MARTELO FIXO 15 IRBI DM', 'UN');",
+      "INSERT INTO produtos VALUES ('56700051223', 'SOLUÇÃO DE CONDUTIVIDADE 5 US/CM', 'ML');",
+      "INSERT INTO produtos VALUES ('60073915', 'LÂMPADA XDS FOSS', 'UN');",
+      "INSERT INTO produtos VALUES ('67430050', 'LÂMPADA METROHM', 'UN');"
+    ],
+    "lotes": [
+      {
+        "cdsap": "10017228",
+        "lote": "GEN",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 1
+      },
+      {
+        "cdsap": "100857",
+        "lote": "26012",
+        "validade": null,
+        "fabricante": "MERCK",
+        "id_lote": 2
+      },
+      {
+        "cdsap": "101813",
+        "lote": "2595702",
+        "validade": null,
+        "fabricante": "MERCK",
+        "id_lote": 3
+      },
+      {
+        "cdsap": "109624",
+        "lote": "26082",
+        "validade": null,
+        "fabricante": "DINAMICA",
+        "id_lote": 4
+      },
+      {
+        "cdsap": "114761",
+        "lote": "2595703",
+        "validade": null,
+        "fabricante": "MERCK",
+        "id_lote": 5
+      },
+      {
+        "cdsap": "114794",
+        "lote": "2595705",
+        "validade": null,
+        "fabricante": "MERCK",
+        "id_lote": 6
+      },
+      {
+        "cdsap": "114897",
+        "lote": "2602965",
+        "validade": null,
+        "fabricante": "MERCK",
+        "id_lote": 7
+      },
+      {
+        "cdsap": "119151",
+        "lote": "2595701",
+        "validade": null,
+        "fabricante": "MERCK",
+        "id_lote": 8
+      },
+      {
+        "cdsap": "201456",
+        "lote": "403",
+        "validade": null,
+        "fabricante": "DIGIMED",
+        "id_lote": 9
+      },
+      {
+        "cdsap": "201456",
+        "lote": "5067",
+        "validade": null,
+        "fabricante": "DIGIMED",
+        "id_lote": 10
+      },
+      {
+        "cdsap": "201456",
+        "lote": "5693",
+        "validade": null,
+        "fabricante": "DIGIMED",
+        "id_lote": 11
+      },
+      {
+        "cdsap": "201456",
+        "lote": "6310",
+        "validade": null,
+        "fabricante": "DIGIMED",
+        "id_lote": 12
+      },
+      {
+        "cdsap": "201456",
+        "lote": "642",
+        "validade": null,
+        "fabricante": "DIGIMED",
+        "id_lote": 13
+      },
+      {
+        "cdsap": "201905",
+        "lote": "012682",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 14
+      },
+      {
+        "cdsap": "201905",
+        "lote": "2365468",
+        "validade": null,
+        "fabricante": "DIGIMED",
+        "id_lote": 15
+      },
+      {
+        "cdsap": "201905",
+        "lote": "2365473",
+        "validade": null,
+        "fabricante": "DIGIMED",
+        "id_lote": 16
+      },
+      {
+        "cdsap": "201905",
+        "lote": "24A65",
+        "validade": null,
+        "fabricante": "DIGIMED",
+        "id_lote": 17
+      },
+      {
+        "cdsap": "201905",
+        "lote": "24A703",
+        "validade": null,
+        "fabricante": "DIGIMED",
+        "id_lote": 18
+      },
+      {
+        "cdsap": "201905",
+        "lote": "24B1267",
+        "validade": null,
+        "fabricante": "DIGIMED",
+        "id_lote": 19
+      },
+      {
+        "cdsap": "201905",
+        "lote": "24B137",
+        "validade": null,
+        "fabricante": "DIGIMED",
+        "id_lote": 20
+      },
+      {
+        "cdsap": "201905",
+        "lote": "24B138",
+        "validade": null,
+        "fabricante": "DIGIMED",
+        "id_lote": 21
+      },
+      {
+        "cdsap": "201905",
+        "lote": "24F5070",
+        "validade": null,
+        "fabricante": "DIGIMED",
+        "id_lote": 22
+      },
+      {
+        "cdsap": "201905",
+        "lote": "24H6570",
+        "validade": null,
+        "fabricante": "DIGIMED",
+        "id_lote": 23
+      },
+      {
+        "cdsap": "201905",
+        "lote": "25C2316",
+        "validade": null,
+        "fabricante": "DIGIMED",
+        "id_lote": 24
+      },
+      {
+        "cdsap": "203910",
+        "lote": "GEN",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 25
+      },
+      {
+        "cdsap": "203923",
+        "lote": "GEN",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 26
+      },
+      {
+        "cdsap": "204813",
+        "lote": "13564",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 27
+      },
+      {
+        "cdsap": "204813",
+        "lote": "15084",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 28
+      },
+      {
+        "cdsap": "204813",
+        "lote": "1586",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 29
+      },
+      {
+        "cdsap": "204813",
+        "lote": "16483",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 30
+      },
+      {
+        "cdsap": "204813",
+        "lote": "1683",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 31
+      },
+      {
+        "cdsap": "204813",
+        "lote": "1732",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 32
+      },
+      {
+        "cdsap": "204813",
+        "lote": "1809",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 33
+      },
+      {
+        "cdsap": "204813",
+        "lote": "25270",
+        "validade": null,
+        "fabricante": "SYNTH",
+        "id_lote": 34
+      },
+      {
+        "cdsap": "204813",
+        "lote": "3049",
+        "validade": null,
+        "fabricante": "ZILQUIMICA",
+        "id_lote": 35
+      },
+      {
+        "cdsap": "204813",
+        "lote": "6478",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 36
+      },
+      {
+        "cdsap": "204813",
+        "lote": "7542",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 37
+      },
+      {
+        "cdsap": "204813",
+        "lote": "970",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 38
+      },
+      {
+        "cdsap": "2050006056",
+        "lote": "GEN",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 39
+      },
+      {
+        "cdsap": "205916",
+        "lote": "24B729",
+        "validade": null,
+        "fabricante": "DIGIMED",
+        "id_lote": 40
+      },
+      {
+        "cdsap": "205916",
+        "lote": "24E362",
+        "validade": null,
+        "fabricante": "DIGIMED",
+        "id_lote": 41
+      },
+      {
+        "cdsap": "205916",
+        "lote": "GEN",
+        "validade": null,
+        "fabricante": "DIGIMED",
+        "id_lote": 42
+      },
+      {
+        "cdsap": "207076",
+        "lote": "5813",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 43
+      },
+      {
+        "cdsap": "211453",
+        "lote": "207A",
+        "validade": null,
+        "fabricante": "HACH",
+        "id_lote": 44
+      },
+      {
+        "cdsap": "211453",
+        "lote": "2178",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 45
+      },
+      {
+        "cdsap": "211453",
+        "lote": "310",
+        "validade": null,
+        "fabricante": "HACH",
+        "id_lote": 46
+      },
+      {
+        "cdsap": "211453",
+        "lote": "434",
+        "validade": null,
+        "fabricante": "HACH",
+        "id_lote": 47
+      },
+      {
+        "cdsap": "211453",
+        "lote": "5084",
+        "validade": null,
+        "fabricante": "HACH",
+        "id_lote": 48
+      },
+      {
+        "cdsap": "211453",
+        "lote": "A0203",
+        "validade": null,
+        "fabricante": "HACH",
+        "id_lote": 49
+      },
+      {
+        "cdsap": "211453",
+        "lote": "A131",
+        "validade": null,
+        "fabricante": "HACH",
+        "id_lote": 50
+      },
+      {
+        "cdsap": "211453",
+        "lote": "A3215",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 51
+      },
+      {
+        "cdsap": "211453",
+        "lote": "A340",
+        "validade": null,
+        "fabricante": "HACH",
+        "id_lote": 52
+      },
+      {
+        "cdsap": "212921",
+        "lote": "1737",
+        "validade": null,
+        "fabricante": "DIGIMED",
+        "id_lote": 53
+      },
+      {
+        "cdsap": "212921",
+        "lote": "3419",
+        "validade": null,
+        "fabricante": "DIGIMED",
+        "id_lote": 54
+      },
+      {
+        "cdsap": "212921",
+        "lote": "3467",
+        "validade": null,
+        "fabricante": "DIGIMED",
+        "id_lote": 55
+      },
+      {
+        "cdsap": "212921",
+        "lote": "5641412123",
+        "validade": null,
+        "fabricante": "DIGIMED",
+        "id_lote": 56
+      },
+      {
+        "cdsap": "212921",
+        "lote": "656",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 57
+      },
+      {
+        "cdsap": "212921",
+        "lote": "680625",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 58
+      },
+      {
+        "cdsap": "212921",
+        "lote": "7183",
+        "validade": null,
+        "fabricante": "DIGIMED",
+        "id_lote": 59
+      },
+      {
+        "cdsap": "212922",
+        "lote": "12108",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 60
+      },
+      {
+        "cdsap": "212922",
+        "lote": "13468",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 61
+      },
+      {
+        "cdsap": "212922",
+        "lote": "15189",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 62
+      },
+      {
+        "cdsap": "212922",
+        "lote": "16419",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 63
+      },
+      {
+        "cdsap": "212922",
+        "lote": "16970",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 64
+      },
+      {
+        "cdsap": "212922",
+        "lote": "23020939",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 65
+      },
+      {
+        "cdsap": "212922",
+        "lote": "3906",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 66
+      },
+      {
+        "cdsap": "212922",
+        "lote": "6369",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 67
+      },
+      {
+        "cdsap": "212922",
+        "lote": "714",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 68
+      },
+      {
+        "cdsap": "212922",
+        "lote": "715",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 69
+      },
+      {
+        "cdsap": "212922",
+        "lote": "K54716731239",
+        "validade": null,
+        "fabricante": "MERCK",
+        "id_lote": 70
+      },
+      {
+        "cdsap": "212922",
+        "lote": "Z0925831415",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 71
+      },
+      {
+        "cdsap": "213751",
+        "lote": "AN32741RA",
+        "validade": null,
+        "fabricante": "VETEC",
+        "id_lote": 72
+      },
+      {
+        "cdsap": "216000",
+        "lote": "13191",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 73
+      },
+      {
+        "cdsap": "216000",
+        "lote": "14212",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 74
+      },
+      {
+        "cdsap": "216004",
+        "lote": "12974",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 75
+      },
+      {
+        "cdsap": "216004",
+        "lote": "BCF4168",
+        "validade": null,
+        "fabricante": "SIGMA",
+        "id_lote": 76
+      },
+      {
+        "cdsap": "216014",
+        "lote": "GEN",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 77
+      },
+      {
+        "cdsap": "217572",
+        "lote": "805",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 78
+      },
+      {
+        "cdsap": "217572",
+        "lote": "9796",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 79
+      },
+      {
+        "cdsap": "217626",
+        "lote": "GEN",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 80
+      },
+      {
+        "cdsap": "219197",
+        "lote": "23G5031",
+        "validade": null,
+        "fabricante": "DIGIMED",
+        "id_lote": 81
+      },
+      {
+        "cdsap": "219197",
+        "lote": "24B16",
+        "validade": null,
+        "fabricante": "DIGIMED",
+        "id_lote": 82
+      },
+      {
+        "cdsap": "219197",
+        "lote": "GEN",
+        "validade": null,
+        "fabricante": "DIGIMED",
+        "id_lote": 83
+      },
+      {
+        "cdsap": "220189",
+        "lote": "15092",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 84
+      },
+      {
+        "cdsap": "220189",
+        "lote": "25926",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 85
+      },
+      {
+        "cdsap": "220189",
+        "lote": "501018",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 86
+      },
+      {
+        "cdsap": "221475",
+        "lote": "221475",
+        "validade": null,
+        "fabricante": "SYNTH",
+        "id_lote": 87
+      },
+      {
+        "cdsap": "221718",
+        "lote": "12769",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 88
+      },
+      {
+        "cdsap": "221718",
+        "lote": "30393",
+        "validade": null,
+        "fabricante": "ANIDROL",
+        "id_lote": 89
+      },
+      {
+        "cdsap": "221718",
+        "lote": "419416",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 90
+      },
+      {
+        "cdsap": "221727",
+        "lote": "K4257636",
+        "validade": null,
+        "fabricante": "MERCK",
+        "id_lote": 91
+      },
+      {
+        "cdsap": "221728",
+        "lote": "12082",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 92
+      },
+      {
+        "cdsap": "221728",
+        "lote": "25741",
+        "validade": null,
+        "fabricante": "SYNTH",
+        "id_lote": 93
+      },
+      {
+        "cdsap": "221883",
+        "lote": "1210",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 94
+      },
+      {
+        "cdsap": "221883",
+        "lote": "267421",
+        "validade": null,
+        "fabricante": "SYNTH",
+        "id_lote": 95
+      },
+      {
+        "cdsap": "221912",
+        "lote": "1491",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 96
+      },
+      {
+        "cdsap": "221912",
+        "lote": "4287",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 97
+      },
+      {
+        "cdsap": "221912",
+        "lote": "K41867278",
+        "validade": null,
+        "fabricante": "MERCK",
+        "id_lote": 98
+      },
+      {
+        "cdsap": "222350",
+        "lote": "2105016",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 99
+      },
+      {
+        "cdsap": "222926",
+        "lote": "135",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 100
+      },
+      {
+        "cdsap": "222926",
+        "lote": "SLCJ5763",
+        "validade": null,
+        "fabricante": "SIGMA",
+        "id_lote": 101
+      },
+      {
+        "cdsap": "222988",
+        "lote": "2LTA1605",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 102
+      },
+      {
+        "cdsap": "222988",
+        "lote": "SLXTA132S",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 103
+      },
+      {
+        "cdsap": "223766",
+        "lote": "164181819",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 104
+      },
+      {
+        "cdsap": "223766",
+        "lote": "CRM50",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 105
+      },
+      {
+        "cdsap": "223972",
+        "lote": "GEN",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 106
+      },
+      {
+        "cdsap": "224298",
+        "lote": "23J702",
+        "validade": null,
+        "fabricante": "DIGIMED",
+        "id_lote": 107
+      },
+      {
+        "cdsap": "224298",
+        "lote": "24B123",
+        "validade": null,
+        "fabricante": "DIGIMED",
+        "id_lote": 108
+      },
+      {
+        "cdsap": "224298",
+        "lote": "24F5017",
+        "validade": null,
+        "fabricante": "DIGIMED",
+        "id_lote": 109
+      },
+      {
+        "cdsap": "224298",
+        "lote": "GEN",
+        "validade": null,
+        "fabricante": "DIGIMED",
+        "id_lote": 110
+      },
+      {
+        "cdsap": "224702",
+        "lote": "GEN",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 111
+      },
+      {
+        "cdsap": "225148",
+        "lote": "GEN",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 112
+      },
+      {
+        "cdsap": "226286",
+        "lote": "GEN",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 113
+      },
+      {
+        "cdsap": "226287",
+        "lote": "GEN",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 114
+      },
+      {
+        "cdsap": "226291",
+        "lote": "GEN",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 115
+      },
+      {
+        "cdsap": "226292",
+        "lote": "GEN",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 116
+      },
+      {
+        "cdsap": "226441",
+        "lote": "187",
+        "validade": null,
+        "fabricante": "HACH",
+        "id_lote": 117
+      },
+      {
+        "cdsap": "226441",
+        "lote": "206",
+        "validade": null,
+        "fabricante": "HACH",
+        "id_lote": 118
+      },
+      {
+        "cdsap": "226441",
+        "lote": "2095",
+        "validade": null,
+        "fabricante": "HACH",
+        "id_lote": 119
+      },
+      {
+        "cdsap": "226441",
+        "lote": "27",
+        "validade": null,
+        "fabricante": "HACH",
+        "id_lote": 120
+      },
+      {
+        "cdsap": "226441",
+        "lote": "305",
+        "validade": null,
+        "fabricante": "HACH",
+        "id_lote": 121
+      },
+      {
+        "cdsap": "226441",
+        "lote": "3171",
+        "validade": null,
+        "fabricante": "HACH",
+        "id_lote": 122
+      },
+      {
+        "cdsap": "226441",
+        "lote": "319",
+        "validade": null,
+        "fabricante": "HACH",
+        "id_lote": 123
+      },
+      {
+        "cdsap": "226441",
+        "lote": "3275",
+        "validade": null,
+        "fabricante": "HACH",
+        "id_lote": 124
+      },
+      {
+        "cdsap": "226441",
+        "lote": "4058",
+        "validade": null,
+        "fabricante": "HACH",
+        "id_lote": 125
+      },
+      {
+        "cdsap": "226441",
+        "lote": "412",
+        "validade": null,
+        "fabricante": "HACH",
+        "id_lote": 126
+      },
+      {
+        "cdsap": "226441",
+        "lote": "4142",
+        "validade": null,
+        "fabricante": "HACH",
+        "id_lote": 127
+      },
+      {
+        "cdsap": "226441",
+        "lote": "4234",
+        "validade": null,
+        "fabricante": "HACH",
+        "id_lote": 128
+      },
+      {
+        "cdsap": "226441",
+        "lote": "4256",
+        "validade": null,
+        "fabricante": "HACH",
+        "id_lote": 129
+      },
+      {
+        "cdsap": "226441",
+        "lote": "5023",
+        "validade": null,
+        "fabricante": "HACH",
+        "id_lote": 130
+      },
+      {
+        "cdsap": "226441",
+        "lote": "5094",
+        "validade": null,
+        "fabricante": "HACH",
+        "id_lote": 131
+      },
+      {
+        "cdsap": "226441",
+        "lote": "5357",
+        "validade": null,
+        "fabricante": "HACH",
+        "id_lote": 132
+      },
+      {
+        "cdsap": "226441",
+        "lote": "627",
+        "validade": null,
+        "fabricante": "HACH",
+        "id_lote": 133
+      },
+      {
+        "cdsap": "226441",
+        "lote": "8143",
+        "validade": null,
+        "fabricante": "HACH",
+        "id_lote": 134
+      },
+      {
+        "cdsap": "226441",
+        "lote": "8192",
+        "validade": null,
+        "fabricante": "HACH",
+        "id_lote": 135
+      },
+      {
+        "cdsap": "226682",
+        "lote": "24",
+        "validade": null,
+        "fabricante": "HACH",
+        "id_lote": 136
+      },
+      {
+        "cdsap": "226682",
+        "lote": "3019",
+        "validade": null,
+        "fabricante": "HACH",
+        "id_lote": 137
+      },
+      {
+        "cdsap": "226682",
+        "lote": "3102",
+        "validade": null,
+        "fabricante": "HACH",
+        "id_lote": 138
+      },
+      {
+        "cdsap": "226682",
+        "lote": "3198",
+        "validade": null,
+        "fabricante": "HACH",
+        "id_lote": 139
+      },
+      {
+        "cdsap": "226682",
+        "lote": "341",
+        "validade": null,
+        "fabricante": "HACH",
+        "id_lote": 140
+      },
+      {
+        "cdsap": "226682",
+        "lote": "362",
+        "validade": null,
+        "fabricante": "HACH",
+        "id_lote": 141
+      },
+      {
+        "cdsap": "226682",
+        "lote": "402",
+        "validade": null,
+        "fabricante": "HACH",
+        "id_lote": 142
+      },
+      {
+        "cdsap": "226682",
+        "lote": "416",
+        "validade": null,
+        "fabricante": "HACH",
+        "id_lote": 143
+      },
+      {
+        "cdsap": "226682",
+        "lote": "4298",
+        "validade": null,
+        "fabricante": "HACH",
+        "id_lote": 144
+      },
+      {
+        "cdsap": "226682",
+        "lote": "A0132",
+        "validade": null,
+        "fabricante": "HACH",
+        "id_lote": 145
+      },
+      {
+        "cdsap": "226682",
+        "lote": "A0210",
+        "validade": null,
+        "fabricante": "HACH",
+        "id_lote": 146
+      },
+      {
+        "cdsap": "226682",
+        "lote": "A6048",
+        "validade": null,
+        "fabricante": "HACH",
+        "id_lote": 147
+      },
+      {
+        "cdsap": "226682",
+        "lote": "A6109",
+        "validade": null,
+        "fabricante": "HACH",
+        "id_lote": 148
+      },
+      {
+        "cdsap": "226682",
+        "lote": "A6152",
+        "validade": null,
+        "fabricante": "HACH",
+        "id_lote": 149
+      },
+      {
+        "cdsap": "226682",
+        "lote": "A6239",
+        "validade": null,
+        "fabricante": "HACH",
+        "id_lote": 150
+      },
+      {
+        "cdsap": "226682",
+        "lote": "A6250",
+        "validade": null,
+        "fabricante": "HACH",
+        "id_lote": 151
+      },
+      {
+        "cdsap": "226682",
+        "lote": "A636",
+        "validade": null,
+        "fabricante": "HACH",
+        "id_lote": 152
+      },
+      {
+        "cdsap": "227332",
+        "lote": "5028289631924",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 153
+      },
+      {
+        "cdsap": "227332",
+        "lote": "5029816834194",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 154
+      },
+      {
+        "cdsap": "227332",
+        "lote": "601531",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 155
+      },
+      {
+        "cdsap": "227332",
+        "lote": "6016513",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 156
+      },
+      {
+        "cdsap": "227332",
+        "lote": "6016961",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 157
+      },
+      {
+        "cdsap": "227448",
+        "lote": "GEN",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 158
+      },
+      {
+        "cdsap": "228313",
+        "lote": "208034652",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 159
+      },
+      {
+        "cdsap": "228313",
+        "lote": "96013",
+        "validade": null,
+        "fabricante": "DINAMICA",
+        "id_lote": 160
+      },
+      {
+        "cdsap": "228910",
+        "lote": "A10182",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 161
+      },
+      {
+        "cdsap": "229022",
+        "lote": "A10151",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 162
+      },
+      {
+        "cdsap": "229022",
+        "lote": "GEN",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 163
+      },
+      {
+        "cdsap": "229384",
+        "lote": "A10194",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 164
+      },
+      {
+        "cdsap": "229707",
+        "lote": "1206",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 165
+      },
+      {
+        "cdsap": "229707",
+        "lote": "1327",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 166
+      },
+      {
+        "cdsap": "229707",
+        "lote": "1901210406",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 167
+      },
+      {
+        "cdsap": "229707",
+        "lote": "213694",
+        "validade": null,
+        "fabricante": "SYNTH",
+        "id_lote": 168
+      },
+      {
+        "cdsap": "229707",
+        "lote": "214304",
+        "validade": null,
+        "fabricante": "SYNTH",
+        "id_lote": 169
+      },
+      {
+        "cdsap": "229707",
+        "lote": "23124",
+        "validade": null,
+        "fabricante": "SYNTH",
+        "id_lote": 170
+      },
+      {
+        "cdsap": "229707",
+        "lote": "267146",
+        "validade": null,
+        "fabricante": "SYNTH",
+        "id_lote": 171
+      },
+      {
+        "cdsap": "229707",
+        "lote": "27073",
+        "validade": null,
+        "fabricante": "SYNTH",
+        "id_lote": 172
+      },
+      {
+        "cdsap": "229707",
+        "lote": "273493",
+        "validade": null,
+        "fabricante": "SYNTH",
+        "id_lote": 173
+      },
+      {
+        "cdsap": "229707",
+        "lote": "2762",
+        "validade": null,
+        "fabricante": "SYNTH",
+        "id_lote": 174
+      },
+      {
+        "cdsap": "229707",
+        "lote": "278472",
+        "validade": null,
+        "fabricante": "SYNTH",
+        "id_lote": 175
+      },
+      {
+        "cdsap": "229707",
+        "lote": "30672",
+        "validade": null,
+        "fabricante": "ANIDROL",
+        "id_lote": 176
+      },
+      {
+        "cdsap": "229707",
+        "lote": "7302",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 177
+      },
+      {
+        "cdsap": "23038698",
+        "lote": "GEN",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 178
+      },
+      {
+        "cdsap": "2307294093",
+        "lote": "GEN",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 179
+      },
+      {
+        "cdsap": "2310195779",
+        "lote": "GEN",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 180
+      },
+      {
+        "cdsap": "232502",
+        "lote": "10801",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 181
+      },
+      {
+        "cdsap": "232502",
+        "lote": "5160",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 182
+      },
+      {
+        "cdsap": "232718",
+        "lote": "123570",
+        "validade": null,
+        "fabricante": "DINAMICA",
+        "id_lote": 183
+      },
+      {
+        "cdsap": "232718",
+        "lote": "1356",
+        "validade": null,
+        "fabricante": "DINAMICA",
+        "id_lote": 184
+      },
+      {
+        "cdsap": "232718",
+        "lote": "26082",
+        "validade": null,
+        "fabricante": "SYNTH",
+        "id_lote": 185
+      },
+      {
+        "cdsap": "232718",
+        "lote": "57604",
+        "validade": null,
+        "fabricante": "NEON",
+        "id_lote": 186
+      },
+      {
+        "cdsap": "2332113",
+        "lote": "293",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 187
+      },
+      {
+        "cdsap": "2332113",
+        "lote": "360",
+        "validade": null,
+        "fabricante": "HACH",
+        "id_lote": 188
+      },
+      {
+        "cdsap": "2332113",
+        "lote": "6026",
+        "validade": null,
+        "fabricante": "HACH",
+        "id_lote": 189
+      },
+      {
+        "cdsap": "2332113",
+        "lote": "903",
+        "validade": null,
+        "fabricante": "HACH",
+        "id_lote": 190
+      },
+      {
+        "cdsap": "2332113",
+        "lote": "A8191",
+        "validade": null,
+        "fabricante": "HACH",
+        "id_lote": 191
+      },
+      {
+        "cdsap": "235115",
+        "lote": "1652",
+        "validade": null,
+        "fabricante": "DIGIMED",
+        "id_lote": 192
+      },
+      {
+        "cdsap": "235115",
+        "lote": "370",
+        "validade": null,
+        "fabricante": "DIGIMED",
+        "id_lote": 193
+      },
+      {
+        "cdsap": "235115",
+        "lote": "5095",
+        "validade": null,
+        "fabricante": "DIGIMED",
+        "id_lote": 194
+      },
+      {
+        "cdsap": "236151",
+        "lote": "474",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 195
+      },
+      {
+        "cdsap": "236151",
+        "lote": "GEN",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 196
+      },
+      {
+        "cdsap": "236210",
+        "lote": "GEN",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 197
+      },
+      {
+        "cdsap": "236262",
+        "lote": "GEN",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 198
+      },
+      {
+        "cdsap": "237900",
+        "lote": "GEN",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 199
+      },
+      {
+        "cdsap": "241309",
+        "lote": "146159",
+        "validade": null,
+        "fabricante": "SYNTH",
+        "id_lote": 200
+      },
+      {
+        "cdsap": "241309",
+        "lote": "15612",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 201
+      },
+      {
+        "cdsap": "241309",
+        "lote": "16924",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 202
+      },
+      {
+        "cdsap": "241309",
+        "lote": "19752",
+        "validade": null,
+        "fabricante": "DINAMICA",
+        "id_lote": 203
+      },
+      {
+        "cdsap": "241309",
+        "lote": "SLCG20",
+        "validade": null,
+        "fabricante": "SIGMA",
+        "id_lote": 204
+      },
+      {
+        "cdsap": "242919",
+        "lote": "2967",
+        "validade": null,
+        "fabricante": "ANIDROL",
+        "id_lote": 205
+      },
+      {
+        "cdsap": "243462",
+        "lote": "12198",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 206
+      },
+      {
+        "cdsap": "244080",
+        "lote": "GEN",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 207
+      },
+      {
+        "cdsap": "244107",
+        "lote": "GEN",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 208
+      },
+      {
+        "cdsap": "244803",
+        "lote": "24198",
+        "validade": null,
+        "fabricante": "SYNTH",
+        "id_lote": 209
+      },
+      {
+        "cdsap": "244803",
+        "lote": "24708",
+        "validade": null,
+        "fabricante": "SYNTH",
+        "id_lote": 210
+      },
+      {
+        "cdsap": "245158",
+        "lote": "9156",
+        "validade": null,
+        "fabricante": "SYNTH",
+        "id_lote": 211
+      },
+      {
+        "cdsap": "247408",
+        "lote": "1728",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 212
+      },
+      {
+        "cdsap": "247408",
+        "lote": "806803",
+        "validade": null,
+        "fabricante": "VETEC",
+        "id_lote": 213
+      },
+      {
+        "cdsap": "2500751",
+        "lote": "5840",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 214
+      },
+      {
+        "cdsap": "2500751",
+        "lote": "693",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 215
+      },
+      {
+        "cdsap": "2500929",
+        "lote": "BCBW9563",
+        "validade": null,
+        "fabricante": "SIGMA",
+        "id_lote": 216
+      },
+      {
+        "cdsap": "2501234",
+        "lote": "GEN",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 217
+      },
+      {
+        "cdsap": "2501234",
+        "lote": "GEN",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 218
+      },
+      {
+        "cdsap": "2501311",
+        "lote": "302C",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 219
+      },
+      {
+        "cdsap": "250226",
+        "lote": "1205",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 220
+      },
+      {
+        "cdsap": "250226",
+        "lote": "MKCQ534",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 221
+      },
+      {
+        "cdsap": "2502873",
+        "lote": "GEN",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 222
+      },
+      {
+        "cdsap": "250331",
+        "lote": "3AT19147",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 223
+      },
+      {
+        "cdsap": "250357",
+        "lote": "3AT43545",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 224
+      },
+      {
+        "cdsap": "250560",
+        "lote": "GEN",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 225
+      },
+      {
+        "cdsap": "250670",
+        "lote": "1735",
+        "validade": null,
+        "fabricante": "DIGIMED",
+        "id_lote": 226
+      },
+      {
+        "cdsap": "250670",
+        "lote": "2935",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 227
+      },
+      {
+        "cdsap": "250670",
+        "lote": "3723",
+        "validade": null,
+        "fabricante": "DIGIMED",
+        "id_lote": 228
+      },
+      {
+        "cdsap": "250670",
+        "lote": "4251",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 229
+      },
+      {
+        "cdsap": "250670",
+        "lote": "5317",
+        "validade": null,
+        "fabricante": "DIGIMED",
+        "id_lote": 230
+      },
+      {
+        "cdsap": "250670",
+        "lote": "5679",
+        "validade": null,
+        "fabricante": "DIGIMED",
+        "id_lote": 231
+      },
+      {
+        "cdsap": "250670",
+        "lote": "629",
+        "validade": null,
+        "fabricante": "DIGIMED",
+        "id_lote": 232
+      },
+      {
+        "cdsap": "250670",
+        "lote": "7398",
+        "validade": null,
+        "fabricante": "DIGIMED",
+        "id_lote": 233
+      },
+      {
+        "cdsap": "2506979",
+        "lote": "248951",
+        "validade": null,
+        "fabricante": "SYNTH",
+        "id_lote": 234
+      },
+      {
+        "cdsap": "2506979",
+        "lote": "259049",
+        "validade": null,
+        "fabricante": "SYNTH",
+        "id_lote": 235
+      },
+      {
+        "cdsap": "2506979",
+        "lote": "K4176536",
+        "validade": null,
+        "fabricante": "MERCK",
+        "id_lote": 236
+      },
+      {
+        "cdsap": "250713",
+        "lote": "131",
+        "validade": null,
+        "fabricante": "DIGIMED",
+        "id_lote": 237
+      },
+      {
+        "cdsap": "250713",
+        "lote": "1742",
+        "validade": null,
+        "fabricante": "DIGIMED",
+        "id_lote": 238
+      },
+      {
+        "cdsap": "250713",
+        "lote": "310",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 239
+      },
+      {
+        "cdsap": "250713",
+        "lote": "364",
+        "validade": null,
+        "fabricante": "DIGIMED",
+        "id_lote": 240
+      },
+      {
+        "cdsap": "250713",
+        "lote": "4235",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 241
+      },
+      {
+        "cdsap": "250713",
+        "lote": "567",
+        "validade": null,
+        "fabricante": "DIGIMED",
+        "id_lote": 242
+      },
+      {
+        "cdsap": "250713",
+        "lote": "6320",
+        "validade": null,
+        "fabricante": "DIGIMED",
+        "id_lote": 243
+      },
+      {
+        "cdsap": "250713",
+        "lote": "67",
+        "validade": null,
+        "fabricante": "DIGIMED",
+        "id_lote": 244
+      },
+      {
+        "cdsap": "2507920",
+        "lote": "SLCJ6478",
+        "validade": null,
+        "fabricante": "SIGMA",
+        "id_lote": 245
+      },
+      {
+        "cdsap": "2507933",
+        "lote": "2483",
+        "validade": null,
+        "fabricante": "ANIDROL",
+        "id_lote": 246
+      },
+      {
+        "cdsap": "2508047",
+        "lote": "251092",
+        "validade": null,
+        "fabricante": "SYNTH",
+        "id_lote": 247
+      },
+      {
+        "cdsap": "2508047",
+        "lote": "256361",
+        "validade": null,
+        "fabricante": "SYNTH",
+        "id_lote": 248
+      },
+      {
+        "cdsap": "2508047",
+        "lote": "257972",
+        "validade": null,
+        "fabricante": "SYNTH",
+        "id_lote": 249
+      },
+      {
+        "cdsap": "2508047",
+        "lote": "5415",
+        "validade": null,
+        "fabricante": "NEON",
+        "id_lote": 250
+      },
+      {
+        "cdsap": "2508304",
+        "lote": "2051052001",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 251
+      },
+      {
+        "cdsap": "2508304",
+        "lote": "212320201",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 252
+      },
+      {
+        "cdsap": "2508304",
+        "lote": "2126202801",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 253
+      },
+      {
+        "cdsap": "2508304",
+        "lote": "230815139601",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 254
+      },
+      {
+        "cdsap": "2508304",
+        "lote": "231219234301",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 255
+      },
+      {
+        "cdsap": "2508304",
+        "lote": "240910171601",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 256
+      },
+      {
+        "cdsap": "2508304",
+        "lote": "2412629801",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 257
+      },
+      {
+        "cdsap": "2508304",
+        "lote": "250514067401",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 258
+      },
+      {
+        "cdsap": "2508304",
+        "lote": "250918174901",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 259
+      },
+      {
+        "cdsap": "250873",
+        "lote": "GEN",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 260
+      },
+      {
+        "cdsap": "2509228",
+        "lote": "126560",
+        "validade": null,
+        "fabricante": "DINAMICA",
+        "id_lote": 261
+      },
+      {
+        "cdsap": "2510447",
+        "lote": "63535201",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 262
+      },
+      {
+        "cdsap": "2510447",
+        "lote": "7213201",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 263
+      },
+      {
+        "cdsap": "2510482",
+        "lote": "254138",
+        "validade": null,
+        "fabricante": "VETEC",
+        "id_lote": 264
+      },
+      {
+        "cdsap": "2510482",
+        "lote": "274910",
+        "validade": null,
+        "fabricante": "SYNTH",
+        "id_lote": 265
+      },
+      {
+        "cdsap": "2510490",
+        "lote": "249852",
+        "validade": null,
+        "fabricante": "SYNTH",
+        "id_lote": 266
+      },
+      {
+        "cdsap": "2510498",
+        "lote": "GEN",
+        "validade": null,
+        "fabricante": "HACH",
+        "id_lote": 267
+      },
+      {
+        "cdsap": "2516841",
+        "lote": "135",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 268
+      },
+      {
+        "cdsap": "2516866",
+        "lote": "2418",
+        "validade": null,
+        "fabricante": "ANIDROL",
+        "id_lote": 269
+      },
+      {
+        "cdsap": "2516866",
+        "lote": "254607",
+        "validade": null,
+        "fabricante": "SYNTH",
+        "id_lote": 270
+      },
+      {
+        "cdsap": "2516889",
+        "lote": "24597",
+        "validade": null,
+        "fabricante": "SYNTH",
+        "id_lote": 271
+      },
+      {
+        "cdsap": "2518091",
+        "lote": "GEN",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 272
+      },
+      {
+        "cdsap": "2518296",
+        "lote": "120906",
+        "validade": null,
+        "fabricante": "DINAMICA",
+        "id_lote": 273
+      },
+      {
+        "cdsap": "2518296",
+        "lote": "2402140892",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 274
+      },
+      {
+        "cdsap": "2518296",
+        "lote": "250128073",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 275
+      },
+      {
+        "cdsap": "2518477",
+        "lote": "F21JO56K",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 276
+      },
+      {
+        "cdsap": "2518522",
+        "lote": "58653",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 277
+      },
+      {
+        "cdsap": "2522245",
+        "lote": "GEN",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 278
+      },
+      {
+        "cdsap": "2525957",
+        "lote": "GEN",
+        "validade": null,
+        "fabricante": "DIGIMED",
+        "id_lote": 279
+      },
+      {
+        "cdsap": "2527578",
+        "lote": "604310",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 280
+      },
+      {
+        "cdsap": "252936",
+        "lote": "GEN",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 281
+      },
+      {
+        "cdsap": "2531355",
+        "lote": "3413815",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 282
+      },
+      {
+        "cdsap": "2531355",
+        "lote": "91020518",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 283
+      },
+      {
+        "cdsap": "2532113",
+        "lote": "3024",
+        "validade": null,
+        "fabricante": "HACH",
+        "id_lote": 284
+      },
+      {
+        "cdsap": "2532113",
+        "lote": "3102",
+        "validade": null,
+        "fabricante": "HACH",
+        "id_lote": 285
+      },
+      {
+        "cdsap": "2532113",
+        "lote": "3151",
+        "validade": null,
+        "fabricante": "HACH",
+        "id_lote": 286
+      },
+      {
+        "cdsap": "2532113",
+        "lote": "3202",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 287
+      },
+      {
+        "cdsap": "2532113",
+        "lote": "360",
+        "validade": null,
+        "fabricante": "HACH",
+        "id_lote": 288
+      },
+      {
+        "cdsap": "2532113",
+        "lote": "4019",
+        "validade": null,
+        "fabricante": "HACH",
+        "id_lote": 289
+      },
+      {
+        "cdsap": "2532113",
+        "lote": "4094",
+        "validade": null,
+        "fabricante": "HACH",
+        "id_lote": 290
+      },
+      {
+        "cdsap": "2532113",
+        "lote": "4106",
+        "validade": null,
+        "fabricante": "HACH",
+        "id_lote": 291
+      },
+      {
+        "cdsap": "2532113",
+        "lote": "4247",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 292
+      },
+      {
+        "cdsap": "2532113",
+        "lote": "432",
+        "validade": null,
+        "fabricante": "HACH",
+        "id_lote": 293
+      },
+      {
+        "cdsap": "2532113",
+        "lote": "468",
+        "validade": null,
+        "fabricante": "HACH",
+        "id_lote": 294
+      },
+      {
+        "cdsap": "2532113",
+        "lote": "5097",
+        "validade": null,
+        "fabricante": "HACH",
+        "id_lote": 295
+      },
+      {
+        "cdsap": "2532113",
+        "lote": "A24",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 296
+      },
+      {
+        "cdsap": "2535561",
+        "lote": "A2378",
+        "validade": null,
+        "fabricante": "HACH",
+        "id_lote": 297
+      },
+      {
+        "cdsap": "2535561",
+        "lote": "GEN",
+        "validade": null,
+        "fabricante": "HACH",
+        "id_lote": 298
+      },
+      {
+        "cdsap": "2536010",
+        "lote": "GEN",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 299
+      },
+      {
+        "cdsap": "2538177",
+        "lote": "0705051025",
+        "validade": null,
+        "fabricante": "DIGIMED",
+        "id_lote": 300
+      },
+      {
+        "cdsap": "2538177",
+        "lote": "64",
+        "validade": null,
+        "fabricante": "DIGIMED",
+        "id_lote": 301
+      },
+      {
+        "cdsap": "2538622",
+        "lote": "2E4071",
+        "validade": null,
+        "fabricante": "DIGIMED",
+        "id_lote": 302
+      },
+      {
+        "cdsap": "2538622",
+        "lote": "2E4073",
+        "validade": null,
+        "fabricante": "DIGIMED",
+        "id_lote": 303
+      },
+      {
+        "cdsap": "2538622",
+        "lote": "5637",
+        "validade": null,
+        "fabricante": "DIGIMED",
+        "id_lote": 304
+      },
+      {
+        "cdsap": "2540595",
+        "lote": "21052546_B",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 305
+      },
+      {
+        "cdsap": "2540595",
+        "lote": "214546D",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 306
+      },
+      {
+        "cdsap": "2540595",
+        "lote": "GEN",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 307
+      },
+      {
+        "cdsap": "2542405",
+        "lote": "GEN",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 308
+      },
+      {
+        "cdsap": "2542826",
+        "lote": "14846",
+        "validade": null,
+        "fabricante": "DINAMICA",
+        "id_lote": 309
+      },
+      {
+        "cdsap": "2546181",
+        "lote": "2061",
+        "validade": null,
+        "fabricante": "HACH",
+        "id_lote": 310
+      },
+      {
+        "cdsap": "2546181",
+        "lote": "259",
+        "validade": null,
+        "fabricante": "HACH",
+        "id_lote": 311
+      },
+      {
+        "cdsap": "2546181",
+        "lote": "4039",
+        "validade": null,
+        "fabricante": "HACH",
+        "id_lote": 312
+      },
+      {
+        "cdsap": "2546222",
+        "lote": "C01310",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 313
+      },
+      {
+        "cdsap": "2546222",
+        "lote": "GEN",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 314
+      },
+      {
+        "cdsap": "2546239",
+        "lote": "071M014SV",
+        "validade": null,
+        "fabricante": "SIGMA",
+        "id_lote": 315
+      },
+      {
+        "cdsap": "2546239",
+        "lote": "SLCN1324",
+        "validade": null,
+        "fabricante": "SIGMA",
+        "id_lote": 316
+      },
+      {
+        "cdsap": "2546259",
+        "lote": "21201946",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 317
+      },
+      {
+        "cdsap": "2546259",
+        "lote": "QH49246",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 318
+      },
+      {
+        "cdsap": "2546259",
+        "lote": "SAB67560",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 319
+      },
+      {
+        "cdsap": "2546259",
+        "lote": "SAB67561",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 320
+      },
+      {
+        "cdsap": "2546259",
+        "lote": "SAB67562",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 321
+      },
+      {
+        "cdsap": "2546259",
+        "lote": "SAB6759",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 322
+      },
+      {
+        "cdsap": "2546267",
+        "lote": "4835",
+        "validade": null,
+        "fabricante": "DIGIMED",
+        "id_lote": 323
+      },
+      {
+        "cdsap": "2546268",
+        "lote": "516",
+        "validade": null,
+        "fabricante": "VETEC",
+        "id_lote": 324
+      },
+      {
+        "cdsap": "2546962",
+        "lote": "K95791398",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 325
+      },
+      {
+        "cdsap": "2547148",
+        "lote": "1080976",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 326
+      },
+      {
+        "cdsap": "2547148",
+        "lote": "1718",
+        "validade": null,
+        "fabricante": "DINAMICA",
+        "id_lote": 327
+      },
+      {
+        "cdsap": "2547148",
+        "lote": "261814",
+        "validade": null,
+        "fabricante": "SYNTH",
+        "id_lote": 328
+      },
+      {
+        "cdsap": "2547148",
+        "lote": "354",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 329
+      },
+      {
+        "cdsap": "254830",
+        "lote": "GEN",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 330
+      },
+      {
+        "cdsap": "2548430",
+        "lote": "GEN",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 331
+      },
+      {
+        "cdsap": "2549175",
+        "lote": "8519",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 332
+      },
+      {
+        "cdsap": "2549176",
+        "lote": "T2U79837",
+        "validade": null,
+        "fabricante": "MERCK",
+        "id_lote": 333
+      },
+      {
+        "cdsap": "2549277",
+        "lote": "2415",
+        "validade": null,
+        "fabricante": "DIGIMED",
+        "id_lote": 334
+      },
+      {
+        "cdsap": "2549548",
+        "lote": "CAM0",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 335
+      },
+      {
+        "cdsap": "2549962",
+        "lote": "13542",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 336
+      },
+      {
+        "cdsap": "2549962",
+        "lote": "7374",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 337
+      },
+      {
+        "cdsap": "2551152",
+        "lote": "125750",
+        "validade": null,
+        "fabricante": "DINAMICA",
+        "id_lote": 338
+      },
+      {
+        "cdsap": "2551152",
+        "lote": "1473",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 339
+      },
+      {
+        "cdsap": "2551152",
+        "lote": "254973",
+        "validade": null,
+        "fabricante": "SYNTH",
+        "id_lote": 340
+      },
+      {
+        "cdsap": "2551152",
+        "lote": "267896",
+        "validade": null,
+        "fabricante": "SYNTH",
+        "id_lote": 341
+      },
+      {
+        "cdsap": "2551152",
+        "lote": "268365",
+        "validade": null,
+        "fabricante": "SYNTH",
+        "id_lote": 342
+      },
+      {
+        "cdsap": "2551153",
+        "lote": "SLCH638",
+        "validade": null,
+        "fabricante": "SIGMA",
+        "id_lote": 343
+      },
+      {
+        "cdsap": "2555296",
+        "lote": "TE012M",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 344
+      },
+      {
+        "cdsap": "255755",
+        "lote": "385",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 345
+      },
+      {
+        "cdsap": "255755",
+        "lote": "387",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 346
+      },
+      {
+        "cdsap": "255755",
+        "lote": "413",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 347
+      },
+      {
+        "cdsap": "255755",
+        "lote": "456",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 348
+      },
+      {
+        "cdsap": "255755",
+        "lote": "54",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 349
+      },
+      {
+        "cdsap": "255755",
+        "lote": "545",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 350
+      },
+      {
+        "cdsap": "255755",
+        "lote": "547",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 351
+      },
+      {
+        "cdsap": "255755",
+        "lote": "56",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 352
+      },
+      {
+        "cdsap": "255755",
+        "lote": "562",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 353
+      },
+      {
+        "cdsap": "255755",
+        "lote": "563",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 354
+      },
+      {
+        "cdsap": "255755",
+        "lote": "567",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 355
+      },
+      {
+        "cdsap": "255755",
+        "lote": "571",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 356
+      },
+      {
+        "cdsap": "255755",
+        "lote": "575",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 357
+      },
+      {
+        "cdsap": "255755",
+        "lote": "59",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 358
+      },
+      {
+        "cdsap": "255756",
+        "lote": "40",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 359
+      },
+      {
+        "cdsap": "255756",
+        "lote": "402",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 360
+      },
+      {
+        "cdsap": "255756",
+        "lote": "428",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 361
+      },
+      {
+        "cdsap": "255756",
+        "lote": "534",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 362
+      },
+      {
+        "cdsap": "255756",
+        "lote": "54",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 363
+      },
+      {
+        "cdsap": "255756",
+        "lote": "575",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 364
+      },
+      {
+        "cdsap": "255756",
+        "lote": "58",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 365
+      },
+      {
+        "cdsap": "2559515",
+        "lote": "1561",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 366
+      },
+      {
+        "cdsap": "2559515",
+        "lote": "18",
+        "validade": null,
+        "fabricante": "ZILQUIMICA",
+        "id_lote": 367
+      },
+      {
+        "cdsap": "2559515",
+        "lote": "4048",
+        "validade": null,
+        "fabricante": "ZILQUIMICA",
+        "id_lote": 368
+      },
+      {
+        "cdsap": "2560690",
+        "lote": "GEN",
+        "validade": null,
+        "fabricante": "HACH",
+        "id_lote": 369
+      },
+      {
+        "cdsap": "2560704",
+        "lote": "GEN",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 370
+      },
+      {
+        "cdsap": "2560713",
+        "lote": "GEN",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 371
+      },
+      {
+        "cdsap": "2564028",
+        "lote": "24102",
+        "validade": null,
+        "fabricante": "HACH",
+        "id_lote": 372
+      },
+      {
+        "cdsap": "2564872",
+        "lote": "GEN",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 373
+      },
+      {
+        "cdsap": "2565831",
+        "lote": "4849",
+        "validade": null,
+        "fabricante": "DIGIMED",
+        "id_lote": 374
+      },
+      {
+        "cdsap": "2565889",
+        "lote": "4851",
+        "validade": null,
+        "fabricante": "DIGIMED",
+        "id_lote": 375
+      },
+      {
+        "cdsap": "2567819",
+        "lote": "21280",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 376
+      },
+      {
+        "cdsap": "2570809",
+        "lote": "HC29417",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 377
+      },
+      {
+        "cdsap": "257411",
+        "lote": "GEN",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 378
+      },
+      {
+        "cdsap": "2575371",
+        "lote": "N2560",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 379
+      },
+      {
+        "cdsap": "2575393",
+        "lote": "2516842",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 380
+      },
+      {
+        "cdsap": "2575466",
+        "lote": "N0370",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 381
+      },
+      {
+        "cdsap": "2580599",
+        "lote": "4078",
+        "validade": null,
+        "fabricante": "HACH",
+        "id_lote": 382
+      },
+      {
+        "cdsap": "2580599",
+        "lote": "4309",
+        "validade": null,
+        "fabricante": "HACH",
+        "id_lote": 383
+      },
+      {
+        "cdsap": "2580599",
+        "lote": "5121",
+        "validade": null,
+        "fabricante": "HACH",
+        "id_lote": 384
+      },
+      {
+        "cdsap": "2580993",
+        "lote": "4072",
+        "validade": null,
+        "fabricante": "HACH",
+        "id_lote": 385
+      },
+      {
+        "cdsap": "2580993",
+        "lote": "5092",
+        "validade": null,
+        "fabricante": "HACH",
+        "id_lote": 386
+      },
+      {
+        "cdsap": "2580993",
+        "lote": "A326",
+        "validade": null,
+        "fabricante": "HACH",
+        "id_lote": 387
+      },
+      {
+        "cdsap": "2580993",
+        "lote": "A4304",
+        "validade": null,
+        "fabricante": "HACH",
+        "id_lote": 388
+      },
+      {
+        "cdsap": "2580997",
+        "lote": "350",
+        "validade": null,
+        "fabricante": "HACH",
+        "id_lote": 389
+      },
+      {
+        "cdsap": "2580997",
+        "lote": "4052",
+        "validade": null,
+        "fabricante": "HACH",
+        "id_lote": 390
+      },
+      {
+        "cdsap": "2580997",
+        "lote": "4295",
+        "validade": null,
+        "fabricante": "HACH",
+        "id_lote": 391
+      },
+      {
+        "cdsap": "2580997",
+        "lote": "5125",
+        "validade": null,
+        "fabricante": "HACH",
+        "id_lote": 392
+      },
+      {
+        "cdsap": "2582270",
+        "lote": "GEN",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 393
+      },
+      {
+        "cdsap": "2584390",
+        "lote": "25A501",
+        "validade": null,
+        "fabricante": "DIGIMED",
+        "id_lote": 394
+      },
+      {
+        "cdsap": "2584424",
+        "lote": "190",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 395
+      },
+      {
+        "cdsap": "2584424",
+        "lote": "2570",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 396
+      },
+      {
+        "cdsap": "2584424",
+        "lote": "N1850",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 397
+      },
+      {
+        "cdsap": "2586010",
+        "lote": "M19A",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 398
+      },
+      {
+        "cdsap": "2591272",
+        "lote": "230250",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 399
+      },
+      {
+        "cdsap": "260368",
+        "lote": "106041",
+        "validade": null,
+        "fabricante": "ZILQUIMICA",
+        "id_lote": 400
+      },
+      {
+        "cdsap": "260570",
+        "lote": "659",
+        "validade": null,
+        "fabricante": "DIGIMED",
+        "id_lote": 401
+      },
+      {
+        "cdsap": "264902",
+        "lote": "12163",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 402
+      },
+      {
+        "cdsap": "264902",
+        "lote": "13270",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 403
+      },
+      {
+        "cdsap": "264902",
+        "lote": "135158",
+        "validade": null,
+        "fabricante": "DINAMICA",
+        "id_lote": 404
+      },
+      {
+        "cdsap": "264902",
+        "lote": "136940",
+        "validade": null,
+        "fabricante": "DINAMICA",
+        "id_lote": 405
+      },
+      {
+        "cdsap": "264902",
+        "lote": "13702",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 406
+      },
+      {
+        "cdsap": "264902",
+        "lote": "138732",
+        "validade": null,
+        "fabricante": "DINAMICA",
+        "id_lote": 407
+      },
+      {
+        "cdsap": "264902",
+        "lote": "14920",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 408
+      },
+      {
+        "cdsap": "264902",
+        "lote": "15065",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 409
+      },
+      {
+        "cdsap": "264902",
+        "lote": "16563",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 410
+      },
+      {
+        "cdsap": "264902",
+        "lote": "7870",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 411
+      },
+      {
+        "cdsap": "266441",
+        "lote": "4142",
+        "validade": null,
+        "fabricante": "HACH",
+        "id_lote": 412
+      },
+      {
+        "cdsap": "266441",
+        "lote": "5063",
+        "validade": null,
+        "fabricante": "HACH",
+        "id_lote": 413
+      },
+      {
+        "cdsap": "268437",
+        "lote": "GEN",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 414
+      },
+      {
+        "cdsap": "268620",
+        "lote": "3587",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 415
+      },
+      {
+        "cdsap": "268628",
+        "lote": "12513",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 416
+      },
+      {
+        "cdsap": "268628",
+        "lote": "16264",
+        "validade": null,
+        "fabricante": "ZILQUIMICA",
+        "id_lote": 417
+      },
+      {
+        "cdsap": "268628",
+        "lote": "K4218704",
+        "validade": null,
+        "fabricante": "MERCK",
+        "id_lote": 418
+      },
+      {
+        "cdsap": "268763",
+        "lote": "243",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 419
+      },
+      {
+        "cdsap": "268763",
+        "lote": "326",
+        "validade": null,
+        "fabricante": "HACH",
+        "id_lote": 420
+      },
+      {
+        "cdsap": "268763",
+        "lote": "3291",
+        "validade": null,
+        "fabricante": "HACH",
+        "id_lote": 421
+      },
+      {
+        "cdsap": "268763",
+        "lote": "5069",
+        "validade": null,
+        "fabricante": "HACH",
+        "id_lote": 422
+      },
+      {
+        "cdsap": "268763",
+        "lote": "6321",
+        "validade": null,
+        "fabricante": "HACH",
+        "id_lote": 423
+      },
+      {
+        "cdsap": "268763",
+        "lote": "8059",
+        "validade": null,
+        "fabricante": "HACH",
+        "id_lote": 424
+      },
+      {
+        "cdsap": "268763",
+        "lote": "8242",
+        "validade": null,
+        "fabricante": "HACH",
+        "id_lote": 425
+      },
+      {
+        "cdsap": "268763",
+        "lote": "A206",
+        "validade": null,
+        "fabricante": "HACH",
+        "id_lote": 426
+      },
+      {
+        "cdsap": "268766",
+        "lote": "2028",
+        "validade": null,
+        "fabricante": "HACH",
+        "id_lote": 427
+      },
+      {
+        "cdsap": "268766",
+        "lote": "250",
+        "validade": null,
+        "fabricante": "HACH",
+        "id_lote": 428
+      },
+      {
+        "cdsap": "268766",
+        "lote": "279",
+        "validade": null,
+        "fabricante": "HACH",
+        "id_lote": 429
+      },
+      {
+        "cdsap": "268766",
+        "lote": "3065",
+        "validade": null,
+        "fabricante": "HACH",
+        "id_lote": 430
+      },
+      {
+        "cdsap": "268766",
+        "lote": "3145",
+        "validade": null,
+        "fabricante": "HACH",
+        "id_lote": 431
+      },
+      {
+        "cdsap": "268766",
+        "lote": "315",
+        "validade": null,
+        "fabricante": "HACH",
+        "id_lote": 432
+      },
+      {
+        "cdsap": "268766",
+        "lote": "325",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 433
+      },
+      {
+        "cdsap": "268766",
+        "lote": "3268",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 434
+      },
+      {
+        "cdsap": "268766",
+        "lote": "4065",
+        "validade": null,
+        "fabricante": "HACH",
+        "id_lote": 435
+      },
+      {
+        "cdsap": "268766",
+        "lote": "4080",
+        "validade": null,
+        "fabricante": "HACH",
+        "id_lote": 436
+      },
+      {
+        "cdsap": "268766",
+        "lote": "4167",
+        "validade": null,
+        "fabricante": "HACH",
+        "id_lote": 437
+      },
+      {
+        "cdsap": "268766",
+        "lote": "4276",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 438
+      },
+      {
+        "cdsap": "268766",
+        "lote": "4293",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 439
+      },
+      {
+        "cdsap": "268766",
+        "lote": "5069",
+        "validade": null,
+        "fabricante": "HACH",
+        "id_lote": 440
+      },
+      {
+        "cdsap": "268766",
+        "lote": "5134",
+        "validade": null,
+        "fabricante": "HACH",
+        "id_lote": 441
+      },
+      {
+        "cdsap": "268766",
+        "lote": "6341",
+        "validade": null,
+        "fabricante": "HACH",
+        "id_lote": 442
+      },
+      {
+        "cdsap": "268766",
+        "lote": "7129",
+        "validade": null,
+        "fabricante": "HACH",
+        "id_lote": 443
+      },
+      {
+        "cdsap": "268766",
+        "lote": "8291",
+        "validade": null,
+        "fabricante": "HACH",
+        "id_lote": 444
+      },
+      {
+        "cdsap": "268766",
+        "lote": "A250",
+        "validade": null,
+        "fabricante": "HACH",
+        "id_lote": 445
+      },
+      {
+        "cdsap": "268766",
+        "lote": "A7238",
+        "validade": null,
+        "fabricante": "HACH",
+        "id_lote": 446
+      },
+      {
+        "cdsap": "268766",
+        "lote": "A7280",
+        "validade": null,
+        "fabricante": "HACH",
+        "id_lote": 447
+      },
+      {
+        "cdsap": "268849",
+        "lote": "GEN",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 448
+      },
+      {
+        "cdsap": "268849",
+        "lote": "VD1540417",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 449
+      },
+      {
+        "cdsap": "269083",
+        "lote": "412",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 450
+      },
+      {
+        "cdsap": "269083",
+        "lote": "41750",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 451
+      },
+      {
+        "cdsap": "269083",
+        "lote": "7924",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 452
+      },
+      {
+        "cdsap": "269083",
+        "lote": "8320",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 453
+      },
+      {
+        "cdsap": "269221",
+        "lote": "GEN",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 454
+      },
+      {
+        "cdsap": "271177",
+        "lote": "GEN",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 455
+      },
+      {
+        "cdsap": "273110",
+        "lote": "GEN",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 456
+      },
+      {
+        "cdsap": "273462",
+        "lote": "12396",
+        "validade": null,
+        "fabricante": "DINAMICA",
+        "id_lote": 457
+      },
+      {
+        "cdsap": "273462",
+        "lote": "12415",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 458
+      },
+      {
+        "cdsap": "273462",
+        "lote": "13031",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 459
+      },
+      {
+        "cdsap": "273462",
+        "lote": "13085720",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 460
+      },
+      {
+        "cdsap": "273462",
+        "lote": "1308589",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 461
+      },
+      {
+        "cdsap": "273462",
+        "lote": "1308986",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 462
+      },
+      {
+        "cdsap": "273462",
+        "lote": "13094601",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 463
+      },
+      {
+        "cdsap": "273462",
+        "lote": "13717",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 464
+      },
+      {
+        "cdsap": "273462",
+        "lote": "1519",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 465
+      },
+      {
+        "cdsap": "273462",
+        "lote": "15290",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 466
+      },
+      {
+        "cdsap": "273462",
+        "lote": "15651",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 467
+      },
+      {
+        "cdsap": "273462",
+        "lote": "15929",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 468
+      },
+      {
+        "cdsap": "273462",
+        "lote": "16238",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 469
+      },
+      {
+        "cdsap": "273462",
+        "lote": "16583",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 470
+      },
+      {
+        "cdsap": "273462",
+        "lote": "16750",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 471
+      },
+      {
+        "cdsap": "273462",
+        "lote": "7924",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 472
+      },
+      {
+        "cdsap": "273489",
+        "lote": "GEN",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 473
+      },
+      {
+        "cdsap": "273733",
+        "lote": "K07C92",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 474
+      },
+      {
+        "cdsap": "273737",
+        "lote": "12986",
+        "validade": null,
+        "fabricante": "DINAMICA",
+        "id_lote": 475
+      },
+      {
+        "cdsap": "273737",
+        "lote": "K06C79",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 476
+      },
+      {
+        "cdsap": "273747",
+        "lote": "K07C7",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 477
+      },
+      {
+        "cdsap": "273824",
+        "lote": "1027",
+        "validade": null,
+        "fabricante": "DINAMICA",
+        "id_lote": 478
+      },
+      {
+        "cdsap": "273824",
+        "lote": "107060",
+        "validade": null,
+        "fabricante": "DINAMICA",
+        "id_lote": 479
+      },
+      {
+        "cdsap": "273824",
+        "lote": "14750",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 480
+      },
+      {
+        "cdsap": "273824",
+        "lote": "15648",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 481
+      },
+      {
+        "cdsap": "273824",
+        "lote": "5956",
+        "validade": null,
+        "fabricante": "NEON",
+        "id_lote": 482
+      },
+      {
+        "cdsap": "273824",
+        "lote": "AM2042590",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 483
+      },
+      {
+        "cdsap": "273824",
+        "lote": "AM2042590429",
+        "validade": null,
+        "fabricante": "MERCK",
+        "id_lote": 484
+      },
+      {
+        "cdsap": "274181",
+        "lote": "B3051",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 485
+      },
+      {
+        "cdsap": "275207",
+        "lote": "MBSR_13821",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 486
+      },
+      {
+        "cdsap": "275207",
+        "lote": "SLXSA03M",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 487
+      },
+      {
+        "cdsap": "275207",
+        "lote": "Z2615921J",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 488
+      },
+      {
+        "cdsap": "275207",
+        "lote": "Z264021A",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 489
+      },
+      {
+        "cdsap": "277444",
+        "lote": "10",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 490
+      },
+      {
+        "cdsap": "277444",
+        "lote": "101",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 491
+      },
+      {
+        "cdsap": "277444",
+        "lote": "37010",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 492
+      },
+      {
+        "cdsap": "277444",
+        "lote": "A303",
+        "validade": null,
+        "fabricante": "HACH",
+        "id_lote": 493
+      },
+      {
+        "cdsap": "282574",
+        "lote": "GEN",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 494
+      },
+      {
+        "cdsap": "284670",
+        "lote": "10279",
+        "validade": null,
+        "fabricante": "DINAMICA",
+        "id_lote": 495
+      },
+      {
+        "cdsap": "284670",
+        "lote": "12914",
+        "validade": null,
+        "fabricante": "DINAMICA",
+        "id_lote": 496
+      },
+      {
+        "cdsap": "284670",
+        "lote": "1391",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 497
+      },
+      {
+        "cdsap": "284670",
+        "lote": "586",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 498
+      },
+      {
+        "cdsap": "284670",
+        "lote": "719",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 499
+      },
+      {
+        "cdsap": "288007",
+        "lote": "GEN",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 500
+      },
+      {
+        "cdsap": "289888",
+        "lote": "2307294093",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 501
+      },
+      {
+        "cdsap": "289925",
+        "lote": "BCH236",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 502
+      },
+      {
+        "cdsap": "290308",
+        "lote": "23515",
+        "validade": null,
+        "fabricante": "DIGIMED",
+        "id_lote": 503
+      },
+      {
+        "cdsap": "290308",
+        "lote": "6206",
+        "validade": null,
+        "fabricante": "DIGIMED",
+        "id_lote": 504
+      },
+      {
+        "cdsap": "290308",
+        "lote": "643",
+        "validade": null,
+        "fabricante": "DIGIMED",
+        "id_lote": 505
+      },
+      {
+        "cdsap": "290308",
+        "lote": "HC325135",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 506
+      },
+      {
+        "cdsap": "291555",
+        "lote": "GEN",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 507
+      },
+      {
+        "cdsap": "292642",
+        "lote": "B3028",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 508
+      },
+      {
+        "cdsap": "295219",
+        "lote": "15761",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 509
+      },
+      {
+        "cdsap": "295219",
+        "lote": "16290",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 510
+      },
+      {
+        "cdsap": "295219",
+        "lote": "16391",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 511
+      },
+      {
+        "cdsap": "295219",
+        "lote": "1956",
+        "validade": null,
+        "fabricante": "DINAMICA",
+        "id_lote": 512
+      },
+      {
+        "cdsap": "295219",
+        "lote": "269258",
+        "validade": null,
+        "fabricante": "SYNTH",
+        "id_lote": 513
+      },
+      {
+        "cdsap": "295219",
+        "lote": "270206",
+        "validade": null,
+        "fabricante": "SYNTH",
+        "id_lote": 514
+      },
+      {
+        "cdsap": "295219",
+        "lote": "O",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 515
+      },
+      {
+        "cdsap": "295638",
+        "lote": "142984",
+        "validade": null,
+        "fabricante": "ZILQUIMICA",
+        "id_lote": 516
+      },
+      {
+        "cdsap": "295643",
+        "lote": "147410",
+        "validade": null,
+        "fabricante": "SYNTH",
+        "id_lote": 517
+      },
+      {
+        "cdsap": "295660",
+        "lote": "18765",
+        "validade": null,
+        "fabricante": "ZILQUIMICA",
+        "id_lote": 518
+      },
+      {
+        "cdsap": "298198",
+        "lote": "GEN",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 519
+      },
+      {
+        "cdsap": "304902",
+        "lote": "13190",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 520
+      },
+      {
+        "cdsap": "304902",
+        "lote": "16891",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 521
+      },
+      {
+        "cdsap": "304902",
+        "lote": "206",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 522
+      },
+      {
+        "cdsap": "304902",
+        "lote": "3895",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 523
+      },
+      {
+        "cdsap": "304902",
+        "lote": "4075",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 524
+      },
+      {
+        "cdsap": "305599",
+        "lote": "2023062832",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 525
+      },
+      {
+        "cdsap": "305599",
+        "lote": "GEN",
+        "validade": null,
+        "fabricante": "HACH",
+        "id_lote": 526
+      },
+      {
+        "cdsap": "310138",
+        "lote": "124172",
+        "validade": null,
+        "fabricante": "DINAMICA",
+        "id_lote": 527
+      },
+      {
+        "cdsap": "310138",
+        "lote": "5641",
+        "validade": null,
+        "fabricante": "NEON",
+        "id_lote": 528
+      },
+      {
+        "cdsap": "316259",
+        "lote": "423",
+        "validade": null,
+        "fabricante": "DIGIMED",
+        "id_lote": 529
+      },
+      {
+        "cdsap": "316259",
+        "lote": "480512",
+        "validade": null,
+        "fabricante": "DIGIMED",
+        "id_lote": 530
+      },
+      {
+        "cdsap": "317270",
+        "lote": "120702",
+        "validade": null,
+        "fabricante": "DINAMICA",
+        "id_lote": 531
+      },
+      {
+        "cdsap": "317270",
+        "lote": "12640",
+        "validade": null,
+        "fabricante": "DINAMICA",
+        "id_lote": 532
+      },
+      {
+        "cdsap": "317270",
+        "lote": "232",
+        "validade": null,
+        "fabricante": "SYNTH",
+        "id_lote": 533
+      },
+      {
+        "cdsap": "317270",
+        "lote": "240160246",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 534
+      },
+      {
+        "cdsap": "317270",
+        "lote": "K42304207",
+        "validade": null,
+        "fabricante": "MERCK",
+        "id_lote": 535
+      },
+      {
+        "cdsap": "317270",
+        "lote": "K42609607",
+        "validade": null,
+        "fabricante": "MERCK",
+        "id_lote": 536
+      },
+      {
+        "cdsap": "40700071",
+        "lote": "GEN",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 537
+      },
+      {
+        "cdsap": "423739",
+        "lote": "0701041025",
+        "validade": null,
+        "fabricante": "DIGIMED",
+        "id_lote": 538
+      },
+      {
+        "cdsap": "423739",
+        "lote": "671",
+        "validade": null,
+        "fabricante": "DIGIMED",
+        "id_lote": 539
+      },
+      {
+        "cdsap": "423747",
+        "lote": "68",
+        "validade": null,
+        "fabricante": "DIGIMED",
+        "id_lote": 540
+      },
+      {
+        "cdsap": "425167",
+        "lote": "1245",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 541
+      },
+      {
+        "cdsap": "425167",
+        "lote": "58213",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 542
+      },
+      {
+        "cdsap": "432899",
+        "lote": "GEN",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 543
+      },
+      {
+        "cdsap": "462810",
+        "lote": "GEN",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 544
+      },
+      {
+        "cdsap": "464618",
+        "lote": "12176",
+        "validade": null,
+        "fabricante": "DINAMICA",
+        "id_lote": 545
+      },
+      {
+        "cdsap": "464675",
+        "lote": "K4805329",
+        "validade": null,
+        "fabricante": "MERCK",
+        "id_lote": 546
+      },
+      {
+        "cdsap": "464675",
+        "lote": "K54314392",
+        "validade": null,
+        "fabricante": "SIGMA",
+        "id_lote": 547
+      },
+      {
+        "cdsap": "476721",
+        "lote": "7958",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 548
+      },
+      {
+        "cdsap": "476721",
+        "lote": "J31340",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 549
+      },
+      {
+        "cdsap": "483782",
+        "lote": "GEN",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 550
+      },
+      {
+        "cdsap": "485300",
+        "lote": "4309",
+        "validade": null,
+        "fabricante": "HACH",
+        "id_lote": 551
+      },
+      {
+        "cdsap": "485300",
+        "lote": "5057",
+        "validade": null,
+        "fabricante": "HACH",
+        "id_lote": 552
+      },
+      {
+        "cdsap": "485300",
+        "lote": "8271",
+        "validade": null,
+        "fabricante": "HACH",
+        "id_lote": 553
+      },
+      {
+        "cdsap": "50306001",
+        "lote": "GEN",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 554
+      },
+      {
+        "cdsap": "50317001",
+        "lote": "GEN",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 555
+      },
+      {
+        "cdsap": "50502003",
+        "lote": "GEN",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 556
+      },
+      {
+        "cdsap": "50505001",
+        "lote": "GEN",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 557
+      },
+      {
+        "cdsap": "50507002",
+        "lote": "GEN",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 558
+      },
+      {
+        "cdsap": "50508001",
+        "lote": "GEN",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 559
+      },
+      {
+        "cdsap": "50509001",
+        "lote": "GEN",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 560
+      },
+      {
+        "cdsap": "50514006",
+        "lote": "GEN",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 561
+      },
+      {
+        "cdsap": "50514007",
+        "lote": "GEN",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 562
+      },
+      {
+        "cdsap": "50514039",
+        "lote": "GEN",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 563
+      },
+      {
+        "cdsap": "5058001",
+        "lote": "43289",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 564
+      },
+      {
+        "cdsap": "50801006",
+        "lote": "GEN",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 565
+      },
+      {
+        "cdsap": "50802003",
+        "lote": "GEN",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 566
+      },
+      {
+        "cdsap": "51001001",
+        "lote": "GEN",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 567
+      },
+      {
+        "cdsap": "51101009",
+        "lote": "GEN",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 568
+      },
+      {
+        "cdsap": "540012",
+        "lote": "GEN",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 569
+      },
+      {
+        "cdsap": "56700051223",
+        "lote": "SOLUÇÃO DE CONDUTIVIDADE 5 ΜSCM",
+        "validade": null,
+        "fabricante": "DIGIMED",
+        "id_lote": 570
+      },
+      {
+        "cdsap": "60073915",
+        "lote": "2530134",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 571
+      },
+      {
+        "cdsap": "67430050",
+        "lote": "NIR",
+        "validade": null,
+        "fabricante": "GENERICO",
+        "id_lote": 572
+      }
+    ],
+    "movimentacoes": [
+      {
+        "id_mov": 1,
+        "id_lote": 254,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2019-10-20",
+        "quantidade": 200.0
+      },
+      {
+        "id_mov": 2,
+        "id_lote": 601,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2021-01-16",
+        "quantidade": 3.0
+      },
+      {
+        "id_mov": 3,
+        "id_lote": 439,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2020-02-14",
+        "quantidade": 5.0
+      },
+      {
+        "id_mov": 4,
+        "id_lote": 260,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2020-07-28",
+        "quantidade": 65.0
+      },
+      {
+        "id_mov": 5,
+        "id_lote": 120,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2020-10-08",
+        "quantidade": 530.0
+      },
+      {
+        "id_mov": 6,
+        "id_lote": 254,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2019-06-24",
+        "quantidade": 240.0
+      },
+      {
+        "id_mov": 7,
+        "id_lote": 165,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2021-04-09",
+        "quantidade": 5.0
+      },
+      {
+        "id_mov": 8,
+        "id_lote": 214,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2020-11-01",
+        "quantidade": 100.0
+      },
+      {
+        "id_mov": 9,
+        "id_lote": 525,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2018-07-20",
+        "quantidade": 100.0
+      },
+      {
+        "id_mov": 10,
+        "id_lote": 254,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2019-07-12",
+        "quantidade": 40.0
+      },
+      {
+        "id_mov": 11,
+        "id_lote": 556,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2018-11-05",
+        "quantidade": 150.0
+      },
+      {
+        "id_mov": 12,
+        "id_lote": 223,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2018-04-09",
+        "quantidade": 100.0
+      },
+      {
+        "id_mov": 13,
+        "id_lote": 643,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2019-07-03",
+        "quantidade": 2.0
+      },
+      {
+        "id_mov": 14,
+        "id_lote": 216,
+        "tipo_mov": "ENTRADA",
+        "data_mov": "2020-09-27",
+        "quantidade": 200.0
+      },
+      {
+        "id_mov": 15,
+        "id_lote": 469,
+        "tipo_mov": "ENTRADA",
+        "data_mov": "2020-07-17",
+        "quantidade": 1000.0
+      },
+      {
+        "id_mov": 16,
+        "id_lote": 118,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2019-08-03",
+        "quantidade": 530.0
+      },
+      {
+        "id_mov": 17,
+        "id_lote": 556,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2019-06-14",
+        "quantidade": 300.0
+      },
+      {
+        "id_mov": 18,
+        "id_lote": 406,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2021-05-10",
+        "quantidade": 10.0
+      },
+      {
+        "id_mov": 19,
+        "id_lote": 290,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2018-08-03",
+        "quantidade": 3.7225
+      },
+      {
+        "id_mov": 20,
+        "id_lote": 555,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2018-09-06",
+        "quantidade": 300.0
+      },
+      {
+        "id_mov": 21,
+        "id_lote": 254,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2019-06-02",
+        "quantidade": 5.0
+      },
+      {
+        "id_mov": 22,
+        "id_lote": 254,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2019-03-22",
+        "quantidade": 108.0
+      },
+      {
+        "id_mov": 23,
+        "id_lote": 150,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2019-08-09",
+        "quantidade": 1000.0
+      },
+      {
+        "id_mov": 24,
+        "id_lote": 525,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2018-10-08",
+        "quantidade": 100.0
+      },
+      {
+        "id_mov": 25,
+        "id_lote": 502,
+        "tipo_mov": "ENTRADA",
+        "data_mov": "2021-08-21",
+        "quantidade": 1900.0
+      },
+      {
+        "id_mov": 26,
+        "id_lote": 108,
+        "tipo_mov": "ENTRADA",
+        "data_mov": "2020-02-27",
+        "quantidade": 1.0
+      },
+      {
+        "id_mov": 27,
+        "id_lote": 254,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2018-08-09",
+        "quantidade": 40.0
+      },
+      {
+        "id_mov": 28,
+        "id_lote": 193,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2019-06-05",
+        "quantidade": 1.0
+      },
+      {
+        "id_mov": 29,
+        "id_lote": 260,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2021-04-24",
+        "quantidade": 40.0
+      },
+      {
+        "id_mov": 30,
+        "id_lote": 442,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2020-07-19",
+        "quantidade": 5.0
+      },
+      {
+        "id_mov": 31,
+        "id_lote": 459,
+        "tipo_mov": "ENTRADA",
+        "data_mov": "2019-01-18",
+        "quantidade": 1.0
+      },
+      {
+        "id_mov": 32,
+        "id_lote": 619,
+        "tipo_mov": "ENTRADA",
+        "data_mov": "2013-08-29",
+        "quantidade": 500.0
+      },
+      {
+        "id_mov": 33,
+        "id_lote": 525,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2018-08-28",
+        "quantidade": 100.0
+      },
+      {
+        "id_mov": 34,
+        "id_lote": 593,
+        "tipo_mov": "ENTRADA",
+        "data_mov": "2020-03-03",
+        "quantidade": 300.0
+      },
+      {
+        "id_mov": 35,
+        "id_lote": 261,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2020-11-01",
+        "quantidade": 4.3
+      },
+      {
+        "id_mov": 36,
+        "id_lote": 121,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2020-09-08",
+        "quantidade": 940.0
+      },
+      {
+        "id_mov": 37,
+        "id_lote": 378,
+        "tipo_mov": "ENTRADA",
+        "data_mov": "2020-07-11",
+        "quantidade": 1000.0
+      },
+      {
+        "id_mov": 38,
+        "id_lote": 603,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2021-08-25",
+        "quantidade": 1500.0
+      },
+      {
+        "id_mov": 39,
+        "id_lote": 319,
+        "tipo_mov": "ENTRADA",
+        "data_mov": "2018-04-01",
+        "quantidade": 100.0
+      },
+      {
+        "id_mov": 40,
+        "id_lote": 285,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2017-04-29",
+        "quantidade": 5.0
+      },
+      {
+        "id_mov": 41,
+        "id_lote": 621,
+        "tipo_mov": "ENTRADA",
+        "data_mov": "2019-09-25",
+        "quantidade": 5.0
+      },
+      {
+        "id_mov": 42,
+        "id_lote": 379,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2020-09-01",
+        "quantidade": 500.0
+      },
+      {
+        "id_mov": 43,
+        "id_lote": 534,
+        "tipo_mov": "ENTRADA",
+        "data_mov": "2020-09-05",
+        "quantidade": 300.0
+      },
+      {
+        "id_mov": 44,
+        "id_lote": 208,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2018-08-19",
+        "quantidade": 100.0
+      },
+      {
+        "id_mov": 45,
+        "id_lote": 206,
+        "tipo_mov": "ENTRADA",
+        "data_mov": "2017-11-16",
+        "quantidade": 500.0
+      },
+      {
+        "id_mov": 46,
+        "id_lote": 528,
+        "tipo_mov": "ENTRADA",
+        "data_mov": "2019-06-25",
+        "quantidade": 300.0
+      },
+      {
+        "id_mov": 47,
+        "id_lote": 629,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2019-11-22",
+        "quantidade": 40.0
+      },
+      {
+        "id_mov": 48,
+        "id_lote": 290,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2021-04-26",
+        "quantidade": 40.0
+      },
+      {
+        "id_mov": 49,
+        "id_lote": 401,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2019-11-22",
+        "quantidade": 100.0
+      },
+      {
+        "id_mov": 50,
+        "id_lote": 220,
+        "tipo_mov": "ENTRADA",
+        "data_mov": "2021-08-18",
+        "quantidade": 1000.0
+      },
+      {
+        "id_mov": 51,
+        "id_lote": 593,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2020-07-30",
+        "quantidade": 100.0
+      },
+      {
+        "id_mov": 52,
+        "id_lote": 268,
+        "tipo_mov": "ENTRADA",
+        "data_mov": "2018-04-01",
+        "quantidade": 600.0
+      },
+      {
+        "id_mov": 53,
+        "id_lote": 426,
+        "tipo_mov": "ENTRADA",
+        "data_mov": "2019-07-17",
+        "quantidade": 25.0
+      },
+      {
+        "id_mov": 54,
+        "id_lote": 290,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2018-04-01",
+        "quantidade": 0.9308
+      },
+      {
+        "id_mov": 55,
+        "id_lote": 378,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2020-11-01",
+        "quantidade": 500.0
+      },
+      {
+        "id_mov": 56,
+        "id_lote": 365,
+        "tipo_mov": "ENTRADA",
+        "data_mov": "2018-11-14",
+        "quantidade": 3.0
+      },
+      {
+        "id_mov": 57,
+        "id_lote": 268,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2018-04-13",
+        "quantidade": 100.0
+      },
+      {
+        "id_mov": 58,
+        "id_lote": 155,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2019-09-20",
+        "quantidade": 320.0
+      },
+      {
+        "id_mov": 59,
+        "id_lote": 213,
+        "tipo_mov": "ENTRADA",
+        "data_mov": "2020-02-25",
+        "quantidade": 1000.0
+      },
+      {
+        "id_mov": 60,
+        "id_lote": 398,
+        "tipo_mov": "ENTRADA",
+        "data_mov": "2021-11-23",
+        "quantidade": 4.0
+      },
+      {
+        "id_mov": 61,
+        "id_lote": 414,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2019-03-14",
+        "quantidade": 5.0
+      },
+      {
+        "id_mov": 62,
+        "id_lote": 622,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2019-08-27",
+        "quantidade": 100.0
+      },
+      {
+        "id_mov": 63,
+        "id_lote": 643,
+        "tipo_mov": "ENTRADA",
+        "data_mov": "2018-04-20",
+        "quantidade": 40.0
+      },
+      {
+        "id_mov": 64,
+        "id_lote": 260,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2020-09-04",
+        "quantidade": 280.0
+      },
+      {
+        "id_mov": 65,
+        "id_lote": 188,
+        "tipo_mov": "ENTRADA",
+        "data_mov": "2021-11-24",
+        "quantidade": 30.0
+      },
+      {
+        "id_mov": 66,
+        "id_lote": 534,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2020-10-08",
+        "quantidade": 100.0
+      },
+      {
+        "id_mov": 67,
+        "id_lote": 506,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2020-08-15",
+        "quantidade": 500.0
+      },
+      {
+        "id_mov": 68,
+        "id_lote": 125,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2021-04-30",
+        "quantidade": 140.0
+      },
+      {
+        "id_mov": 69,
+        "id_lote": 150,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2019-05-30",
+        "quantidade": 1000.0
+      },
+      {
+        "id_mov": 70,
+        "id_lote": 426,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2021-03-31",
+        "quantidade": 5.0
+      },
+      {
+        "id_mov": 71,
+        "id_lote": 459,
+        "tipo_mov": "ENTRADA",
+        "data_mov": "2019-01-18",
+        "quantidade": 1.0
+      },
+      {
+        "id_mov": 72,
+        "id_lote": 210,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2019-08-15",
+        "quantidade": 100.0
+      },
+      {
+        "id_mov": 73,
+        "id_lote": 446,
+        "tipo_mov": "ENTRADA",
+        "data_mov": "2021-03-20",
+        "quantidade": 15.0
+      },
+      {
+        "id_mov": 74,
+        "id_lote": 528,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2019-06-25",
+        "quantidade": 100.0
+      },
+      {
+        "id_mov": 75,
+        "id_lote": 211,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2019-10-19",
+        "quantidade": 100.0
+      },
+      {
+        "id_mov": 76,
+        "id_lote": 573,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2019-08-09",
+        "quantidade": 4.0
+      },
+      {
+        "id_mov": 77,
+        "id_lote": 213,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2020-11-01",
+        "quantidade": 100.0
+      },
+      {
+        "id_mov": 78,
+        "id_lote": 533,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2020-06-30",
+        "quantidade": 200.0
+      },
+      {
+        "id_mov": 79,
+        "id_lote": 132,
+        "tipo_mov": "ENTRADA",
+        "data_mov": "2020-05-23",
+        "quantidade": 1.0
+      },
+      {
+        "id_mov": 80,
+        "id_lote": 349,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2021-04-09",
+        "quantidade": 10.0
+      },
+      {
+        "id_mov": 81,
+        "id_lote": 249,
+        "tipo_mov": "ENTRADA",
+        "data_mov": "2018-04-01",
+        "quantidade": 25.0
+      },
+      {
+        "id_mov": 82,
+        "id_lote": 218,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2021-06-01",
+        "quantidade": 100.0
+      },
+      {
+        "id_mov": 83,
+        "id_lote": 454,
+        "tipo_mov": "ENTRADA",
+        "data_mov": "2020-05-15",
+        "quantidade": 175.0
+      },
+      {
+        "id_mov": 84,
+        "id_lote": 216,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2020-11-01",
+        "quantidade": 100.0
+      },
+      {
+        "id_mov": 85,
+        "id_lote": 622,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2019-09-28",
+        "quantidade": 100.0
+      },
+      {
+        "id_mov": 86,
+        "id_lote": 260,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2021-05-11",
+        "quantidade": 200.0
+      },
+      {
+        "id_mov": 87,
+        "id_lote": 556,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2019-03-12",
+        "quantidade": 600.0
+      },
+      {
+        "id_mov": 88,
+        "id_lote": 204,
+        "tipo_mov": "ENTRADA",
+        "data_mov": "2018-04-01",
+        "quantidade": 12.0
+      },
+      {
+        "id_mov": 89,
+        "id_lote": 129,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2018-07-16",
+        "quantidade": 20.0
+      },
+      {
+        "id_mov": 90,
+        "id_lote": 262,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2021-06-20",
+        "quantidade": 500.0
+      },
+      {
+        "id_mov": 91,
+        "id_lote": 442,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2020-08-09",
+        "quantidade": 10.0
+      },
+      {
+        "id_mov": 92,
+        "id_lote": 574,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2014-04-17",
+        "quantidade": 100.0
+      },
+      {
+        "id_mov": 93,
+        "id_lote": 366,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2021-05-12",
+        "quantidade": 4.0
+      },
+      {
+        "id_mov": 94,
+        "id_lote": 254,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2019-01-29",
+        "quantidade": 80.0
+      },
+      {
+        "id_mov": 95,
+        "id_lote": 654,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2018-09-17",
+        "quantidade": 500.0
+      },
+      {
+        "id_mov": 96,
+        "id_lote": 228,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2020-08-05",
+        "quantidade": 500.0
+      },
+      {
+        "id_mov": 97,
+        "id_lote": 573,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2020-04-19",
+        "quantidade": 30.0
+      },
+      {
+        "id_mov": 98,
+        "id_lote": 254,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2019-03-05",
+        "quantidade": 300.0
+      },
+      {
+        "id_mov": 99,
+        "id_lote": 535,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2020-12-04",
+        "quantidade": 100.0
+      },
+      {
+        "id_mov": 100,
+        "id_lote": 122,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2021-06-13",
+        "quantidade": 530.0
+      },
+      {
+        "id_mov": 101,
+        "id_lote": 168,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2020-08-31",
+        "quantidade": 0.5
+      },
+      {
+        "id_mov": 102,
+        "id_lote": 264,
+        "tipo_mov": "ENTRADA",
+        "data_mov": "2021-08-25",
+        "quantidade": 3000.0
+      },
+      {
+        "id_mov": 103,
+        "id_lote": 150,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2018-08-19",
+        "quantidade": 100.0
+      },
+      {
+        "id_mov": 104,
+        "id_lote": 642,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2021-04-01",
+        "quantidade": 12.0
+      },
+      {
+        "id_mov": 105,
+        "id_lote": 647,
+        "tipo_mov": "ENTRADA",
+        "data_mov": "2018-12-26",
+        "quantidade": 250.0
+      },
+      {
+        "id_mov": 106,
+        "id_lote": 630,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2020-04-19",
+        "quantidade": 10.0
+      },
+      {
+        "id_mov": 107,
+        "id_lote": 643,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2019-11-22",
+        "quantidade": 2.0
+      },
+      {
+        "id_mov": 108,
+        "id_lote": 150,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2019-09-08",
+        "quantidade": 320.0
+      },
+      {
+        "id_mov": 109,
+        "id_lote": 630,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2019-03-09",
+        "quantidade": 5.0
+      },
+      {
+        "id_mov": 110,
+        "id_lote": 454,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2020-08-03",
+        "quantidade": 25.0
+      },
+      {
+        "id_mov": 111,
+        "id_lote": 261,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2021-05-14",
+        "quantidade": 200.0
+      },
+      {
+        "id_mov": 112,
+        "id_lote": 168,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2018-06-16",
+        "quantidade": 0.5
+      },
+      {
+        "id_mov": 113,
+        "id_lote": 254,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2019-03-12",
+        "quantidade": 200.0
+      },
+      {
+        "id_mov": 114,
+        "id_lote": 157,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2016-05-01",
+        "quantidade": 320.0
+      },
+      {
+        "id_mov": 115,
+        "id_lote": 299,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2018-12-14",
+        "quantidade": 40.0
+      },
+      {
+        "id_mov": 116,
+        "id_lote": 357,
+        "tipo_mov": "ENTRADA",
+        "data_mov": "2018-08-07",
+        "quantidade": 1000.0
+      },
+      {
+        "id_mov": 117,
+        "id_lote": 120,
+        "tipo_mov": "ENTRADA",
+        "data_mov": "2020-03-05",
+        "quantidade": 2000.0
+      },
+      {
+        "id_mov": 118,
+        "id_lote": 172,
+        "tipo_mov": "ENTRADA",
+        "data_mov": "2020-03-04",
+        "quantidade": 1.0
+      },
+      {
+        "id_mov": 119,
+        "id_lote": 293,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2017-04-27",
+        "quantidade": 2.0
+      },
+      {
+        "id_mov": 120,
+        "id_lote": 247,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2016-02-19",
+        "quantidade": 2.0
+      },
+      {
+        "id_mov": 121,
+        "id_lote": 366,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2021-01-16",
+        "quantidade": 28.0
+      },
+      {
+        "id_mov": 122,
+        "id_lote": 215,
+        "tipo_mov": "ENTRADA",
+        "data_mov": "2020-11-01",
+        "quantidade": 400.0
+      },
+      {
+        "id_mov": 123,
+        "id_lote": 168,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2021-04-01",
+        "quantidade": 0.1
+      },
+      {
+        "id_mov": 124,
+        "id_lote": 247,
+        "tipo_mov": "ENTRADA",
+        "data_mov": "2018-03-08",
+        "quantidade": 1.0
+      },
+      {
+        "id_mov": 125,
+        "id_lote": 171,
+        "tipo_mov": "ENTRADA",
+        "data_mov": "2019-08-15",
+        "quantidade": 1.0
+      },
+      {
+        "id_mov": 126,
+        "id_lote": 648,
+        "tipo_mov": "ENTRADA",
+        "data_mov": "2018-09-02",
+        "quantidade": 250.0
+      },
+      {
+        "id_mov": 127,
+        "id_lote": 504,
+        "tipo_mov": "ENTRADA",
+        "data_mov": "2021-12-16",
+        "quantidade": 6000.0
+      },
+      {
+        "id_mov": 128,
+        "id_lote": 208,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2018-10-29",
+        "quantidade": 750.0
+      },
+      {
+        "id_mov": 129,
+        "id_lote": 254,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2019-04-18",
+        "quantidade": 100.0
+      },
+      {
+        "id_mov": 130,
+        "id_lote": 630,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2018-04-01",
+        "quantidade": 900.0
+      },
+      {
+        "id_mov": 131,
+        "id_lote": 622,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2019-09-20",
+        "quantidade": 100.0
+      },
+      {
+        "id_mov": 132,
+        "id_lote": 214,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2020-07-28",
+        "quantidade": 100.0
+      },
+      {
+        "id_mov": 133,
+        "id_lote": 177,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2021-09-06",
+        "quantidade": 67.5
+      },
+      {
+        "id_mov": 134,
+        "id_lote": 150,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2019-08-03",
+        "quantidade": 160.0
+      },
+      {
+        "id_mov": 135,
+        "id_lote": 254,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2018-10-09",
+        "quantidade": 40.0
+      },
+      {
+        "id_mov": 136,
+        "id_lote": 565,
+        "tipo_mov": "ENTRADA",
+        "data_mov": "2020-06-09",
+        "quantidade": 4000.0
+      },
+      {
+        "id_mov": 137,
+        "id_lote": 630,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2021-04-01",
+        "quantidade": 5.0
+      },
+      {
+        "id_mov": 138,
+        "id_lote": 319,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2018-05-22",
+        "quantidade": 114.0
+      },
+      {
+        "id_mov": 139,
+        "id_lote": 186,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2019-02-28",
+        "quantidade": 76.0
+      },
+      {
+        "id_mov": 140,
+        "id_lote": 186,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2019-03-27",
+        "quantidade": 24.0
+      },
+      {
+        "id_mov": 141,
+        "id_lote": 623,
+        "tipo_mov": "ENTRADA",
+        "data_mov": "2021-05-14",
+        "quantidade": 1000.0
+      },
+      {
+        "id_mov": 142,
+        "id_lote": 208,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2018-08-08",
+        "quantidade": 100.0
+      },
+      {
+        "id_mov": 143,
+        "id_lote": 374,
+        "tipo_mov": "ENTRADA",
+        "data_mov": "2019-06-25",
+        "quantidade": 500.0
+      },
+      {
+        "id_mov": 144,
+        "id_lote": 320,
+        "tipo_mov": "ENTRADA",
+        "data_mov": "2019-02-12",
+        "quantidade": 100.0
+      },
+      {
+        "id_mov": 145,
+        "id_lote": 455,
+        "tipo_mov": "ENTRADA",
+        "data_mov": "2021-08-30",
+        "quantidade": 125.0
+      },
+      {
+        "id_mov": 146,
+        "id_lote": 122,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2021-05-10",
+        "quantidade": 100.0
+      },
+      {
+        "id_mov": 147,
+        "id_lote": 383,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2021-06-27",
+        "quantidade": 500.0
+      },
+      {
+        "id_mov": 148,
+        "id_lote": 170,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2021-08-18",
+        "quantidade": 2.0
+      },
+      {
+        "id_mov": 149,
+        "id_lote": 622,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2019-05-05",
+        "quantidade": 100.0
+      },
+      {
+        "id_mov": 150,
+        "id_lote": 255,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2020-05-31",
+        "quantidade": 40.0
+      },
+      {
+        "id_mov": 151,
+        "id_lote": 282,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2019-06-02",
+        "quantidade": 1.0
+      },
+      {
+        "id_mov": 152,
+        "id_lote": 345,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2016-05-20",
+        "quantidade": 2.0
+      },
+      {
+        "id_mov": 153,
+        "id_lote": 234,
+        "tipo_mov": "ENTRADA",
+        "data_mov": "2018-03-07",
+        "quantidade": 500.0
+      },
+      {
+        "id_mov": 154,
+        "id_lote": 406,
+        "tipo_mov": "ENTRADA",
+        "data_mov": "2019-01-15",
+        "quantidade": 1000.0
+      },
+      {
+        "id_mov": 155,
+        "id_lote": 557,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2019-09-30",
+        "quantidade": 600.0
+      },
+      {
+        "id_mov": 156,
+        "id_lote": 562,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2019-10-25",
+        "quantidade": 300.0
+      },
+      {
+        "id_mov": 157,
+        "id_lote": 499,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2018-05-19",
+        "quantidade": 500.0
+      },
+      {
+        "id_mov": 158,
+        "id_lote": 232,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2021-06-08",
+        "quantidade": 500.0
+      },
+      {
+        "id_mov": 159,
+        "id_lote": 294,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2017-10-06",
+        "quantidade": 39.0
+      },
+      {
+        "id_mov": 160,
+        "id_lote": 374,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2019-08-03",
+        "quantidade": 500.0
+      },
+      {
+        "id_mov": 161,
+        "id_lote": 520,
+        "tipo_mov": "ENTRADA",
+        "data_mov": "2021-08-18",
+        "quantidade": 500.0
+      },
+      {
+        "id_mov": 162,
+        "id_lote": 282,
+        "tipo_mov": "ENTRADA",
+        "data_mov": "2018-11-20",
+        "quantidade": 2.0
+      },
+      {
+        "id_mov": 163,
+        "id_lote": 622,
+        "tipo_mov": "ENTRADA",
+        "data_mov": "2019-01-30",
+        "quantidade": 4000.0
+      },
+      {
+        "id_mov": 164,
+        "id_lote": 622,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2019-03-14",
+        "quantidade": 1140.0
+      },
+      {
+        "id_mov": 165,
+        "id_lote": 423,
+        "tipo_mov": "ENTRADA",
+        "data_mov": "2019-09-05",
+        "quantidade": 6.0
+      },
+      {
+        "id_mov": 166,
+        "id_lote": 291,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2014-09-24",
+        "quantidade": 7500.0
+      },
+      {
+        "id_mov": 167,
+        "id_lote": 567,
+        "tipo_mov": "ENTRADA",
+        "data_mov": "2020-11-05",
+        "quantidade": 2000.0
+      },
+      {
+        "id_mov": 168,
+        "id_lote": 635,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2018-05-22",
+        "quantidade": 210.0
+      },
+      {
+        "id_mov": 169,
+        "id_lote": 225,
+        "tipo_mov": "ENTRADA",
+        "data_mov": "2019-05-29",
+        "quantidade": 1500.0
+      },
+      {
+        "id_mov": 170,
+        "id_lote": 589,
+        "tipo_mov": "ENTRADA",
+        "data_mov": "2021-08-18",
+        "quantidade": 200.0
+      },
+      {
+        "id_mov": 171,
+        "id_lote": 534,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2020-11-11",
+        "quantidade": 223.0
+      },
+      {
+        "id_mov": 172,
+        "id_lote": 268,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2019-03-13",
+        "quantidade": 100.0
+      },
+      {
+        "id_mov": 173,
+        "id_lote": 254,
+        "tipo_mov": "SAIDA",
+        "data_mov": "2018-09-12",
+        "quantidade": 40.0
+      },
+      {
+        "id_mov": 174,
+        "id_lote": 254,
+        "tipo_mov": "SAIDA",
