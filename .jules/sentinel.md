@@ -12,3 +12,7 @@
 **Vulnerability:** The Fastify server (`server/src/app.ts`) was binding to `0.0.0.0` (all interfaces) by default, exposing the local backend to the entire network. Coupled with a default JWT secret, this created a critical security risk.
 **Learning:** Development tools often prioritize convenience (`0.0.0.0`) over security (`127.0.0.1`). When distributed as part of a portable app or local tool, this exposes users to network attacks.
 **Prevention:** Always bind servers to `127.0.0.1` by default unless external access is explicitly required and secured. Use environment variables (e.g., `HOST`) to allow configuration for advanced use cases.
+## 2026-03-04 - [XSS via document.write in Print Modal]
+**Vulnerability:** XSS vulnerability in `src/components/Modals.tsx` where user-controlled inventory properties (`item.name`, `item.lotNumber`, `item.id`) were interpolated without escaping into a template string passed to `document.write()`.
+**Learning:** Even internal toolings or simple modals that open new windows for printing labels can introduce XSS if they construct raw HTML strings from data fields without escaping.
+**Prevention:** Always use an HTML escaping function (like `escapeHtml`) when interpolating user data into raw HTML templates, especially when using `document.write()` or `dangerouslySetInnerHTML`.
