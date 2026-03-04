@@ -1,33 +1,43 @@
-# Orchestration Plan: LabControl Cleanup & Testing
+# SPFx Migration Plan: LabControl UMV
 
 ## Overview
-This plan addresses the remaining items from the "Cleanup & Restructuring" PRD, focusing on finalizing the testing infrastructure and verifying the architectural changes.
+This document outlines the strategy for migrating the LabControl application from its current architecture to SharePoint Framework (SPFx).
 
-## Phase 1: Environment & Configuration
-**Goal**: Establish a working development environment and configure testing tools.
+## Current Architecture
+- **Runtime:** Electron (Desktop Portable)
+- **Frontend Framework:** React 19, Vite
+- **Storage/Backend:** IndexedDB via Dexie.js (V2 Hybrid Architecture), Better-SQLite3
+- **Data Model:** Highly normalized (Ledger Relacional) with tables for `catalog`, `batches`, `balances`, `history`, `items`.
 
-### Tasks
-1.  **Install Dependencies**: Run `npm install` to ensure all packages are available.
-2.  **Configure Vitest**:
-    - Update `vite.config.ts` or create `vitest.workspace.ts` to support both `jsdom` (Frontend) and `node` (Electron) environments.
-    - Ensure `npm test` runs both test suites.
+## Target Architecture (SPFx)
+- **Runtime:** SharePoint Web Part (runs in browser within SharePoint context)
+- **Frontend Framework:** React (version matching the SPFx toolchain, currently ~v17 or v18), Webpack/Gulp
+- **Storage/Backend:** SharePoint Lists or external Dataverse/SQL via SPFx PnPjs/Graph APIs
+- **Libraries:** `@pnp/sp` (PnPjs) for list operations.
 
-## Phase 2: Test Implementation & Verification
-**Goal**: Implement meaningful tests and verify the system stability.
+## Key Migration Steps
 
-### Tasks
-1.  **Update Electron Tests**:
-    - Rewrite `tests/electron/ipc.test.ts` to test actual IPC logic (mocking `ipcMain`/`ipcRenderer`).
-    - Ensure it runs in the `node` environment.
-2.  **Verify Component Tests**:
-    - confirm `src/components/__tests__/Tooltip.test.tsx` passes in `jsdom` environment.
-3.  **Backend Archival Verification**:
-    - Double-check that `_archive/backend/` contains the legacy code.
-    - Verify no active code references legacy backend files.
+### 1. Build & Tooling Setup
+- The `electron` folder, `vite.config.ts`, `main.cjs` will become obsolete.
+- A new SPFx project must be generated using the Yeoman generator (`yo @microsoft/sharepoint`).
+- Source files from `src/` will be migrated into the SPFx `src/webparts/[WebPartName]/components/` directory.
+- `package.json` will be replaced by the SPFx generated one, requiring a careful merge of UI dependencies (Tailwind, MUI, etc.) ensuring compatibility with the SPFx React version.
 
-## Success Criteria
-- [ ] `npm install` completes successfully.
-- [ ] `npm test` runs and passes all tests.
-- [ ] Electron tests run in `node` environment.
-- [ ] React tests run in `jsdom` environment.
-- [ ] No active references to `backend/GoogleAppsScript.js` remain (except in archive/docs).
+### 2. Storage & Service Layer Migration
+The most significant change is replacing IndexedDB/Dexie with SharePoint Lists.
+- **Data Mapping:**
+  - `catalog` -> SP List: `LabControl_Catalog`
+  - `batches` -> SP List: `LabControl_Batches`
+  - `balances` -> SP List: `LabControl_Balances`
+  - `history` -> SP List: `LabControl_History`
+- **Service Refactoring:**
+  - `src/db.ts` (Dexie configuration) will be removed.
+  - Services like `InventoryService.ts`, `LedgerService.ts` will be rewritten to use PnPjs.
+  - The `processTransaction` atomic operations will need to use SharePoint Batching to ensure data integrity across multiple lists.
+
+### 3. UI Adjustments
+- Verify Material-UI and Tailwind CSS do not conflict with SharePoint's native styles. Scoping or prefixing might be required.
+- Routing (`react-router-dom`) might need to be switched to `HashRouter` or `MemoryRouter` depending on how the web part is intended to be used (Single Page App within a web part vs. multiple web parts).
+
+## Proof of Concept
+A mock service layer (`src/spfx/services/InventoryService.ts`) has been created to demonstrate how the existing `validateItemPayload` and `processTransaction` functions will be structured using theoretical PnPjs patterns instead of Dexie.
