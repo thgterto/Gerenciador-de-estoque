@@ -25,3 +25,7 @@
 ## 2025-02-14 - Unmemoized Hook Functions & Virtual List Performance
 **Learning:** Functions returned from custom hooks (like `toggleGroupExpand` in `useInventoryFilters`) that are recreated on every render will invalidate `itemData` prop passed to `react-window` components, forcing the entire list to re-render even if the underlying data (`flatList`) is stable.
 **Action:** Always wrap functions returned from hooks in `useCallback` if they are passed down to memoized children or used in `useMemo` dependencies, especially when filtering/sorting logic is involved.
+
+## 2026-02-26 - Global Subscription Anti-Pattern
+**Learning:** `HybridStorageManager` was triggering a global update for all subscribers on *any* table change. This caused expensive components (like history charts/grids) to re-fetch and re-render even when unrelated data (e.g. a single item update) changed.
+**Action:** Implemented a targeted subscription system where `emitChange` passes the list of modified tables, allowing subscribers to filter updates (e.g., `if (changedTables.includes('history')) reload()`). This significantly reduces unnecessary processing and renders.

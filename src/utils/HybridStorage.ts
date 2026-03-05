@@ -4,7 +4,7 @@ import type { QStockDB } from '../db';
 
 // --- Interfaces & Types ---
 type ChangeType = 'ADD' | 'UPDATE' | 'DELETE' | 'BULK' | 'BULK_DELETE';
-type Listener = () => void;
+type Listener = (changedTables: string[]) => void;
 
 class HybridTableWrapper<T, TKey> {
   private tableName: string;
@@ -220,20 +220,23 @@ export class HybridStorageManager {
 
   private listeners: Listener[] = [];
   private notifyTimeout: any = null;
+  private changedTables: Set<string> = new Set();
 
   constructor(dexieInstance: QStockDB) {
     this.db = dexieInstance;
-    const notify = () => this.emitChange();
-    this.items = new HybridTableWrapper<InventoryItem, string>('items', this.db.items, 'id', notify);
-    this.history = new HybridTableWrapper<MovementRecord, string>('history', this.db.history, 'id', notify);
-    this.balances = new HybridTableWrapper<StockBalance, string>('balances', this.db.balances, 'id', notify);
+
+    const notify = (table: string) => this.emitChange(table);
+
+    this.items = new HybridTableWrapper<InventoryItem, string>('items', this.db.items, 'id', () => notify('items'));
+    this.history = new HybridTableWrapper<MovementRecord, string>('history', this.db.history, 'id', () => notify('history'));
+    this.balances = new HybridTableWrapper<StockBalance, string>('balances', this.db.balances, 'id', () => notify('balances'));
 
     // Initialize V2 Tables
-    this.catalog = new HybridTableWrapper<CatalogProduct, string>('catalog', this.db.catalog, 'id', notify);
-    this.batches = new HybridTableWrapper<InventoryBatch, string>('batches', this.db.batches, 'id', notify);
-    this.partners = new HybridTableWrapper<BusinessPartner, string>('partners', this.db.partners, 'id', notify);
-    this.storage_locations = new HybridTableWrapper<StorageLocationEntity, string>('storage_locations', this.db.storage_locations, 'id', notify);
-    this.stock_movements = new HybridTableWrapper<StockMovement, string>('stock_movements', this.db.stock_movements, 'id', notify);
+    this.catalog = new HybridTableWrapper<CatalogProduct, string>('catalog', this.db.catalog, 'id', () => notify('catalog'));
+    this.batches = new HybridTableWrapper<InventoryBatch, string>('batches', this.db.batches, 'id', () => notify('batches'));
+    this.partners = new HybridTableWrapper<BusinessPartner, string>('partners', this.db.partners, 'id', () => notify('partners'));
+    this.storage_locations = new HybridTableWrapper<StorageLocationEntity, string>('storage_locations', this.db.storage_locations, 'id', () => notify('storage_locations'));
+    this.stock_movements = new HybridTableWrapper<StockMovement, string>('stock_movements', this.db.stock_movements, 'id', () => notify('stock_movements'));
   }
 
   get rawDb() { return this.db; }
@@ -246,14 +249,19 @@ export class HybridStorageManager {
   }
 
   // DEBOUNCED EMIT: Agrupa notificações múltiplas (ex: em loops) em uma única atualização de UI
-  private emitChange() {
+  private emitChange(tableName: string) {
+    this.changedTables.add(tableName);
+
     if (this.notifyTimeout) clearTimeout(this.notifyTimeout);
     
     this.notifyTimeout = setTimeout(() => {
+        const tables = Array.from(this.changedTables);
+        this.changedTables.clear();
+
         if (this.listeners) {
             this.listeners.forEach(listener => {
                 try {
-                    listener();
+                    listener(tables);
                 } catch (e) {
                     console.warn('[HybridStorage] Listener failed', e);
                 }
