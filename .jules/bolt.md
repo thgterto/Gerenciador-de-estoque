@@ -25,3 +25,7 @@
 ## 2025-02-14 - Unmemoized Hook Functions & Virtual List Performance
 **Learning:** Functions returned from custom hooks (like `toggleGroupExpand` in `useInventoryFilters`) that are recreated on every render will invalidate `itemData` prop passed to `react-window` components, forcing the entire list to re-render even if the underlying data (`flatList`) is stable.
 **Action:** Always wrap functions returned from hooks in `useCallback` if they are passed down to memoized children or used in `useMemo` dependencies, especially when filtering/sorting logic is involved.
+
+## 2025-02-27 - Date Formatting Performance
+**Learning:** Using `Date.prototype.toLocaleDateString` and `toLocaleString` with options creates a new `Intl.DateTimeFormat` instance on every call, which is very expensive (~40x slower) inside loops or render methods.
+**Action:** Always reuse `Intl.DateTimeFormat` instances (e.g., as module-level constants) for date formatting, especially in list components.
