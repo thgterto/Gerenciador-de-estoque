@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { OrbitalInput } from './ui/orbital/OrbitalInput';
 import { OrbitalButton } from './ui/orbital/OrbitalButton';
 import { useAlert } from '../context/AlertContext';
+import { ExcelIntegrationService } from '../services/ExcelIntegrationService';
 import { Send, User, Mail } from 'lucide-react';
 
 export const ExcelIntegrationForm: React.FC = () => {
@@ -21,15 +22,16 @@ export const ExcelIntegrationForm: React.FC = () => {
         setLoading(true);
 
         try {
-            // @ts-expect-error - electronAPI is extended in window
-            const result = await window.electronAPI.request('send_to_excel', { name, email });
+            const result = await ExcelIntegrationService.request('send_to_excel', { name, email });
 
             if (result.success) {
                 addToast('Sucesso', 'success', 'Dados enviados para o Excel via Power Automate.');
                 setName('');
                 setEmail('');
             } else {
-                addToast('Erro no Envio', 'error', result.error || 'Falha desconhecida.');
+                // Handle both error and message fields from service
+                const errorMsg = result.error || result.message || 'Falha desconhecida.';
+                addToast('Erro no Envio', 'error', errorMsg);
             }
         } catch (error: any) {
             console.error('Submit Error:', error);
