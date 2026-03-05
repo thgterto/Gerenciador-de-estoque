@@ -6,7 +6,7 @@ import { InventoryItem, RiskFlags } from '../types';
 let _cachedTodayISO: string = '';
 let _lastCacheTime: number = 0;
 
-const getTodayISO = () => {
+export const getTodayISO = () => {
     const now = Date.now();
     // Cache for 1 minute to avoid re-calculating string on every render/loop
     if (now - _lastCacheTime > 60000 || !_cachedTodayISO) {
@@ -53,17 +53,20 @@ export type ItemStatusResult = {
     icon: string;
 };
 
-// Optimization: Accept 'now' Date object, but prefer string comparison if not provided
-export const getItemStatus = (item: InventoryItem, now?: Date): ItemStatusResult => {
+// Optimization: Accept 'now' as Date (legacy) or string (optimized), defaulting to cached today string
+export const getItemStatus = (item: InventoryItem, now?: Date | string): ItemStatusResult => {
     let isExpired = false;
 
     if (item.expiryDate) {
-        if (now) {
-             // Legacy/Explicit check with Date object
+        if (typeof now === 'string') {
+             // Fastest path: Pre-calculated string comparison
+             isExpired = item.expiryDate < now;
+        } else if (now instanceof Date) {
+             // Legacy/Explicit check with Date object (slower)
              isExpired = new Date(item.expiryDate) < now;
         } else {
-             // Optimization: String comparison is ~10x faster than new Date() parsing
-             // Uses cached 'today' string to avoid allocation
+             // Default optimization: Internal cached string lookup
+             // String comparison is ~10x faster than new Date() parsing
              isExpired = item.expiryDate < getTodayISO();
         }
     }

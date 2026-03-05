@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useCallback } from 'react';
 import { InventoryItem } from '../types';
-import { getItemStatus, ItemStatusResult } from '../utils/businessRules';
+import { getItemStatus, getTodayISO, ItemStatusResult } from '../utils/businessRules';
 import { normalizeStr, defaultCollator } from '../utils/stringUtils';
 import { useDebounce } from './useDebounce';
 
@@ -37,7 +37,7 @@ export const useInventoryFilters = (items: InventoryItem[]) => {
     const baseFilteredItems = useMemo(() => {
         if (!catFilter && !locationFilter && statusFilter === 'ALL' && !hideZeroStock) return items;
 
-        const now = new Date(); // Optimize status check
+        const today = getTodayISO(); // Hoist date string generation
         return items.filter(i => {
             // Filtro de Estoque Zero
             if (hideZeroStock && (i.quantity || 0) <= 0) return false;
@@ -48,7 +48,8 @@ export const useInventoryFilters = (items: InventoryItem[]) => {
 
             // Filtro de Status
             if (statusFilter !== 'ALL') {
-                const status = getItemStatus(i, now);
+                // Optimization: Use hoisted date string for O(1) comparison
+                const status = getItemStatus(i, today);
                 if (statusFilter === 'EXPIRED' && !status.isExpired) return false;
                 if (statusFilter === 'LOW_STOCK' && !status.isLowStock) return false;
                 if (statusFilter === 'OK' && (status.isExpired || status.isLowStock)) return false;
@@ -105,14 +106,15 @@ export const useInventoryFilters = (items: InventoryItem[]) => {
         }
   
         // Processa Status Agregado e Ordenação
-        const now = new Date(); // Reuse date
+        const today = getTodayISO(); // Hoist date string generation
         const result = Object.values(groups).map(grp => {
             let hasExpired = false;
             let hasLowStock = false;
             
             // Verifica status de todos os filhos para resumir o pai
             for (const i of grp.items) {
-                const s = getItemStatus(i, now);
+                // Optimization: Use hoisted string comparison
+                const s = getItemStatus(i, today);
                 if (s.isExpired) hasExpired = true;
                 if (s.isLowStock) hasLowStock = true;
                 if (hasExpired && hasLowStock) break;
@@ -175,9 +177,10 @@ export const useInventoryFilters = (items: InventoryItem[]) => {
     const stats = useMemo(() => {
         let expired = 0;
         let low = 0;
-        const now = new Date(); // Reuse
+        const today = getTodayISO(); // Hoist date string generation
         items.forEach(i => {
-            const status = getItemStatus(i, now);
+            // Optimization: Use hoisted string comparison
+            const status = getItemStatus(i, today);
             if (status.isExpired) expired++;
             if (status.isLowStock) low++;
         });
