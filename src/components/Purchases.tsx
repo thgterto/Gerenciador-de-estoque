@@ -43,9 +43,12 @@ export const Purchases: React.FC<Props> = ({
   // Filter recommendations: Low stock or Expiring
   const recommendations = useMemo(() => {
       if (!items) return [];
+      // Bolt: Cache Date.now() to prevent evaluating it for every item in filter loop
+      const now = Date.now();
       return items.filter(i => {
           const isLow = i.quantity <= i.minStockLevel;
-          const daysToExpiry = i.expiryDate ? Math.ceil((new Date(i.expiryDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)) : 999;
+          // Bolt: Use Date.parse() to avoid allocating new Date objects in loop
+          const daysToExpiry = i.expiryDate ? Math.ceil((Date.parse(i.expiryDate) - now) / (1000 * 60 * 60 * 24)) : 999;
           const isExpiring = daysToExpiry < 30;
           const alreadyInList = purchaseList.some(p => p.id === i.id);
           return (isLow || isExpiring) && !alreadyInList;
@@ -56,6 +59,9 @@ export const Purchases: React.FC<Props> = ({
   const filteredList = useMemo(() => {
       return purchaseList.filter(p => p.name.toLowerCase().includes(searchTerm.toLowerCase()));
   }, [purchaseList, searchTerm]);
+
+  // Bolt: Cache Date.now() for the JSX map loop
+  const now = Date.now();
 
   return (
     <PageContainer scrollable>
@@ -91,7 +97,8 @@ export const Purchases: React.FC<Props> = ({
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 overflow-x-auto pb-2">
                     {recommendations.map(item => {
-                        const daysToExpiry = item.expiryDate ? Math.ceil((new Date(item.expiryDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)) : 999;
+                        // Bolt: Use Date.parse() instead of new Date().getTime()
+                        const daysToExpiry = item.expiryDate ? Math.ceil((Date.parse(item.expiryDate) - now) / (1000 * 60 * 60 * 24)) : 999;
                         const reason = daysToExpiry < 30 ? 'EXPIRING' : 'LOW_STOCK';
                         return (
                             <PurchaseAlertCard 

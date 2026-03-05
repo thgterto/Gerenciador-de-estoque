@@ -84,13 +84,18 @@ export const useReportsAnalytics = (items: InventoryItem[], history: MovementRec
         const next90Days = new Date(today);
         next90Days.setDate(today.getDate() + 90);
 
+        // Bolt: Cache today's timestamp to prevent re-evaluation in map loop
+        const todayTime = today.getTime();
+        const next90DaysTime = next90Days.getTime();
+
         const result = items
-            .filter(i => i.expiryDate && new Date(i.expiryDate) <= next90Days)
-            .sort((a, b) => (a.expiryDate > b.expiryDate ? 1 : -1));
+            .filter(i => i.expiryDate && Date.parse(i.expiryDate) <= next90DaysTime)
+            .sort((a, b) => (Date.parse(a.expiryDate) - Date.parse(b.expiryDate)));
 
         return result.map(i => ({
             ...i,
-            daysRemaining: Math.ceil((new Date(i.expiryDate).getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
+            // Bolt: Use Date.parse() instead of new Date().getTime() to avoid object allocation
+            daysRemaining: Math.ceil((Date.parse(i.expiryDate) - todayTime) / (1000 * 60 * 60 * 24))
         }));
     }, [items]);
 
