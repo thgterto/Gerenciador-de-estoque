@@ -321,8 +321,8 @@ export const TutorialModal: React.FC<Props> = ({ isOpen, onClose, setTab }) => {
                      <span className="text-[10px] font-bold text-orbital-accent bg-orbital-accent/5 border border-orbital-accent/20 px-2.5 py-1 uppercase tracking-wider font-display">
                         Sequence {currentStep + 1} / {steps.length}
                     </span>
-                    <button onClick={handleFinish} className="text-orbital-subtext hover:text-orbital-accent transition-colors">
-                        <X size={16} />
+                    <button onClick={handleFinish} aria-label="Fechar tutorial" className="text-orbital-subtext hover:text-orbital-accent transition-colors">
+                        <X size={16} aria-hidden="true" />
                     </button>
                 </div>
 
