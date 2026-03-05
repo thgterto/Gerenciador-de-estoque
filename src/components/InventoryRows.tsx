@@ -343,12 +343,12 @@ export const InventoryMobileChildRow = React.memo(({
 
     const handleDragEnd = async ( _event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
         const offset = info.offset.x;
-        if (offset < -100) {
-            await controls.start({ x: -100 });
+        if (offset < -80) {
+            await controls.start({ x: -80 });
             onActions.edit(item);
             controls.start({ x: 0 });
-        } else if (offset > 100) {
-            await controls.start({ x: 100 });
+        } else if (offset > 80) {
+            await controls.start({ x: 80 });
             onActions.move(item);
             controls.start({ x: 0 });
         } else {
@@ -370,7 +370,7 @@ export const InventoryMobileChildRow = React.memo(({
              <motion.div
                 drag="x"
                 dragConstraints={{ left: 0, right: 0 }}
-                dragElastic={0.2}
+                dragElastic={0.6}
                 onDragEnd={handleDragEnd}
                 animate={controls}
                 style={{ position: 'relative', zIndex: 10 }}
