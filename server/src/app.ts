@@ -58,8 +58,12 @@ const inventoryController = new InventoryController(
 const authController = new AuthController(registerUser, loginUser);
 
 // Register plugins
+// SECURITY: Restrict CORS to prevent CSRF/DNS Rebinding attacks
+// In production (local tool), we enforce Same-Origin Policy (origin: false).
+// In development, we allow localhost ports used by Vite.
+const isDev = process.env.NODE_ENV === 'development';
 app.register(cors, {
-  origin: '*', // Allow all origins for local tool
+  origin: isDev ? ['http://localhost:5173', 'http://127.0.0.1:5173'] : false,
 });
 
 app.register(jwt, {
