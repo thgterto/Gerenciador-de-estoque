@@ -123,8 +123,8 @@ export const QuickScanModal: React.FC<Props> = ({ isOpen, onClose }) => {
                         {continuousMode ? 'AUTO MODE ACTIVE (-1 OUT)' : 'MANUAL CONFIRMATION MODE'}
                     </p>
                 </div>
-                <button onClick={onClose} className="pointer-events-auto text-orbital-text hover:text-orbital-accent bg-black/50 p-2 border border-orbital-border hover:border-orbital-accent transition-all">
-                    <X size={20} />
+                <button onClick={onClose} aria-label="Fechar scanner" className="pointer-events-auto text-orbital-text hover:text-orbital-accent bg-black/50 p-2 border border-orbital-border hover:border-orbital-accent transition-all">
+                    <X size={20} aria-hidden="true" />
                 </button>
             </div>
 
@@ -208,8 +208,9 @@ export const QuickScanModal: React.FC<Props> = ({ isOpen, onClose }) => {
                                 <div className="flex items-center gap-3">
                                     <button 
                                         className="size-10 border border-orbital-border hover:border-orbital-accent hover:bg-orbital-accent/10 flex items-center justify-center text-xl font-bold text-orbital-text transition-colors"
+                                        aria-label="Diminuir quantidade"
                                         onClick={() => setQuantity(String(Math.max(1, parseFloat(quantity) - 1)))}
-                                    >-</button>
+                                    ><span aria-hidden="true">-</span></button>
                                     <div className="flex-1">
                                          <input 
                                             type="number" 
@@ -220,8 +221,9 @@ export const QuickScanModal: React.FC<Props> = ({ isOpen, onClose }) => {
                                     </div>
                                     <button 
                                         className="size-10 border border-orbital-border hover:border-orbital-accent hover:bg-orbital-accent/10 flex items-center justify-center text-xl font-bold text-orbital-text transition-colors"
+                                        aria-label="Aumentar quantidade"
                                         onClick={() => setQuantity(String(parseFloat(quantity) + 1))}
-                                    >+</button>
+                                    ><span aria-hidden="true">+</span></button>
                                 </div>
                                 <div className="grid grid-cols-2 gap-3">
                                     <OrbitalButton variant="danger" onClick={() => handleManualAction('SAIDA')}>
