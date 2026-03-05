@@ -17,6 +17,6 @@
     "noFallthroughCasesInSwitch": true
   },
   "include": ["src", "tests", "electron/ipcHandlers.d.cts"],
-  "exclude": ["node_modules", "vite.config.ts", "dist", "release"],
+  "exclude": ["node_modules", "vite.config.ts", "dist", "release", "tests/server"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }
