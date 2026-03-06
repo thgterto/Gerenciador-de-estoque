@@ -103,6 +103,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 {/* Footer Actions */}
                 <div className="p-4 bg-orbital-surface border-t border-orbital-border">
                     <button
+                        aria-label="Sincronizar backup manual"
                         onClick={onSync}
                         className="flex items-center gap-3 w-full px-3 py-2 text-orbital-subtext hover:text-orbital-accent hover:bg-orbital-bg transition-colors mb-4 group"
                     >
