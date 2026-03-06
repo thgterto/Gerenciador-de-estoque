@@ -23,6 +23,9 @@ export type FlatListItem =
   | { type: 'GROUP'; id: string; data: InventoryGroup; expanded: boolean }
   | { type: 'ITEM'; id: string; data: InventoryItem; isLast: boolean };
 
+// Cache for normalized search strings to avoid re-computing on every keystroke
+const searchStringCache = new WeakMap<InventoryItem, string>();
+
 export const useInventoryFilters = (items: InventoryItem[]) => {
     const [term, setTerm] = useState('');
     const debouncedTerm = useDebounce(term, 300);
@@ -68,7 +71,11 @@ export const useInventoryFilters = (items: InventoryItem[]) => {
         if (normalizedTerms.length === 0) return baseFilteredItems;
 
         return baseFilteredItems.filter(i => {
-            const itemStr = normalizeStr(`${i.name} ${i.sapCode} ${i.lotNumber} ${i.casNumber || ''}`);
+            let itemStr = searchStringCache.get(i);
+            if (itemStr === undefined) {
+                itemStr = normalizeStr(`${i.name} ${i.sapCode} ${i.lotNumber} ${i.casNumber || ''}`);
+                searchStringCache.set(i, itemStr);
+            }
             return normalizedTerms.every(t => itemStr.includes(t));
         });
     }, [baseFilteredItems, debouncedTerm]);

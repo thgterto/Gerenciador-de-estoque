@@ -25,3 +25,7 @@
 ## 2025-02-14 - Unmemoized Hook Functions & Virtual List Performance
 **Learning:** Functions returned from custom hooks (like `toggleGroupExpand` in `useInventoryFilters`) that are recreated on every render will invalidate `itemData` prop passed to `react-window` components, forcing the entire list to re-render even if the underlying data (`flatList`) is stable.
 **Action:** Always wrap functions returned from hooks in `useCallback` if they are passed down to memoized children or used in `useMemo` dependencies, especially when filtering/sorting logic is involved.
+
+## 2025-03-05 - WeakMap Caching for Filter String Normalization
+**Learning:** Performing multiple Regex-based string replacements via `normalizeStr` on a combined string of properties for thousands of items on every keystroke (even debounced) causes UI lag in large lists. Since item object references are relatively stable during simple filtering, we can cache the expensive computed search string.
+**Action:** Use a module-level `WeakMap<InventoryItem, string>` to cache computed strings for each item object reference. This avoids O(N) recalculations on every render, leveraging memory effectively while preventing leaks.
