@@ -41,11 +41,11 @@ export const BatchInfo: React.FC<BatchInfoProps> = ({
                         startAdornment={
                             <div className="flex gap-1 pr-2">
                                 <button type="button" onClick={onGenerateInternalBatch} aria-label="Gerar Lote" title="Gerar Lote" className="hover:text-orbital-accent p-1">
-                                    <RefreshCw size={14} />
+                                    <RefreshCw size={14} aria-hidden="true" />
                                 </button>
                                 {onScan && (
                                     <button type="button" onClick={() => onScan('lotNumber')} aria-label="Escanear" title="Escanear" className="hover:text-orbital-accent p-1">
-                                        <ScanLine size={14} />
+                                        <ScanLine size={14} aria-hidden="true" />
                                     </button>
                                 )}
                             </div>
