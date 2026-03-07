@@ -25,3 +25,7 @@
 ## 2025-02-14 - Unmemoized Hook Functions & Virtual List Performance
 **Learning:** Functions returned from custom hooks (like `toggleGroupExpand` in `useInventoryFilters`) that are recreated on every render will invalidate `itemData` prop passed to `react-window` components, forcing the entire list to re-render even if the underlying data (`flatList`) is stable.
 **Action:** Always wrap functions returned from hooks in `useCallback` if they are passed down to memoized children or used in `useMemo` dependencies, especially when filtering/sorting logic is involved.
+
+## 2025-02-23 - React.memo Defeat by Inline Functions in Maps
+**Learning:** Passing inline arrow functions (e.g., `toggleExpand={() => toggleGroupExpand(rowItem.data.groupKey)}`) as props directly within a `map` loop creates new function references on every render. This completely defeats the `React.memo` optimization on child components like `InventoryGroupRow`, causing O(N) re-renders of the entire list even when the data itself is stable.
+**Action:** When passing callbacks to `React.memo` wrapped list items, pass the stable reference (like the original `toggleGroupExpand`) and let the child component invoke it with the specific identifier (`groupKey`), rather than wrapping it in an anonymous arrow function inside the parent's map loop.
