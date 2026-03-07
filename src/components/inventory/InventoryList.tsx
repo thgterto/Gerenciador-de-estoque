@@ -48,7 +48,7 @@ const NativeList = ({
                                 group={rowItem.data}
                                 style={style}
                                 isExpanded={rowItem.expanded}
-                                toggleExpand={() => toggleGroupExpand(rowItem.data.groupKey)}
+                                toggleExpand={toggleGroupExpand}
                                 selectedChildIds={selectedIds}
                                 onSelectGroup={handleSelectGroup}
                                 copyToClipboard={copyToClipboard}
@@ -61,7 +61,7 @@ const NativeList = ({
                             style={style}
                             group={rowItem.data}
                             isExpanded={rowItem.expanded}
-                            toggleExpand={() => toggleGroupExpand(rowItem.data.groupKey)}
+                            toggleExpand={toggleGroupExpand}
                             selectedChildIds={selectedIds}
                             onSelectGroup={handleSelectGroup}
                             copyToClipboard={copyToClipboard}
