@@ -214,7 +214,7 @@ export const ItemForm: React.FC<ItemFormProps> = ({
                                     startAdornment={
                                         onScan && (
                                             <button type="button" onClick={() => onScan('sapCode')} aria-label="Escanear Código SAP" className="hover:text-orbital-accent p-1">
-                                                <ScanLine size={16} />
+                                                <ScanLine size={16} aria-hidden="true" />
                                             </button>
                                         )
                                     }
@@ -237,7 +237,7 @@ export const ItemForm: React.FC<ItemFormProps> = ({
                                         disabled={isCasLoading}
                                         startAdornment={
                                             <button type="button" onClick={onCasSearch} disabled={isCasLoading} aria-label="Buscar CAS" className="hover:text-orbital-accent p-1">
-                                                <Search size={16} />
+                                                <Search size={16} aria-hidden="true" />
                                             </button>
                                         }
                                     />
