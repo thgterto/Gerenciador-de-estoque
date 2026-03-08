@@ -12,3 +12,8 @@
 **Vulnerability:** The Fastify server (`server/src/app.ts`) was binding to `0.0.0.0` (all interfaces) by default, exposing the local backend to the entire network. Coupled with a default JWT secret, this created a critical security risk.
 **Learning:** Development tools often prioritize convenience (`0.0.0.0`) over security (`127.0.0.1`). When distributed as part of a portable app or local tool, this exposes users to network attacks.
 **Prevention:** Always bind servers to `127.0.0.1` by default unless external access is explicitly required and secured. Use environment variables (e.g., `HOST`) to allow configuration for advanced use cases.
+
+## 2025-05-26 - DoS Risk via Unbounded Password Hashing
+**Vulnerability:** The `login` and `register` endpoints used Zod schemas to validate `username` and `password` lengths with a `.min()` limit, but they lacked a `.max()` limit. This left the application vulnerable to Denial of Service (DoS) attacks, where an attacker could send an extremely long password string. Since password hashing algorithms like `bcrypt` are intentionally slow, processing very long strings can exhaust server CPU resources and crash the service.
+**Learning:** Always implement maximum length constraints on all user inputs, especially fields that undergo expensive operations like hashing or encryption. A simple `.max(100)` on a password field provides immediate protection against CPU exhaustion without affecting legitimate users.
+**Prevention:** Include `.max()` limits on all Zod string schemas by default. Review all existing input validation to ensure upper bounds are enforced.
