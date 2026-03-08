@@ -8,27 +8,31 @@ export const useDashboardAnalytics = (items: InventoryItem[], history: MovementR
         const now = new Date();
         const todayStr = now.toDateString();
         
+        // Optimize string comparison for dates
+        const nowISO = now.toISOString().split('T')[0];
+        const next30DaysDate = new Date(now);
+        next30DaysDate.setDate(now.getDate() + 30);
+        const next30DaysISO = next30DaysDate.toISOString().split('T')[0];
+
         // 1. Filtragem de Contexto (Global vs Item Único)
         const activeItems = selectedItemId ? items.filter(i => i.id === selectedItemId) : items;
         // Filtrar histórico relevante apenas se um item estiver selecionado, senão usamos tudo
         const activeHistory = selectedItemId ? history.filter(h => h.itemId === selectedItemId) : history;
 
         // 2. KPIs Básicos
-        const next30Days = new Date(now);
-        next30Days.setDate(now.getDate() + 30);
-        
         const lowStockItems = [];
         const expiringItems = [];
         const outOfStockItems = [];
         let totalValue = 0;
 
         for (const item of activeItems) {
-            const status = getItemStatus(item, now);
+            const status = getItemStatus(item); // Omit 'now' to use optimized string comparison
             if (status.isLowStock) lowStockItems.push(item);
             if (status.isExpired) expiringItems.push(item);
             else if (item.expiryDate) {
-                const expDate = new Date(item.expiryDate);
-                if (expDate < next30Days && expDate >= now) expiringItems.push(item);
+                if (item.expiryDate < next30DaysISO && item.expiryDate >= nowISO) {
+                    expiringItems.push(item);
+                }
             }
 
             if (item.quantity <= 0) outOfStockItems.push(item);
@@ -83,8 +87,9 @@ export const useDashboardAnalytics = (items: InventoryItem[], history: MovementR
              startDate.setDate(startDate.getDate() - DAYS_WINDOW);
              startDate.setHours(0,0,0,0);
 
-             // 4.1. Filtrar Movimentações na Janela
-             const windowMovements = activeHistory.filter(h => new Date(h.date) >= startDate);
+             // 4.1. Filtrar Movimentações na Janela (using string comparison instead of new Date parsing)
+             const startDateISO = startDate.toISOString();
+             const windowMovements = activeHistory.filter(h => h.date >= startDateISO);
 
              // 4.2. Calcular Saldo Inicial (Retroativo)
              let netChangeInWindow = 0;
