@@ -1,6 +1,6 @@
 // @ts-nocheck
-/* eslint-disable */
-/* eslint-disable */
+
+
 
 import React, { useState, useEffect } from 'react';
 import { InventoryService } from '../../../services/InventoryService';
