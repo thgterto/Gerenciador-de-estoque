@@ -132,7 +132,7 @@ const NativeHistoryList = ({ filtered, isMobile }: { filtered: MovementRecord[],
     const [visibleCount, setVisibleCount] = useState(50);
 
     useEffect(() => {
-        // eslint-disable-next-line
+
         setVisibleCount(50);
     }, [filtered.length]);
 

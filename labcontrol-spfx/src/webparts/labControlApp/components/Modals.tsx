@@ -234,7 +234,7 @@ export const EditModal: React.FC<EditModalProps> = ({ isOpen, onClose, item, onS
 
   useEffect(() => {
       if (item && (item.id !== editedItem?.id || !isOpen)) {
-          // eslint-disable-next-line
+
           setEditedItem(item);
       }
   }, [item, isOpen, editedItem]);
@@ -309,7 +309,7 @@ export const MovementModal: React.FC<MovementModalProps> = ({ isOpen, onClose, i
 
     useEffect(() => {
         if(isOpen) {
-            // eslint-disable-next-line
+
             if (quantity !== 1) setQuantity(1);
             if (observation !== '') setObservation('');
             if (type !== 'SAIDA') setType('SAIDA');
@@ -414,7 +414,7 @@ export const RequestModal: React.FC<RequestModalProps> = ({ isOpen, onClose, onC
 
     useEffect(() => {
         if(isOpen) {
-             // eslint-disable-next-line
+
              if (selectedId !== '') setSelectedId('');
              if (qty !== 1) setQty(1);
              if (searchTerm !== '') setSearchTerm('');
