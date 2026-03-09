@@ -86,7 +86,8 @@ app.post('/api/inventory/transaction', {
     try {
       await request.jwtVerify();
     } catch (err) {
-      reply.send(err);
+      request.log.error(err);
+      reply.status(401).send({ error: 'Unauthorized', message: 'Invalid or missing authentication token' });
     }
   }]
 }, (req, res) => inventoryController.logTransaction(req, res));
@@ -96,7 +97,8 @@ app.post('/api/inventory/product', {
     try {
       await request.jwtVerify();
     } catch (err) {
-      reply.send(err);
+      request.log.error(err);
+      reply.status(401).send({ error: 'Unauthorized', message: 'Invalid or missing authentication token' });
     }
   }]
 }, (req, res) => inventoryController.saveProduct(req, res));
@@ -108,7 +110,8 @@ app.get('/api/inventory/full', {
     try {
       await request.jwtVerify();
     } catch (err) {
-      reply.send(err);
+      request.log.error(err);
+      reply.status(401).send({ error: 'Unauthorized', message: 'Invalid or missing authentication token' });
     }
   }]
 }, (req, res) => inventoryController.getFullDatabase(req, res));
@@ -118,7 +121,8 @@ app.post('/api/inventory/sync', {
     try {
       await request.jwtVerify();
     } catch (err) {
-      reply.send(err);
+      request.log.error(err);
+      reply.status(401).send({ error: 'Unauthorized', message: 'Invalid or missing authentication token' });
     }
   }]
 }, (req, res) => inventoryController.syncData(req, res));
