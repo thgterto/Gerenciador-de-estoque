@@ -63,17 +63,27 @@ export const useReportsAnalytics = (items: InventoryItem[], history: MovementRec
 
     // 2. Controlled Products Map (Mapa de Controlados)
     const controlledReport = useMemo(() => {
+        // Optimize O(N*M) nested loop into O(N+M) using a Map for history aggregation
+        const historyMap = new Map<string, { entry: number, exit: number }>();
+
+        history.forEach(h => {
+            if (!historyMap.has(h.itemId)) {
+                historyMap.set(h.itemId, { entry: 0, exit: 0 });
+            }
+            const current = historyMap.get(h.itemId)!;
+            if (h.type === 'ENTRADA') current.entry += h.quantity;
+            if (h.type === 'SAIDA') current.exit += h.quantity;
+        });
+
         return items.filter(i => i.isControlled).map(item => {
-            const itemHistory = history.filter(h => h.itemId === item.id);
-            const totalEntry = itemHistory.filter(h => h.type === 'ENTRADA').reduce((acc, h) => acc + h.quantity, 0);
-            const totalExit = itemHistory.filter(h => h.type === 'SAIDA').reduce((acc, h) => acc + h.quantity, 0);
+            const stats = historyMap.get(item.id) || { entry: 0, exit: 0 };
             
             // Assuming initial stock is current - entries + exits is tricky without a snapshot date
             // For a simple report, we show current stock and flow in period
             return {
                 ...item,
-                totalEntry,
-                totalExit
+                totalEntry: stats.entry,
+                totalExit: stats.exit
             };
         });
     }, [items, history]);
