@@ -13,7 +13,9 @@ import { OrbitalButton } from '../ui/orbital/OrbitalButton';
 const GRID_TEMPLATE = "40px minmax(240px, 3fr) 120px minmax(180px, 1.5fr) 100px 100px 130px 110px";
 
 // Native List Component (Handles both Desktop and Mobile via Native Scroll + Pagination)
-const NativeList = ({
+// ⚡ Bolt: Wrapped NativeList in React.memo() to prevent rendering the entire list again
+// unless the items, selection, or specific functions passed to it actually change.
+const NativeList = React.memo(({
     flatList,
     onActions,
     hasRole,
@@ -112,7 +114,7 @@ const NativeList = ({
             )}
         </div>
     );
-};
+});
 
 interface InventoryListProps {
     flatList: any[];
@@ -137,7 +139,9 @@ interface InventoryListProps {
     expandedGroups: Set<string>;
 }
 
-export const InventoryList: React.FC<InventoryListProps> = ({
+// ⚡ Bolt: Added React.memo() to InventoryList to optimize performance. This is a heavy
+// component and avoiding re-renders when parent states unrelated to the list change is crucial.
+export const InventoryList: React.FC<InventoryListProps> = React.memo(({
     flatList,
     isMobile,
     selectedIds,
@@ -209,4 +213,4 @@ export const InventoryList: React.FC<InventoryListProps> = ({
              )}
         </OrbitalCard>
     );
-};
+});
