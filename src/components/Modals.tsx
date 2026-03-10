@@ -103,6 +103,18 @@ interface QRGeneratorModalProps extends ItemModalBaseProps {
     item: Partial<InventoryItem> | null;
 }
 
+// 🛡️ Sentinel: XSS Mitigation
+// Escapes HTML entities to prevent Cross-Site Scripting (XSS) when rendering user input in document.write
+const escapeHtml = (unsafe: string | number | undefined | null): string => {
+    if (unsafe == null) return '';
+    return String(unsafe)
+         .replace(/&/g, "&amp;")
+         .replace(/</g, "&lt;")
+         .replace(/>/g, "&gt;")
+         .replace(/"/g, "&quot;")
+         .replace(/'/g, "&#039;");
+};
+
 export const QRGeneratorModal: React.FC<QRGeneratorModalProps> = ({ isOpen, onClose, item }) => {
     const { addToast } = useAlert();
     
@@ -153,10 +165,15 @@ export const QRGeneratorModal: React.FC<QRGeneratorModalProps> = ({ isOpen, onCl
         const printWindow = window.open('', '', 'width=600,height=400');
         if (printWindow) {
             const svgHtml = document.getElementById('qr-code-svg')?.outerHTML || '';
+            const safeName = escapeHtml(item.name);
+            const safeLot = escapeHtml(item.lotNumber);
+            const safeExpiry = escapeHtml(item.expiryDate ? new Date(item.expiryDate).toLocaleDateString() : 'N/A');
+            const safeId = escapeHtml(item.id);
+
             printWindow.document.write(`
                 <html>
                     <head>
-                        <title>${item.name}</title>
+                        <title>${safeName}</title>
                         <style>
                             @page { size: auto; margin: 0; }
                             body { margin: 0; padding: 10px; font-family: monospace; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; }
@@ -167,10 +184,10 @@ export const QRGeneratorModal: React.FC<QRGeneratorModalProps> = ({ isOpen, onCl
                     </head>
                     <body>
                         <div class="label">
-                            <div class="title">${item.name}</div>
-                            <div class="meta">Lote: ${item.lotNumber} | Val: ${item.expiryDate ? new Date(item.expiryDate).toLocaleDateString() : 'N/A'}</div>
+                            <div class="title">${safeName}</div>
+                            <div class="meta">Lote: ${safeLot} | Val: ${safeExpiry}</div>
                             ${svgHtml}
-                            <div class="meta" style="margin-top: 5px;">${item.id}</div>
+                            <div class="meta" style="margin-top: 5px;">${safeId}</div>
                         </div>
                         <script>setTimeout(() => { window.print(); window.close(); }, 500);</script>
                     </body>
