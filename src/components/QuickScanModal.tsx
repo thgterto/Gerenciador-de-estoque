@@ -207,18 +207,23 @@ export const QuickScanModal: React.FC<Props> = ({ isOpen, onClose }) => {
                             <div className="flex flex-col gap-4">
                                 <div className="flex items-center gap-3">
                                     <button 
+                                        type="button"
+                                        aria-label="Diminuir quantidade"
                                         className="size-10 border border-orbital-border hover:border-orbital-accent hover:bg-orbital-accent/10 flex items-center justify-center text-xl font-bold text-orbital-text transition-colors"
                                         onClick={() => setQuantity(String(Math.max(1, parseFloat(quantity) - 1)))}
                                     >-</button>
                                     <div className="flex-1">
                                          <input 
                                             type="number" 
+                                            aria-label="Quantidade"
                                             value={quantity}
                                             onChange={(e) => setQuantity(e.target.value)}
                                             className="w-full text-center font-bold text-2xl bg-transparent border-b border-orbital-border text-orbital-accent py-1 focus:outline-none focus:border-orbital-accent font-mono"
                                          />
                                     </div>
                                     <button 
+                                        type="button"
+                                        aria-label="Aumentar quantidade"
                                         className="size-10 border border-orbital-border hover:border-orbital-accent hover:bg-orbital-accent/10 flex items-center justify-center text-xl font-bold text-orbital-text transition-colors"
                                         onClick={() => setQuantity(String(parseFloat(quantity) + 1))}
                                     >+</button>
