@@ -153,31 +153,58 @@ export const QRGeneratorModal: React.FC<QRGeneratorModalProps> = ({ isOpen, onCl
     const handlePrint = () => {
         const printWindow = window.open('', '', 'width=600,height=400');
         if (printWindow) {
-            const svgHtml = document.getElementById('qr-code-svg')?.outerHTML || '';
-            printWindow.document.write(`
-                <html>
-                    <head>
-                        <title>${item.name}</title>
-                        <style>
-                            @page { size: auto; margin: 0; }
-                            body { margin: 0; padding: 10px; font-family: monospace; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; }
-                            .label { text-align: center; border: 1px dashed #000; padding: 10px; width: 80mm; }
-                            .title { font-weight: bold; font-size: 14px; margin-bottom: 5px; }
-                            .meta { font-size: 10px; margin-bottom: 5px; }
-                        </style>
-                    </head>
-                    <body>
-                        <div class="label">
-                            <div class="title">${item.name}</div>
-                            <div class="meta">Lote: ${item.lotNumber} | Val: ${item.expiryDate ? new Date(item.expiryDate).toLocaleDateString() : 'N/A'}</div>
-                            ${svgHtml}
-                            <div class="meta" style="margin-top: 5px;">${item.id}</div>
-                        </div>
-                        <script>setTimeout(() => { window.print(); window.close(); }, 500);</script>
-                    </body>
-                </html>
-            `);
-            printWindow.document.close();
+            const svgElement = document.getElementById('qr-code-svg');
+            const svgClone = svgElement ? svgElement.cloneNode(true) : null;
+
+            const doc = printWindow.document;
+            doc.open();
+            // Start a clean document
+            doc.write('<!DOCTYPE html><html><head><title></title><style></style></head><body></body></html>');
+            doc.close();
+
+            doc.title = item.name || 'Etiqueta';
+
+            const style = doc.createElement('style');
+            style.textContent = `
+                @page { size: auto; margin: 0; }
+                body { margin: 0; padding: 10px; font-family: monospace; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; }
+                .label { text-align: center; border: 1px dashed #000; padding: 10px; width: 80mm; }
+                .title { font-weight: bold; font-size: 14px; margin-bottom: 5px; }
+                .meta { font-size: 10px; margin-bottom: 5px; }
+            `;
+            doc.head.appendChild(style);
+
+            const labelDiv = doc.createElement('div');
+            labelDiv.className = 'label';
+
+            const titleDiv = doc.createElement('div');
+            titleDiv.className = 'title';
+            titleDiv.textContent = item.name || '';
+            labelDiv.appendChild(titleDiv);
+
+            const metaDiv1 = doc.createElement('div');
+            metaDiv1.className = 'meta';
+            const expiryStr = item.expiryDate ? new Date(item.expiryDate).toLocaleDateString() : 'N/A';
+            metaDiv1.textContent = `Lote: ${item.lotNumber} | Val: ${expiryStr}`;
+            labelDiv.appendChild(metaDiv1);
+
+            if (svgClone) {
+                labelDiv.appendChild(svgClone);
+            }
+
+            const metaDiv2 = doc.createElement('div');
+            metaDiv2.className = 'meta';
+            metaDiv2.style.marginTop = '5px';
+            metaDiv2.textContent = item.id || '';
+            labelDiv.appendChild(metaDiv2);
+
+            doc.body.appendChild(labelDiv);
+
+            // Print and close
+            setTimeout(() => {
+                printWindow.print();
+                printWindow.close();
+            }, 500);
         }
     };
 
