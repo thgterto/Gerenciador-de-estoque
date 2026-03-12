@@ -87,6 +87,7 @@ export const InventoryChildRow = React.memo(({
                         <QrCode className="text-orbital-subtext" size={14} />
                         <button
                             title={`Lote: ${item.lotNumber}`}
+                            aria-label={`Copiar lote ${item.lotNumber} para a área de transferência`}
                             onClick={() => copyToClipboard(item.lotNumber, 'Lote')}
                             className="font-mono text-xs font-bold text-orbital-text hover:text-orbital-accent transition-colors truncate"
                         >
@@ -207,6 +208,7 @@ export const InventoryGroupRow = React.memo(({
                                  <div className="flex items-center gap-2 mt-0.5">
                                      <button
                                         onClick={(e) => { e.stopPropagation(); copyToClipboard(primaryItem.sapCode, 'SKU'); }}
+                                        aria-label={`Copiar SKU ${primaryItem.sapCode} para a área de transferência`}
                                         className="font-mono text-[10px] text-orbital-subtext hover:text-orbital-accent transition-colors"
                                      >
                                          {primaryItem.sapCode || 'N/A'}
