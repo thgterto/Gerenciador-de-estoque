@@ -7,7 +7,7 @@ import { LoginUser } from '../../use-cases/LoginUser';
 const registerSchema = z.object({
   username: z.string().min(3),
   password: z.string().min(6),
-  role: z.enum(['ADMIN', 'USER']).optional(),
+  // SECURITY: Removed 'role' from user input to prevent privilege escalation
 });
 
 const loginSchema = z.object({
@@ -26,7 +26,7 @@ export class AuthController {
     await this.registerUserUseCase.execute({
       username: body.username,
       password: body.password,
-      role: body.role as 'ADMIN' | 'USER' | undefined,
+      role: 'USER', // SECURITY: Force new registrations to be regular users
     });
     return reply.status(201).send({ message: 'User registered successfully' });
   }
