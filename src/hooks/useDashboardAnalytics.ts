@@ -6,7 +6,6 @@ export const useDashboardAnalytics = (items: InventoryItem[], history: MovementR
     
     const analytics = useMemo(() => {
         const now = new Date();
-        const todayStr = now.toDateString();
         
         // 1. Filtragem de Contexto (Global vs Item Único)
         const activeItems = selectedItemId ? items.filter(i => i.id === selectedItemId) : items;
@@ -54,7 +53,12 @@ export const useDashboardAnalytics = (items: InventoryItem[], history: MovementR
         }
 
         // Processa histórico total para KPIs globais
+        const todayStr = now.toDateString();
+
         for (const h of activeHistory) {
+            // Performance Note: instantiating new Date() in a loop is expensive,
+            // but necessary here to ensure 100% correct local timezone boundaries
+            // (especially for fractional timezones like UTC+05:30)
             const d = new Date(h.date);
             if (d.toDateString() === todayStr) movementsToday++;
             
@@ -84,7 +88,9 @@ export const useDashboardAnalytics = (items: InventoryItem[], history: MovementR
              startDate.setHours(0,0,0,0);
 
              // 4.1. Filtrar Movimentações na Janela
-             const windowMovements = activeHistory.filter(h => new Date(h.date) >= startDate);
+             // Optimization: Compare ISO strings directly instead of creating Date objects
+             const startDateIso = startDate.toISOString();
+             const windowMovements = activeHistory.filter(h => h.date >= startDateIso);
 
              // 4.2. Calcular Saldo Inicial (Retroativo)
              let netChangeInWindow = 0;
@@ -226,8 +232,10 @@ export const useDashboardAnalytics = (items: InventoryItem[], history: MovementR
     // --- RECENT TRANSACTIONS ---
     const recentTransactions = useMemo(() => {
         const targetHistory = selectedItemId ? history.filter(h => h.itemId === selectedItemId) : history;
-        // Optimization: Use string comparison for ISO dates to avoid expensive Date object creation
-        return targetHistory.sort((a, b) => (b.date > a.date ? 1 : -1)).slice(0, 10);
+        // Optimization: Clone array to prevent mutating prop, use strict string comparison
+        return [...targetHistory]
+            .sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0))
+            .slice(0, 10);
     }, [history, selectedItemId]);
 
     return {
