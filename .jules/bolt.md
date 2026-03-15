@@ -25,3 +25,7 @@
 ## 2025-02-14 - Unmemoized Hook Functions & Virtual List Performance
 **Learning:** Functions returned from custom hooks (like `toggleGroupExpand` in `useInventoryFilters`) that are recreated on every render will invalidate `itemData` prop passed to `react-window` components, forcing the entire list to re-render even if the underlying data (`flatList`) is stable.
 **Action:** Always wrap functions returned from hooks in `useCallback` if they are passed down to memoized children or used in `useMemo` dependencies, especially when filtering/sorting logic is involved.
+
+## 2025-02-14 - Expensive Date Instantiation in Loops and Silent Array Mutation
+**Learning:** Iterating over large arrays (like transaction history) and instantiating `new Date(item.date)` for each item creates enormous memory and CPU overhead. Furthermore, executing `.sort()` directly on a reference to a prop array mutates it in place, which can cause subtle side effects elsewhere.
+**Action:** For ISO 8601 date strings, extract components using `substring` or `startsWith`, or perform direct string comparison `a.date < b.date` (which requires returning proper `-1, 0, 1` instead of `boolean`) to avoid object instantiation. Always copy arrays `[...arr]` before applying destructive operations like `.sort()` inside React `useMemo` or render logic.
