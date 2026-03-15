@@ -12,3 +12,8 @@
 **Vulnerability:** The Fastify server (`server/src/app.ts`) was binding to `0.0.0.0` (all interfaces) by default, exposing the local backend to the entire network. Coupled with a default JWT secret, this created a critical security risk.
 **Learning:** Development tools often prioritize convenience (`0.0.0.0`) over security (`127.0.0.1`). When distributed as part of a portable app or local tool, this exposes users to network attacks.
 **Prevention:** Always bind servers to `127.0.0.1` by default unless external access is explicitly required and secured. Use environment variables (e.g., `HOST`) to allow configuration for advanced use cases.
+
+## 2025-05-26 - XSS in Window.print() and Scanner False Positives
+**Vulnerability:** The `QRGeneratorModal` used `document.write` to generate a printable view, interpolating unescaped properties like `item.name`. This is a classic XSS vector if item names contain malicious HTML/JS. Also, our security scanner incorrectly flagged `RegExp.exec()` and `better-sqlite3`'s `.exec()` as code injection risks.
+**Learning:** `document.write` is extremely dangerous and easily forgotten when creating popup windows for printing. Even internal/trusted data should be escaped. Additionally, simple regex-based security scanners are prone to false positives with common method names like `exec`. Do not blindly replace `exec()` to silence a scanner, as it may break functionality (e.g. replacing `sqlite.exec()` with `sqlite.prepare().run()` breaks multi-statement execution).
+**Prevention:** Always sanitize data before interpolating it into HTML strings, even for temporary windows. Evaluate scanner findings critically and ignore false positives rather than introducing destructive changes to silence them.
