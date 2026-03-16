@@ -25,3 +25,7 @@
 ## 2025-02-14 - Unmemoized Hook Functions & Virtual List Performance
 **Learning:** Functions returned from custom hooks (like `toggleGroupExpand` in `useInventoryFilters`) that are recreated on every render will invalidate `itemData` prop passed to `react-window` components, forcing the entire list to re-render even if the underlying data (`flatList`) is stable.
 **Action:** Always wrap functions returned from hooks in `useCallback` if they are passed down to memoized children or used in `useMemo` dependencies, especially when filtering/sorting logic is involved.
+
+## 2025-02-15 - Date Comparison Inside Large Loops
+**Learning:** Creating `Date` objects inside loops (like calculating inventory status via `new Date(item.expiryDate) < now`) causes massive garbage collection overhead and slows down `useMemo` filtering of large arrays.
+**Action:** When repeatedly comparing an ISO date string against "today", calculate "today" as an ISO string once *outside* the loop (e.g., `new Date().toISOString().split('T')[0]`) and use string comparison (`<`) instead of date instantiation.
