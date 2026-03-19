@@ -40,7 +40,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       if (target && target.pass === pass) {
           const newUser: User = {
-              id: Math.random().toString(36).substr(2, 9),
+              id: crypto.randomUUID(),
               username: username,
               name: target.name,
               role: target.role,
