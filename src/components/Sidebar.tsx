@@ -67,6 +67,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                                 to={item.path}
                                 className={({ isActive }) => `
                                     flex items-center gap-3 px-3 py-2.5 rounded-none transition-all duration-200 group relative
+                                    focus-visible:ring-2 focus-visible:-outline-offset-2 focus-visible:ring-orbital-accent focus:outline-none
                                     ${isActive
                                         ? 'bg-orbital-accent/10 text-orbital-accent'
                                         : 'text-orbital-subtext hover:text-orbital-text hover:bg-orbital-surface'}
@@ -104,7 +105,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 <div className="p-4 bg-orbital-surface border-t border-orbital-border">
                     <button
                         onClick={onSync}
-                        className="flex items-center gap-3 w-full px-3 py-2 text-orbital-subtext hover:text-orbital-accent hover:bg-orbital-bg transition-colors mb-4 group"
+                        className="flex items-center gap-3 w-full px-3 py-2 text-orbital-subtext hover:text-orbital-accent hover:bg-orbital-bg transition-colors mb-4 group rounded focus-visible:ring-2 focus-visible:-outline-offset-2 focus-visible:ring-orbital-accent focus:outline-none"
                     >
                         <RefreshCw size={18} className="group-hover:rotate-180 transition-transform duration-500" />
                         <div className="text-left">
@@ -127,7 +128,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                         </div>
                         <button
                             onClick={onLogout}
-                            className="p-2 text-orbital-subtext hover:text-orbital-danger hover:bg-orbital-danger/10 rounded transition-colors"
+                            className="p-2 text-orbital-subtext hover:text-orbital-danger hover:bg-orbital-danger/10 rounded transition-colors focus-visible:ring-2 focus-visible:-outline-offset-2 focus-visible:ring-orbital-danger focus:outline-none"
                             title="Sair"
                             aria-label="Sair"
                         >
