@@ -19,8 +19,18 @@ export const OrbitalCard: React.FC<OrbitalCardProps> = ({
 }) => {
     return (
         <div
-            className={`card-orbital ${className} ${onClick ? 'cursor-pointer hover:bg-orbital-accent/5' : ''}`}
+            className={`card-orbital ${className} ${onClick ? 'cursor-pointer hover:bg-orbital-accent/5 focus-visible:ring-2 focus-visible:ring-orbital-accent focus:outline-none' : ''}`}
             onClick={onClick}
+            {...(onClick ? {
+                role: "button",
+                tabIndex: 0,
+                onKeyDown: (e: React.KeyboardEvent<HTMLDivElement>) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        onClick();
+                    }
+                }
+            } : {})}
         >
             {/* Decorative Corner Markers */}
             <div className="absolute top-0 right-0 w-3 h-3 border-t-2 border-r-2 border-orbital-accent/30 rounded-bl-lg" />
