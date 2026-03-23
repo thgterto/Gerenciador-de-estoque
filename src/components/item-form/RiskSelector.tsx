@@ -25,18 +25,21 @@ export const RiskSelector: React.FC<RiskSelectorProps> = ({ risks, onChange }) =
                     const isChecked = risks?.[ghs.key] || false;
                     return (
                         <Tooltip key={ghs.key} content={ghs.label}>
-                            <div
+                            <button
+                                type="button"
                                 onClick={() => toggleRisk(ghs.key)}
+                                aria-label={ghs.label}
+                                aria-pressed={isChecked}
                                 className={`
-                                    w-9 h-9 flex items-center justify-center rounded border transition-all cursor-pointer
+                                    w-9 h-9 flex items-center justify-center rounded border transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orbital-accent
                                     ${isChecked
                                         ? 'bg-orbital-danger/20 border-orbital-danger text-orbital-danger shadow-[0_0_10px_rgba(255,50,50,0.3)]'
                                         : 'bg-orbital-surface border-orbital-border text-orbital-subtext hover:border-orbital-danger hover:text-orbital-danger'
                                     }
                                 `}
                             >
-                                <span className="material-symbols-outlined text-[20px]">{ghs.icon}</span>
-                            </div>
+                                <span className="material-symbols-outlined text-[20px]" aria-hidden="true">{ghs.icon}</span>
+                            </button>
                         </Tooltip>
                     );
                 })}
