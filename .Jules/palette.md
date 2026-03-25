@@ -9,3 +9,7 @@
 ## 2025-05-25 - Explicit Labels for Touch Targets
 **Learning:** Helper components for mobile actions (like `MobileActionBtn`) often get created without `label` props, assuming icons are self-explanatory. This creates barriers for screen reader users on mobile where hover tooltips don't exist.
 **Action:** Enforce a `label` prop on all mobile-specific action button components and map it to both `title` (for long-press) and `aria-label`.
+
+## 2026-03-24 - Skip-to-Content Navigation
+**Learning:** React SPAs often lack native skip-to-content links. This makes it frustrating for keyboard/screen reader users to navigate because they have to tab through the entire sidebar/header on every page view or component reload.
+**Action:** Add a visually hidden "Skip to main content" (`sr-only`) link that becomes visible on focus (`focus:not-sr-only`). The link should target the `<main>` element, which needs `tabIndex={-1}` and `outline-none` so it can receive programmatic focus without displaying an ugly default focus ring.
