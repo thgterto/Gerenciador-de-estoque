@@ -190,7 +190,7 @@ export const generateInventoryId = (sap: string, name: string, lot: string): str
         return `NOSAP-${nameHash}-${cLot}`;
     }
 
-    return `UNK-${Date.now()}-${Math.floor(Math.random() * 100000)}`;
+    return `UNK-${Date.now()}-${crypto.randomUUID().substring(0, 8)}`;
 };
 
 export const generateHash = (str: string): string => {
