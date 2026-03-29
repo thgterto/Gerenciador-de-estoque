@@ -57,7 +57,8 @@ export const InventoryService = {
   async getHistory(): Promise<MovementRecord[]> {
     const history = await db.history.toArray();
     // Optimization: Use string comparison for ISO dates to avoid expensive Date object creation
-    return history.sort((a, b) => (b.date > a.date ? 1 : -1));
+    // ⚡ Bolt: Use spread operator [...history] to avoid mutating HybridTableWrapper internal cache
+    return [...history].sort((a, b) => (b.date > a.date ? 1 : -1));
   },
 
   async getDashboardMetrics() {
