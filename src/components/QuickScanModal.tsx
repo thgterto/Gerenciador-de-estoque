@@ -209,19 +209,22 @@ export const QuickScanModal: React.FC<Props> = ({ isOpen, onClose }) => {
                                     <button 
                                         className="size-10 border border-orbital-border hover:border-orbital-accent hover:bg-orbital-accent/10 flex items-center justify-center text-xl font-bold text-orbital-text transition-colors"
                                         onClick={() => setQuantity(String(Math.max(1, parseFloat(quantity) - 1)))}
-                                    >-</button>
+                                        aria-label="Diminuir quantidade"
+                                    ><span aria-hidden="true">-</span></button>
                                     <div className="flex-1">
                                          <input 
                                             type="number" 
                                             value={quantity}
                                             onChange={(e) => setQuantity(e.target.value)}
                                             className="w-full text-center font-bold text-2xl bg-transparent border-b border-orbital-border text-orbital-accent py-1 focus:outline-none focus:border-orbital-accent font-mono"
+                                            aria-label="Quantidade"
                                          />
                                     </div>
                                     <button 
                                         className="size-10 border border-orbital-border hover:border-orbital-accent hover:bg-orbital-accent/10 flex items-center justify-center text-xl font-bold text-orbital-text transition-colors"
                                         onClick={() => setQuantity(String(parseFloat(quantity) + 1))}
-                                    >+</button>
+                                        aria-label="Aumentar quantidade"
+                                    ><span aria-hidden="true">+</span></button>
                                 </div>
                                 <div className="grid grid-cols-2 gap-3">
                                     <OrbitalButton variant="danger" onClick={() => handleManualAction('SAIDA')}>
