@@ -153,30 +153,60 @@ export const QRGeneratorModal: React.FC<QRGeneratorModalProps> = ({ isOpen, onCl
         const printWindow = window.open('', '', 'width=600,height=400');
         if (printWindow) {
             const svgHtml = document.getElementById('qr-code-svg')?.outerHTML || '';
-            printWindow.document.write(`
-                <html>
-                    <head>
-                        <title>${item.name}</title>
-                        <style>
-                            @page { size: auto; margin: 0; }
-                            body { margin: 0; padding: 10px; font-family: monospace; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; }
-                            .label { text-align: center; border: 1px dashed #000; padding: 10px; width: 80mm; }
-                            .title { font-weight: bold; font-size: 14px; margin-bottom: 5px; }
-                            .meta { font-size: 10px; margin-bottom: 5px; }
-                        </style>
-                    </head>
-                    <body>
-                        <div class="label">
-                            <div class="title">${item.name}</div>
-                            <div class="meta">Lote: ${item.lotNumber} | Val: ${item.expiryDate ? new Date(item.expiryDate).toLocaleDateString() : 'N/A'}</div>
-                            ${svgHtml}
-                            <div class="meta" style="margin-top: 5px;">${item.id}</div>
-                        </div>
-                        <script>setTimeout(() => { window.print(); window.close(); }, 500);</script>
-                    </body>
-                </html>
-            `);
-            printWindow.document.close();
+
+            // SECURITY FIX: Use DOM manipulation to prevent XSS in print window
+            const safeName = item.name || '';
+            const safeLot = item.lotNumber || '';
+            const safeDate = item.expiryDate ? new Date(item.expiryDate).toLocaleDateString() : 'N/A';
+            const safeId = item.id || '';
+
+            printWindow.document.title = safeName;
+
+            const style = printWindow.document.createElement('style');
+            style.textContent = `
+                @page { size: auto; margin: 0; }
+                body { margin: 0; padding: 10px; font-family: monospace; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; }
+                .label { text-align: center; border: 1px dashed #000; padding: 10px; width: 80mm; }
+                .title { font-weight: bold; font-size: 14px; margin-bottom: 5px; }
+                .meta { font-size: 10px; margin-bottom: 5px; }
+            `;
+            printWindow.document.head.appendChild(style);
+
+            const bodyDiv = printWindow.document.createElement('div');
+            bodyDiv.className = 'label';
+
+            const titleDiv = printWindow.document.createElement('div');
+            titleDiv.className = 'title';
+            titleDiv.textContent = safeName;
+
+            const metaDiv1 = printWindow.document.createElement('div');
+            metaDiv1.className = 'meta';
+            metaDiv1.textContent = `Lote: ${safeLot} | Val: ${safeDate}`;
+
+            const svgWrapper = printWindow.document.createElement('div');
+            // svgHtml is strictly output from react-qr-code, which is safe SVG XML
+            const parser = new DOMParser();
+            const svgDoc = parser.parseFromString(svgHtml, 'image/svg+xml');
+            if (svgDoc.documentElement.nodeName === 'svg') {
+                 // Clone the element so we can insert it into the new document properly
+                 // since some browsers restrict appending nodes from other documents
+                 const svgNode = printWindow.document.importNode(svgDoc.documentElement, true);
+                 svgWrapper.appendChild(svgNode);
+            }
+
+            const metaDiv2 = printWindow.document.createElement('div');
+            metaDiv2.className = 'meta';
+            metaDiv2.style.marginTop = '5px';
+            metaDiv2.textContent = safeId;
+
+            bodyDiv.appendChild(titleDiv);
+            bodyDiv.appendChild(metaDiv1);
+            bodyDiv.appendChild(svgWrapper);
+            bodyDiv.appendChild(metaDiv2);
+
+            printWindow.document.body.appendChild(bodyDiv);
+
+            setTimeout(() => { printWindow.print(); printWindow.close(); }, 500);
         }
     };
 
