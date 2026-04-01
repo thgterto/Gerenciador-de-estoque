@@ -211,7 +211,7 @@ export const QuickScanModal: React.FC<Props> = ({ isOpen, onClose }) => {
                                         onClick={() => setQuantity(String(Math.max(1, parseFloat(quantity) - 1)))}
                                     >-</button>
                                     <div className="flex-1">
-                                         <input 
+                                         <input aria-label="Quantidade"
                                             type="number" 
                                             value={quantity}
                                             onChange={(e) => setQuantity(e.target.value)}

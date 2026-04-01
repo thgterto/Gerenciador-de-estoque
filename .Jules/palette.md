@@ -9,3 +9,7 @@
 ## 2025-05-25 - Explicit Labels for Touch Targets
 **Learning:** Helper components for mobile actions (like `MobileActionBtn`) often get created without `label` props, assuming icons are self-explanatory. This creates barriers for screen reader users on mobile where hover tooltips don't exist.
 **Action:** Enforce a `label` prop on all mobile-specific action button components and map it to both `title` (for long-press) and `aria-label`.
+
+## 2025-05-26 - Screen Reader Language Considerations
+**Learning:** Adding a "Skip to main content" link is a great a11y practice. However, when the rest of the application is localized in a different language (e.g. Portuguese), ensure the skip link text is also localized (e.g. "Pular para o conteúdo principal"). Screen readers use the language defined in the HTML tag to pronounce text, so an English string in a Portuguese document might sound incorrect or confusing.
+**Action:** Always match the language of the application when adding new accessible names, labels, or skip links.

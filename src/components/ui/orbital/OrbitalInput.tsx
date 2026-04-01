@@ -34,7 +34,7 @@ export const OrbitalInput = forwardRef<HTMLInputElement, OrbitalInputProps>(({
                         {startAdornment || leftIcon}
                     </div>
                 )}
-                <input
+                <input aria-label={props.label || props.placeholder || "Campo de texto"}
                     ref={ref}
                     className={`
                         w-full bg-orbital-bg/50 border-b border-orbital-border
