@@ -1,6 +1,6 @@
 
 
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useRef } from 'react';
 import { InventoryItem } from '../types';
 import { getItemStatus, ItemStatusResult } from '../utils/businessRules';
 import { normalizeStr, defaultCollator } from '../utils/stringUtils';
@@ -31,6 +31,9 @@ export const useInventoryFilters = (items: InventoryItem[]) => {
     const [statusFilter, setStatusFilter] = useState<StatusFilterType>('ALL');
     const [hideZeroStock, setHideZeroStock] = useState(false);
     const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
+
+    // Cache for normalized item strings to avoid redundant expensive recalculations
+    const searchCacheRef = useRef<WeakMap<InventoryItem, string>>(new WeakMap());
 
     // --- 1. Pré-processamento de Filtros Base (Rápido) ---
     // Filtra primeiro por categorias/status que são comparadores diretos
@@ -68,8 +71,12 @@ export const useInventoryFilters = (items: InventoryItem[]) => {
         if (normalizedTerms.length === 0) return baseFilteredItems;
 
         return baseFilteredItems.filter(i => {
-            const itemStr = normalizeStr(`${i.name} ${i.sapCode} ${i.lotNumber} ${i.casNumber || ''}`);
-            return normalizedTerms.every(t => itemStr.includes(t));
+            let itemStr = searchCacheRef.current.get(i);
+            if (!itemStr) {
+                itemStr = normalizeStr(`${i.name} ${i.sapCode} ${i.lotNumber} ${i.casNumber || ''}`);
+                searchCacheRef.current.set(i, itemStr);
+            }
+            return normalizedTerms.every(t => itemStr!.includes(t));
         });
     }, [baseFilteredItems, debouncedTerm]);
 
