@@ -150,6 +150,16 @@ export const QRGeneratorModal: React.FC<QRGeneratorModalProps> = ({ isOpen, onCl
         }
     };
 
+    const escapeHTML = (str: string | undefined | null) => {
+        if (!str) return '';
+        return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    };
+
     const handlePrint = () => {
         const printWindow = window.open('', '', 'width=600,height=400');
         if (printWindow) {
@@ -157,7 +167,7 @@ export const QRGeneratorModal: React.FC<QRGeneratorModalProps> = ({ isOpen, onCl
             printWindow.document.write(`
                 <html>
                     <head>
-                        <title>${item.name}</title>
+                        <title>${escapeHTML(item.name)}</title>
                         <style>
                             @page { size: auto; margin: 0; }
                             body { margin: 0; padding: 10px; font-family: monospace; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; }
@@ -168,10 +178,10 @@ export const QRGeneratorModal: React.FC<QRGeneratorModalProps> = ({ isOpen, onCl
                     </head>
                     <body>
                         <div class="label">
-                            <div class="title">${item.name}</div>
-                            <div class="meta">Lote: ${item.lotNumber} | Val: ${item.expiryDate ? new Date(item.expiryDate).toLocaleDateString() : 'N/A'}</div>
+                            <div class="title">${escapeHTML(item.name)}</div>
+                            <div class="meta">Lote: ${escapeHTML(item.lotNumber)} | Val: ${item.expiryDate ? new Date(item.expiryDate).toLocaleDateString() : 'N/A'}</div>
                             ${svgHtml}
-                            <div class="meta" style="margin-top: 5px;">${item.id}</div>
+                            <div class="meta" style="margin-top: 5px;">${escapeHTML(item.id)}</div>
                         </div>
                         <script>setTimeout(() => { window.print(); window.close(); }, 500);</script>
                     </body>
