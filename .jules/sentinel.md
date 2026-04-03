@@ -12,3 +12,8 @@
 **Vulnerability:** The Fastify server (`server/src/app.ts`) was binding to `0.0.0.0` (all interfaces) by default, exposing the local backend to the entire network. Coupled with a default JWT secret, this created a critical security risk.
 **Learning:** Development tools often prioritize convenience (`0.0.0.0`) over security (`127.0.0.1`). When distributed as part of a portable app or local tool, this exposes users to network attacks.
 **Prevention:** Always bind servers to `127.0.0.1` by default unless external access is explicitly required and secured. Use environment variables (e.g., `HOST`) to allow configuration for advanced use cases.
+
+## 2024-04-03 - Cross-Site Scripting (XSS) via document.write in Print Modals
+**Vulnerability:** The QR code print modals (`src/components/Modals.tsx` and `labcontrol-spfx/src/webparts/labControlApp/components/Modals.tsx`) were using `document.write` to generate HTML content, directly injecting user-controlled data (`item.name`, `item.lotNumber`, etc.) without sanitization.
+**Learning:** Even internal or seemingly benign print operations can be vectors for XSS if they construct raw HTML strings using untrusted input. The scanner correctly identified `document.write` as a risky pattern.
+**Prevention:** Always sanitize user-provided variables before injecting them into HTML strings, even for temporary or print-only windows. Use an `escapeHtml` utility or similar mechanism to encode special characters.
