@@ -414,7 +414,7 @@ const ActionBtn = ({ onClick, title, icon }: any) => (
         onClick={(e) => { e.stopPropagation(); onClick(); }}
         title={title}
         aria-label={title}
-        className="p-1.5 text-orbital-subtext hover:text-orbital-accent hover:bg-orbital-accent/10 rounded transition-all duration-200"
+        className="p-1.5 text-orbital-subtext hover:text-orbital-accent hover:bg-orbital-accent/10 rounded transition-all duration-200 focus-visible:ring-2 focus-visible:ring-orbital-accent focus:outline-none"
     >
         <span aria-hidden="true" className="flex items-center justify-center">
             {icon}
@@ -427,7 +427,7 @@ const MobileActionBtn = ({ onClick, icon, label }: any) => (
         onClick={onClick}
         title={label}
         aria-label={label}
-        className="flex items-center justify-center p-2 rounded text-orbital-subtext hover:text-orbital-text hover:bg-orbital-bg transition-colors"
+        className="flex items-center justify-center p-2 rounded text-orbital-subtext hover:text-orbital-text hover:bg-orbital-bg transition-colors focus-visible:ring-2 focus-visible:ring-orbital-accent focus:outline-none"
     >
         <span aria-hidden="true" className="flex items-center justify-center">
             {icon}

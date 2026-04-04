@@ -1,11 +1,3 @@
-## 2025-05-23 - Accessibility of Icon Buttons
-**Learning:** When using icon fonts (like Material Symbols) in buttons, simply adding `aria-label` to the button isn't enough. Screen readers may still try to read the ligature text (e.g., "content_copy") which is confusing.
-**Action:** Always add `aria-hidden="true"` to the icon element itself when an accessible label (visible text or `aria-label`) is provided.
-
-## 2025-05-24 - Mobile Accessibility Parity
-**Learning:** Mobile views often strip away `Tooltip` components (which are hover-based). This leaves icon-only buttons completely inaccessible to screen readers on touch devices unless explicit `aria-label` attributes are added.
-**Action:** Always verify mobile-specific components (like `InventoryMobileChildRow`) and ensure they have `aria-label`s on icon buttons, even if the desktop equivalent relies on `Tooltip` for context.
-
-## 2025-05-25 - Explicit Labels for Touch Targets
-**Learning:** Helper components for mobile actions (like `MobileActionBtn`) often get created without `label` props, assuming icons are self-explanatory. This creates barriers for screen reader users on mobile where hover tooltips don't exist.
-**Action:** Enforce a `label` prop on all mobile-specific action button components and map it to both `title` (for long-press) and `aria-label`.
+## YYYY-MM-DD - Interactive Modal and Row Actions Accessibility
+**Learning:** Icon-only buttons in modals (like QuickScan) and table row actions are prone to missing ARIA attributes. Toggle buttons (like IN/OUT) also often lack `aria-pressed` states for screen readers. Using `focus-visible:ring-2 focus-visible:ring-orbital-accent focus:outline-none` is an effective pattern to standardize keyboard focus feedback in this UI without disrupting mouse users.
+**Action:** Always add `aria-label` to icon-only buttons, `aria-pressed` to stateful toggles, `aria-hidden="true"` to pure decorative icons inside buttons, and explicit `focus-visible` ring styling for keyboard navigation clarity.
