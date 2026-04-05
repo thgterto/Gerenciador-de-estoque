@@ -9,3 +9,7 @@
 ## 2025-05-25 - Explicit Labels for Touch Targets
 **Learning:** Helper components for mobile actions (like `MobileActionBtn`) often get created without `label` props, assuming icons are self-explanatory. This creates barriers for screen reader users on mobile where hover tooltips don't exist.
 **Action:** Enforce a `label` prop on all mobile-specific action button components and map it to both `title` (for long-press) and `aria-label`.
+
+## 2025-05-26 - Tactile Feedback in Mobile Web Views
+**Learning:** Mobile navigation items that only change color or scale on route change feel unresponsive during the actual tap interaction, lacking the native app feel. Screen readers may also read both the icon's generic label and the short UI label redundantly.
+**Action:** Apply `active:scale-95` to touch targets to provide immediate visual feedback. Add full `aria-label`s to navigation links and use `aria-hidden="true"` on their child icons and abbreviated text labels to prevent redundant screen reader announcements.
