@@ -117,14 +117,14 @@ export const QuickScanModal: React.FC<Props> = ({ isOpen, onClose }) => {
             <div className="absolute top-0 left-0 right-0 z-20 p-4 flex justify-between items-start bg-gradient-to-b from-black/90 to-transparent pointer-events-none">
                 <div className="flex flex-col pointer-events-auto">
                     <h3 className="text-orbital-accent font-bold text-lg font-display tracking-widest uppercase flex items-center gap-2">
-                        <QrCode size={18} /> SCANNER
+                        <QrCode size={18} aria-hidden="true" /> SCANNER
                     </h3>
                     <p className="text-orbital-subtext text-[10px] font-mono uppercase mt-1">
                         {continuousMode ? 'AUTO MODE ACTIVE (-1 OUT)' : 'MANUAL CONFIRMATION MODE'}
                     </p>
                 </div>
-                <button onClick={onClose} className="pointer-events-auto text-orbital-text hover:text-orbital-accent bg-black/50 p-2 border border-orbital-border hover:border-orbital-accent transition-all">
-                    <X size={20} />
+                <button onClick={onClose} aria-label="Fechar scanner" className="pointer-events-auto text-orbital-text hover:text-orbital-accent bg-black/50 p-2 border border-orbital-border hover:border-orbital-accent transition-all">
+                    <X size={20} aria-hidden="true" />
                 </button>
             </div>
 

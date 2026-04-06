@@ -427,10 +427,11 @@ const MobileActionBtn = ({ onClick, icon, label }: any) => (
         onClick={onClick}
         title={label}
         aria-label={label}
-        className="flex items-center justify-center p-2 rounded text-orbital-subtext hover:text-orbital-text hover:bg-orbital-bg transition-colors"
+        className="flex flex-col items-center justify-center p-2 gap-1 rounded text-orbital-subtext hover:text-orbital-text hover:bg-orbital-bg transition-colors"
     >
         <span aria-hidden="true" className="flex items-center justify-center">
             {icon}
         </span>
+        <span className="text-[10px] font-medium leading-none">{label}</span>
     </button>
 );
