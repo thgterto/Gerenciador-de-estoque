@@ -144,11 +144,11 @@ interface GroupRowProps {
     group: InventoryGroup;
     style: React.CSSProperties;
     isExpanded: boolean;
-    toggleExpand: () => void;
-    selectedChildIds: Set<string>;
-    onSelectGroup: (groupIds: string[], checked: boolean) => void;
-    // getCategoryIcon removed as it was unused/hardcoded
-    copyToClipboard: (text: string, label: string) => void;
+    toggleExpand: (key: string) => void;
+    allSelected?: boolean;
+    someSelected?: boolean;
+    onSelectGroup?: (groupIds: string[], checked: boolean) => void;
+    copyToClipboard?: (text: string, label: string) => void;
 }
 
 export const InventoryGroupRow = React.memo(({ 
@@ -156,13 +156,12 @@ export const InventoryGroupRow = React.memo(({
     style,
     isExpanded, 
     toggleExpand, 
-    selectedChildIds,
+    allSelected = false,
+    someSelected = false,
     onSelectGroup,
     copyToClipboard
 }: GroupRowProps) => {
     const { primaryItem, totalQuantity, aggregatedStatus, items } = group;
-    const allSelected = items.every(i => selectedChildIds.has(i.id));
-    const someSelected = items.some(i => selectedChildIds.has(i.id));
 
     return (
         <div style={style}>
@@ -171,7 +170,7 @@ export const InventoryGroupRow = React.memo(({
                     h-full border-b border-orbital-border cursor-pointer transition-colors duration-200 group
                     ${isExpanded ? 'bg-orbital-accent/5' : 'bg-orbital-bg hover:bg-orbital-surface'}
                 `}
-                onClick={toggleExpand}
+                onClick={() => toggleExpand(group.groupKey)}
             >
                 <div
                     className="grid items-center h-full px-4"
@@ -187,7 +186,7 @@ export const InventoryGroupRow = React.memo(({
                             ref={input => {
                                 if (input) input.indeterminate = someSelected && !allSelected;
                             }}
-                            onChange={(e) => onSelectGroup(items.map(i => i.id), e.target.checked)}
+                            onChange={(e) => onSelectGroup?.(items.map(i => i.id), e.target.checked)}
                         />
                     </div>
 
@@ -206,7 +205,7 @@ export const InventoryGroupRow = React.memo(({
                                  </div>
                                  <div className="flex items-center gap-2 mt-0.5">
                                      <button
-                                        onClick={(e) => { e.stopPropagation(); copyToClipboard(primaryItem.sapCode, 'SKU'); }}
+                                        onClick={(e) => { e.stopPropagation(); copyToClipboard?.(primaryItem.sapCode, 'SKU'); }}
                                         className="font-mono text-[10px] text-orbital-subtext hover:text-orbital-accent transition-colors"
                                      >
                                          {primaryItem.sapCode || 'N/A'}
@@ -274,14 +273,13 @@ export const InventoryMobileGroupRow = React.memo(({
     style, 
     isExpanded, 
     toggleExpand,
-    // getCategoryIcon removed
 }: GroupRowProps) => {
     const { primaryItem, totalQuantity, aggregatedStatus, items } = group;
 
     return (
         <div style={style} className="px-3 pt-3 pb-1">
             <div
-                onClick={toggleExpand}
+                onClick={() => toggleExpand(group.groupKey)}
                 className={`
                     rounded border transition-all duration-200 overflow-hidden active:scale-[0.99]
                     ${isExpanded
