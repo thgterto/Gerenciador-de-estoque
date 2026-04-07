@@ -4,16 +4,23 @@ import { getItemStatus } from '../utils/businessRules';
 
 export const useDashboardAnalytics = (items: InventoryItem[], history: MovementRecord[], selectedItemId?: string) => {
     
-    const analytics = useMemo(() => {
+    // ⚡ Bolt Optimization: Split single massive useMemo into targeted hooks.
+    // Why: Prevents expensive operations (like history bucketing or pareto sorting) from recalculating when unrelated inputs change.
+
+    // 1. Filtragem de Contexto (Global vs Item Único)
+    const activeItems = useMemo(() => {
+        return selectedItemId ? items.filter(i => i.id === selectedItemId) : items;
+    }, [items, selectedItemId]);
+
+    const activeHistory = useMemo(() => {
+        return selectedItemId ? history.filter(h => h.itemId === selectedItemId) : history;
+    }, [history, selectedItemId]);
+
+    // 2. KPIs Básicos (Depends on items and history, but only active lists)
+    const kpis = useMemo(() => {
         const now = new Date();
         const todayStr = now.toDateString();
         
-        // 1. Filtragem de Contexto (Global vs Item Único)
-        const activeItems = selectedItemId ? items.filter(i => i.id === selectedItemId) : items;
-        // Filtrar histórico relevante apenas se um item estiver selecionado, senão usamos tudo
-        const activeHistory = selectedItemId ? history.filter(h => h.itemId === selectedItemId) : history;
-
-        // 2. KPIs Básicos
         const next30Days = new Date(now);
         next30Days.setDate(now.getDate() + 30);
         
@@ -39,8 +46,26 @@ export const useDashboardAnalytics = (items: InventoryItem[], history: MovementR
             }
         }
 
-        // 3. Gráfico de Área (Visão Global - Saídas Mensais)
         let movementsToday = 0;
+        for (const h of activeHistory) {
+            const d = new Date(h.date);
+            if (d.toDateString() === todayStr) movementsToday++;
+        }
+
+        return {
+            totalItems: activeItems.length,
+            lowStockItems,
+            expiringItems,
+            outOfStockItems,
+            movementsToday,
+            totalValue
+        };
+    }, [activeItems, activeHistory]);
+
+    // 3. Gráfico de Área (Visão Global - Saídas Mensais)
+    // ⚡ Bolt Optimization: Only recalculates when history changes, skipping item updates
+    const chartData = useMemo(() => {
+        const now = new Date();
         const monthNames = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
         const buckets = new Map<string, number>(); 
         const xLabels: string[] = [];
@@ -53,12 +78,10 @@ export const useDashboardAnalytics = (items: InventoryItem[], history: MovementR
             xLabels.push(monthNames[d.getMonth()]);
         }
 
-        // Processa histórico total para KPIs globais
+        // Processa histórico total
         for (const h of activeHistory) {
-            const d = new Date(h.date);
-            if (d.toDateString() === todayStr) movementsToday++;
-            
             if (h.type === 'SAIDA') {
+                const d = new Date(h.date);
                 const key = `${d.getFullYear()}-${d.getMonth()}`;
                 if (buckets.has(key)) {
                     buckets.set(key, (buckets.get(key) || 0) + h.quantity);
@@ -66,10 +89,12 @@ export const useDashboardAnalytics = (items: InventoryItem[], history: MovementR
             }
         }
 
-        const yData = Array.from(buckets.values());
+        return { xData: xLabels, yData: Array.from(buckets.values()) };
+    }, [activeHistory]);
 
-        // --- 4. LÓGICA DE WATERFALL (Saldo Acumulado Diário) ---
-        // Apenas calculada se um item específico estiver selecionado
+    // --- 4. LÓGICA DE WATERFALL (Saldo Acumulado Diário) ---
+    // ⚡ Bolt Optimization: Isolated from pareto and basic KPI updates
+    const waterfallData = useMemo(() => {
         let wSeries: any[] = [];
         const wColors: string[] = [];
         
@@ -164,8 +189,12 @@ export const useDashboardAnalytics = (items: InventoryItem[], history: MovementR
              wSeries = [{ data: dataPoints }];
         }
 
-        // --- 5. PARETO (ABC Analysis) ---
-        // Group items by Category and sum their value
+        return { wSeries, wColors };
+    }, [activeItems, activeHistory, selectedItemId]);
+
+    // --- 5. PARETO (ABC Analysis) ---
+    // ⚡ Bolt Optimization: Only depends on activeItems, independent of history updates
+    const paretoData = useMemo(() => {
         const categoryMap = new Map<string, number>();
         activeItems.forEach(item => {
             if (item.category && item.quantity > 0 && item.unitCost) {
@@ -180,33 +209,19 @@ export const useDashboardAnalytics = (items: InventoryItem[], history: MovementR
         const totalParetoValue = sortedCategories.reduce((acc, curr) => acc + curr[1], 0);
 
         let accumulatedValue = 0;
-        const paretoData: any[] = [];
+        const data: any[] = [];
 
         sortedCategories.slice(0, 10).forEach(([category, value]) => {
             accumulatedValue += value;
-            paretoData.push({
+            data.push({
                 category,
                 value,
                 accumulatedPercentage: totalParetoValue > 0 ? Math.round((accumulatedValue / totalParetoValue) * 100) : 0
             });
         });
 
-        return {
-            kpis: {
-                totalItems: activeItems.length,
-                lowStockItems,
-                expiringItems,
-                outOfStockItems,
-                movementsToday,
-                totalValue
-            },
-            chartData: { xData: xLabels, yData },
-            waterfallSeries: wSeries,
-            waterfallColors: wColors,
-            paretoData
-        };
-
-    }, [items, history, selectedItemId]);
+        return data;
+    }, [activeItems]);
 
     // --- CATEGORIES STATS ---
     const categoryStats = useMemo(() => {
@@ -231,12 +246,12 @@ export const useDashboardAnalytics = (items: InventoryItem[], history: MovementR
     }, [history, selectedItemId]);
 
     return {
-        ...analytics.kpis,
+        ...kpis,
         categoryStats,
         recentTransactions,
-        chartData: analytics.chartData,
-        waterfallSeries: analytics.waterfallSeries,
-        waterfallColors: analytics.waterfallColors,
-        paretoData: analytics.paretoData
+        chartData,
+        waterfallSeries: waterfallData.wSeries,
+        waterfallColors: waterfallData.wColors,
+        paretoData
     };
 };
