@@ -151,6 +151,22 @@ interface GroupRowProps {
     copyToClipboard: (text: string, label: string) => void;
 }
 
+const areGroupPropsEqual = (prev: GroupRowProps, next: GroupRowProps) => {
+    if (prev.group !== next.group) return false;
+    if (prev.isExpanded !== next.isExpanded) return false;
+    if (prev.style !== next.style) return false;
+
+    // Check if the selection state of any item in THIS group has changed
+    const items = prev.group.items;
+    for (let i = 0; i < items.length; i++) {
+        const id = items[i].id;
+        if (prev.selectedChildIds.has(id) !== next.selectedChildIds.has(id)) {
+            return false;
+        }
+    }
+    return true;
+};
+
 export const InventoryGroupRow = React.memo(({ 
     group, 
     style,
@@ -267,13 +283,16 @@ export const InventoryGroupRow = React.memo(({
             </div>
         </div>
     );
-});
+}, areGroupPropsEqual);
 
 export const InventoryMobileGroupRow = React.memo(({ 
     group, 
     style, 
     isExpanded, 
     toggleExpand,
+    selectedChildIds,
+    onSelectGroup,
+    copyToClipboard
     // getCategoryIcon removed
 }: GroupRowProps) => {
     const { primaryItem, totalQuantity, aggregatedStatus, items } = group;
@@ -327,7 +346,7 @@ export const InventoryMobileGroupRow = React.memo(({
             </div>
         </div>
     );
-});
+}, areGroupPropsEqual);
 
 export const InventoryMobileChildRow = React.memo(({ 
     item, 
