@@ -37,7 +37,8 @@ const getTypeBadge = (type: string) => {
     return <OrbitalBadge variant="warning" label="Ajuste" />;
 };
 
-const HistoryMobileRow = ({ item }: { item: MovementRecord }) => {
+// ⚡ Bolt: Memoize HistoryMobileRow to prevent unnecessary re-renders when parent list updates
+const HistoryMobileRow = React.memo(({ item }: { item: MovementRecord }) => {
     const amountColor = item.type === 'ENTRADA' ? 'text-orbital-success' : item.type === 'SAIDA' ? 'text-orbital-danger' : 'text-orbital-warning';
     const sign = item.type === 'ENTRADA' ? '+' : item.type === 'SAIDA' ? '-' : '';
 
@@ -73,9 +74,10 @@ const HistoryMobileRow = ({ item }: { item: MovementRecord }) => {
             )}
         </div>
     );
-};
+});
 
-const HistoryRow = ({ item }: { item: MovementRecord }) => {
+// ⚡ Bolt: Memoize HistoryRow to prevent unnecessary re-renders when parent list updates
+const HistoryRow = React.memo(({ item }: { item: MovementRecord }) => {
     const amountColor = item.type === 'ENTRADA' ? 'text-orbital-success' : item.type === 'SAIDA' ? 'text-orbital-danger' : 'text-orbital-warning';
     const sign = item.type === 'ENTRADA' ? '+' : item.type === 'SAIDA' ? '-' : '';
 
@@ -125,9 +127,10 @@ const HistoryRow = ({ item }: { item: MovementRecord }) => {
           </div>
       </div>
     );
-};
+});
 
-const NativeHistoryList = ({ filtered, isMobile }: { filtered: MovementRecord[], isMobile: boolean }) => {
+// ⚡ Bolt: Memoize NativeHistoryList to prevent re-rendering entire list when HistoryTable's stats or other non-list state updates
+const NativeHistoryList = React.memo(({ filtered, isMobile }: { filtered: MovementRecord[], isMobile: boolean }) => {
     const [visibleCount, setVisibleCount] = useState(50);
 
     useEffect(() => {
@@ -159,7 +162,7 @@ const NativeHistoryList = ({ filtered, isMobile }: { filtered: MovementRecord[],
             )}
         </div>
     );
-};
+});
 
 export const HistoryTable: React.FC<Props> = ({ preselectedItemId, preselectedBatchId, onClearFilter }) => {
   const {
