@@ -12,3 +12,8 @@
 **Vulnerability:** The Fastify server (`server/src/app.ts`) was binding to `0.0.0.0` (all interfaces) by default, exposing the local backend to the entire network. Coupled with a default JWT secret, this created a critical security risk.
 **Learning:** Development tools often prioritize convenience (`0.0.0.0`) over security (`127.0.0.1`). When distributed as part of a portable app or local tool, this exposes users to network attacks.
 **Prevention:** Always bind servers to `127.0.0.1` by default unless external access is explicitly required and secured. Use environment variables (e.g., `HOST`) to allow configuration for advanced use cases.
+
+## 2024-04-10 - [CORS Misconfiguration on Local Tools]
+**Vulnerability:** The local development and tool server Fastify instance was configured to accept requests from all origins (`origin: '*'`).
+**Learning:** For local applications exposing APIs on localhost, permissive CORS allows any malicious website visited by the user to perform Server-Side Request Forgery and data exfiltration against the local tool interface. Even if a tool is local and not exposed to the public internet, cross-origin restrictions are crucial.
+**Prevention:** Always restrict CORS origins to the strict local frontend paths (`http://localhost:5173`, etc.) and provide an environment variable override for remote deployments, never defaulting to wildcard `*`.
