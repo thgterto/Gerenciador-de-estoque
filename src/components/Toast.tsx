@@ -14,6 +14,8 @@ export const ToastContainer: React.FC = () => {
             {toasts.map((toast) => (
                 <div
                     key={toast.id}
+                    role="alert"
+                    aria-live="assertive"
                     className={`
                         pointer-events-auto
                         flex items-start gap-3 p-4 rounded-none border shadow-2xl backdrop-blur-md
@@ -44,6 +46,7 @@ export const ToastContainer: React.FC = () => {
                     <button
                         onClick={() => removeToast(toast.id)}
                         className="shrink-0 opacity-70 hover:opacity-100 transition-opacity"
+                        aria-label="Close notification"
                     >
                         <X size={16} />
                     </button>
