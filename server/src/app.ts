@@ -141,6 +141,10 @@ const start = async () => {
     // Start server
     const port = config.port;
     // SECURITY: Bind to localhost to prevent network exposure of local tool
+    if (config.host === '0.0.0.0') {
+      console.warn('WARNING: Server is bound to 0.0.0.0, which exposes it to the network. This is insecure for a local application. Defaulting to 127.0.0.1.');
+      config.host = '127.0.0.1';
+    }
     await app.listen({ port, host: config.host });
     console.log(`Server running at http://${config.host}:${port}`);
   } catch (err) {
