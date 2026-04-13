@@ -9,3 +9,7 @@
 ## 2025-05-25 - Explicit Labels for Touch Targets
 **Learning:** Helper components for mobile actions (like `MobileActionBtn`) often get created without `label` props, assuming icons are self-explanatory. This creates barriers for screen reader users on mobile where hover tooltips don't exist.
 **Action:** Enforce a `label` prop on all mobile-specific action button components and map it to both `title` (for long-press) and `aria-label`.
+
+## 2026-04-13 - Decorative Icons in Navigation
+**Learning:** Icons in navigation items and action buttons often lack `aria-hidden="true"`, which causes screen readers to redundantly announce them along with the visible text or `aria-label`. This creates a noisy and confusing experience.
+**Action:** Always add `aria-hidden="true"` to decorative icons (e.g., in sidebars, buttons, and headers) that accompany an accessible label (visible text or `aria-label`).
