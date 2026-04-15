@@ -37,7 +37,10 @@ const getTypeBadge = (type: string) => {
     return <OrbitalBadge variant="warning" label="Ajuste" />;
 };
 
-const HistoryMobileRow = ({ item }: { item: MovementRecord }) => {
+// ⚡ Bolt Optimization: Added React.memo to prevent unnecessary re-renders of history rows.
+// Impact: Reduces React rendering time when the parent NativeHistoryList updates (e.g. when 'visibleCount' changes via "Carregar Mais").
+// Measurement: Profile React renders when loading more items. Rows that haven't changed will not re-render.
+const HistoryMobileRow = React.memo(({ item }: { item: MovementRecord }) => {
     const amountColor = item.type === 'ENTRADA' ? 'text-orbital-success' : item.type === 'SAIDA' ? 'text-orbital-danger' : 'text-orbital-warning';
     const sign = item.type === 'ENTRADA' ? '+' : item.type === 'SAIDA' ? '-' : '';
 
@@ -73,9 +76,11 @@ const HistoryMobileRow = ({ item }: { item: MovementRecord }) => {
             )}
         </div>
     );
-};
+});
 
-const HistoryRow = ({ item }: { item: MovementRecord }) => {
+// ⚡ Bolt Optimization: Added React.memo to prevent unnecessary re-renders of history rows.
+// Impact: Prevents O(N) row re-renders when only new rows are added to the list.
+const HistoryRow = React.memo(({ item }: { item: MovementRecord }) => {
     const amountColor = item.type === 'ENTRADA' ? 'text-orbital-success' : item.type === 'SAIDA' ? 'text-orbital-danger' : 'text-orbital-warning';
     const sign = item.type === 'ENTRADA' ? '+' : item.type === 'SAIDA' ? '-' : '';
 
@@ -125,7 +130,7 @@ const HistoryRow = ({ item }: { item: MovementRecord }) => {
           </div>
       </div>
     );
-};
+});
 
 const NativeHistoryList = ({ filtered, isMobile }: { filtered: MovementRecord[], isMobile: boolean }) => {
     const [visibleCount, setVisibleCount] = useState(50);
