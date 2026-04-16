@@ -234,10 +234,12 @@ export const HistoryTable: React.FC<Props> = ({ preselectedItemId, preselectedBa
                             </span>
                         </div>
                         <button
+                            type="button"
                             onClick={onClearFilter}
                             className="text-orbital-accent hover:text-white hover:bg-orbital-accent/20 rounded p-1 transition-colors"
+                            aria-label="Clear filter"
                         >
-                            <X size={16} />
+                            <X size={16} aria-hidden="true" />
                         </button>
                     </div>
                 )}

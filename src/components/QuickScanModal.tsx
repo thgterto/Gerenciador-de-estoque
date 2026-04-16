@@ -123,8 +123,8 @@ export const QuickScanModal: React.FC<Props> = ({ isOpen, onClose }) => {
                         {continuousMode ? 'AUTO MODE ACTIVE (-1 OUT)' : 'MANUAL CONFIRMATION MODE'}
                     </p>
                 </div>
-                <button onClick={onClose} className="pointer-events-auto text-orbital-text hover:text-orbital-accent bg-black/50 p-2 border border-orbital-border hover:border-orbital-accent transition-all">
-                    <X size={20} />
+                <button type="button" onClick={onClose} className="pointer-events-auto text-orbital-text hover:text-orbital-accent bg-black/50 p-2 border border-orbital-border hover:border-orbital-accent transition-all" aria-label="Close scanner">
+                    <X size={20} aria-hidden="true" />
                 </button>
             </div>
 
