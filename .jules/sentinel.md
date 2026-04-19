@@ -12,3 +12,8 @@
 **Vulnerability:** The Fastify server (`server/src/app.ts`) was binding to `0.0.0.0` (all interfaces) by default, exposing the local backend to the entire network. Coupled with a default JWT secret, this created a critical security risk.
 **Learning:** Development tools often prioritize convenience (`0.0.0.0`) over security (`127.0.0.1`). When distributed as part of a portable app or local tool, this exposes users to network attacks.
 **Prevention:** Always bind servers to `127.0.0.1` by default unless external access is explicitly required and secured. Use environment variables (e.g., `HOST`) to allow configuration for advanced use cases.
+
+## 2025-05-26 - Hardcoded JWT Secret
+**Vulnerability:** The `jwtSecret` configuration in `server/src/config.ts` fell back to a hardcoded string `supersecret_change_me_in_prod` if `JWT_SECRET` environment variable was not set.
+**Learning:** Hardcoded fallback secrets defeat the purpose of environment variables if they are ever relied upon in production environments. An attacker can forge JWT tokens with the hardcoded secret, completely compromising the authentication system.
+**Prevention:** Generate a cryptographically secure random secret on startup if an environment variable is not provided, or immediately crash/throw an error if in a production environment.
