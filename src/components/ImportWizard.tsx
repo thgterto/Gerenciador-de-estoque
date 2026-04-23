@@ -339,7 +339,7 @@ export const ImportWizard: React.FC<Props> = ({ isOpen, onClose, mode }) => {
                     <div className="h-full flex flex-col items-center justify-center overflow-y-auto">
                         {isUpload ? (
                             <div className="w-full max-w-2xl h-64 flex flex-col items-center justify-center border border-dashed border-orbital-border bg-orbital-surface hover:bg-orbital-accent/5 transition-colors relative group cursor-pointer">
-                                <input type="file" onChange={handleFileUpload} className="absolute inset-0 opacity-0 cursor-pointer z-10" accept=".xlsx,.xls,.csv,.xlsm" />
+                                <input type="file" onChange={handleFileUpload} className="absolute inset-0 opacity-0 cursor-pointer z-10" accept=".xlsx,.xls,.csv,.xlsm" aria-label="Selecionar arquivo da planilha" />
                                 <div className="text-orbital-accent mb-4 group-hover:scale-110 transition-transform">
                                     <Upload size={48} strokeWidth={1} />
                                 </div>
@@ -557,7 +557,7 @@ export const ImportWizard: React.FC<Props> = ({ isOpen, onClose, mode }) => {
                                                 onChange={e => setUpdateStockBalance(e.target.checked)}
                                                 className="mt-1 appearance-none w-4 h-4 border border-orbital-accent checked:bg-orbital-accent cursor-pointer"
                                             />
-                                            <label htmlFor="updateStock" className="cursor-pointer">
+                                            <label htmlFor="updateStock" className="text-sm cursor-pointer">
                                                 <span className="text-sm font-bold text-orbital-text uppercase tracking-wide">Update Stock Balances</span>
                                                 <p className="text-xs text-orbital-subtext font-mono">
                                                     Recalculates item balances based on these history records.

@@ -4,9 +4,11 @@ import { InventoryItem, StockTransactionDTO } from '../../types';
 const sp = {
     web: {
         lists: {
+            // @ts-expect-error Mock implementation
             getByTitle: (title: string) => ({
                 items: {
                     add: async (item: any) => ({ data: { ...item, Id: Math.floor(Math.random() * 1000) } }),
+                    // @ts-expect-error Mock implementation
                     getById: (id: number) => ({
                         update: async (item: any) => ({ data: item })
                     })
@@ -41,7 +43,9 @@ export class SPFxInventoryService {
             const batch = sp.web.createBatch();
 
             // 1. Determine lists
+            // @ts-expect-error Mock implementation
             const historyList = sp.web.lists.getByTitle("LabControl_History");
+            // @ts-expect-error Mock implementation
             const balancesList = sp.web.lists.getByTitle("LabControl_Balances");
 
             // 2. Add History Record to Batch
