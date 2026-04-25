@@ -86,9 +86,9 @@ export const ExcelSetupModal: React.FC<ExcelSetupModalProps> = ({ isOpen, onClos
                                 <pre>{scriptCode}</pre>
                                 <button
                                     onClick={handleCopyScript}
-                                    className="absolute top-2 right-2 p-2 bg-orbital-bg border border-orbital-border rounded hover:bg-orbital-accent/20 transition-colors"
+                                    className="absolute top-2 right-2 p-2 bg-orbital-bg border border-orbital-border rounded hover:bg-orbital-accent/20 transition-colors" aria-label="Copiar script"
                                 >
-                                    {copied ? <Check size={14} className="text-green-400"/> : <Copy size={14} />}
+                                    {copied ? <Check size={14} className="text-green-400" aria-hidden="true" /> : <Copy size={14} aria-hidden="true" />}
                                 </button>
                             </div>
                         </div>
