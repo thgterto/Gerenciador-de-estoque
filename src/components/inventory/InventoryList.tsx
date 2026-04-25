@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { memo, useMemo, useRef, useEffect, forwardRef } from 'react';
 import { OrbitalCard } from '../ui/orbital/OrbitalCard';
 import { EmptyState } from '../ui/EmptyState';
 import {
@@ -8,111 +8,128 @@ import {
     InventoryMobileChildRow
 } from '../InventoryRows';
 import { UserRole } from '../../types';
-import { OrbitalButton } from '../ui/orbital/OrbitalButton';
+import AutoSizer from 'react-virtualized-auto-sizer';
+import { VariableSizeList as List } from 'react-window';
 
 const GRID_TEMPLATE = "40px minmax(240px, 3fr) 120px minmax(180px, 1.5fr) 100px 100px 130px 110px";
 
-// Native List Component (Handles both Desktop and Mobile via Native Scroll + Pagination)
-const NativeList = ({
-    flatList,
-    onActions,
-    hasRole,
-    handleSelectRow,
-    toggleGroupExpand,
-    selectedIds,
-    handleSelectGroup,
-    copyToClipboard,
-    isMobile
-}: any) => {
-    const [visibleCount, setVisibleCount] = useState(50);
+// Helper innerElementType to add padding to the bottom of the list
+const innerElementType = forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(({ style, ...rest }, ref) => (
+  <div
+    ref={ref}
+    style={{
+      ...style,
+      height: `${parseFloat((style?.height as string) || '0') + 96}px`
+    }}
+    {...rest}
+  />
+));
+innerElementType.displayName = "innerElementType";
 
-    // Reset visible count when list changes significantly (e.g. filters)
-    useEffect(() => {
-        // eslint-disable-next-line
-        setVisibleCount(50);
-    }, [flatList.length]);
+const VirtualizedRow = memo(({ index, style, data }: any) => {
+    const {
+        flatList,
+        isMobile,
+        selectedIds,
+        handleSelectGroup,
+        handleSelectRow,
+        onActions,
+        toggleGroupExpand,
+        copyToClipboard,
+        hasRole
+    } = data;
 
-    const visibleItems = flatList.slice(0, visibleCount);
+    const rowItem = flatList[index];
+    const isSelected = rowItem.type !== 'GROUP' && selectedIds.has(rowItem.data.id);
 
-    return (
-        <div className="pb-24">
-            {visibleItems.map((rowItem: any, index: number) => {
-                const isSelected = rowItem.type !== 'GROUP' && selectedIds.has(rowItem.data.id);
-                const style = { width: '100%' };
+    if (rowItem.type === 'GROUP') {
+        if (isMobile) {
+            return (
+                <InventoryMobileGroupRow
+                    key={rowItem.data.groupKey || index}
+                    group={rowItem.data}
+                    style={style}
+                    isExpanded={rowItem.expanded}
+                    toggleExpand={() => toggleGroupExpand(rowItem.data.groupKey)}
+                    selectedChildIds={selectedIds}
+                    onSelectGroup={handleSelectGroup}
+                    copyToClipboard={copyToClipboard}
+                />
+            );
+        }
+        return (
+             <InventoryGroupRow
+                key={rowItem.data.groupKey || index}
+                style={style}
+                group={rowItem.data}
+                isExpanded={rowItem.expanded}
+                toggleExpand={() => toggleGroupExpand(rowItem.data.groupKey)}
+                selectedChildIds={selectedIds}
+                onSelectGroup={handleSelectGroup}
+                copyToClipboard={copyToClipboard}
+            />
+        );
+    } else {
+         if (isMobile) {
+            return (
+                <InventoryMobileChildRow
+                    key={rowItem.data.id || index}
+                    item={rowItem.data}
+                    style={style}
+                    isSelected={isSelected}
+                    isAdmin={hasRole('ADMIN')}
+                    onSelect={handleSelectRow}
+                    onActions={onActions}
+                    copyToClipboard={copyToClipboard}
+                    isLast={rowItem.isLast}
+                />
+            );
+        }
+        return (
+            <InventoryChildRow
+                key={rowItem.data.id || index}
+                style={style}
+                item={rowItem.data}
+                isSelected={isSelected}
+                isAdmin={hasRole('ADMIN')}
+                onSelect={handleSelectRow}
+                onActions={onActions}
+                copyToClipboard={copyToClipboard}
+                isLast={rowItem.isLast}
+            />
+        );
+    }
+}, (prevProps, nextProps) => {
+    // Custom equality check to prevent re-rendering all rows when itemData changes reference
+    const { index } = prevProps;
+    const prevItem = prevProps.data.flatList[index];
+    const nextItem = nextProps.data.flatList[index];
 
-                if (rowItem.type === 'GROUP') {
-                    if (isMobile) {
-                        return (
-                            <InventoryMobileGroupRow
-                                key={rowItem.data.groupKey || index}
-                                group={rowItem.data}
-                                style={style}
-                                isExpanded={rowItem.expanded}
-                                toggleExpand={() => toggleGroupExpand(rowItem.data.groupKey)}
-                                selectedChildIds={selectedIds}
-                                onSelectGroup={handleSelectGroup}
-                                copyToClipboard={copyToClipboard}
-                            />
-                        );
-                    }
-                    return (
-                         <InventoryGroupRow
-                            key={rowItem.data.groupKey || index}
-                            style={style}
-                            group={rowItem.data}
-                            isExpanded={rowItem.expanded}
-                            toggleExpand={() => toggleGroupExpand(rowItem.data.groupKey)}
-                            selectedChildIds={selectedIds}
-                            onSelectGroup={handleSelectGroup}
-                            copyToClipboard={copyToClipboard}
-                        />
-                    );
-                } else {
-                     if (isMobile) {
-                        return (
-                            <InventoryMobileChildRow
-                                key={rowItem.data.id || index}
-                                item={rowItem.data}
-                                style={style}
-                                isSelected={isSelected}
-                                isAdmin={hasRole('ADMIN')}
-                                onSelect={handleSelectRow}
-                                onActions={onActions}
-                                copyToClipboard={copyToClipboard}
-                                isLast={rowItem.isLast}
-                            />
-                        );
-                    }
-                    return (
-                        <InventoryChildRow
-                            key={rowItem.data.id || index}
-                            style={style}
-                            item={rowItem.data}
-                            isSelected={isSelected}
-                            isAdmin={hasRole('ADMIN')}
-                            onSelect={handleSelectRow}
-                            onActions={onActions}
-                            copyToClipboard={copyToClipboard}
-                            isLast={rowItem.isLast}
-                        />
-                    );
-                }
-            })}
+    // Different item at this index
+    if (prevItem !== nextItem) return false;
 
-            {visibleCount < flatList.length && (
-                <div className="p-4 flex justify-center">
-                    <OrbitalButton
-                        variant="outline"
-                        onClick={() => setVisibleCount(prev => prev + 50)}
-                        className="w-full sm:w-auto"
-                    >
-                        Carregar Mais ({flatList.length - visibleCount} restantes)
-                    </OrbitalButton>
-                </div>
-            )}
-        </div>
-    );
-};
+    // Check if critical props like isMobile or hasRole have changed
+    if (prevProps.data.isMobile !== nextProps.data.isMobile) return false;
+    if (prevProps.data.hasRole !== nextProps.data.hasRole) return false;
+
+    // Check selection state change
+    const isGroup = prevItem.type === 'GROUP';
+    if (!isGroup) {
+        const id = prevItem.data.id;
+        const wasSelected = prevProps.data.selectedIds.has(id);
+        const isSelected = nextProps.data.selectedIds.has(id);
+        if (wasSelected !== isSelected) return false;
+    } else {
+        // For groups, we could do deeper check of selected children if needed
+        // For now, if the group's expansion state changed, it re-renders
+        if (prevItem.expanded !== nextItem.expanded) return false;
+
+        // If selectedIds size changed significantly, might affect group selection state visualization
+        if (prevProps.data.selectedIds.size !== nextProps.data.selectedIds.size) return false;
+    }
+
+    return true;
+});
 
 interface InventoryListProps {
     flatList: any[];
@@ -154,6 +171,27 @@ export const InventoryList: React.FC<InventoryListProps> = ({
     handleSelectAll
 }) => {
 
+    const listRef = useRef<List>(null);
+
+    // Reset cached sizes when list changes or mobile view toggles
+    useEffect(() => {
+        if (listRef.current) {
+            listRef.current.resetAfterIndex(0);
+        }
+    }, [flatList.length, isMobile, expandedGroups]);
+
+    const itemData = useMemo(() => ({
+        flatList,
+        isMobile,
+        selectedIds,
+        handleSelectGroup,
+        handleSelectRow,
+        onActions,
+        toggleGroupExpand,
+        copyToClipboard,
+        hasRole
+    }), [flatList, isMobile, selectedIds, handleSelectGroup, handleSelectRow, onActions, toggleGroupExpand, copyToClipboard, hasRole]);
+
     return (
         <OrbitalCard noPadding className="flex-1 flex flex-col min-h-0 border-orbital-border bg-orbital-bg overflow-visible">
              {!isMobile && (
@@ -178,19 +216,28 @@ export const InventoryList: React.FC<InventoryListProps> = ({
                  </div>
              )}
 
-             <div className="flex-grow relative bg-orbital-bg">
+             <div className="flex-grow relative bg-orbital-bg min-h-[400px]">
                 {flatList.length > 0 ? (
-                    <NativeList
-                        flatList={flatList}
-                        isMobile={isMobile}
-                        onActions={onActions}
-                        hasRole={hasRole}
-                        handleSelectRow={handleSelectRow}
-                        toggleGroupExpand={toggleGroupExpand}
-                        selectedIds={selectedIds}
-                        handleSelectGroup={handleSelectGroup}
-                        copyToClipboard={copyToClipboard}
-                    />
+                    <AutoSizer>
+                        {({ height, width }) => (
+                            <List
+                                ref={listRef}
+                                height={height}
+                                itemCount={flatList.length}
+                                itemSize={(index) => {
+                                    const item = flatList[index];
+                                    return item.type === 'GROUP'
+                                        ? (isMobile ? 120 : 64)
+                                        : (isMobile ? 140 : 56);
+                                }}
+                                width={width}
+                                itemData={itemData}
+                                innerElementType={innerElementType}
+                            >
+                                {VirtualizedRow}
+                            </List>
+                        )}
+                    </AutoSizer>
                 ) : (
                     <EmptyState
                         title="Nenhum item encontrado"

@@ -25,3 +25,7 @@
 ## 2025-02-14 - Unmemoized Hook Functions & Virtual List Performance
 **Learning:** Functions returned from custom hooks (like `toggleGroupExpand` in `useInventoryFilters`) that are recreated on every render will invalidate `itemData` prop passed to `react-window` components, forcing the entire list to re-render even if the underlying data (`flatList`) is stable.
 **Action:** Always wrap functions returned from hooks in `useCallback` if they are passed down to memoized children or used in `useMemo` dependencies, especially when filtering/sorting logic is involved.
+
+## 2024-05-18 - Missing virtualization for long lists
+**Learning:** `react-window` and `react-virtualized-auto-sizer` are in `package.json` but they were not used in `InventoryList`, resulting in missing virtualization and manual pagination.
+**Action:** Use the existing dependencies to implement virtualization in `InventoryList.tsx` for performance improvements. When using `react-window` with dynamic content like `selectedIds` passed via `itemData`, ensure to use `useMemo` for `itemData`, provide a custom `areEqual` to `React.memo` for the row component, use a `ref` with `resetAfterIndex(0)` when the underlying list or layout changes, and use `innerElementType` to add padding.
