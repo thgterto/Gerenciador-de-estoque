@@ -25,8 +25,11 @@ export const RiskSelector: React.FC<RiskSelectorProps> = ({ risks, onChange }) =
                     const isChecked = risks?.[ghs.key] || false;
                     return (
                         <Tooltip key={ghs.key} content={ghs.label}>
-                            <div
+                            <button
+                                type="button"
                                 onClick={() => toggleRisk(ghs.key)}
+                                aria-label={ghs.label}
+                                aria-pressed={isChecked}
                                 className={`
                                     w-9 h-9 flex items-center justify-center rounded border transition-all cursor-pointer
                                     ${isChecked
@@ -35,8 +38,8 @@ export const RiskSelector: React.FC<RiskSelectorProps> = ({ risks, onChange }) =
                                     }
                                 `}
                             >
-                                <span className="material-symbols-outlined text-[20px]">{ghs.icon}</span>
-                            </div>
+                                <span className="material-symbols-outlined text-[20px]" aria-hidden="true">{ghs.icon}</span>
+                            </button>
                         </Tooltip>
                     );
                 })}
