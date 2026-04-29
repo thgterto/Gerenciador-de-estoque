@@ -12,15 +12,7 @@
 
 ## 2025-02-14 - IndexedDB Range Queries
 **Learning:** Loading entire collections into memory then filtering with JavaScript (e.g. `collection.toArray().filter()`) is inefficient for large datasets.
-**Action:** Always prefer Dexie's `where().aboveOrEqual()` or `between()` to leverage IndexedDB indices, significantly reducing the amount of data transferred from IDB to JS memory.
-
-## 2025-02-14 - Documentation Strategy
-**Learning:** Documenting performance optimizations in a dedicated  file helps maintain awareness of high-impact patterns and prevents regressions during future refactors.
-**Action:** Maintain a living performance document alongside the codebase.
-
-## 2025-02-14 - Documentation Strategy
-**Learning:** Documenting performance optimizations in a dedicated `docs/PERFORMANCE.md` file helps maintain awareness of high-impact patterns and prevents regressions during future refactors.
-**Action:** Maintain a living performance document alongside the codebase.
+**Action:** Always prefer Dexie`s `where().aboveOrEqual()` or `between()` to leverage IndexedDB indices, significantly reducing the amount of data transferred from IDB to JS memory.
 
 ## 2025-02-14 - Unmemoized Hook Functions & Virtual List Performance
 **Learning:** Functions returned from custom hooks (like `toggleGroupExpand` in `useInventoryFilters`) that are recreated on every render will invalidate `itemData` prop passed to `react-window` components, forcing the entire list to re-render even if the underlying data (`flatList`) is stable.
