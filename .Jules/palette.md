@@ -9,3 +9,7 @@
 ## 2025-05-25 - Explicit Labels for Touch Targets
 **Learning:** Helper components for mobile actions (like `MobileActionBtn`) often get created without `label` props, assuming icons are self-explanatory. This creates barriers for screen reader users on mobile where hover tooltips don't exist.
 **Action:** Enforce a `label` prop on all mobile-specific action button components and map it to both `title` (for long-press) and `aria-label`.
+
+## 2025-10-24 - Accessibility of Clear Filter Button
+**Learning:** Icon-only buttons used for clearing inputs or filters need explicit `aria-label`s. Without it, screen readers fail to communicate the button's action effectively. Adding `aria-hidden="true"` to the inner icon prevents redundant or incorrect ligature readings.
+**Action:** When creating clear/reset buttons that rely solely on icons (e.g., `<X />`), always provide an `aria-label` on the `<button>` and set `aria-hidden="true"` on the icon itself.
