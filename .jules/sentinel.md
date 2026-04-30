@@ -12,3 +12,7 @@
 **Vulnerability:** The Fastify server (`server/src/app.ts`) was binding to `0.0.0.0` (all interfaces) by default, exposing the local backend to the entire network. Coupled with a default JWT secret, this created a critical security risk.
 **Learning:** Development tools often prioritize convenience (`0.0.0.0`) over security (`127.0.0.1`). When distributed as part of a portable app or local tool, this exposes users to network attacks.
 **Prevention:** Always bind servers to `127.0.0.1` by default unless external access is explicitly required and secured. Use environment variables (e.g., `HOST`) to allow configuration for advanced use cases.
+## 2025-05-26 - Mass Assignment Privilege Escalation in AuthController
+**Vulnerability:** The registration endpoint in `server/src/adapters/controllers/AuthController.ts` allowed users to specify their `role` (e.g., `ADMIN`) via the `registerSchema`. This allowed a malicious user to escalate privileges during account creation.
+**Learning:** Never expose internal authorization fields (like roles or permissions) in user-facing input schemas. Zod schemas must strictly limit input to only what is safe for the user to define.
+**Prevention:** Always hardcode default, least-privilege roles (e.g., `USER`) in the backend handler for new registrations. If admin accounts are needed, they should be created via a separate, authenticated internal process or database seed.
