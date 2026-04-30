@@ -53,18 +53,24 @@ export const InventoryFilters: React.FC<InventoryFiltersProps> = ({
                         </label>
                         <div className="flex bg-orbital-bg/50 border border-orbital-border rounded p-1 h-[42px]">
                             <button
+                                aria-label="Mostrar todos os itens"
+                                aria-pressed={statusFilter === 'ALL'}
                                 onClick={() => setStatusFilter('ALL')}
                                 className={`flex-1 text-xs font-bold uppercase tracking-wide rounded transition-all duration-200 ${statusFilter === 'ALL' ? 'bg-orbital-accent text-orbital-bg shadow-glow-sm' : 'text-orbital-subtext hover:text-orbital-text hover:bg-orbital-surface'}`}
                             >
                                 Todos
                             </button>
                             <button
+                                aria-label="Filtrar por estoque baixo"
+                                aria-pressed={statusFilter === 'LOW_STOCK'}
                                 onClick={() => setStatusFilter('LOW_STOCK')}
                                 className={`flex-1 text-xs font-bold uppercase tracking-wide rounded transition-all duration-200 ${statusFilter === 'LOW_STOCK' ? 'bg-orbital-warning text-orbital-bg shadow-glow-sm' : 'text-orbital-subtext hover:text-orbital-text hover:bg-orbital-surface'}`}
                             >
                                 Baixo
                             </button>
                             <button
+                                aria-label="Filtrar por itens vencidos"
+                                aria-pressed={statusFilter === 'EXPIRED'}
                                 onClick={() => setStatusFilter('EXPIRED')}
                                 className={`flex-1 text-xs font-bold uppercase tracking-wide rounded transition-all duration-200 ${statusFilter === 'EXPIRED' ? 'bg-orbital-danger text-orbital-bg shadow-glow-sm' : 'text-orbital-subtext hover:text-orbital-text hover:bg-orbital-surface'}`}
                             >
@@ -98,6 +104,8 @@ export const InventoryFilters: React.FC<InventoryFiltersProps> = ({
                         </span>
                         {uniqueCategories.map((cat) => (
                              <button
+                                aria-label={`Filtrar por categoria ${cat}`}
+                                aria-pressed={catFilter === cat}
                                 key={cat}
                                 onClick={() => setCatFilter(cat === catFilter ? '' : cat)}
                                 className={`
@@ -112,6 +120,7 @@ export const InventoryFilters: React.FC<InventoryFiltersProps> = ({
                         ))}
                          {catFilter && (
                             <button
+                                aria-label="Limpar filtro de categoria"
                                 onClick={() => setCatFilter('')}
                                 className="px-2 py-1 text-xs text-orbital-subtext hover:text-orbital-danger underline"
                             >
