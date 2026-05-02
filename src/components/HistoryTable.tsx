@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { MovementRecord } from '../types';
-import { useHistoryFilters } from '../hooks/useHistoryFilters';
+import { useHistoryFilters, MovementTypeFilter, DateFilterType } from '../hooks/useHistoryFilters';
 import { ExportEngine } from '../utils/ExportEngine';
 import { formatDateTime } from '../utils/formatters';
 import { PageContainer } from './ui/PageContainer';
@@ -257,7 +257,7 @@ export const HistoryTable: React.FC<Props> = ({ preselectedItemId, preselectedBa
                         <OrbitalSelect
                             label="Tipo de Movimento"
                             value={typeFilter}
-                            onChange={(e) => setTypeFilter(e.target.value as any)}
+                            onChange={(e) => setTypeFilter(e.target.value as MovementTypeFilter)}
                             options={[
                                 { value: "ALL", label: "Todos" },
                                 { value: "ENTRADA", label: "Entradas" },
@@ -272,7 +272,7 @@ export const HistoryTable: React.FC<Props> = ({ preselectedItemId, preselectedBa
                         <OrbitalSelect
                             label="Período"
                             value={dateFilter}
-                            onChange={(e) => setDateFilter(e.target.value as any)}
+                            onChange={(e) => setDateFilter(e.target.value as DateFilterType)}
                             options={[
                                 { value: "ALL", label: "Todo o Período" },
                                 { value: "TODAY", label: "Hoje" },
@@ -328,7 +328,15 @@ export const HistoryTable: React.FC<Props> = ({ preselectedItemId, preselectedBa
   )
 };
 
-const StatCard = ({ title, icon, value, subValue, color }: any) => (
+interface StatCardProps {
+    title: string;
+    icon: React.ReactNode;
+    value: string | number;
+    subValue?: string | number | React.ReactNode;
+    color: string;
+}
+
+const StatCard = ({ title, icon, value, subValue, color }: StatCardProps) => (
     <OrbitalCard>
         <div className="flex items-center gap-3">
             <div className={`p-2 rounded bg-orbital-bg border border-orbital-border ${color}`}>
