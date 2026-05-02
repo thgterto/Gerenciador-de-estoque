@@ -12,3 +12,7 @@
 **Vulnerability:** The Fastify server (`server/src/app.ts`) was binding to `0.0.0.0` (all interfaces) by default, exposing the local backend to the entire network. Coupled with a default JWT secret, this created a critical security risk.
 **Learning:** Development tools often prioritize convenience (`0.0.0.0`) over security (`127.0.0.1`). When distributed as part of a portable app or local tool, this exposes users to network attacks.
 **Prevention:** Always bind servers to `127.0.0.1` by default unless external access is explicitly required and secured. Use environment variables (e.g., `HOST`) to allow configuration for advanced use cases.
+## 2025-02-18 - [XSS] Fixed DOM-based Cross-Site Scripting in Print Modal
+**Vulnerability:** XSS risk identified in `src/components/Modals.tsx` and `labcontrol-spfx/src/webparts/labControlApp/components/Modals.tsx` where user-controlled inventory variables (`item.name`, `item.lotNumber`, `item.id`) were directly interpolated into a `document.write()` call for printing labels.
+**Learning:** The project interpolates React object state directly into raw HTML template strings during printing, bypassing React's built-in XSS protection. This pattern is repeated in both standard React and SPFx webparts implementations.
+**Prevention:** Always implement manual HTML entity escaping (`escapeHtml()`) when transitioning user data from React state/props into raw DOM manipulation APIs like `document.write()` or `innerHTML`.

@@ -4,6 +4,16 @@ import { InventoryItem, QRCodeDataDTO, CreateItemDTO } from '../../../types';
 import * as ReactQRCode from 'react-qr-code';
 const QRCode = (ReactQRCode as any).default || ReactQRCode;
 
+// 🛡️ Sentinel: XSS Prevention utility
+const escapeHtml = (unsafe: string) => {
+    return unsafe
+         .replace(/&/g, "&amp;")
+         .replace(/</g, "&lt;")
+         .replace(/>/g, "&gt;")
+         .replace(/"/g, "&quot;")
+         .replace(/'/g, "&#039;");
+};
+
 import { ItemForm } from './ItemForm';
 import { AddItem } from './AddItem';
 import { useAlert } from '../../../context/AlertContext';
@@ -168,10 +178,10 @@ export const QRGeneratorModal: React.FC<QRGeneratorModalProps> = ({ isOpen, onCl
                     </head>
                     <body>
                         <div class="label">
-                            <div class="title">${item.name}</div>
-                            <div class="meta">Lote: ${item.lotNumber} | Val: ${item.expiryDate ? new Date(item.expiryDate).toLocaleDateString() : 'N/A'}</div>
+                            <div class="title">${escapeHtml(item.name || '')}</div>
+                            <div class="meta">Lote: ${escapeHtml(item.lotNumber || '')} | Val: ${item.expiryDate ? new Date(item.expiryDate).toLocaleDateString() : 'N/A'}</div>
                             ${svgHtml}
-                            <div class="meta" style="margin-top: 5px;">${item.id}</div>
+                            <div class="meta" style="margin-top: 5px;">${escapeHtml(item.id || '')}</div>
                         </div>
                         <script>setTimeout(() => { window.print(); window.close(); }, 500);</script>
                     </body>
