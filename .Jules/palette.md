@@ -9,3 +9,7 @@
 ## 2025-05-25 - Explicit Labels for Touch Targets
 **Learning:** Helper components for mobile actions (like `MobileActionBtn`) often get created without `label` props, assuming icons are self-explanatory. This creates barriers for screen reader users on mobile where hover tooltips don't exist.
 **Action:** Enforce a `label` prop on all mobile-specific action button components and map it to both `title` (for long-press) and `aria-label`.
+
+## 2025-05-26 - Missing Accessible Labels on Standard Modals
+**Learning:** Found that common generic wrapper components like `OrbitalModal`, generic toolbars or components like `Toast` were missing `aria-label`s on their close actions. This makes basic navigation like dismissing popups inaccessible.
+**Action:** Always ensure that structural, reusable wrapper components pass basic accessibility checks, particularly focusing on action buttons without text labels. Use `aria-label` and `aria-hidden` attributes appropriately.
