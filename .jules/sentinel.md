@@ -12,3 +12,8 @@
 **Vulnerability:** The Fastify server (`server/src/app.ts`) was binding to `0.0.0.0` (all interfaces) by default, exposing the local backend to the entire network. Coupled with a default JWT secret, this created a critical security risk.
 **Learning:** Development tools often prioritize convenience (`0.0.0.0`) over security (`127.0.0.1`). When distributed as part of a portable app or local tool, this exposes users to network attacks.
 **Prevention:** Always bind servers to `127.0.0.1` by default unless external access is explicitly required and secured. Use environment variables (e.g., `HOST`) to allow configuration for advanced use cases.
+
+## 2025-02-19 - Hardcoded JWT Secret Removed
+**Vulnerability:** A hardcoded default string (`supersecret_change_me_in_prod`) was used as the fallback for `JWT_SECRET` in `server/src/config.ts`. If `process.env.JWT_SECRET` was not provided, this well-known secret would be used to sign and verify JWT tokens, allowing an attacker to forge tokens and bypass authentication entirely.
+**Learning:** Defaulting to a hardcoded string is a common fallback but is extremely dangerous if the environment variable is not set correctly in production.
+**Prevention:** Instead of falling back to a hardcoded string, use a securely generated random string (e.g. `crypto.randomBytes(32).toString('hex')`) at startup. Since this is an Electron portable app backend (and might not have env vars easily injected), defaulting to a random string ensures each run uses a unique secret when not explicitly provided.
