@@ -1,4 +1,4 @@
-import React, { SelectHTMLAttributes } from 'react';
+import React, { SelectHTMLAttributes, useId } from 'react';
 import { ChevronDown } from 'lucide-react';
 
 interface Option {
@@ -23,15 +23,19 @@ export const OrbitalSelect: React.FC<OrbitalSelectProps> = ({
     helpText,
     ...props
 }) => {
+    const generatedId = useId();
+    const selectId = props.id || generatedId;
+
     return (
         <div className={`flex flex-col gap-1.5 ${fullWidth ? 'w-full' : ''}`}>
             {label && (
-                <label className="text-xs font-display font-bold uppercase tracking-wider text-orbital-subtext pl-1">
+                <label htmlFor={selectId} className="text-xs font-display font-bold uppercase tracking-wider text-orbital-subtext pl-1">
                     {label}
                 </label>
             )}
             <div className="relative group">
                 <select
+                    id={selectId}
                     className={`
                         w-full bg-orbital-bg/50 border-b border-orbital-border
                         text-orbital-text font-mono text-sm px-3 py-2.5 pr-10
