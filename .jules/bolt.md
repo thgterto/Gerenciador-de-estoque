@@ -25,3 +25,7 @@
 ## 2025-02-14 - Unmemoized Hook Functions & Virtual List Performance
 **Learning:** Functions returned from custom hooks (like `toggleGroupExpand` in `useInventoryFilters`) that are recreated on every render will invalidate `itemData` prop passed to `react-window` components, forcing the entire list to re-render even if the underlying data (`flatList`) is stable.
 **Action:** Always wrap functions returned from hooks in `useCallback` if they are passed down to memoized children or used in `useMemo` dependencies, especially when filtering/sorting logic is involved.
+
+## 2025-05-05 - List Row Component Props Memory Leak
+**Learning:** Passing a dynamic `Set` object (like `selectedIds`) directly to memoized list row components causes complete cache invalidation and forces an O(N) re-render of all list groups whenever the selection changes. Combined with inline arrow functions passing down to child components, this defeats `React.memo()`.
+**Action:** Always compute derived primitive state (e.g. `allSelected`, `someSelected` booleans) in the parent list component before passing to `React.memo` wrapped row components. Pass stable handler functions from parent and execute them with row IDs inside the component instead of creating inline arrow functions.
