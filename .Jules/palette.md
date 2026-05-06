@@ -9,3 +9,11 @@
 ## 2025-05-25 - Explicit Labels for Touch Targets
 **Learning:** Helper components for mobile actions (like `MobileActionBtn`) often get created without `label` props, assuming icons are self-explanatory. This creates barriers for screen reader users on mobile where hover tooltips don't exist.
 **Action:** Enforce a `label` prop on all mobile-specific action button components and map it to both `title` (for long-press) and `aria-label`.
+
+## 2025-05-26 - Spacing for Icon-Only Buttons
+**Learning:** General-purpose button components often use margins on icons (e.g., `mr-2` in Tailwind) to separate them from text. When the button is used without text (icon-only), this margin pushes the icon off-center.
+**Action:** Always verify button components (like `OrbitalButton`) handle conditional margin rendering based on the presence of `children`. (e.g. ``className={`${children ? 'mr-2 ' : ''}flex items-center`}``).
+
+## 2025-05-26 - Hiding Text with ARIA Labels
+**Learning:** Screen readers might announce raw text strings like "+" or "-" poorly, especially inside buttons that adjust quantities.
+**Action:** For simple operators used as visual icons (like "+" and "-"), wrap them in `aria-hidden="true"` and apply descriptive `aria-label`s to the parent button (e.g. "Aumentar quantidade").
