@@ -9,3 +9,6 @@
 ## 2025-05-25 - Explicit Labels for Touch Targets
 **Learning:** Helper components for mobile actions (like `MobileActionBtn`) often get created without `label` props, assuming icons are self-explanatory. This creates barriers for screen reader users on mobile where hover tooltips don't exist.
 **Action:** Enforce a `label` prop on all mobile-specific action button components and map it to both `title` (for long-press) and `aria-label`.
+## 2025-05-26 - Icon Button Accessibility
+**Learning:** Icon-only close buttons (like the `X` icon used in modals) across the application were missing `aria-label` attributes, making them inaccessible to screen readers, especially on mobile where tooltips aren`t available. The `<X>` icon itself was also being read by screen readers.
+**Action:** Always add `aria-label="Fechar"` (or equivalent descriptive text) to the `<button>` element and `aria-hidden="true"` to the inner icon element (e.g., `<X size={20} aria-hidden="true" />`) to ensure the action is announced correctly.
