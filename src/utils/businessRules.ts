@@ -54,18 +54,14 @@ export type ItemStatusResult = {
 };
 
 // Optimization: Accept 'now' Date object, but prefer string comparison if not provided
-export const getItemStatus = (item: InventoryItem, now?: Date): ItemStatusResult => {
+export const getItemStatus = (item: InventoryItem, referenceDateISO?: string): ItemStatusResult => {
     let isExpired = false;
 
     if (item.expiryDate) {
-        if (now) {
-             // Legacy/Explicit check with Date object
-             isExpired = new Date(item.expiryDate) < now;
-        } else {
-             // Optimization: String comparison is ~10x faster than new Date() parsing
-             // Uses cached 'today' string to avoid allocation
-             isExpired = item.expiryDate < getTodayISO();
-        }
+        // Optimization: String comparison is ~10x faster than new Date() parsing
+        // Uses cached 'today' string to avoid allocation unless explicitly overridden
+        const compareDate = referenceDateISO || getTodayISO();
+        isExpired = item.expiryDate < compareDate;
     }
 
     const isLowStock = item.quantity <= item.minStockLevel && item.minStockLevel > 0;

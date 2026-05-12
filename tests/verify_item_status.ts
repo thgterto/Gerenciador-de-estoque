@@ -49,7 +49,7 @@ const runTests = () => {
 
     // Test 4: Explicit 'now' argument
     // If we pass 'now' as tomorrow, then 'yesterday' item should be expired.
-    const statusExplicit = getItemStatus(itemExpired, tomorrow);
+    const statusExplicit = getItemStatus(itemExpired, tomorrowISO);
     if (!statusExplicit.isExpired) throw new Error("Failed: Explicit 'now' check failed");
 
     console.log("All tests passed!");
