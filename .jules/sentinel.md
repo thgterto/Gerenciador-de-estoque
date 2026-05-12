@@ -12,3 +12,7 @@
 **Vulnerability:** The Fastify server (`server/src/app.ts`) was binding to `0.0.0.0` (all interfaces) by default, exposing the local backend to the entire network. Coupled with a default JWT secret, this created a critical security risk.
 **Learning:** Development tools often prioritize convenience (`0.0.0.0`) over security (`127.0.0.1`). When distributed as part of a portable app or local tool, this exposes users to network attacks.
 **Prevention:** Always bind servers to `127.0.0.1` by default unless external access is explicitly required and secured. Use environment variables (e.g., `HOST`) to allow configuration for advanced use cases.
+## 2026-05-12 - Hardcoded JWT Secret & Error Leakage
+**Vulnerability:** A hardcoded fallback JWT secret ('supersecret_change_me_in_prod') was present in 'server/src/config.ts', and 'server/src/adapters/controllers/InventoryController.ts' leaked 'error.message' to clients on internal server errors.
+**Learning:** Default fallbacks for cryptographic secrets pose critical risks if deployed. Explicit error responses with '.message' bypass central error handlers and expose internal workings.
+**Prevention:** Use 'crypto.randomBytes()' for fallback secrets to ensure they are ephemeral and unguessable. Let the framework (like Fastify) handle and sanitize unhandled async errors rather than manually sending 'error.message' in try/catch blocks.
