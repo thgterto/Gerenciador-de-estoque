@@ -145,7 +145,8 @@ interface GroupRowProps {
     style: React.CSSProperties;
     isExpanded: boolean;
     toggleExpand: () => void;
-    selectedChildIds: Set<string>;
+    allSelected: boolean;
+    someSelected: boolean;
     onSelectGroup: (groupIds: string[], checked: boolean) => void;
     // getCategoryIcon removed as it was unused/hardcoded
     copyToClipboard: (text: string, label: string) => void;
@@ -156,13 +157,12 @@ export const InventoryGroupRow = React.memo(({
     style,
     isExpanded, 
     toggleExpand, 
-    selectedChildIds,
+    allSelected,
+    someSelected,
     onSelectGroup,
     copyToClipboard
 }: GroupRowProps) => {
     const { primaryItem, totalQuantity, aggregatedStatus, items } = group;
-    const allSelected = items.every(i => selectedChildIds.has(i.id));
-    const someSelected = items.some(i => selectedChildIds.has(i.id));
 
     return (
         <div style={style}>
@@ -273,8 +273,7 @@ export const InventoryMobileGroupRow = React.memo(({
     group, 
     style, 
     isExpanded, 
-    toggleExpand,
-    // getCategoryIcon removed
+    toggleExpand
 }: GroupRowProps) => {
     const { primaryItem, totalQuantity, aggregatedStatus, items } = group;
 
