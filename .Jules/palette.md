@@ -9,3 +9,6 @@
 ## 2025-05-25 - Explicit Labels for Touch Targets
 **Learning:** Helper components for mobile actions (like `MobileActionBtn`) often get created without `label` props, assuming icons are self-explanatory. This creates barriers for screen reader users on mobile where hover tooltips don't exist.
 **Action:** Enforce a `label` prop on all mobile-specific action button components and map it to both `title` (for long-press) and `aria-label`.
+## 2026-05-16 - Missing Skip-to-Main-Content Links
+**Learning:** Found that most layout components lacked a skip-to-main-content link, which is crucial for keyboard navigation. An accessibility audit using `.agent/skills/frontend-design/scripts/accessibility_checker.py` flagged this across multiple files. Note that the script also reported missing `lang` attributes on `<html>`, but this was a false positive as `index.html` already had `lang="pt-BR"`.
+**Action:** When adding or modifying core layout components like `Layout.tsx`, ensure a visually hidden, focusable skip link is included, and verify that the main content area has a corresponding `id="main-content"`.
