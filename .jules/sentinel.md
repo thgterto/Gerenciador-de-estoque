@@ -12,3 +12,8 @@
 **Vulnerability:** The Fastify server (`server/src/app.ts`) was binding to `0.0.0.0` (all interfaces) by default, exposing the local backend to the entire network. Coupled with a default JWT secret, this created a critical security risk.
 **Learning:** Development tools often prioritize convenience (`0.0.0.0`) over security (`127.0.0.1`). When distributed as part of a portable app or local tool, this exposes users to network attacks.
 **Prevention:** Always bind servers to `127.0.0.1` by default unless external access is explicitly required and secured. Use environment variables (e.g., `HOST`) to allow configuration for advanced use cases.
+
+## 2025-05-26 - DOM-based XSS via `document.write`
+**Vulnerability:** The application used `document.write()` to dynamically create HTML for printing QR codes. User-controlled inputs (such as item names and lot numbers) were interpolated directly into the HTML string without escaping, creating a DOM-based Cross-Site Scripting (XSS) vulnerability.
+**Learning:** `document.write()` executes script tags inserted into it. Even in a printing context (a new window), an attacker who can control data stored in the inventory (e.g., via a compromised account or API access) could use this to execute malicious JavaScript when another user prints the label.
+**Prevention:** Avoid `document.write()` when possible. When generating HTML strings manually, *always* apply an HTML escaping function to any variable data to sanitize control characters (`<`, `>`, `&`, `"`, `'`) before interpolation.
