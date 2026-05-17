@@ -25,11 +25,11 @@ export const ToastContainer: React.FC = () => {
                         ${toast.type === 'info' ? 'bg-orbital-accent/10 border-orbital-accent text-orbital-accent' : ''}
                     `}
                 >
-                    <div className="mt-0.5 shrink-0">
-                        {toast.type === 'success' && <CheckCircle size={18} />}
-                        {toast.type === 'error' && <AlertOctagon size={18} />}
-                        {toast.type === 'warning' && <AlertTriangle size={18} />}
-                        {toast.type === 'info' && <Info size={18} />}
+                    <div className="mt-0.5 shrink-0" aria-hidden="true">
+                        {toast.type === 'success' && <CheckCircle size={18} aria-hidden="true" />}
+                        {toast.type === 'error' && <AlertOctagon size={18} aria-hidden="true" />}
+                        {toast.type === 'warning' && <AlertTriangle size={18} aria-hidden="true" />}
+                        {toast.type === 'info' && <Info size={18} aria-hidden="true" />}
                     </div>
 
                     <div className="flex-1 min-w-0">
@@ -44,8 +44,10 @@ export const ToastContainer: React.FC = () => {
                     <button
                         onClick={() => removeToast(toast.id)}
                         className="shrink-0 opacity-70 hover:opacity-100 transition-opacity"
+                        aria-label="Fechar notificação"
+                        title="Fechar notificação"
                     >
-                        <X size={16} />
+                        <X size={16} aria-hidden="true" />
                     </button>
                 </div>
             ))}
