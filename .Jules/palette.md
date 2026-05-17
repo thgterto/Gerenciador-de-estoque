@@ -9,3 +9,4 @@
 ## 2025-05-25 - Explicit Labels for Touch Targets
 **Learning:** Helper components for mobile actions (like `MobileActionBtn`) often get created without `label` props, assuming icons are self-explanatory. This creates barriers for screen reader users on mobile where hover tooltips don't exist.
 **Action:** Enforce a `label` prop on all mobile-specific action button components and map it to both `title` (for long-press) and `aria-label`.
+## 2025-05-26 - Placeholder Files Breaking Builds\n**Learning:** Creating placeholder files like pnpm-workspace.yaml with invalid syntax instead of a valid file configuration can break build pipelines.\n**Action:** Only create valid configuration files or let the system defaults handle warnings.
