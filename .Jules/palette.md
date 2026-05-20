@@ -9,3 +9,7 @@
 ## 2025-05-25 - Explicit Labels for Touch Targets
 **Learning:** Helper components for mobile actions (like `MobileActionBtn`) often get created without `label` props, assuming icons are self-explanatory. This creates barriers for screen reader users on mobile where hover tooltips don't exist.
 **Action:** Enforce a `label` prop on all mobile-specific action button components and map it to both `title` (for long-press) and `aria-label`.
+
+## 2025-05-26 - Accessible Labels on Dismiss and Action Buttons
+**Learning:** Dismiss (X) icons and other secondary action buttons (like filter clears or tutorial closers) inside modals, toasts, or complex components often omit `aria-label` attributes, relying implicitly on visual context to convey meaning, which leaves screen reader users stranded without an explicit purpose. Also, the inner SVG components (from `lucide-react`) may not automatically have `aria-hidden="true"`, meaning they can be confusingly described.
+**Action:** Always provide explicit `aria-label` and `title` attributes on all icon-only buttons, especially dismiss buttons (`X`), and ensure the inner icon has `aria-hidden="true"` applied to prevent redundant reading.
