@@ -123,8 +123,8 @@ export const QuickScanModal: React.FC<Props> = ({ isOpen, onClose }) => {
                         {continuousMode ? 'AUTO MODE ACTIVE (-1 OUT)' : 'MANUAL CONFIRMATION MODE'}
                     </p>
                 </div>
-                <button onClick={onClose} className="pointer-events-auto text-orbital-text hover:text-orbital-accent bg-black/50 p-2 border border-orbital-border hover:border-orbital-accent transition-all">
-                    <X size={20} />
+                <button onClick={onClose} className="pointer-events-auto text-orbital-text hover:text-orbital-accent bg-black/50 p-2 border border-orbital-border hover:border-orbital-accent transition-all" aria-label="Fechar" title="Fechar">
+                    <X size={20} aria-hidden="true" />
                 </button>
             </div>
 
@@ -163,12 +163,16 @@ export const QuickScanModal: React.FC<Props> = ({ isOpen, onClose }) => {
                          <button
                             onClick={() => setContinuousType('ENTRADA')}
                             className={`px-3 py-1 text-[10px] font-bold font-mono transition-colors ${continuousType === 'ENTRADA' ? 'bg-orbital-success text-black' : 'text-orbital-subtext hover:text-white'}`}
+                            aria-label="Definir tipo contínuo para Entrada"
+                            title="Definir tipo contínuo para Entrada"
                          >
                              IN
                          </button>
                          <button
                             onClick={() => setContinuousType('SAIDA')}
                             className={`px-3 py-1 text-[10px] font-bold font-mono transition-colors ${continuousType === 'SAIDA' ? 'bg-orbital-danger text-black' : 'text-orbital-subtext hover:text-white'}`}
+                            aria-label="Definir tipo contínuo para Saída"
+                            title="Definir tipo contínuo para Saída"
                          >
                              OUT
                          </button>
@@ -181,8 +185,10 @@ export const QuickScanModal: React.FC<Props> = ({ isOpen, onClose }) => {
                         ? 'bg-orbital-warning/10 border-orbital-warning text-orbital-warning shadow-[0_0_15px_rgba(255,165,0,0.3)]'
                         : 'bg-black/50 border-orbital-border text-orbital-subtext hover:border-orbital-accent hover:text-orbital-accent'
                     }`}
+                    aria-label={continuousMode ? 'Desativar modo automático' : 'Ativar modo automático'}
+                    title={continuousMode ? 'Desativar modo automático' : 'Ativar modo automático'}
                 >
-                    {continuousMode ? <Zap size={14} fill="currentColor" /> : <Activity size={14} />}
+                    {continuousMode ? <Zap size={14} fill="currentColor" aria-hidden="true" /> : <Activity size={14} aria-hidden="true" />}
                     {continuousMode ? 'AUTO-SCAN' : 'MANUAL'}
                 </button>
             </div>
@@ -209,6 +215,8 @@ export const QuickScanModal: React.FC<Props> = ({ isOpen, onClose }) => {
                                     <button 
                                         className="size-10 border border-orbital-border hover:border-orbital-accent hover:bg-orbital-accent/10 flex items-center justify-center text-xl font-bold text-orbital-text transition-colors"
                                         onClick={() => setQuantity(String(Math.max(1, parseFloat(quantity) - 1)))}
+                                        aria-label="Diminuir quantidade"
+                                        title="Diminuir quantidade"
                                     >-</button>
                                     <div className="flex-1">
                                          <input 
@@ -221,6 +229,8 @@ export const QuickScanModal: React.FC<Props> = ({ isOpen, onClose }) => {
                                     <button 
                                         className="size-10 border border-orbital-border hover:border-orbital-accent hover:bg-orbital-accent/10 flex items-center justify-center text-xl font-bold text-orbital-text transition-colors"
                                         onClick={() => setQuantity(String(parseFloat(quantity) + 1))}
+                                        aria-label="Aumentar quantidade"
+                                        title="Aumentar quantidade"
                                     >+</button>
                                 </div>
                                 <div className="grid grid-cols-2 gap-3">
