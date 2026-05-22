@@ -9,3 +9,6 @@
 ## 2025-05-25 - Explicit Labels for Touch Targets
 **Learning:** Helper components for mobile actions (like `MobileActionBtn`) often get created without `label` props, assuming icons are self-explanatory. This creates barriers for screen reader users on mobile where hover tooltips don't exist.
 **Action:** Enforce a `label` prop on all mobile-specific action button components and map it to both `title` (for long-press) and `aria-label`.
+## 2025-05-26 - Icon Button Accessibility
+**Learning:** Lucide icons do not default to aria-hidden='true'. When they are used inside buttons that have aria-labels or visible text, screen readers can sometimes stumble on them.
+**Action:** Always explicitly add aria-hidden='true' to Lucide icons (or any SVG icons) when they accompany descriptive text or are inside a button with an aria-label.
