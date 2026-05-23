@@ -29,9 +29,11 @@ export function errorHandler(error: FastifyError, request: FastifyRequest, reply
 
   request.log.error(error);
 
-  const message = process.env.NODE_ENV === 'production'
-    ? 'Internal Server Error'
-    : error.message || 'An unexpected error occurred';
+  // SECURITY FIX: Never expose raw error messages in 500 responses
+  // This prevents leaking sensitive information like database queries,
+  // file paths, or internal service errors, even in non-production environments
+  // where desktop/local apps might run without NODE_ENV=production.
+  const message = 'An unexpected error occurred';
 
   return reply.status(500).send({
     statusCode: 500,
