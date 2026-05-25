@@ -3,17 +3,28 @@
 import { InventoryItem, RiskFlags } from '../types';
 
 // Global cache for today's ISO string (Performance Optimization)
-let _cachedTodayISO: string = '';
+export let _cachedTodayISO: string = '';
+export let _cachedNext30DaysISO: string = '';
 let _lastCacheTime: number = 0;
 
-const getTodayISO = () => {
+export const getTodayISO = () => {
     const now = Date.now();
     // Cache for 1 minute to avoid re-calculating string on every render/loop
     if (now - _lastCacheTime > 60000 || !_cachedTodayISO) {
         _cachedTodayISO = new Date().toISOString().split('T')[0];
+
+        const next30 = new Date();
+        next30.setDate(next30.getDate() + 30);
+        _cachedNext30DaysISO = next30.toISOString().split('T')[0];
+
         _lastCacheTime = now;
     }
     return _cachedTodayISO;
+};
+
+export const getNext30DaysISO = () => {
+    getTodayISO(); // Ensure cache is populated
+    return _cachedNext30DaysISO;
 };
 
 // --- CONFIGURAÇÃO DE RISCOS (GHS) ---
@@ -54,18 +65,13 @@ export type ItemStatusResult = {
 };
 
 // Optimization: Accept 'now' Date object, but prefer string comparison if not provided
-export const getItemStatus = (item: InventoryItem, now?: Date): ItemStatusResult => {
+export const getItemStatus = (item: InventoryItem): ItemStatusResult => {
     let isExpired = false;
 
     if (item.expiryDate) {
-        if (now) {
-             // Legacy/Explicit check with Date object
-             isExpired = new Date(item.expiryDate) < now;
-        } else {
-             // Optimization: String comparison is ~10x faster than new Date() parsing
-             // Uses cached 'today' string to avoid allocation
-             isExpired = item.expiryDate < getTodayISO();
-        }
+         // Optimization: String comparison is ~10x faster than new Date() parsing
+         // Uses cached 'today' string to avoid allocation
+         isExpired = item.expiryDate < getTodayISO();
     }
 
     const isLowStock = item.quantity <= item.minStockLevel && item.minStockLevel > 0;

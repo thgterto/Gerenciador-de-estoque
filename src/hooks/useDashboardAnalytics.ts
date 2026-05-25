@@ -1,12 +1,12 @@
 import { useMemo } from 'react';
 import { InventoryItem, MovementRecord } from '../types';
-import { getItemStatus } from '../utils/businessRules';
+import { getItemStatus, getTodayISO, getNext30DaysISO } from '../utils/businessRules';
 
 export const useDashboardAnalytics = (items: InventoryItem[], history: MovementRecord[], selectedItemId?: string) => {
     
     const analytics = useMemo(() => {
         const now = new Date();
-        const todayStr = now.toDateString();
+        const todayLegacyStr = now.toDateString();
         
         // 1. Filtragem de Contexto (Global vs Item Único)
         const activeItems = selectedItemId ? items.filter(i => i.id === selectedItemId) : items;
@@ -14,8 +14,8 @@ export const useDashboardAnalytics = (items: InventoryItem[], history: MovementR
         const activeHistory = selectedItemId ? history.filter(h => h.itemId === selectedItemId) : history;
 
         // 2. KPIs Básicos
-        const next30Days = new Date(now);
-        next30Days.setDate(now.getDate() + 30);
+        const todayStr = getTodayISO();
+        const next30DaysStr = getNext30DaysISO();
         
         const lowStockItems = [];
         const expiringItems = [];
@@ -23,12 +23,11 @@ export const useDashboardAnalytics = (items: InventoryItem[], history: MovementR
         let totalValue = 0;
 
         for (const item of activeItems) {
-            const status = getItemStatus(item, now);
+            const status = getItemStatus(item);
             if (status.isLowStock) lowStockItems.push(item);
             if (status.isExpired) expiringItems.push(item);
             else if (item.expiryDate) {
-                const expDate = new Date(item.expiryDate);
-                if (expDate < next30Days && expDate >= now) expiringItems.push(item);
+                if (item.expiryDate < next30DaysStr && item.expiryDate >= todayStr) expiringItems.push(item);
             }
 
             if (item.quantity <= 0) outOfStockItems.push(item);
@@ -56,7 +55,7 @@ export const useDashboardAnalytics = (items: InventoryItem[], history: MovementR
         // Processa histórico total para KPIs globais
         for (const h of activeHistory) {
             const d = new Date(h.date);
-            if (d.toDateString() === todayStr) movementsToday++;
+            if (d.toDateString() === todayLegacyStr) movementsToday++;
             
             if (h.type === 'SAIDA') {
                 const key = `${d.getFullYear()}-${d.getMonth()}`;
