@@ -158,6 +158,7 @@ export const Purchases: React.FC<Props> = ({
                                             <button 
                                                 className="w-6 h-6 flex items-center justify-center rounded border border-orbital-border hover:bg-orbital-surface hover:text-orbital-accent transition-colors"
                                                 onClick={() => onUpdateQuantity(item.id, Math.max(1, item.suggestedQty - 1))}
+                                                aria-label="Diminuir quantidade"
                                             >
                                                 -
                                             </button>
@@ -165,6 +166,7 @@ export const Purchases: React.FC<Props> = ({
                                             <button
                                                 className="w-6 h-6 flex items-center justify-center rounded border border-orbital-border hover:bg-orbital-surface hover:text-orbital-accent transition-colors"
                                                 onClick={() => onUpdateQuantity(item.id, item.suggestedQty + 1)}
+                                                aria-label="Aumentar quantidade"
                                             >
                                                 +
                                             </button>
@@ -176,8 +178,9 @@ export const Purchases: React.FC<Props> = ({
                                             size="sm"
                                             onClick={() => onRemove(item.id)}
                                             className="text-orbital-subtext hover:text-orbital-danger"
+                                            aria-label="Remover item"
                                         >
-                                            <Trash2 size={16} />
+                                            <Trash2 size={16} aria-hidden="true" />
                                         </OrbitalButton>
                                     </OrbitalTd>
                                 </OrbitalRow>
