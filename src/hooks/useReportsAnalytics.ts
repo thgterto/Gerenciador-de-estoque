@@ -83,6 +83,8 @@ export const useReportsAnalytics = (items: InventoryItem[], history: MovementRec
         const today = new Date();
         const next90Days = new Date(today);
         next90Days.setDate(today.getDate() + 90);
+        // ⚡ Bolt: cache timestamp for math
+        const todayMs = today.getTime();
 
         const result = items
             .filter(i => i.expiryDate && new Date(i.expiryDate) <= next90Days)
@@ -90,7 +92,8 @@ export const useReportsAnalytics = (items: InventoryItem[], history: MovementRec
 
         return result.map(i => ({
             ...i,
-            daysRemaining: Math.ceil((new Date(i.expiryDate).getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
+            // ⚡ Bolt: pre-calculate division
+            daysRemaining: Math.ceil((new Date(i.expiryDate).getTime() - todayMs) / 86400000)
         }));
     }, [items]);
 
