@@ -42,10 +42,11 @@ export const ToastContainer: React.FC = () => {
                     </div>
 
                     <button
+                        aria-label="Close notification"
                         onClick={() => removeToast(toast.id)}
                         className="shrink-0 opacity-70 hover:opacity-100 transition-opacity"
                     >
-                        <X size={16} />
+                        <X size={16} aria-hidden="true" />
                     </button>
                 </div>
             ))}
