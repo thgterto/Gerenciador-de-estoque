@@ -59,10 +59,11 @@ export const OrbitalModal: React.FC<OrbitalModalProps> = ({
                              {title}
                         </h3>
                         <button
+                            aria-label="Close modal"
                             onClick={onClose}
                             className="p-1 text-orbital-subtext hover:text-orbital-danger transition-colors"
                         >
-                            <X size={20} />
+                            <X size={20} aria-hidden="true" />
                         </button>
                     </div>
                 )}
