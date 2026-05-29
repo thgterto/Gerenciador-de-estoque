@@ -17,18 +17,24 @@ export const useDashboardAnalytics = (items: InventoryItem[], history: MovementR
         const next30Days = new Date(now);
         next30Days.setDate(now.getDate() + 30);
         
+        // Fix: generate ISO string accurately considering local time by shifting timezone offset
+        const localToIso = (d: Date) => new Date(d.getTime() - (d.getTimezoneOffset() * 60000)).toISOString().split('T')[0];
+        const todayIsoStr = localToIso(now);
+        const next30DaysStr = localToIso(next30Days);
+
         const lowStockItems = [];
         const expiringItems = [];
         const outOfStockItems = [];
         let totalValue = 0;
 
         for (const item of activeItems) {
-            const status = getItemStatus(item, now);
+            // Optimization: allow `getItemStatus` to use its internal cached string comparison
+            const status = getItemStatus(item);
             if (status.isLowStock) lowStockItems.push(item);
             if (status.isExpired) expiringItems.push(item);
             else if (item.expiryDate) {
-                const expDate = new Date(item.expiryDate);
-                if (expDate < next30Days && expDate >= now) expiringItems.push(item);
+                // Optimization: use string comparison instead of `new Date` instantiation for expiration dates
+                if (item.expiryDate <= next30DaysStr && item.expiryDate >= todayIsoStr) expiringItems.push(item);
             }
 
             if (item.quantity <= 0) outOfStockItems.push(item);
