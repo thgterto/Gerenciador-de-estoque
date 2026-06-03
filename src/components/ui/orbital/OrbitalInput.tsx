@@ -39,8 +39,8 @@ export const OrbitalInput = forwardRef<HTMLInputElement, OrbitalInputProps>(({
                     className={`
                         w-full bg-orbital-bg/50 border-b border-orbital-border
                         text-orbital-text font-mono text-sm px-3 py-2.5
-                        outline-none focus:border-orbital-accent focus:bg-orbital-surface/50
-                        focus:shadow-[0_1px_0_0_rgba(6,182,212,0.5)]
+                        focus-visible:outline-none focus-visible:border-orbital-accent focus-visible:bg-orbital-surface/50
+                        focus-visible:shadow-[0_1px_0_0_rgba(6,182,212,0.5)] focus-visible:ring-2 focus-visible:ring-orbital-accent focus-visible:ring-offset-2 focus-visible:ring-offset-orbital-bg
                         transition-all duration-200
                         placeholder-orbital-subtext/30
                         ${(startAdornment || leftIcon) ? 'pl-10' : ''}
