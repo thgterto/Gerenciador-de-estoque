@@ -11,11 +11,11 @@ import {
 export const BottomNav: React.FC = () => {
     // Filter to 5 items max for better mobile UX
     const mobileItems = [
-        { path: '/dashboard', icon: <LayoutDashboard size={22} />, label: 'Dash' },
-        { path: '/inventory', icon: <Package size={22} />, label: 'Items' },
-        { path: '/purchases', icon: <ShoppingCart size={22} />, label: 'Buy' },
-        { path: '/storage', icon: <LayoutGrid size={22} />, label: 'Locs' },
-        { path: '/settings', icon: <Settings size={22} />, label: 'Config' },
+        { path: '/dashboard', icon: <LayoutDashboard size={22} aria-hidden="true" />, label: 'Dash' },
+        { path: '/inventory', icon: <Package size={22} aria-hidden="true" />, label: 'Items' },
+        { path: '/purchases', icon: <ShoppingCart size={22} aria-hidden="true" />, label: 'Buy' },
+        { path: '/storage', icon: <LayoutGrid size={22} aria-hidden="true" />, label: 'Locs' },
+        { path: '/settings', icon: <Settings size={22} aria-hidden="true" />, label: 'Config' },
     ];
 
     return (
@@ -25,7 +25,7 @@ export const BottomNav: React.FC = () => {
                     key={item.path}
                     to={item.path}
                     className={({ isActive }) => `
-                        flex flex-col items-center justify-center p-2 rounded-lg transition-all duration-200
+                        flex flex-col items-center justify-center p-2 rounded-lg transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orbital-accent focus-visible:z-10
                         ${isActive
                             ? 'text-orbital-accent scale-110 drop-shadow-[0_0_8px_rgba(6,182,212,0.6)]'
                             : 'text-orbital-subtext hover:text-orbital-text'}

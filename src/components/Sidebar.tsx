@@ -66,7 +66,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                                 key={item.path}
                                 to={item.path}
                                 className={({ isActive }) => `
-                                    flex items-center gap-3 px-3 py-2.5 rounded-none transition-all duration-200 group relative
+                                    flex items-center gap-3 px-3 py-2.5 rounded-none transition-all duration-200 group relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orbital-accent focus-visible:z-10
                                     ${isActive
                                         ? 'bg-orbital-accent/10 text-orbital-accent'
                                         : 'text-orbital-subtext hover:text-orbital-text hover:bg-orbital-surface'}
@@ -77,7 +77,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                                         {isActive && (
                                             <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-orbital-accent shadow-glow" />
                                         )}
-                                        <div className={`relative ${isActive ? 'text-orbital-accent drop-shadow-[0_0_8px_rgba(6,182,212,0.5)]' : ''}`}>
+                                        <div className={`relative ${isActive ? 'text-orbital-accent drop-shadow-[0_0_8px_rgba(6,182,212,0.5)]' : ''}`} aria-hidden="true">
                                             {item.label === 'Inventário' && notificationsCount > 0 ? (
                                                 <div className="relative">
                                                     {item.icon}
@@ -104,9 +104,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 <div className="p-4 bg-orbital-surface border-t border-orbital-border">
                     <button
                         onClick={onSync}
-                        className="flex items-center gap-3 w-full px-3 py-2 text-orbital-subtext hover:text-orbital-accent hover:bg-orbital-bg transition-colors mb-4 group"
+                        className="flex items-center gap-3 w-full px-3 py-2 text-orbital-subtext hover:text-orbital-accent hover:bg-orbital-bg transition-colors mb-4 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orbital-accent focus-visible:rounded"
+                        aria-label="Sincronizar Backup Manual"
                     >
-                        <RefreshCw size={18} className="group-hover:rotate-180 transition-transform duration-500" />
+                        <RefreshCw size={18} className="group-hover:rotate-180 transition-transform duration-500" aria-hidden="true" />
                         <div className="text-left">
                             <div className="text-sm font-medium">Sincronizar</div>
                             <div className="text-xs opacity-70">Backup manual</div>
@@ -127,11 +128,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
                         </div>
                         <button
                             onClick={onLogout}
-                            className="p-2 text-orbital-subtext hover:text-orbital-danger hover:bg-orbital-danger/10 rounded transition-colors"
+                            className="p-2 text-orbital-subtext hover:text-orbital-danger hover:bg-orbital-danger/10 rounded transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orbital-accent"
                             title="Sair"
                             aria-label="Sair"
                         >
-                            <LogOut size={20} />
+                            <LogOut size={20} aria-hidden="true" />
                         </button>
                     </div>
                 </div>
