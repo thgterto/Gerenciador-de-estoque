@@ -9,3 +9,6 @@
 ## 2025-05-25 - Explicit Labels for Touch Targets
 **Learning:** Helper components for mobile actions (like `MobileActionBtn`) often get created without `label` props, assuming icons are self-explanatory. This creates barriers for screen reader users on mobile where hover tooltips don't exist.
 **Action:** Enforce a `label` prop on all mobile-specific action button components and map it to both `title` (for long-press) and `aria-label`.
+## 2025-05-26 - QuickScanModal Accessibility
+**Learning:** Icon-only interactive elements, such as the X close button and +/- quantity adjusters, require explicit `aria-label`s for screen reader support. Purely visual icons within buttons that have visible text (like the Zap and Activity icons in the AUTO-SCAN / MANUAL toggle) or are part of an explicitly labeled button (like the X icon) should be marked with `aria-hidden="true"` to prevent redundant or confusing screen reader announcements. Inputs without associated labels (like the quantity input) also require an `aria-label`.
+**Action:** Always verify that icon-only buttons have descriptive `aria-label`s and that purely decorative/visual icons have `aria-hidden="true"`.
