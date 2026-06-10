@@ -123,8 +123,8 @@ export const QuickScanModal: React.FC<Props> = ({ isOpen, onClose }) => {
                         {continuousMode ? 'AUTO MODE ACTIVE (-1 OUT)' : 'MANUAL CONFIRMATION MODE'}
                     </p>
                 </div>
-                <button onClick={onClose} className="pointer-events-auto text-orbital-text hover:text-orbital-accent bg-black/50 p-2 border border-orbital-border hover:border-orbital-accent transition-all">
-                    <X size={20} />
+                <button aria-label="Close scanner" onClick={onClose} className="pointer-events-auto text-orbital-text hover:text-orbital-accent bg-black/50 p-2 border border-orbital-border hover:border-orbital-accent transition-all">
+                    <X size={20} aria-hidden="true" />
                 </button>
             </div>
 
@@ -182,7 +182,7 @@ export const QuickScanModal: React.FC<Props> = ({ isOpen, onClose }) => {
                         : 'bg-black/50 border-orbital-border text-orbital-subtext hover:border-orbital-accent hover:text-orbital-accent'
                     }`}
                 >
-                    {continuousMode ? <Zap size={14} fill="currentColor" /> : <Activity size={14} />}
+                    {continuousMode ? <Zap size={14} fill="currentColor" aria-hidden="true" /> : <Activity size={14} aria-hidden="true" />}
                     {continuousMode ? 'AUTO-SCAN' : 'MANUAL'}
                 </button>
             </div>
@@ -207,11 +207,13 @@ export const QuickScanModal: React.FC<Props> = ({ isOpen, onClose }) => {
                             <div className="flex flex-col gap-4">
                                 <div className="flex items-center gap-3">
                                     <button 
+                                        aria-label="Decrease quantity"
                                         className="size-10 border border-orbital-border hover:border-orbital-accent hover:bg-orbital-accent/10 flex items-center justify-center text-xl font-bold text-orbital-text transition-colors"
                                         onClick={() => setQuantity(String(Math.max(1, parseFloat(quantity) - 1)))}
                                     >-</button>
                                     <div className="flex-1">
                                          <input 
+                                            aria-label="Quantity"
                                             type="number" 
                                             value={quantity}
                                             onChange={(e) => setQuantity(e.target.value)}
@@ -219,6 +221,7 @@ export const QuickScanModal: React.FC<Props> = ({ isOpen, onClose }) => {
                                          />
                                     </div>
                                     <button 
+                                        aria-label="Increase quantity"
                                         className="size-10 border border-orbital-border hover:border-orbital-accent hover:bg-orbital-accent/10 flex items-center justify-center text-xl font-bold text-orbital-text transition-colors"
                                         onClick={() => setQuantity(String(parseFloat(quantity) + 1))}
                                     >+</button>
