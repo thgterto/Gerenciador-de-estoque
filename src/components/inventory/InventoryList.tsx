@@ -13,7 +13,7 @@ import { OrbitalButton } from '../ui/orbital/OrbitalButton';
 const GRID_TEMPLATE = "40px minmax(240px, 3fr) 120px minmax(180px, 1.5fr) 100px 100px 130px 110px";
 
 // Native List Component (Handles both Desktop and Mobile via Native Scroll + Pagination)
-const NativeList = ({
+const NativeList = React.memo(({
     flatList,
     onActions,
     hasRole,
@@ -112,7 +112,7 @@ const NativeList = ({
             )}
         </div>
     );
-};
+});
 
 interface InventoryListProps {
     flatList: any[];
