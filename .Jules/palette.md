@@ -9,3 +9,6 @@
 ## 2025-05-25 - Explicit Labels for Touch Targets
 **Learning:** Helper components for mobile actions (like `MobileActionBtn`) often get created without `label` props, assuming icons are self-explanatory. This creates barriers for screen reader users on mobile where hover tooltips don't exist.
 **Action:** Enforce a `label` prop on all mobile-specific action button components and map it to both `title` (for long-press) and `aria-label`.
+## 2025-02-12 - Added ARIA labels to icon-only buttons
+**Learning:** Icon-only buttons used for item actions (like add, remove, move, edit) in grid components like StorageMatrix require explicit aria-labels, as the 'icon' prop does not inherently provide an accessible name.
+**Action:** Always verify that icon-only instances of OrbitalButton include an aria-label to improve screen reader accessibility.
