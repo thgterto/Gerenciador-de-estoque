@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState } from 'react';
 import { User, UserRole } from '../types';
 
@@ -12,10 +11,19 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Simulação de "Banco de Dados" de usuários
-const MOCK_USERS: Record<string, { pass: string, name: string, role: UserRole }> = {
-    'admin': { pass: 'admin', name: 'Dr. Administrador', role: 'ADMIN' },
-    'operador': { pass: 'operador', name: 'Téc. Operador', role: 'OPERATOR' }
+// Helper function to hash password securely
+async function hashPassword(password: string): Promise<string> {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(password);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+// SECURITY FIX: Replaced plaintext passwords with SHA-256 hashes
+const MOCK_USERS: Record<string, { hash: string, name: string, role: UserRole }> = {
+    'admin': { hash: '8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918', name: 'Dr. Administrador', role: 'ADMIN' },
+    'operador': { hash: 'f4c51bbcd8b4cde28062828b6d0de72a39281515152a51f2bc88fb986e6616ed', name: 'Téc. Operador', role: 'OPERATOR' }
 };
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -38,19 +46,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       const target = MOCK_USERS[username.toLowerCase()];
       
-      if (target && target.pass === pass) {
-          const newUser: User = {
-              id: Math.random().toString(36).substr(2, 9),
-              username: username,
-              name: target.name,
-              role: target.role,
-              avatar: target.role === 'ADMIN' ? 'https://api.dicebear.com/7.x/avataaars/svg?seed=Felix' : 'https://api.dicebear.com/7.x/avataaars/svg?seed=Aneka',
-              active: true
-          };
-          
-          setUser(newUser);
-          localStorage.setItem('LC_AUTH_USER', JSON.stringify(newUser));
-          return true;
+      if (target) {
+          const hashedPass = await hashPassword(pass);
+          if (target.hash === hashedPass) {
+              const newUser: User = {
+                  id: Math.random().toString(36).substr(2, 9),
+                  username: username,
+                  name: target.name,
+                  role: target.role,
+                  avatar: target.role === 'ADMIN' ? 'https://api.dicebear.com/7.x/avataaars/svg?seed=Felix' : 'https://api.dicebear.com/7.x/avataaars/svg?seed=Aneka',
+                  active: true
+              };
+
+              setUser(newUser);
+              localStorage.setItem('LC_AUTH_USER', JSON.stringify(newUser));
+              return true;
+          }
       }
       
       return false;
