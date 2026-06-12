@@ -12,3 +12,7 @@
 **Vulnerability:** The Fastify server (`server/src/app.ts`) was binding to `0.0.0.0` (all interfaces) by default, exposing the local backend to the entire network. Coupled with a default JWT secret, this created a critical security risk.
 **Learning:** Development tools often prioritize convenience (`0.0.0.0`) over security (`127.0.0.1`). When distributed as part of a portable app or local tool, this exposes users to network attacks.
 **Prevention:** Always bind servers to `127.0.0.1` by default unless external access is explicitly required and secured. Use environment variables (e.g., `HOST`) to allow configuration for advanced use cases.
+## 2025-02-18 - [Fix DOM-based XSS in QR Code Modal]
+**Vulnerability:** DOM-based XSS via `document.write()` in `src/components/Modals.tsx`. Unescaped user inputs (`item.name`, `item.lotNumber`, `item.id`, `item.expiryDate`) were directly interpolated into an HTML string passed to a new window's document.
+**Learning:** React escapes input by default in JSX, but raw DOM manipulation APIs like `document.write()` or `innerHTML` bypass these protections. Security scanning tools effectively identify these unsafe patterns.
+**Prevention:** Created a standard `escapeHtml` utility function in `src/utils/stringUtils.ts` and wrapped all user inputs before string interpolation into raw HTML contexts.

@@ -237,3 +237,16 @@ export const calculateSimilarity = (header: string, keyword: string): number => 
     const dist = levenshteinDistance(h, k);
     return (longer.length - dist) / longer.length;
 };
+
+/**
+ * Escapes HTML characters in a string to prevent Cross-Site Scripting (XSS).
+ */
+export const escapeHtml = (unsafe: string | null | undefined): string => {
+    if (unsafe == null) return '';
+    return String(unsafe)
+         .replace(/&/g, "&amp;")
+         .replace(/</g, "&lt;")
+         .replace(/>/g, "&gt;")
+         .replace(/"/g, "&quot;")
+         .replace(/'/g, "&#039;");
+};
