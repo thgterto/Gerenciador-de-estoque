@@ -9,3 +9,6 @@
 ## 2025-05-25 - Explicit Labels for Touch Targets
 **Learning:** Helper components for mobile actions (like `MobileActionBtn`) often get created without `label` props, assuming icons are self-explanatory. This creates barriers for screen reader users on mobile where hover tooltips don't exist.
 **Action:** Enforce a `label` prop on all mobile-specific action button components and map it to both `title` (for long-press) and `aria-label`.
+## 2025-02-23 - Toast Accessibility Improvements
+**Learning:** Notification toasts lacked crucial screen reader accessibility, specifically `aria-live` regions for dynamic content and `aria-label` for icon-only close buttons.
+**Action:** Always wrap notification components in `aria-live` containers and ensure icon-only buttons have descriptive `aria-label`s.
