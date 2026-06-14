@@ -9,3 +9,7 @@
 **Vulnerability:** The server's error handler was returning raw exception messages to the client for 500 errors, potentially exposing database queries, file paths, or other internal implementation details.
 **Learning:** Default error handling often prioritizes developer convenience (debugging) over security. Explicit environment checks (`NODE_ENV === 'production'`) are critical for toggling between verbose and safe error messages.
 **Prevention:** Always implement a centralized error handler that sanitizes error messages in production builds, returning a generic "Internal Server Error" while logging the full details server-side.
+## 2025-02-27 - [XSS Fix] Sanitized Modals Print Window HTML Input
+**Vulnerability:** Directly evaluated user inputs into HTML using `document.write` inside `handlePrint()` for QR Codes.
+**Learning:** React escapes HTML on elements rendered automatically via JSX, but variables injected inside manually generated HTML strings used by window.open() bypass standard protection.
+**Prevention:** Explicit HTML entity escaping for user-submitted data must be manually applied before injecting it as part of an HTML template string.
