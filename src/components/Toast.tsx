@@ -10,10 +10,11 @@ export const ToastContainer: React.FC = () => {
     // Stacking is better for UX.
 
     return (
-        <div className="fixed bottom-6 right-6 z-[9999] flex flex-col gap-2 pointer-events-none">
+        <div className="fixed bottom-6 right-6 z-[9999] flex flex-col gap-2 pointer-events-none" aria-live="polite" aria-atomic="true">
             {toasts.map((toast) => (
                 <div
                     key={toast.id}
+                    role="alert"
                     className={`
                         pointer-events-auto
                         flex items-start gap-3 p-4 rounded-none border shadow-2xl backdrop-blur-md
@@ -25,7 +26,7 @@ export const ToastContainer: React.FC = () => {
                         ${toast.type === 'info' ? 'bg-orbital-accent/10 border-orbital-accent text-orbital-accent' : ''}
                     `}
                 >
-                    <div className="mt-0.5 shrink-0">
+                    <div className="mt-0.5 shrink-0" aria-hidden="true">
                         {toast.type === 'success' && <CheckCircle size={18} />}
                         {toast.type === 'error' && <AlertOctagon size={18} />}
                         {toast.type === 'warning' && <AlertTriangle size={18} />}
@@ -44,8 +45,10 @@ export const ToastContainer: React.FC = () => {
                     <button
                         onClick={() => removeToast(toast.id)}
                         className="shrink-0 opacity-70 hover:opacity-100 transition-opacity"
+                        aria-label="Fechar notificação"
+                        title="Fechar notificação"
                     >
-                        <X size={16} />
+                        <X size={16} aria-hidden="true" />
                     </button>
                 </div>
             ))}
