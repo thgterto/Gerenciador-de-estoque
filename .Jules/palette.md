@@ -9,3 +9,7 @@
 ## 2025-05-25 - Explicit Labels for Touch Targets
 **Learning:** Helper components for mobile actions (like `MobileActionBtn`) often get created without `label` props, assuming icons are self-explanatory. This creates barriers for screen reader users on mobile where hover tooltips don't exist.
 **Action:** Enforce a `label` prop on all mobile-specific action button components and map it to both `title` (for long-press) and `aria-label`.
+
+## 2025-06-15 - Explicit Focus Indicators for Buttons
+**Learning:** Custom buttons like `OrbitalButton` that remove default outlines often forget to replace them with an accessible `focus-visible` alternative. This makes the app very hard to navigate for keyboard users as they can't tell which element is currently focused.
+**Action:** Always add `focus-visible` utility classes (e.g., `focus-visible:ring-2 focus-visible:ring-offset-2`) to interactive elements like buttons to ensure keyboard accessibility without compromising mouse-click aesthetics.
