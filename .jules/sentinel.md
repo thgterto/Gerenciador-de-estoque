@@ -12,3 +12,8 @@
 **Vulnerability:** The Fastify server (`server/src/app.ts`) was binding to `0.0.0.0` (all interfaces) by default, exposing the local backend to the entire network. Coupled with a default JWT secret, this created a critical security risk.
 **Learning:** Development tools often prioritize convenience (`0.0.0.0`) over security (`127.0.0.1`). When distributed as part of a portable app or local tool, this exposes users to network attacks.
 **Prevention:** Always bind servers to `127.0.0.1` by default unless external access is explicitly required and secured. Use environment variables (e.g., `HOST`) to allow configuration for advanced use cases.
+
+## 2025-05-26 - Error Handler Bypass
+**Vulnerability:** The `InventoryController` in the Node.js backend was manually catching exceptions in API endpoints and sending the raw `error.message` unconditionally to the user (`res.status(500).send({ error: error.message });`).
+**Learning:** Manual `try/catch` blocks in controllers can inadvertently bypass global error handlers designed for security. In this case, `ErrorHandler.ts` was properly configured to sanitize errors in production, but the manual catch blocks prevented exceptions from ever reaching it, potentially exposing sensitive database errors or application logic.
+**Prevention:** Rely on the framework's global error handling (like Fastify's `setErrorHandler`) to catch, log, and sanitize unexpected exceptions in route handlers, rather than implementing redundant and potentially insecure local `try/catch` logic.
