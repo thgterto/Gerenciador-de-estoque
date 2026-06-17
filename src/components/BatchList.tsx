@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { InventoryService } from '../services/InventoryService';
 import { BatchDetailView } from '../types';
-import { formatDate } from '../utils/formatters';
+import { formatDate, calculateDaysToExpiry } from '../utils/formatters';
 import { OrbitalBadge } from './ui/orbital/OrbitalBadge';
 import { OrbitalButton } from './ui/orbital/OrbitalButton';
 import { db } from '../db';
@@ -78,7 +78,7 @@ export const BatchList: React.FC<BatchListProps> = ({ itemId, onViewHistory }) =
                 <tbody className="divide-y divide-orbital-border/50">
                     {batches.map((batch) => {
                         const daysToExpiry = batch.expiryDate 
-                            ? Math.ceil((new Date(batch.expiryDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))
+                            ? calculateDaysToExpiry(batch.expiryDate)
                             : 999;
                         
                         const isExpired = daysToExpiry < 0;

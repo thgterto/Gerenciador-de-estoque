@@ -5,6 +5,7 @@ import { OrbitalCard } from './ui/orbital/OrbitalCard';
 import { OrbitalButton } from './ui/orbital/OrbitalButton';
 import { OrbitalBadge } from './ui/orbital/OrbitalBadge';
 import { PlusCircle } from 'lucide-react';
+import { calculateDaysToExpiry } from '../utils/formatters';
 
 interface Props {
     item: InventoryItem;
@@ -25,7 +26,7 @@ export const PurchaseAlertCard: React.FC<Props> = React.memo(({ item, onAdd, rea
         
         if (reason === 'EXPIRING') {
             const days = item.expiryDate 
-                ? Math.ceil((new Date(item.expiryDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)) 
+                ? calculateDaysToExpiry(item.expiryDate)
                 : 0;
             return {
                 borderColor: 'border-orbital-warning/50',
