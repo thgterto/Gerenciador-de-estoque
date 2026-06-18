@@ -9,3 +9,8 @@
 **Vulnerability:** The server's error handler was returning raw exception messages to the client for 500 errors, potentially exposing database queries, file paths, or other internal implementation details.
 **Learning:** Default error handling often prioritizes developer convenience (debugging) over security. Explicit environment checks (`NODE_ENV === 'production'`) are critical for toggling between verbose and safe error messages.
 **Prevention:** Always implement a centralized error handler that sanitizes error messages in production builds, returning a generic "Internal Server Error" while logging the full details server-side.
+
+## 2026-06-18 - Insecure Default Fallback for JWT Secret
+**Vulnerability:** The backend application used a predictable, hardcoded string (`supersecret_change_me_in_prod`) as a fallback for the `JWT_SECRET` environment variable in `server/src/config.ts`. If deployed without configuration, an attacker could forge JWT tokens, leading to an authorization bypass.
+**Learning:** Hardcoded default secrets are dangerous, especially for portable tools or template code that may be deployed without full configuration. A fallback should either throw an error in production or generate a secure, random secret on startup.
+**Prevention:** Always use a randomly generated fallback (e.g., `crypto.randomBytes(32).toString('hex')`) if a configuration variable for a secret is missing, or strictly require it via an environment check to fail securely.
