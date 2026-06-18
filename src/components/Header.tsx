@@ -58,7 +58,7 @@ export const Header: React.FC<HeaderProps> = ({
                 <div className="flex items-center gap-3 sm:hidden">
                     <button
                         onClick={onMenuClick}
-                        className="p-2 -ml-2 text-orbital-subtext hover:text-orbital-accent rounded hover:bg-orbital-surface transition-colors"
+                        className="p-2 -ml-2 text-orbital-subtext hover:text-orbital-accent rounded hover:bg-orbital-surface transition-colors focus-visible:ring-2 focus-visible:ring-orbital-accent focus-visible:outline-none"
                         aria-label="Abrir menu"
                     >
                         <Menu size={24} aria-hidden="true" />
@@ -88,7 +88,7 @@ export const Header: React.FC<HeaderProps> = ({
                     {onAddClick && (
                         <button
                             onClick={onAddClick}
-                            className="p-2 text-orbital-accent hover:text-white hover:bg-orbital-accent rounded transition-all duration-200 hover:shadow-glow-sm active:scale-95"
+                            className="p-2 text-orbital-accent hover:text-white hover:bg-orbital-accent rounded transition-all duration-200 hover:shadow-glow-sm active:scale-95 focus-visible:ring-2 focus-visible:ring-orbital-accent focus-visible:outline-none"
                             title="Adicionar Item"
                             aria-label="Adicionar Item"
                         >
@@ -99,7 +99,7 @@ export const Header: React.FC<HeaderProps> = ({
                     {onScanClick && (
                          <button
                             onClick={onScanClick}
-                            className="p-2 text-orbital-subtext hover:text-orbital-text hover:bg-orbital-surface rounded transition-colors"
+                            className="p-2 text-orbital-subtext hover:text-orbital-text hover:bg-orbital-surface rounded transition-colors focus-visible:ring-2 focus-visible:ring-orbital-accent focus-visible:outline-none"
                             title="Scanner"
                             aria-label="Scanner"
                         >
@@ -109,7 +109,7 @@ export const Header: React.FC<HeaderProps> = ({
 
                     <button
                         onClick={onBackup}
-                        className="p-2 text-orbital-subtext hover:text-orbital-text hover:bg-orbital-surface rounded transition-colors group"
+                        className="p-2 text-orbital-subtext hover:text-orbital-text hover:bg-orbital-surface rounded transition-colors group focus-visible:ring-2 focus-visible:ring-orbital-accent focus-visible:outline-none"
                         title="Sincronizar"
                         aria-label="Sincronizar"
                     >
@@ -118,7 +118,7 @@ export const Header: React.FC<HeaderProps> = ({
 
                     <button
                         onClick={onToggleTheme}
-                        className="p-2 text-orbital-subtext hover:text-orbital-warning hover:bg-orbital-surface rounded transition-colors"
+                        className="p-2 text-orbital-subtext hover:text-orbital-warning hover:bg-orbital-surface rounded transition-colors focus-visible:ring-2 focus-visible:ring-orbital-accent focus-visible:outline-none"
                         title={theme === 'dark' ? 'Modo Claro' : 'Modo Escuro'}
                         aria-label={theme === 'dark' ? 'Modo Claro' : 'Modo Escuro'}
                     >
@@ -126,7 +126,7 @@ export const Header: React.FC<HeaderProps> = ({
                     </button>
 
                     <button
-                        className="p-2 text-orbital-subtext hover:text-orbital-text hover:bg-orbital-surface rounded transition-colors relative"
+                        className="p-2 text-orbital-subtext hover:text-orbital-text hover:bg-orbital-surface rounded transition-colors relative focus-visible:ring-2 focus-visible:ring-orbital-accent focus-visible:outline-none"
                         title="Notificações"
                         aria-label={`Notificações${notificationsCount > 0 ? ` (${notificationsCount} não lidas)` : ''}`}
                     >
