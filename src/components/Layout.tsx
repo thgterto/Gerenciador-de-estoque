@@ -31,6 +31,12 @@ export const Layout: React.FC<LayoutProps> = ({
 
     return (
         <div className="flex h-screen overflow-hidden bg-orbital-bg text-orbital-text">
+            <a
+                href="#main-content"
+                className="sr-only focus:not-sr-only focus:absolute focus:z-[100] focus:top-4 focus:left-4 focus:px-4 focus:py-2 focus:bg-orbital-accent focus:text-orbital-bg focus:rounded focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orbital-accent focus:font-display focus:font-bold"
+            >
+                Pular para o conteúdo principal
+            </a>
             <Header
                 onToggleTheme={toggleTheme}
                 onBackup={onBackupForce}
@@ -60,7 +66,7 @@ export const Layout: React.FC<LayoutProps> = ({
                 <div className="h-16 shrink-0" />
 
                 {/* Scrollable Content Area */}
-                <div className="flex-1 overflow-hidden flex flex-col relative pb-16 sm:pb-0">
+                <div id="main-content" tabIndex={-1} className="flex-1 overflow-hidden flex flex-col relative pb-16 sm:pb-0 outline-none">
                     {/* Added pb-16 for mobile bottom nav spacer */}
                     {children}
                 </div>
