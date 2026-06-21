@@ -48,7 +48,7 @@ export class SPFxInventoryService {
             // Note: In real PnPjs, you would associate the `.inBatch(batch)`
             // call with the list item operations. This is a simplified mock.
             const historyData = {
-                Title: `TXN-${new Date().getTime()}`,
+                Title: `TXN-${Date.now()}`,
                 ItemId: payload.itemId,
                 Type: payload.type,
                 Quantity: payload.quantity
