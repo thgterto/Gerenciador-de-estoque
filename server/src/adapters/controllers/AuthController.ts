@@ -37,11 +37,15 @@ export class AuthController {
 
     // Generate JWT
     // Assumes @fastify/jwt is registered in app.ts
-    const token = await reply.jwtSign({
-      id: user.id,
-      username: user.username,
-      role: user.role,
-    });
+    // SECURITY FIX: Added 8h expiration to prevent tokens from living forever
+    const token = await reply.jwtSign(
+      {
+        id: user.id,
+        username: user.username,
+        role: user.role,
+      },
+      { expiresIn: '8h' }
+    );
 
     return reply.send({ token });
   }
