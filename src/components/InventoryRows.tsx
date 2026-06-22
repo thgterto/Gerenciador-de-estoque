@@ -171,7 +171,7 @@ export const InventoryGroupRow = React.memo(({
                     h-full border-b border-orbital-border cursor-pointer transition-colors duration-200 group
                     ${isExpanded ? 'bg-orbital-accent/5' : 'bg-orbital-bg hover:bg-orbital-surface'}
                 `}
-                onClick={toggleExpand}
+                onClick={() => toggleExpand(group.groupKey)}
             >
                 <div
                     className="grid items-center h-full px-4"
@@ -281,7 +281,7 @@ export const InventoryMobileGroupRow = React.memo(({
     return (
         <div style={style} className="px-3 pt-3 pb-1">
             <div
-                onClick={toggleExpand}
+                onClick={() => toggleExpand(group.groupKey)}
                 className={`
                     rounded border transition-all duration-200 overflow-hidden active:scale-[0.99]
                     ${isExpanded
