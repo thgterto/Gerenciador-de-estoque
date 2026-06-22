@@ -9,3 +9,4 @@
 ## 2025-05-25 - Explicit Labels for Touch Targets
 **Learning:** Helper components for mobile actions (like `MobileActionBtn`) often get created without `label` props, assuming icons are self-explanatory. This creates barriers for screen reader users on mobile where hover tooltips don't exist.
 **Action:** Enforce a `label` prop on all mobile-specific action button components and map it to both `title` (for long-press) and `aria-label`.
+## 2026-06-22 - Add ARIA labels to icon-only close buttons\n**Learning:** Some icon-only close buttons in QuickScanModal, StorageMatrix, and TutorialModal lacked ARIA labels. The application is entirely in English under the hood, so ARIA labels must be added in English, otherwise screen readers will mispronounce them and confuse the user.\n**Action:** Add English aria-labels ('Close scanner', 'Close details', 'Close tutorial') to these icon-only buttons to improve screen reader accessibility.
