@@ -1,5 +1,6 @@
 import React, { useRef, useEffect } from 'react';
 import { useTheme } from '../context/ThemeContext';
+import { Tooltip } from './Tooltip';
 import {
     Menu,
     Search,
@@ -86,58 +87,63 @@ export const Header: React.FC<HeaderProps> = ({
                 {/* Right Actions */}
                 <div className="flex items-center gap-1 sm:gap-2">
                     {onAddClick && (
-                        <button
-                            onClick={onAddClick}
-                            className="p-2 text-orbital-accent hover:text-white hover:bg-orbital-accent rounded transition-all duration-200 hover:shadow-glow-sm active:scale-95"
-                            title="Adicionar Item"
-                            aria-label="Adicionar Item"
-                        >
-                            <Plus size={20} aria-hidden="true" />
-                        </button>
+                        <Tooltip content="Adicionar Item" position="bottom">
+                            <button
+                                onClick={onAddClick}
+                                className="p-2 text-orbital-accent hover:text-white hover:bg-orbital-accent rounded transition-all duration-200 hover:shadow-glow-sm active:scale-95"
+                                aria-label="Adicionar Item"
+                            >
+                                <Plus size={20} aria-hidden="true" />
+                            </button>
+                        </Tooltip>
                     )}
 
                     {onScanClick && (
-                         <button
-                            onClick={onScanClick}
-                            className="p-2 text-orbital-subtext hover:text-orbital-text hover:bg-orbital-surface rounded transition-colors"
-                            title="Scanner"
-                            aria-label="Scanner"
-                        >
-                            <ScanLine size={20} aria-hidden="true" />
-                        </button>
+                         <Tooltip content="Scanner" position="bottom">
+                             <button
+                                onClick={onScanClick}
+                                className="p-2 text-orbital-subtext hover:text-orbital-text hover:bg-orbital-surface rounded transition-colors"
+                                aria-label="Scanner"
+                            >
+                                <ScanLine size={20} aria-hidden="true" />
+                            </button>
+                        </Tooltip>
                     )}
 
-                    <button
-                        onClick={onBackup}
-                        className="p-2 text-orbital-subtext hover:text-orbital-text hover:bg-orbital-surface rounded transition-colors group"
-                        title="Sincronizar"
-                        aria-label="Sincronizar"
-                    >
-                        <RefreshCw size={20} className="group-hover:rotate-180 transition-transform duration-500" aria-hidden="true" />
-                    </button>
+                    <Tooltip content="Sincronizar" position="bottom">
+                        <button
+                            onClick={onBackup}
+                            className="p-2 text-orbital-subtext hover:text-orbital-text hover:bg-orbital-surface rounded transition-colors group"
+                            aria-label="Sincronizar"
+                        >
+                            <RefreshCw size={20} className="group-hover:rotate-180 transition-transform duration-500" aria-hidden="true" />
+                        </button>
+                    </Tooltip>
 
-                    <button
-                        onClick={onToggleTheme}
-                        className="p-2 text-orbital-subtext hover:text-orbital-warning hover:bg-orbital-surface rounded transition-colors"
-                        title={theme === 'dark' ? 'Modo Claro' : 'Modo Escuro'}
-                        aria-label={theme === 'dark' ? 'Modo Claro' : 'Modo Escuro'}
-                    >
-                        {theme === 'dark' ? <Sun size={20} aria-hidden="true" /> : <Moon size={20} aria-hidden="true" />}
-                    </button>
+                    <Tooltip content={theme === 'dark' ? 'Modo Claro' : 'Modo Escuro'} position="bottom">
+                        <button
+                            onClick={onToggleTheme}
+                            className="p-2 text-orbital-subtext hover:text-orbital-warning hover:bg-orbital-surface rounded transition-colors"
+                            aria-label={theme === 'dark' ? 'Modo Claro' : 'Modo Escuro'}
+                        >
+                            {theme === 'dark' ? <Sun size={20} aria-hidden="true" /> : <Moon size={20} aria-hidden="true" />}
+                        </button>
+                    </Tooltip>
 
-                    <button
-                        className="p-2 text-orbital-subtext hover:text-orbital-text hover:bg-orbital-surface rounded transition-colors relative"
-                        title="Notificações"
-                        aria-label={`Notificações${notificationsCount > 0 ? ` (${notificationsCount} não lidas)` : ''}`}
-                    >
-                        <Bell size={20} aria-hidden="true" />
-                        {notificationsCount > 0 && (
-                            <span className="absolute top-1.5 right-1.5 flex h-2.5 w-2.5">
-                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orbital-danger opacity-75"></span>
-                                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-orbital-danger"></span>
-                            </span>
-                        )}
-                    </button>
+                    <Tooltip content="Notificações" position="bottom">
+                        <button
+                            className="p-2 text-orbital-subtext hover:text-orbital-text hover:bg-orbital-surface rounded transition-colors relative"
+                            aria-label={`Notificações${notificationsCount > 0 ? ` (${notificationsCount} não lidas)` : ''}`}
+                        >
+                            <Bell size={20} aria-hidden="true" />
+                            {notificationsCount > 0 && (
+                                <span className="absolute top-1.5 right-1.5 flex h-2.5 w-2.5">
+                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orbital-danger opacity-75"></span>
+                                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-orbital-danger"></span>
+                                </span>
+                            )}
+                        </button>
+                    </Tooltip>
                 </div>
             </div>
         </header>

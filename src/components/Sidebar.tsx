@@ -1,6 +1,7 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { Tooltip } from './Tooltip';
 import {
     LayoutDashboard,
     Package,
@@ -125,14 +126,15 @@ export const Sidebar: React.FC<SidebarProps> = ({
                                 {user?.role === 'ADMIN' ? 'Administrator' : 'Operator'}
                             </div>
                         </div>
-                        <button
-                            onClick={onLogout}
-                            className="p-2 text-orbital-subtext hover:text-orbital-danger hover:bg-orbital-danger/10 rounded transition-colors"
-                            title="Sair"
-                            aria-label="Sair"
-                        >
-                            <LogOut size={20} />
-                        </button>
+                        <Tooltip content="Sair" position="top">
+                            <button
+                                onClick={onLogout}
+                                className="p-2 text-orbital-subtext hover:text-orbital-danger hover:bg-orbital-danger/10 rounded transition-colors"
+                                aria-label="Sair"
+                            >
+                                <LogOut size={20} />
+                            </button>
+                        </Tooltip>
                     </div>
                 </div>
             </div>
