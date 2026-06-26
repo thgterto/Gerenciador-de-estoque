@@ -59,7 +59,7 @@ const authController = new AuthController(registerUser, loginUser);
 
 // Register plugins
 app.register(cors, {
-  origin: '*', // Allow all origins for local tool
+  origin: ['http://localhost:3000', 'http://127.0.0.1:3000'], // SECURITY FIX: Restrict to local origins only
 });
 
 app.register(jwt, {
