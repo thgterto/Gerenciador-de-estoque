@@ -12,3 +12,8 @@
 **Vulnerability:** The Fastify server (`server/src/app.ts`) was binding to `0.0.0.0` (all interfaces) by default, exposing the local backend to the entire network. Coupled with a default JWT secret, this created a critical security risk.
 **Learning:** Development tools often prioritize convenience (`0.0.0.0`) over security (`127.0.0.1`). When distributed as part of a portable app or local tool, this exposes users to network attacks.
 **Prevention:** Always bind servers to `127.0.0.1` by default unless external access is explicitly required and secured. Use environment variables (e.g., `HOST`) to allow configuration for advanced use cases.
+
+## 2024-05-27 - Cross-Site Scripting (XSS) in Modals via document.write
+**Vulnerability:** Found a Cross-Site Scripting (XSS) vulnerability in `src/components/Modals.tsx` where user-controlled input (`item.name`, `item.lotNumber`, `item.expiryDate`, `item.id`) is unescaped and injected directly into `printWindow.document.write()`.
+**Learning:** React escapes input when rendering via JSX, but manual DOM manipulation or string building (like `document.write` or `innerHTML`) bypasses this protection, leading to XSS if inputs contain HTML/JS. Moreover, simply returning `String(unsafe)` without escaping when input is not a string leaves the vulnerability open if the payload is passed in arrays or objects.
+**Prevention:** Avoid `document.write`. When generating dynamic HTML as a string, manually sanitize/escape user inputs or use safer browser APIs instead of directly interpolating variables. Ensure the escape function reliably stringifies and sanitizes all input types.
