@@ -613,7 +613,7 @@ export const StorageMatrix: React.FC<Props> = ({ items, onActions }) => {
                                             </div>
                                             <h3 className="font-bold text-orbital-text text-base leading-tight truncate max-w-[280px]" title={selectedItem.name}>{selectedItem.name}</h3>
                                         </div>
-                                        <button className="text-orbital-subtext hover:text-orbital-text" onClick={() => setSelectedItem(null)}>
+                                        <button className="text-orbital-subtext hover:text-orbital-text" onClick={() => setSelectedItem(null)} aria-label="Close details">
                                             <X size={20} />
                                         </button>
                                     </div>
