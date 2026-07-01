@@ -1,4 +1,4 @@
-/* eslint-disable */
+
 import React, { useState, useCallback, useEffect } from 'react';
 import { InventoryItem } from '../../../types';
 import { PageHeader } from './ui/PageHeader';
