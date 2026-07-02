@@ -12,3 +12,7 @@
 **Vulnerability:** The Fastify server (`server/src/app.ts`) was binding to `0.0.0.0` (all interfaces) by default, exposing the local backend to the entire network. Coupled with a default JWT secret, this created a critical security risk.
 **Learning:** Development tools often prioritize convenience (`0.0.0.0`) over security (`127.0.0.1`). When distributed as part of a portable app or local tool, this exposes users to network attacks.
 **Prevention:** Always bind servers to `127.0.0.1` by default unless external access is explicitly required and secured. Use environment variables (e.g., `HOST`) to allow configuration for advanced use cases.
+## 2026-07-02 - Print Feature XSS via document.write
+**Vulnerability:** XSS risk via `printWindow.document.write()` in QR Code modal. The application directly injected `item.name`, `item.lotNumber`, `item.expiryDate`, `item.id`, and `svgHtml` without any sanitization into a newly opened window for printing.
+**Learning:** Even features like "printing" that open popups can be attack vectors if they render user-controlled data directly into the DOM using methods like `document.write()`.
+**Prevention:** Always sanitize user-controlled strings when using string interpolation for HTML generation using an established library like DOMPurify (`DOMPurify.sanitize()`), even in ephemeral print popups.
