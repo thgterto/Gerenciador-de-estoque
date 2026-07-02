@@ -9,3 +9,7 @@
 ## 2025-05-25 - Explicit Labels for Touch Targets
 **Learning:** Helper components for mobile actions (like `MobileActionBtn`) often get created without `label` props, assuming icons are self-explanatory. This creates barriers for screen reader users on mobile where hover tooltips don't exist.
 **Action:** Enforce a `label` prop on all mobile-specific action button components and map it to both `title` (for long-press) and `aria-label`.
+
+## 2026-07-02 - Accessible Icon Wrappers
+**Learning:** Icon-only buttons using generic wrapper components (like `OrbitalButton`) often lack accessible names. Additionally, the internal span rendering the icon should be hidden from screen readers to prevent redundant or confusing announcements when an accessible name is provided.
+**Action:** Add `aria-hidden="true"` to icon wrappers inside generic button components. Always verify that icon-only button implementations include `aria-label` or `title` attributes.

@@ -45,7 +45,7 @@ export const OrbitalButton: React.FC<OrbitalButtonProps> = ({
             {...props}
         >
             {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            {!isLoading && icon && <span className="mr-2 flex items-center">{icon}</span>}
+            {!isLoading && icon && <span className="mr-2 flex items-center" aria-hidden="true">{icon}</span>}
             {children}
 
             {/* Tech Corner Accent for Primary/Outline */}
