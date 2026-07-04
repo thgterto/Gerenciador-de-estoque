@@ -9,3 +9,6 @@
 ## 2025-05-25 - Explicit Labels for Touch Targets
 **Learning:** Helper components for mobile actions (like `MobileActionBtn`) often get created without `label` props, assuming icons are self-explanatory. This creates barriers for screen reader users on mobile where hover tooltips don't exist.
 **Action:** Enforce a `label` prop on all mobile-specific action button components and map it to both `title` (for long-press) and `aria-label`.
+## 2026-07-04 - Adding explicit aria-label for non-text components in compound buttons
+**Learning:** When using compound inner elements inside a button (like an icon plus two different text divs), a screen reader might string them together poorly or fail to read the button's primary intent clearly. Using an explicit `aria-label` on the button container guarantees a clean, understandable announcement (e.g. "Sincronizar (Backup manual)").
+**Action:** Always add an explicit `aria-label` when a button contains multiple nested text nodes or icons that don't form a simple continuous sentence.
