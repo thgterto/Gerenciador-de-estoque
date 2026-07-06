@@ -27,3 +27,4 @@ dist-ssr
 __pycache__/
 *.pyc
 labcontrol-spfx/labcontrol-spfx/node_modules/
+.jwt_secret
