@@ -9,3 +9,7 @@
 ## 2025-05-25 - Explicit Labels for Touch Targets
 **Learning:** Helper components for mobile actions (like `MobileActionBtn`) often get created without `label` props, assuming icons are self-explanatory. This creates barriers for screen reader users on mobile where hover tooltips don't exist.
 **Action:** Enforce a `label` prop on all mobile-specific action button components and map it to both `title` (for long-press) and `aria-label`.
+
+## 2026-07-07 - Accessible Input Components
+**Learning:** Custom input components often fail to programmatically link their label, error message, and help text to the actual `<input>` element, making it difficult for screen reader users to understand the context and state of the field.
+**Action:** Ensure all custom input components use `useId` to generate unique IDs, connect labels using `htmlFor`, link descriptive text with `aria-describedby`, and communicate error states via `aria-invalid`.
