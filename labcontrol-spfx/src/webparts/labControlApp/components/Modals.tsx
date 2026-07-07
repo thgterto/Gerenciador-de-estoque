@@ -154,10 +154,15 @@ export const QRGeneratorModal: React.FC<QRGeneratorModalProps> = ({ isOpen, onCl
         const printWindow = window.open('', '', 'width=600,height=400');
         if (printWindow) {
             const svgHtml = document.getElementById('qr-code-svg')?.outerHTML || '';
+            const itemName = String(item.name || '').replace(/</g, "&lt;").replace(/>/g, "&gt;");
+            const itemLot = String(item.lotNumber || '').replace(/</g, "&lt;").replace(/>/g, "&gt;");
+            const itemExpiry = item.expiryDate ? String(new Date(item.expiryDate).toLocaleDateString()).replace(/</g, "&lt;").replace(/>/g, "&gt;") : 'N/A';
+            const itemId = String(item.id || '').replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
             printWindow.document.write(`
                 <html>
                     <head>
-                        <title>${item.name}</title>
+                        <title>${itemName}</title>
                         <style>
                             @page { size: auto; margin: 0; }
                             body { margin: 0; padding: 10px; font-family: monospace; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; }
@@ -168,10 +173,10 @@ export const QRGeneratorModal: React.FC<QRGeneratorModalProps> = ({ isOpen, onCl
                     </head>
                     <body>
                         <div class="label">
-                            <div class="title">${item.name}</div>
-                            <div class="meta">Lote: ${item.lotNumber} | Val: ${item.expiryDate ? new Date(item.expiryDate).toLocaleDateString() : 'N/A'}</div>
+                            <div class="title">${itemName}</div>
+                            <div class="meta">Lote: ${itemLot} | Val: ${itemExpiry}</div>
                             ${svgHtml}
-                            <div class="meta" style="margin-top: 5px;">${item.id}</div>
+                            <div class="meta" style="margin-top: 5px;">${itemId}</div>
                         </div>
                         <script>setTimeout(() => { window.print(); window.close(); }, 500);</script>
                     </body>
