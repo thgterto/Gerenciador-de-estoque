@@ -7,6 +7,7 @@ import { ItemForm } from './ItemForm';
 import { AddItem } from './AddItem';
 import { useAlert } from '../context/AlertContext';
 import { useScanner } from '../hooks/useScanner';
+import { escapeHtml } from '../utils/security';
 import { OrbitalModal } from './ui/orbital/OrbitalModal';
 import { OrbitalButton } from './ui/orbital/OrbitalButton';
 import { OrbitalInput } from './ui/orbital/OrbitalInput';
@@ -153,10 +154,14 @@ export const QRGeneratorModal: React.FC<QRGeneratorModalProps> = ({ isOpen, onCl
         const printWindow = window.open('', '', 'width=600,height=400');
         if (printWindow) {
             const svgHtml = document.getElementById('qr-code-svg')?.outerHTML || '';
+            const safeName = escapeHtml(item.name);
+            const safeLotNumber = escapeHtml(item.lotNumber);
+            const safeExpiryDate = escapeHtml(item.expiryDate ? new Date(item.expiryDate).toLocaleDateString() : 'N/A');
+            const safeId = escapeHtml(item.id);
             printWindow.document.write(`
                 <html>
                     <head>
-                        <title>${item.name}</title>
+                        <title>${safeName}</title>
                         <style>
                             @page { size: auto; margin: 0; }
                             body { margin: 0; padding: 10px; font-family: monospace; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; }
@@ -167,10 +172,10 @@ export const QRGeneratorModal: React.FC<QRGeneratorModalProps> = ({ isOpen, onCl
                     </head>
                     <body>
                         <div class="label">
-                            <div class="title">${item.name}</div>
-                            <div class="meta">Lote: ${item.lotNumber} | Val: ${item.expiryDate ? new Date(item.expiryDate).toLocaleDateString() : 'N/A'}</div>
+                            <div class="title">${safeName}</div>
+                            <div class="meta">Lote: ${safeLotNumber} | Val: ${safeExpiryDate}</div>
                             ${svgHtml}
-                            <div class="meta" style="margin-top: 5px;">${item.id}</div>
+                            <div class="meta" style="margin-top: 5px;">${safeId}</div>
                         </div>
                         <script>setTimeout(() => { window.print(); window.close(); }, 500);</script>
                     </body>
