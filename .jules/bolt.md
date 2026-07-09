@@ -25,3 +25,7 @@
 ## 2025-02-14 - Unmemoized Hook Functions & Virtual List Performance
 **Learning:** Functions returned from custom hooks (like `toggleGroupExpand` in `useInventoryFilters`) that are recreated on every render will invalidate `itemData` prop passed to `react-window` components, forcing the entire list to re-render even if the underlying data (`flatList`) is stable.
 **Action:** Always wrap functions returned from hooks in `useCallback` if they are passed down to memoized children or used in `useMemo` dependencies, especially when filtering/sorting logic is involved.
+
+## 2024-10-27 - React.memo custom arePropsEqual for virtualized lists
+**Learning:** `React.memo` by default does a shallow comparison of all props. In large virtualized lists where the parent passes down functions or sets (like `selectedChildIds`), every interaction forces O(N) row re-renders.
+**Action:** Implemented `areChildPropsEqual` and `areGroupPropsEqual` for list row components to only check properties that visibly alter the UI. Especially for group rows, checking if the `some` or `every` state of selection changed is much more efficient than checking the set reference.
