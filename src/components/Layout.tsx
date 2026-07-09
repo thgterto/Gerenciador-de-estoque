@@ -31,6 +31,12 @@ export const Layout: React.FC<LayoutProps> = ({
 
     return (
         <div className="flex h-screen overflow-hidden bg-orbital-bg text-orbital-text">
+            <a
+                href="#main-content"
+                className="sr-only focus:not-sr-only focus:absolute focus:z-[100] focus:p-4 focus:bg-orbital-bg focus:text-orbital-text"
+            >
+                Pular para o conteúdo principal
+            </a>
             <Header
                 onToggleTheme={toggleTheme}
                 onBackup={onBackupForce}
@@ -54,6 +60,7 @@ export const Layout: React.FC<LayoutProps> = ({
             </div>
 
             <main
+                id="main-content"
                 className="flex-1 flex flex-col min-w-0 transition-all duration-300 sm:pl-[260px]"
             >
                 {/* Header Spacer */}
