@@ -9,3 +9,6 @@
 ## 2025-05-25 - Explicit Labels for Touch Targets
 **Learning:** Helper components for mobile actions (like `MobileActionBtn`) often get created without `label` props, assuming icons are self-explanatory. This creates barriers for screen reader users on mobile where hover tooltips don't exist.
 **Action:** Enforce a `label` prop on all mobile-specific action button components and map it to both `title` (for long-press) and `aria-label`.
+## 2026-07-10 - Quantity Toggle Button Accessibility and State
+**Learning:** Quantity toggle buttons (like +/-) without explicit ARIA labels are inaccessible. Furthermore, the '-' button must have both a functional 'disabled' attribute and corresponding visual disabled styles when the quantity reaches the minimum allowed value to prevent user confusion.
+**Action:** Always add 'aria-label' to icon-only toggle buttons and ensure boundary conditions (like min value of 1) visually disable the corresponding button using Tailwind disabled variants.
