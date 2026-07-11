@@ -125,6 +125,7 @@ export const Reports: React.FC<Props> = ({ items, history }) => {
         };
     }, [abcAnalysis, activeTab]);
 
+    const now = Date.now();
     return (
         <PageContainer scrollable={true}>
             <PageHeader 
@@ -376,7 +377,7 @@ export const Reports: React.FC<Props> = ({ items, history }) => {
                             </OrbitalHead>
                             <OrbitalBody>
                                 {expiryRisk.map(item => {
-                                    const days = Math.ceil((new Date(item.expiryDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
+                                    const days = Math.ceil((new Date(item.expiryDate).getTime() - now) / (1000 * 60 * 60 * 24));
                                     return (
                                         <OrbitalRow key={item.id}>
                                             <OrbitalTd><span className="font-bold text-orbital-text">{item.name}</span></OrbitalTd>
