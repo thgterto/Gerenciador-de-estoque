@@ -12,3 +12,8 @@
 **Vulnerability:** The Fastify server (`server/src/app.ts`) was binding to `0.0.0.0` (all interfaces) by default, exposing the local backend to the entire network. Coupled with a default JWT secret, this created a critical security risk.
 **Learning:** Development tools often prioritize convenience (`0.0.0.0`) over security (`127.0.0.1`). When distributed as part of a portable app or local tool, this exposes users to network attacks.
 **Prevention:** Always bind servers to `127.0.0.1` by default unless external access is explicitly required and secured. Use environment variables (e.g., `HOST`) to allow configuration for advanced use cases.
+
+## 2026-07-13 - Information Exposure via JWT Error Handling
+**Vulnerability:** The Fastify server (`server/src/app.ts`) was leaking error details directly to the client when JWT verification failed in the protected routes. Specifically, it used `reply.send(err);`, which exposes internal error structures and stack traces.
+**Learning:** Returning unhandled or raw errors to clients can leak sensitive application state, internal structures, and stack traces. Attackers can use this information to understand the backend architecture and find further attack vectors.
+**Prevention:** Always catch authentication errors and return generic, safe HTTP responses (e.g., `401 Unauthorized`) without leaking stack traces or internal exception details.
