@@ -9,3 +9,6 @@
 ## 2025-05-25 - Explicit Labels for Touch Targets
 **Learning:** Helper components for mobile actions (like `MobileActionBtn`) often get created without `label` props, assuming icons are self-explanatory. This creates barriers for screen reader users on mobile where hover tooltips don't exist.
 **Action:** Enforce a `label` prop on all mobile-specific action button components and map it to both `title` (for long-press) and `aria-label`.
+## 2025-02-14 - [Toggle Button Accessibility]
+**Learning:** Custom toggle buttons (like those used for status and category filters) often lack native state communication for screen readers. Simply relying on visual cues (like background color changes) is insufficient. Without `aria-pressed`, screen reader users don't know if a toggle button is currently active or inactive. Additionally, omitting `type="button"` inside forms (or in components that might be rendered inside forms) can lead to accidental form submissions.
+**Action:** Always ensure that custom toggle buttons have `type="button"` and an `aria-pressed` attribute dynamically bound to their active state. Also, remember to add `aria-label` to icon-only or generic text buttons (like a generic "Limpar" / "Clear" button for a specific filter group) for better context.
