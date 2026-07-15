@@ -12,3 +12,8 @@
 **Vulnerability:** The Fastify server (`server/src/app.ts`) was binding to `0.0.0.0` (all interfaces) by default, exposing the local backend to the entire network. Coupled with a default JWT secret, this created a critical security risk.
 **Learning:** Development tools often prioritize convenience (`0.0.0.0`) over security (`127.0.0.1`). When distributed as part of a portable app or local tool, this exposes users to network attacks.
 **Prevention:** Always bind servers to `127.0.0.1` by default unless external access is explicitly required and secured. Use environment variables (e.g., `HOST`) to allow configuration for advanced use cases.
+
+## 2025-05-18 - [Privilege Escalation & Information Disclosure]
+**Vulnerability:** A mass assignment vulnerability in the `/api/auth/register` endpoint allowed anyone to register an `ADMIN` account by passing `role: 'ADMIN'` in the request body. Additionally, the `/api/inventory` endpoint lacked authentication middleware, exposing the entire database contents.
+**Learning:** Zod schemas must not indiscriminately accept properties that dictate security roles (e.g., `role`). Ensure that registration endpoints either omit role assignment or validate admin-level authorization before applying it. Ensure all API endpoints that return sensitive data are protected by `jwtVerify`.
+**Prevention:** Avoid placing privileged fields in public request validation schemas. Hardcode the default `'USER'` role when dispatching to Use Cases from public controllers. Apply the same middleware logic (e.g., `onRequest` checks) to all data retrieval API routes.

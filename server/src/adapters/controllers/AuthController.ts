@@ -7,7 +7,6 @@ import { LoginUser } from '../../use-cases/LoginUser';
 const registerSchema = z.object({
   username: z.string().min(3),
   password: z.string().min(6),
-  role: z.enum(['ADMIN', 'USER']).optional(),
 });
 
 const loginSchema = z.object({
@@ -23,10 +22,11 @@ export class AuthController {
 
   async register(request: FastifyRequest, reply: FastifyReply) {
     const body = registerSchema.parse(request.body);
+    // SECURITY: Prevent privilege escalation via mass assignment by forcing USER role
     await this.registerUserUseCase.execute({
       username: body.username,
       password: body.password,
-      role: body.role as 'ADMIN' | 'USER' | undefined,
+      role: 'USER',
     });
     return reply.status(201).send({ message: 'User registered successfully' });
   }
