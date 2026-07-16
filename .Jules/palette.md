@@ -9,3 +9,7 @@
 ## 2025-05-25 - Explicit Labels for Touch Targets
 **Learning:** Helper components for mobile actions (like `MobileActionBtn`) often get created without `label` props, assuming icons are self-explanatory. This creates barriers for screen reader users on mobile where hover tooltips don't exist.
 **Action:** Enforce a `label` prop on all mobile-specific action button components and map it to both `title` (for long-press) and `aria-label`.
+
+## 2025-05-26 - Mobile Bottom Navigation Accessibility
+**Learning:** Shortened labels in mobile bottom navigation (e.g., "Dash" instead of "Dashboard") are visually necessary but can lack context for screen readers. Furthermore, interactive navigation elements need explicit labels to clearly denote their purpose.
+**Action:** Always provide explicit, descriptive `aria-label` attributes on mobile bottom navigation items and wrap icons in `aria-hidden="true"` spans to prevent redundant or confusing screen reader announcements.

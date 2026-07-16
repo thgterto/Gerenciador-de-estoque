@@ -24,6 +24,7 @@ export const BottomNav: React.FC = () => {
                 <NavLink
                     key={item.path}
                     to={item.path}
+                    aria-label={`Ir para ${item.label}`}
                     className={({ isActive }) => `
                         flex flex-col items-center justify-center p-2 rounded-lg transition-all duration-200
                         ${isActive
@@ -31,7 +32,9 @@ export const BottomNav: React.FC = () => {
                             : 'text-orbital-subtext hover:text-orbital-text'}
                     `}
                 >
-                    {item.icon}
+                    <span aria-hidden="true" className="flex items-center justify-center">
+                        {item.icon}
+                    </span>
                     <span className="text-[10px] font-medium mt-1 tracking-wide">{item.label}</span>
                 </NavLink>
             ))}
