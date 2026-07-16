@@ -308,10 +308,9 @@ export const MovementModal: React.FC<MovementModalProps> = ({ isOpen, onClose, i
 
     useEffect(() => {
         if(isOpen) {
-            // eslint-disable-next-line
-            if (quantity !== 1) setQuantity(1);
-            if (observation !== '') setObservation('');
-            if (type !== 'SAIDA') setType('SAIDA');
+            setQuantity(1);
+            setObservation('');
+            setType('SAIDA');
             setIsSubmitting(false);
         }
     }, [isOpen]);
@@ -413,10 +412,9 @@ export const RequestModal: React.FC<RequestModalProps> = ({ isOpen, onClose, onC
 
     useEffect(() => {
         if(isOpen) {
-             // eslint-disable-next-line
-             if (selectedId !== '') setSelectedId('');
-             if (qty !== 1) setQty(1);
-             if (searchTerm !== '') setSearchTerm('');
+             setSelectedId('');
+             setQty(1);
+             setSearchTerm('');
         }
     }, [isOpen]);
 
