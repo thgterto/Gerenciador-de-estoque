@@ -153,30 +153,47 @@ export const QRGeneratorModal: React.FC<QRGeneratorModalProps> = ({ isOpen, onCl
         const printWindow = window.open('', '', 'width=600,height=400');
         if (printWindow) {
             const svgHtml = document.getElementById('qr-code-svg')?.outerHTML || '';
-            printWindow.document.write(`
-                <html>
-                    <head>
-                        <title>${item.name}</title>
-                        <style>
-                            @page { size: auto; margin: 0; }
-                            body { margin: 0; padding: 10px; font-family: monospace; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; }
-                            .label { text-align: center; border: 1px dashed #000; padding: 10px; width: 80mm; }
-                            .title { font-weight: bold; font-size: 14px; margin-bottom: 5px; }
-                            .meta { font-size: 10px; margin-bottom: 5px; }
-                        </style>
-                    </head>
-                    <body>
-                        <div class="label">
-                            <div class="title">${item.name}</div>
-                            <div class="meta">Lote: ${item.lotNumber} | Val: ${item.expiryDate ? new Date(item.expiryDate).toLocaleDateString() : 'N/A'}</div>
-                            ${svgHtml}
-                            <div class="meta" style="margin-top: 5px;">${item.id}</div>
-                        </div>
-                        <script>setTimeout(() => { window.print(); window.close(); }, 500);</script>
-                    </body>
-                </html>
-            `);
-            printWindow.document.close();
+            // Create elements safely to prevent XSS
+
+            const style = printWindow.document.createElement('style');
+            style.textContent = '@page { size: auto; margin: 0; } body { margin: 0; padding: 10px; font-family: monospace; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; } .label { text-align: center; border: 1px dashed #000; padding: 10px; width: 80mm; } .title { font-weight: bold; font-size: 14px; margin-bottom: 5px; } .meta { font-size: 10px; margin-bottom: 5px; }';
+            printWindow.document.head.appendChild(style);
+
+            printWindow.document.title = item.name;
+
+            const labelDiv = printWindow.document.createElement('div');
+            labelDiv.className = 'label';
+
+            const titleDiv = printWindow.document.createElement('div');
+            titleDiv.className = 'title';
+            titleDiv.textContent = item.name;
+            labelDiv.appendChild(titleDiv);
+
+            const meta1Div = printWindow.document.createElement('div');
+            meta1Div.className = 'meta';
+            const expiryDateStr = item.expiryDate ? new Date(item.expiryDate).toLocaleDateString() : 'N/A';
+            meta1Div.textContent = `Lote: ${item.lotNumber} | Val: ${expiryDateStr}`;
+            labelDiv.appendChild(meta1Div);
+
+            const svgContainer = printWindow.document.createElement('div');
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(svgHtml, 'image/svg+xml');
+            if (doc.documentElement.nodeName === 'svg') {
+                svgContainer.appendChild(printWindow.document.adoptNode(doc.documentElement));
+            }
+            labelDiv.appendChild(svgContainer);
+
+            const meta2Div = printWindow.document.createElement('div');
+            meta2Div.className = 'meta';
+            meta2Div.style.marginTop = '5px';
+            meta2Div.textContent = item.id;
+            labelDiv.appendChild(meta2Div);
+
+            printWindow.document.body.appendChild(labelDiv);
+
+            const scriptEl = printWindow.document.createElement('script');
+            scriptEl.textContent = 'setTimeout(() => { window.print(); window.close(); }, 500);';
+            printWindow.document.body.appendChild(scriptEl);
         }
     };
 
