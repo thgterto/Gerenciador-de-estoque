@@ -158,15 +158,19 @@ export const Purchases: React.FC<Props> = ({
                                             <button 
                                                 className="w-6 h-6 flex items-center justify-center rounded border border-orbital-border hover:bg-orbital-surface hover:text-orbital-accent transition-colors"
                                                 onClick={() => onUpdateQuantity(item.id, Math.max(1, item.suggestedQty - 1))}
+                                                aria-label="Diminuir quantidade sugerida"
+                                                title="Diminuir quantidade"
                                             >
-                                                -
+                                                <span aria-hidden="true">-</span>
                                             </button>
                                             <span className="font-bold text-orbital-text w-8 text-center">{item.suggestedQty}</span>
                                             <button
                                                 className="w-6 h-6 flex items-center justify-center rounded border border-orbital-border hover:bg-orbital-surface hover:text-orbital-accent transition-colors"
                                                 onClick={() => onUpdateQuantity(item.id, item.suggestedQty + 1)}
+                                                aria-label="Aumentar quantidade sugerida"
+                                                title="Aumentar quantidade"
                                             >
-                                                +
+                                                <span aria-hidden="true">+</span>
                                             </button>
                                         </div>
                                     </OrbitalTd>
@@ -176,6 +180,8 @@ export const Purchases: React.FC<Props> = ({
                                             size="sm"
                                             onClick={() => onRemove(item.id)}
                                             className="text-orbital-subtext hover:text-orbital-danger"
+                                            aria-label="Remover item da lista de compras"
+                                            title="Remover"
                                         >
                                             <Trash2 size={16} />
                                         </OrbitalButton>
