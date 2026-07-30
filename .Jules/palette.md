@@ -9,3 +9,7 @@
 ## 2025-05-25 - Explicit Labels for Touch Targets
 **Learning:** Helper components for mobile actions (like `MobileActionBtn`) often get created without `label` props, assuming icons are self-explanatory. This creates barriers for screen reader users on mobile where hover tooltips don't exist.
 **Action:** Enforce a `label` prop on all mobile-specific action button components and map it to both `title` (for long-press) and `aria-label`.
+
+## 2026-03-22 - Interactive Divs Need Keyboard Support
+**Learning:** A common pattern in this app is using `div` elements with an `onClick` handler to create interactive cards or buttons (like `OrbitalCard`). This breaks accessibility because keyboard users cannot focus or activate them.
+**Action:** When making a `div` interactive with `onClick`, always remember to add `role="button"`, `tabIndex={0}`, an `onKeyDown` handler that listens for 'Enter' or 'Space' keys, and `focus-visible` styles so keyboard users can navigate and trigger the action.
