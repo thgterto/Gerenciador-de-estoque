@@ -12,3 +12,8 @@
 **Vulnerability:** The Fastify server (`server/src/app.ts`) was binding to `0.0.0.0` (all interfaces) by default, exposing the local backend to the entire network. Coupled with a default JWT secret, this created a critical security risk.
 **Learning:** Development tools often prioritize convenience (`0.0.0.0`) over security (`127.0.0.1`). When distributed as part of a portable app or local tool, this exposes users to network attacks.
 **Prevention:** Always bind servers to `127.0.0.1` by default unless external access is explicitly required and secured. Use environment variables (e.g., `HOST`) to allow configuration for advanced use cases.
+
+## 2026-05-27 - [XSS in Modals via document.write]
+**Vulnerability:** XSS vulnerability discovered in Modals.tsx components where user input (item.name, item.lotNumber, item.id) was directly injected into an HTML template passed to `printWindow.document.write()`.
+**Learning:** The vulnerability existed because dynamically generated print layouts created via `window.open` and `document.write` bypass modern framework protections (like React's built-in escaping) when assembling raw strings.
+**Prevention:** Always apply an `escapeHtml` utility or use safe DOM manipulation methods when generating dynamic HTML strings outside of the React rendering lifecycle, particularly for print layouts.
