@@ -58,8 +58,9 @@ const inventoryController = new InventoryController(
 const authController = new AuthController(registerUser, loginUser);
 
 // Register plugins
+// SECURITY: Restrict CORS to local development and application origins, with fallback for production
 app.register(cors, {
-  origin: '*', // Allow all origins for local tool
+  origin: process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',') : ['http://localhost:5173', 'http://127.0.0.1:5173'],
 });
 
 app.register(jwt, {
