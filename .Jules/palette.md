@@ -9,3 +9,6 @@
 ## 2025-05-25 - Explicit Labels for Touch Targets
 **Learning:** Helper components for mobile actions (like `MobileActionBtn`) often get created without `label` props, assuming icons are self-explanatory. This creates barriers for screen reader users on mobile where hover tooltips don't exist.
 **Action:** Enforce a `label` prop on all mobile-specific action button components and map it to both `title` (for long-press) and `aria-label`.
+## 2024-05-18 - Replacing Native Title Attributes with Custom Tooltips
+**Learning:** Relying on the native browser `title` attribute for icon-only buttons creates inconsistent and often delayed accessibility feedback. It's difficult to style and varies across browsers and operating systems, which degrades the experience for users who need immediate visual hints.
+**Action:** Replaced native `title` attributes with the custom `Tooltip` component for all critical icon-only actions in the `Header` and `Sidebar` components. This provides immediate, styled, and consistent visual feedback on hover, improving both accessibility and general usability. Future icon-only buttons should default to using the `Tooltip` component.
