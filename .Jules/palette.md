@@ -9,3 +9,7 @@
 ## 2025-05-25 - Explicit Labels for Touch Targets
 **Learning:** Helper components for mobile actions (like `MobileActionBtn`) often get created without `label` props, assuming icons are self-explanatory. This creates barriers for screen reader users on mobile where hover tooltips don't exist.
 **Action:** Enforce a `label` prop on all mobile-specific action button components and map it to both `title` (for long-press) and `aria-label`.
+
+## 2026-06-20 - Skip to Main Content Link
+**Learning:** React single-page applications often lack a traditional page load, which means screen reader users and keyboard navigators can get stuck tabbing through dense global navigation (like sidebars and headers) on every route change.
+**Action:** Always implement a visually-hidden "Skip to main content" link at the very top of the DOM (e.g., in `Layout.tsx`) that becomes visible on keyboard focus and links directly to the main `<main>` container with `tabIndex={-1}`.
