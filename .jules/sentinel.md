@@ -12,3 +12,7 @@
 **Vulnerability:** The Fastify server (`server/src/app.ts`) was binding to `0.0.0.0` (all interfaces) by default, exposing the local backend to the entire network. Coupled with a default JWT secret, this created a critical security risk.
 **Learning:** Development tools often prioritize convenience (`0.0.0.0`) over security (`127.0.0.1`). When distributed as part of a portable app or local tool, this exposes users to network attacks.
 **Prevention:** Always bind servers to `127.0.0.1` by default unless external access is explicitly required and secured. Use environment variables (e.g., `HOST`) to allow configuration for advanced use cases.
+## 2025-05-26 - Privilege Escalation via Mass Assignment
+**Vulnerability:** The `/api/auth/register` endpoint allowed users to specify their own `role` (e.g., `ADMIN`) during registration, leading to a Privilege Escalation vulnerability.
+**Learning:** This is a classic Mass Assignment vulnerability where input parameters are directly bound to object properties without filtering.
+**Prevention:** Never trust client input for sensitive fields like `role`, `permissions`, or `isAdmin`. Explicitly define the fields that are allowed to be updated or created in the schema, and hardcode or securely determine sensitive fields on the backend.
