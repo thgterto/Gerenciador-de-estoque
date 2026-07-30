@@ -160,7 +160,7 @@ export const InventoryList: React.FC<InventoryListProps> = ({
                  <div className="bg-orbital-surface border-b border-orbital-border py-2 px-4 shadow-sm z-10 sticky top-0">
                     <div className="grid items-center" style={{ gridTemplateColumns: GRID_TEMPLATE }}>
                         <div className="flex justify-center">
-                            <input
+                            <input aria-label="Selecionar todos"
                                 type="checkbox"
                                 className="accent-orbital-accent w-4 h-4 cursor-pointer"
                                 checked={filteredItemsCount > 0 && selectedIds.size === filteredItemsCount}

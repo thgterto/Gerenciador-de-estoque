@@ -123,7 +123,7 @@ export const InventoryFilters: React.FC<InventoryFiltersProps> = ({
                     {/* Zero Stock Toggle */}
                     <label className="flex items-center gap-2 cursor-pointer group whitespace-nowrap">
                         <div className="relative">
-                            <input
+                            <input aria-label="Apenas abaixo do minimo"
                                 type="checkbox"
                                 className="sr-only peer"
                                 checked={hideZeroStock}

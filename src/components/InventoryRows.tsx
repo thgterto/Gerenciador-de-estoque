@@ -180,7 +180,7 @@ export const InventoryGroupRow = React.memo(({
                     
                     {/* Checkbox */}
                     <div className="flex justify-center" onClick={(e) => e.stopPropagation()}>
-                        <input
+                        <input aria-label="Selecionar item"
                             type="checkbox"
                             className="accent-orbital-accent w-4 h-4 cursor-pointer"
                             checked={allSelected}

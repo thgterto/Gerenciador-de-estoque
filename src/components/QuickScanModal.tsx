@@ -212,7 +212,7 @@ export const QuickScanModal: React.FC<Props> = ({ isOpen, onClose }) => {
                                         aria-label="Decrease quantity"
                                     >-</button>
                                     <div className="flex-1">
-                                         <input 
+                                         <input aria-label="Quantidade"
                                             type="number" 
                                             value={quantity}
                                             onChange={(e) => setQuantity(e.target.value)}

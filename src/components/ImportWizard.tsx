@@ -339,7 +339,7 @@ export const ImportWizard: React.FC<Props> = ({ isOpen, onClose, mode }) => {
                     <div className="h-full flex flex-col items-center justify-center overflow-y-auto">
                         {isUpload ? (
                             <div className="w-full max-w-2xl h-64 flex flex-col items-center justify-center border border-dashed border-orbital-border bg-orbital-surface hover:bg-orbital-accent/5 transition-colors relative group cursor-pointer">
-                                <input type="file" onChange={handleFileUpload} className="absolute inset-0 opacity-0 cursor-pointer z-10" accept=".xlsx,.xls,.csv,.xlsm" />
+                                <input type="file" aria-label="Upload de Arquivo Excel" onChange={handleFileUpload} className="absolute inset-0 opacity-0 cursor-pointer z-10" accept=".xlsx,.xls,.csv,.xlsm" />
                                 <div className="text-orbital-accent mb-4 group-hover:scale-110 transition-transform">
                                     <Upload size={48} strokeWidth={1} />
                                 </div>
@@ -527,7 +527,7 @@ export const ImportWizard: React.FC<Props> = ({ isOpen, onClose, mode }) => {
                                     {mode === 'MASTER' && (
                                         <div className="flex flex-col gap-3">
                                              <label className={`flex items-start gap-3 p-3 border cursor-pointer transition-all ${!replaceMode ? 'border-orbital-accent bg-orbital-accent/5' : 'border-orbital-border hover:bg-orbital-accent/5'}`}>
-                                                <input type="radio" checked={!replaceMode} onChange={() => setReplaceMode(false)} className="mt-1 text-orbital-accent bg-transparent border-orbital-border focus:ring-0" />
+                                                <input type="radio" aria-label="Modo de importacao" checked={!replaceMode} onChange={() => setReplaceMode(false)} className="mt-1 text-orbital-accent bg-transparent border-orbital-border focus:ring-0" />
                                                 <div>
                                                     <span className="font-bold text-orbital-text text-sm uppercase tracking-wide block">Smart Merge (Recommended)</span>
                                                     <span className="text-xs text-orbital-subtext font-mono">
@@ -537,7 +537,7 @@ export const ImportWizard: React.FC<Props> = ({ isOpen, onClose, mode }) => {
                                             </label>
 
                                             <label className={`flex items-start gap-3 p-3 border cursor-pointer transition-all ${replaceMode ? 'border-orbital-danger bg-orbital-danger/5' : 'border-orbital-border hover:bg-orbital-danger/5'}`}>
-                                                <input type="radio" checked={replaceMode} onChange={() => setReplaceMode(true)} className="mt-1 text-orbital-danger bg-transparent border-orbital-border focus:ring-0" />
+                                                <input type="radio" aria-label="Modo de importacao" checked={replaceMode} onChange={() => setReplaceMode(true)} className="mt-1 text-orbital-danger bg-transparent border-orbital-border focus:ring-0" />
                                                 <div>
                                                     <span className="font-bold text-orbital-danger text-sm uppercase tracking-wide block">Total Wipe & Load</span>
                                                     <span className="text-xs text-orbital-subtext font-mono">

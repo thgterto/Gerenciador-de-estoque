@@ -359,7 +359,7 @@ export const TutorialModal: React.FC<Props> = ({ isOpen, onClose, setTab }) => {
 
                 <div className="mt-5 pt-4 border-t border-orbital-border flex justify-center">
                     <label className="flex items-center gap-2 cursor-pointer group select-none opacity-80 hover:opacity-100 transition-opacity">
-                        <input 
+                        <input aria-label="Mostrar este tutorial novamente"
                             type="checkbox" 
                             className="appearance-none w-3.5 h-3.5 border border-orbital-border bg-orbital-bg checked:bg-orbital-accent checked:border-orbital-accent focus:ring-0 transition-colors"
                             checked={dontShowAgain}
