@@ -12,3 +12,8 @@
 **Vulnerability:** The Fastify server (`server/src/app.ts`) was binding to `0.0.0.0` (all interfaces) by default, exposing the local backend to the entire network. Coupled with a default JWT secret, this created a critical security risk.
 **Learning:** Development tools often prioritize convenience (`0.0.0.0`) over security (`127.0.0.1`). When distributed as part of a portable app or local tool, this exposes users to network attacks.
 **Prevention:** Always bind servers to `127.0.0.1` by default unless external access is explicitly required and secured. Use environment variables (e.g., `HOST`) to allow configuration for advanced use cases.
+
+## 2025-06-12 - Hardcoded Default Passwords in Frontend
+**Vulnerability:** The React application shipped with hardcoded plaintext passwords (`admin`/`admin`, `operador`/`operador`) directly embedded in `src/context/AuthContext.tsx` and visible to users in `src/components/Login.tsx`.
+**Learning:** Hardcoded credentials in client-side code are easily extractable by anyone inspecting the JavaScript bundle. Using these default credentials for access control allows unauthorized access to administrative features, especially since they were prominently displayed on the login page.
+**Prevention:** Never store plaintext passwords in source code, even for mock environments. Use strong, salted password hashes (e.g., PBKDF2, Argon2, or at least SHA-256 for simple mocks) and compare hashes instead of plain text. Additionally, avoid exposing default credentials directly in the user interface.
