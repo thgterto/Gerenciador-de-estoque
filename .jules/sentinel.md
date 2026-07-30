@@ -12,3 +12,8 @@
 **Vulnerability:** The Fastify server (`server/src/app.ts`) was binding to `0.0.0.0` (all interfaces) by default, exposing the local backend to the entire network. Coupled with a default JWT secret, this created a critical security risk.
 **Learning:** Development tools often prioritize convenience (`0.0.0.0`) over security (`127.0.0.1`). When distributed as part of a portable app or local tool, this exposes users to network attacks.
 **Prevention:** Always bind servers to `127.0.0.1` by default unless external access is explicitly required and secured. Use environment variables (e.g., `HOST`) to allow configuration for advanced use cases.
+
+## 2026-05-19 - DOM-based XSS via unescaped inputs in print modals
+**Vulnerability:** The `document.write()` API was used to create printable HTML labels by interpolating user-controlled variables (like `item.name`, `item.lotNumber`, `item.id`) into a template string without prior sanitization. This introduced a classic DOM-based Cross-Site Scripting (XSS) vulnerability.
+**Learning:** Even when opening a "blank" window for printing, any HTML injected into it executes in the origin of the calling window. Using raw string interpolation (`${variable}`) inside an HTML context is fundamentally unsafe if the variable originates from user input.
+**Prevention:** Avoid `document.write()`. If you must construct HTML strings dynamically, ALWAYS pass user inputs through a robust HTML encoding function (e.g., escaping `&`, `<`, `>`, `"`, `'`) before interpolation. A better alternative is to use safer DOM APIs like `document.createElement` and `textContent`.
