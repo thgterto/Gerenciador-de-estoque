@@ -9,3 +9,6 @@
 ## 2025-05-25 - Explicit Labels for Touch Targets
 **Learning:** Helper components for mobile actions (like `MobileActionBtn`) often get created without `label` props, assuming icons are self-explanatory. This creates barriers for screen reader users on mobile where hover tooltips don't exist.
 **Action:** Enforce a `label` prop on all mobile-specific action button components and map it to both `title` (for long-press) and `aria-label`.
+## 2026-05-18 - Keyboard Navigation Consistency
+**Learning:** Icon buttons used for top level navigation elements or footer elements require distinct keyboard focus indicators for accessible navigation.
+**Action:** Always add `focus-visible:ring-2` to buttons without visible text for better keyboard focus accessibility.

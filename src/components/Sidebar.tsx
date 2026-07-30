@@ -104,9 +104,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 <div className="p-4 bg-orbital-surface border-t border-orbital-border">
                     <button
                         onClick={onSync}
-                        className="flex items-center gap-3 w-full px-3 py-2 text-orbital-subtext hover:text-orbital-accent hover:bg-orbital-bg transition-colors mb-4 group"
+                        className="flex items-center gap-3 w-full px-3 py-2 text-orbital-subtext hover:text-orbital-accent hover:bg-orbital-bg transition-colors mb-4 group focus-visible:ring-2 focus-visible:ring-orbital-accent outline-none"
                     >
-                        <RefreshCw size={18} className="group-hover:rotate-180 transition-transform duration-500" />
+                        <RefreshCw size={18} className="group-hover:rotate-180 transition-transform duration-500" aria-hidden="true" />
                         <div className="text-left">
                             <div className="text-sm font-medium">Sincronizar</div>
                             <div className="text-xs opacity-70">Backup manual</div>
@@ -127,11 +127,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
                         </div>
                         <button
                             onClick={onLogout}
-                            className="p-2 text-orbital-subtext hover:text-orbital-danger hover:bg-orbital-danger/10 rounded transition-colors"
+                            className="p-2 text-orbital-subtext hover:text-orbital-danger hover:bg-orbital-danger/10 rounded transition-colors focus-visible:ring-2 focus-visible:ring-orbital-danger outline-none"
                             title="Sair"
                             aria-label="Sair"
                         >
-                            <LogOut size={20} />
+                            <LogOut size={20} aria-hidden="true" />
                         </button>
                     </div>
                 </div>
