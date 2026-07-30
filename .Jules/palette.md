@@ -9,3 +9,7 @@
 ## 2025-05-25 - Explicit Labels for Touch Targets
 **Learning:** Helper components for mobile actions (like `MobileActionBtn`) often get created without `label` props, assuming icons are self-explanatory. This creates barriers for screen reader users on mobile where hover tooltips don't exist.
 **Action:** Enforce a `label` prop on all mobile-specific action button components and map it to both `title` (for long-press) and `aria-label`.
+
+## 2025-05-26 - Explicit Accessible Form Linking
+**Learning:** Custom UI components like `OrbitalInput` and `OrbitalSelect` often miss crucial form accessibility links such as generating unique IDs when one isn't provided, linking `label` via `htmlFor`, and indicating errors programmatically via `aria-invalid` and `aria-describedby`.
+**Action:** When creating or modifying custom form controls, always use `React.useId()` to ensure inputs and labels are explicitly linked, and surface validation states/descriptions via ARIA attributes.
