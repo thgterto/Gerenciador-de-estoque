@@ -9,3 +9,7 @@
 ## 2025-05-25 - Explicit Labels for Touch Targets
 **Learning:** Helper components for mobile actions (like `MobileActionBtn`) often get created without `label` props, assuming icons are self-explanatory. This creates barriers for screen reader users on mobile where hover tooltips don't exist.
 **Action:** Enforce a `label` prop on all mobile-specific action button components and map it to both `title` (for long-press) and `aria-label`.
+
+## 2025-05-26 - Navigation Bar Keyboard Focus Accessibility
+**Learning:** React Router `NavLink` elements and interactive components inside Navigation bars often lack explicit `focus-visible` outlines, reducing keyboard navigability.
+**Action:** Always verify keyboard navigation in Sidebar and BottomNav components and add `focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orbital-accent focus-visible:z-10` utility classes to `NavLink` and other `button`s if they are missing.
