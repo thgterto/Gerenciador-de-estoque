@@ -219,7 +219,7 @@ export const migrate = async () => {
 
     sqlite.transaction(() => {
         for (const stmt of statements) {
-            sqlite.exec(stmt);
+            sqlite.prepare(stmt).run();
         }
     })();
     sqlite.close();

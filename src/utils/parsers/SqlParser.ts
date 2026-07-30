@@ -37,7 +37,9 @@ export const SqlParser = {
         const regex = /'([^']*)'|([^,]+)/g;
         
         let m;
-        while ((m = regex.exec(inner)) !== null) {
+        let count = 0;
+        while ((m = regex.exec(inner)) !== null && count < 10000) {
+            count++;
             if (m[1] !== undefined) {
                 // Grupo 1: Valor string sem aspas
                 values.push(m[1]); 
