@@ -156,7 +156,7 @@ export const QRGeneratorModal: React.FC<QRGeneratorModalProps> = ({ isOpen, onCl
             printWindow.document.write(`
                 <html>
                     <head>
-                        <title>${item.name}</title>
+                        <title>Etiqueta</title>
                         <style>
                             @page { size: auto; margin: 0; }
                             body { margin: 0; padding: 10px; font-family: monospace; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; }
@@ -167,15 +167,30 @@ export const QRGeneratorModal: React.FC<QRGeneratorModalProps> = ({ isOpen, onCl
                     </head>
                     <body>
                         <div class="label">
-                            <div class="title">${item.name}</div>
-                            <div class="meta">Lote: ${item.lotNumber} | Val: ${item.expiryDate ? new Date(item.expiryDate).toLocaleDateString() : 'N/A'}</div>
+                            <div id="print-title" class="title"></div>
+                            <div id="print-meta-lot" class="meta"></div>
                             ${svgHtml}
-                            <div class="meta" style="margin-top: 5px;">${item.id}</div>
+                            <div id="print-meta-id" class="meta" style="margin-top: 5px;"></div>
                         </div>
                         <script>setTimeout(() => { window.print(); window.close(); }, 500);</script>
                     </body>
                 </html>
             `);
+
+            printWindow.document.title = item.name || 'Etiqueta';
+
+            const titleEl = printWindow.document.getElementById('print-title');
+            if (titleEl) titleEl.textContent = item.name || '';
+
+            const metaLotEl = printWindow.document.getElementById('print-meta-lot');
+            if (metaLotEl) {
+                const valText = item.expiryDate ? new Date(item.expiryDate).toLocaleDateString() : 'N/A';
+                metaLotEl.textContent = `Lote: ${item.lotNumber} | Val: ${valText}`;
+            }
+
+            const metaIdEl = printWindow.document.getElementById('print-meta-id');
+            if (metaIdEl) metaIdEl.textContent = item.id || '';
+
             printWindow.document.close();
         }
     };
