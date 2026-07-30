@@ -32,13 +32,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
     const { user } = useAuth();
 
     const menuItems = [
-        { path: '/dashboard', icon: <LayoutDashboard size={20} />, label: 'Dashboard' },
-        { path: '/inventory', icon: <Package size={20} />, label: 'Inventário' },
-        { path: '/storage', icon: <LayoutGrid size={20} />, label: 'Armazenamento' },
-        { path: '/history', icon: <History size={20} />, label: 'Histórico' },
-        { path: '/purchases', icon: <ShoppingCart size={20} />, label: 'Compras' },
-        { path: '/reports', icon: <BarChart3 size={20} />, label: 'Relatórios' },
-        { path: '/settings', icon: <Settings size={20} />, label: 'Configurações' },
+        { path: '/dashboard', icon: <LayoutDashboard size={20} aria-hidden="true" />, label: 'Dashboard' },
+        { path: '/inventory', icon: <Package size={20} aria-hidden="true" />, label: 'Inventário' },
+        { path: '/storage', icon: <LayoutGrid size={20} aria-hidden="true" />, label: 'Armazenamento' },
+        { path: '/history', icon: <History size={20} aria-hidden="true" />, label: 'Histórico' },
+        { path: '/purchases', icon: <ShoppingCart size={20} aria-hidden="true" />, label: 'Compras' },
+        { path: '/reports', icon: <BarChart3 size={20} aria-hidden="true" />, label: 'Relatórios' },
+        { path: '/settings', icon: <Settings size={20} aria-hidden="true" />, label: 'Configurações' },
     ];
 
     return (
@@ -51,7 +51,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 {/* Header / Logo */}
                 <div className="flex items-center gap-3 px-6 h-16 border-b border-orbital-border bg-orbital-bg/50 backdrop-blur-sm">
                     <div className="p-1.5 rounded bg-orbital-accent text-orbital-bg shadow-glow-sm">
-                        <FlaskConical size={20} />
+                        <FlaskConical size={20} aria-hidden="true" />
                     </div>
                     <div className="text-xl font-display font-bold tracking-tight text-orbital-text">
                         Lab<span className="text-orbital-accent">Control</span>
@@ -106,7 +106,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                         onClick={onSync}
                         className="flex items-center gap-3 w-full px-3 py-2 text-orbital-subtext hover:text-orbital-accent hover:bg-orbital-bg transition-colors mb-4 group"
                     >
-                        <RefreshCw size={18} className="group-hover:rotate-180 transition-transform duration-500" />
+                        <RefreshCw size={18} className="group-hover:rotate-180 transition-transform duration-500" aria-hidden="true" />
                         <div className="text-left">
                             <div className="text-sm font-medium">Sincronizar</div>
                             <div className="text-xs opacity-70">Backup manual</div>
@@ -131,7 +131,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                             title="Sair"
                             aria-label="Sair"
                         >
-                            <LogOut size={20} />
+                            <LogOut size={20} aria-hidden="true" />
                         </button>
                     </div>
                 </div>
