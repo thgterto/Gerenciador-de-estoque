@@ -12,3 +12,7 @@
 **Vulnerability:** The Fastify server (`server/src/app.ts`) was binding to `0.0.0.0` (all interfaces) by default, exposing the local backend to the entire network. Coupled with a default JWT secret, this created a critical security risk.
 **Learning:** Development tools often prioritize convenience (`0.0.0.0`) over security (`127.0.0.1`). When distributed as part of a portable app or local tool, this exposes users to network attacks.
 **Prevention:** Always bind servers to `127.0.0.1` by default unless external access is explicitly required and secured. Use environment variables (e.g., `HOST`) to allow configuration for advanced use cases.
+## 2025-05-23 - Prevent Error Details Leakage in Local Electron/Desktop Backend
+**Vulnerability:** The Fastify error handler was exposing raw `error.message` for 500 status codes when `NODE_ENV` was not `production`.
+**Learning:** In projects that are distributed as local desktop apps (like Electron with a Node.js backend using `pkg`), standard web-based `NODE_ENV` assumptions do not apply. Users run the app locally, meaning they will not necessarily have `NODE_ENV=production` set. As a result, sensitive error messages (e.g. database schema details or internal paths) are exposed in unhandled exceptions.
+**Prevention:** Never rely solely on `NODE_ENV` to protect sensitive information in locally distributed applications. Always use generic fallback messages for 500 errors and rely on logging to capture the detailed error securely.
