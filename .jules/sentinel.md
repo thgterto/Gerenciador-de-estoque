@@ -12,3 +12,7 @@
 **Vulnerability:** The Fastify server (`server/src/app.ts`) was binding to `0.0.0.0` (all interfaces) by default, exposing the local backend to the entire network. Coupled with a default JWT secret, this created a critical security risk.
 **Learning:** Development tools often prioritize convenience (`0.0.0.0`) over security (`127.0.0.1`). When distributed as part of a portable app or local tool, this exposes users to network attacks.
 **Prevention:** Always bind servers to `127.0.0.1` by default unless external access is explicitly required and secured. Use environment variables (e.g., `HOST`) to allow configuration for advanced use cases.
+## 2025-06-01 - Overly Permissive CORS Configuration
+**Vulnerability:** The Fastify backend (`server/src/app.ts`) was using a wildcard `origin: '*'` in its CORS configuration. This could allow malicious websites to make cross-origin requests to the local API server and read sensitive data if the user visits an attacker-controlled site while the local tool is running.
+**Learning:** Defaulting to wildcard `*` for local tools is dangerous. Even though it's "just localhost", a malicious site running in the user's browser can use XHR/fetch to attack `http://127.0.0.1:3000`.
+**Prevention:** Always explicitly define allowed origins for CORS. For local tools, whitelist the specific frontend dev server origin (e.g., `['http://localhost:5173', 'http://127.0.0.1:5173']`) instead of using wildcards.
