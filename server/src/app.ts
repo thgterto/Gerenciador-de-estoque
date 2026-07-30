@@ -141,8 +141,9 @@ const start = async () => {
     // Start server
     const port = config.port;
     // SECURITY: Bind to localhost to prevent network exposure of local tool
-    await app.listen({ port, host: config.host });
-    console.log(`Server running at http://${config.host}:${port}`);
+    // Hardcoding to 127.0.0.1 to ensure local-only access for portable app
+    await app.listen({ port, host: '127.0.0.1' });
+    console.log(`Server running at http://127.0.0.1:${port}`);
   } catch (err) {
     app.log.error(err);
     process.exit(1);
