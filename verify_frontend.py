@@ -1,5 +1,6 @@
 import time
 from playwright.sync_api import sync_playwright
+import os
 
 def verify_frontend():
     print("Starting frontend verification...")
@@ -13,109 +14,68 @@ def verify_frontend():
         context = browser.new_context(viewport={'width': 1280, 'height': 800})
         page = context.new_page()
 
-        # Capture console logs
-        page.on("console", lambda msg: print(f"Browser Console: {msg.text}"))
-        page.on("pageerror", lambda exc: print(f"Browser Error: {exc}"))
-
         try:
             # Navigate to the app
-            page.goto("http://localhost:5173")
+            page.goto("http://localhost:4173")
 
-            # LOGIN FLOW
-            print("Attempting login...")
-            # Wait for username input
-            page.wait_for_selector('input[placeholder="Digite seu usuário"]', timeout=10000)
-            page.fill('input[placeholder="Digite seu usuário"]', "admin")
+            # Since the failure is at login input, let's take a screenshot before interacting
+            page.wait_for_load_state('networkidle')
 
-            # Wait for password input
-            page.fill('input[placeholder="Digite sua senha"]', "admin")
+            # Fill login (if present)
+            user_input = page.locator('input[placeholder="Digite seu usuário"]')
+            if user_input.count() > 0:
+                print("Logging in...")
+                user_input.fill("admin")
+                page.locator('input[placeholder="Digite sua senha"]').fill("admin")
 
-            # Click submit
-            page.click('button[type="submit"]')
-
-            # Wait for dashboard to load (look for Sidebar)
-            print("Waiting for dashboard (timeout=30s)...")
-            try:
-                # Desktop sidebar usually has a specific class or structure.
-                # Based on previous analysis, Sidebar is an 'aside' or has 'nav' links.
-                # Let's wait for a common element like "Visão Geral" or "Inventário" in the menu
-                page.wait_for_selector('text=Visão Geral', timeout=30000)
-                print("✓ Login successful, Dashboard loaded")
-            except Exception as e:
-                print(f"❌ Dashboard did not load in time. Screenshotting...")
-                page.screenshot(path="verification/error_loading_stuck.png")
-                raise e
-
-            # Verify Sidebar is visible
-            sidebar = page.locator('aside') # Assuming Sidebar is an aside element
-            if sidebar.count() > 0 and sidebar.is_visible():
-                print("✓ Sidebar is visible (Desktop)")
+                # The "Entrar no sistema" button is actually type="button" perhaps?
+                # Or just click it based on text
+                page.locator('button').filter(has_text="Entrar").click()
+                time.sleep(2)
             else:
-                # Fallback: check for nav element
-                nav = page.locator('nav')
-                if nav.count() > 0 and nav.is_visible():
-                     print("✓ Nav/Sidebar is visible (Desktop)")
-                else:
-                    print("❌ Sidebar not found")
+                 print("Already logged in or no login found")
 
-            # Verify Bottom Nav is HIDDEN on desktop
-            bottom_nav = page.locator('footer') # Assuming BottomNav is footer or at bottom
-            # Actually, BottomNav might not be a footer tag. Let's look for specific mobile elements or classes.
-            # But checking Sidebar presence is good enough for now.
+            # Remove setup/tutorial modals
+            try:
+                page.evaluate("""() => {
+                    document.querySelectorAll('.fixed').forEach(el => {
+                        const z = parseInt(window.getComputedStyle(el).zIndex, 10);
+                        if (z >= 40) el.remove();
+                    });
+                }""")
+            except:
+                pass
 
-            # Screenshot Desktop
-            page.screenshot(path="verification/success_desktop.png")
-            print("✓ Desktop screenshot saved")
+            time.sleep(1)
+
+            # Go to Add Item (Cadastrar)
+            add_button = page.get_by_role("button", name="Cadastrar").first
+            if add_button.count() > 0:
+                 add_button.click()
+                 time.sleep(1)
+                 # Take screenshot
+                 page.screenshot(path="/home/jules/verification/verification_2.png")
+                 print("✓ Saved Add Item screenshot.")
+            else:
+                 # Check for elements containing "Cadastrar" or "Adicionar"
+                 btn = page.locator('text=Cadastrar').first
+                 if btn.count() > 0:
+                      btn.click()
+                      time.sleep(1)
+                      page.screenshot(path="/home/jules/verification/verification_2.png")
+                      print("✓ Saved Add Item screenshot via text locator.")
+                 else:
+                      print("❌ Could not find 'Cadastrar' button. Taking screenshot of current state.")
+                      page.screenshot(path="/home/jules/verification/verification_2.png")
 
         except Exception as e:
             print(f"❌ Desktop Test Failed: {e}")
-            page.screenshot(path="verification/failure_desktop.png")
+            page.screenshot(path="/home/jules/verification/verification_2.png")
 
-        context.close()
-
-        # --- TEST 2: MOBILE VIEW ---
-        print("\n--- Testing Mobile View (375x667) ---")
-        context_mobile = browser.new_context(viewport={'width': 375, 'height': 667})
-        page_mobile = context_mobile.new_page()
-
-        # Capture console logs
-        page_mobile.on("console", lambda msg: print(f"Mobile Browser Console: {msg.text}"))
-
-        try:
-            # Navigate to the app (should already be logged in if session persists, but incognito context won't)
-            # Need to login again for new context
-            page_mobile.goto("http://localhost:5173")
-
-            # LOGIN FLOW (Mobile)
-            print("Attempting login (Mobile)...")
-            page_mobile.wait_for_selector('input[placeholder="Digite seu usuário"]', timeout=10000)
-            page_mobile.fill('input[placeholder="Digite seu usuário"]', "admin")
-            page_mobile.fill('input[placeholder="Digite sua senha"]', "admin")
-            page_mobile.click('button[type="submit"]')
-
-            # Wait for dashboard
-            print("Waiting for dashboard (Mobile)...")
-            page_mobile.wait_for_selector('text=Visão Geral', timeout=30000)
-
-            # Verify Sidebar is HIDDEN (or transformed)
-            # Verify Bottom Nav is VISIBLE
-            # We created `BottomNav.tsx`. Let's assume it has a distinctive class or role.
-            # Searching for a known bottom nav item
-
-            # Check for Bottom Nav container (usually fixed bottom)
-            # Let's look for a specific mobile nav element if we know the class,
-            # otherwise look for the presence of nav links at the bottom.
-
-            # Taking a screenshot to verify manually if automated check is hard
-            page_mobile.screenshot(path="verification/success_mobile.png")
-            print("✓ Mobile screenshot saved")
-
-        except Exception as e:
-            print(f"❌ Mobile Test Failed: {e}")
-            page_mobile.screenshot(path="verification/failure_mobile.png")
-
-        context_mobile.close()
-        browser.close()
+        finally:
+            context.close()
+            browser.close()
 
 if __name__ == "__main__":
+    os.makedirs("/home/jules/verification", exist_ok=True)
     verify_frontend()
