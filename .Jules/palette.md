@@ -9,3 +9,6 @@
 ## 2025-05-25 - Explicit Labels for Touch Targets
 **Learning:** Helper components for mobile actions (like `MobileActionBtn`) often get created without `label` props, assuming icons are self-explanatory. This creates barriers for screen reader users on mobile where hover tooltips don't exist.
 **Action:** Enforce a `label` prop on all mobile-specific action button components and map it to both `title` (for long-press) and `aria-label`.
+## 2026-04-27 - Convert Interactive Divs to Buttons for Accessibility
+**Learning:** Interactive `div` elements used as toggles or buttons lack semantic meaning, keyboard accessibility, and proper ARIA states.
+**Action:** Convert interactive `div`s to `<button type="button">`, and ensure they have `aria-label`, `aria-pressed` (if toggles), and `aria-hidden="true"` on icon contents.
