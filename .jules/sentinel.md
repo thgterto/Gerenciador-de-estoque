@@ -12,3 +12,7 @@
 **Vulnerability:** The Fastify server (`server/src/app.ts`) was binding to `0.0.0.0` (all interfaces) by default, exposing the local backend to the entire network. Coupled with a default JWT secret, this created a critical security risk.
 **Learning:** Development tools often prioritize convenience (`0.0.0.0`) over security (`127.0.0.1`). When distributed as part of a portable app or local tool, this exposes users to network attacks.
 **Prevention:** Always bind servers to `127.0.0.1` by default unless external access is explicitly required and secured. Use environment variables (e.g., `HOST`) to allow configuration for advanced use cases.
+## 2025-02-23 - [DOM XSS in Print Windows]
+**Vulnerability:** Found `document.write` being used in `Modals.tsx` to generate printable QR code labels dynamically. The variables such as `item.name`, `item.lotNumber`, `item.id`, and `item.expiryDate` were directly injected into the raw HTML string without any prior encoding.
+**Learning:** This is a Reflected/DOM XSS because an attacker who inserts malicious payloads like `<script>alert('XSS')</script>` in product names could trigger an XSS event when someone tries to print that item's QR Code.
+**Prevention:** Always use HTML entity escaping when writing dynamic variables to raw HTML, especially in context changes like `document.write` in a popup window.
