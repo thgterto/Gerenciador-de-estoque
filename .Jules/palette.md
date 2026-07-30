@@ -9,3 +9,7 @@
 ## 2025-05-25 - Explicit Labels for Touch Targets
 **Learning:** Helper components for mobile actions (like `MobileActionBtn`) often get created without `label` props, assuming icons are self-explanatory. This creates barriers for screen reader users on mobile where hover tooltips don't exist.
 **Action:** Enforce a `label` prop on all mobile-specific action button components and map it to both `title` (for long-press) and `aria-label`.
+
+## 2025-06-18 - Missing Focus Styles for Keyboard Accessibility
+**Learning:** By default, many button styles remove default browser outlines but do not provide alternative visual focus indicators. This makes the interface inaccessible to keyboard users navigating via Tab.
+**Action:** Always add `focus-visible:ring-2 focus-visible:ring-[color] focus-visible:outline-none` to interactive elements (`<button>`, `<a>`, custom components like `OrbitalButton`) to ensure keyboard users have clear visual feedback of their current focus state without affecting mouse users.

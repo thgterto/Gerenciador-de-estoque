@@ -20,7 +20,7 @@ export const OrbitalButton: React.FC<OrbitalButtonProps> = ({
     fullWidth = false,
     ...props
 }) => {
-    const baseStyles = "relative inline-flex items-center justify-center font-display font-bold uppercase tracking-widest transition-all duration-200 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed";
+    const baseStyles = "relative inline-flex items-center justify-center font-display font-bold uppercase tracking-widest transition-all duration-200 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-orbital-accent focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-orbital-bg";
 
     const variants = {
         primary: "bg-orbital-accent text-orbital-bg border border-orbital-accent hover:bg-orbital-hover hover:border-orbital-hover shadow-glow-sm",

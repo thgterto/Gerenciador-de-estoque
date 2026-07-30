@@ -25,7 +25,7 @@ export const BottomNav: React.FC = () => {
                     key={item.path}
                     to={item.path}
                     className={({ isActive }) => `
-                        flex flex-col items-center justify-center p-2 rounded-lg transition-all duration-200
+                        flex flex-col items-center justify-center p-2 rounded-lg transition-all duration-200 focus-visible:ring-2 focus-visible:ring-orbital-accent focus-visible:outline-none
                         ${isActive
                             ? 'text-orbital-accent scale-110 drop-shadow-[0_0_8px_rgba(6,182,212,0.6)]'
                             : 'text-orbital-subtext hover:text-orbital-text'}
