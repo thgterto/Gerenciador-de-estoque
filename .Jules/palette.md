@@ -9,3 +9,7 @@
 ## 2025-05-25 - Explicit Labels for Touch Targets
 **Learning:** Helper components for mobile actions (like `MobileActionBtn`) often get created without `label` props, assuming icons are self-explanatory. This creates barriers for screen reader users on mobile where hover tooltips don't exist.
 **Action:** Enforce a `label` prop on all mobile-specific action button components and map it to both `title` (for long-press) and `aria-label`.
+
+## 2025-06-03 - Focus Visible Accessibility
+**Learning:** Default Tailwind \`focus:\` pseudo-classes trigger focus rings on both mouse click and keyboard navigation, leading to distracting UI for mouse users, and some components (like buttons) lacked explicit focus rings entirely.
+**Action:** Replaced \`focus:\` styling with \`focus-visible:\` for inputs and added \`focus-visible:\` rings to buttons. Ensure that all interactive elements utilize \`focus-visible\` to guarantee screen reader and keyboard accessibility while preserving a clean UI for mouse users.
