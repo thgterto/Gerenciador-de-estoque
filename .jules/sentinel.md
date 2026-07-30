@@ -12,3 +12,8 @@
 **Vulnerability:** The Fastify server (`server/src/app.ts`) was binding to `0.0.0.0` (all interfaces) by default, exposing the local backend to the entire network. Coupled with a default JWT secret, this created a critical security risk.
 **Learning:** Development tools often prioritize convenience (`0.0.0.0`) over security (`127.0.0.1`). When distributed as part of a portable app or local tool, this exposes users to network attacks.
 **Prevention:** Always bind servers to `127.0.0.1` by default unless external access is explicitly required and secured. Use environment variables (e.g., `HOST`) to allow configuration for advanced use cases.
+
+## 2025-05-26 - Insecure Session Management (No JWT Expiration)
+**Vulnerability:** The Fastify JWT implementation was signing tokens without an expiration time (`expiresIn`).
+**Learning:** Tokens that live forever pose a significant security risk if stolen, as they provide permanent access to the system. This violates the principle of least privilege and secure session management.
+**Prevention:** Always enforce a finite expiration time (`expiresIn`) when generating JSON Web Tokens (e.g., '1h', '8h'). This ensures that compromised tokens become invalid after a reasonable period.
