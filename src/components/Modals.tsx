@@ -149,33 +149,48 @@ export const QRGeneratorModal: React.FC<QRGeneratorModalProps> = ({ isOpen, onCl
         }
     };
 
+    const escapeHtml = (unsafe: string) => {
+        return (unsafe || '').toString()
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    };
+
     const handlePrint = () => {
         const printWindow = window.open('', '', 'width=600,height=400');
         if (printWindow) {
             const svgHtml = document.getElementById('qr-code-svg')?.outerHTML || '';
-            printWindow.document.write(`
-                <html>
-                    <head>
-                        <title>${item.name}</title>
-                        <style>
-                            @page { size: auto; margin: 0; }
-                            body { margin: 0; padding: 10px; font-family: monospace; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; }
-                            .label { text-align: center; border: 1px dashed #000; padding: 10px; width: 80mm; }
-                            .title { font-weight: bold; font-size: 14px; margin-bottom: 5px; }
-                            .meta { font-size: 10px; margin-bottom: 5px; }
-                        </style>
-                    </head>
-                    <body>
-                        <div class="label">
-                            <div class="title">${item.name}</div>
-                            <div class="meta">Lote: ${item.lotNumber} | Val: ${item.expiryDate ? new Date(item.expiryDate).toLocaleDateString() : 'N/A'}</div>
-                            ${svgHtml}
-                            <div class="meta" style="margin-top: 5px;">${item.id}</div>
-                        </div>
-                        <script>setTimeout(() => { window.print(); window.close(); }, 500);</script>
-                    </body>
-                </html>
+            const safeName = escapeHtml(item.name || '');
+            const safeLot = escapeHtml(item.lotNumber || '');
+            const safeDate = escapeHtml(item.expiryDate ? new Date(item.expiryDate).toLocaleDateString() : 'N/A');
+            const safeId = escapeHtml(item.id || '');
+
+            printWindow.document.head.insertAdjacentHTML('beforeend', `
+                <title>${safeName}</title>
+                <style>
+                    @page { size: auto; margin: 0; }
+                    body { margin: 0; padding: 10px; font-family: monospace; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; }
+                    .label { text-align: center; border: 1px dashed #000; padding: 10px; width: 80mm; }
+                    .title { font-weight: bold; font-size: 14px; margin-bottom: 5px; }
+                    .meta { font-size: 10px; margin-bottom: 5px; }
+                </style>
             `);
+
+            printWindow.document.body.insertAdjacentHTML('beforeend', `
+                <div class="label">
+                    <div class="title">${safeName}</div>
+                    <div class="meta">Lote: ${safeLot} | Val: ${safeDate}</div>
+                    ${svgHtml}
+                    <div class="meta" style="margin-top: 5px;">${safeId}</div>
+                </div>
+            `);
+
+            const script = printWindow.document.createElement('script');
+            script.textContent = "setTimeout(() => { window.print(); window.close(); }, 500);";
+            printWindow.document.body.appendChild(script);
+
             printWindow.document.close();
         }
     };
