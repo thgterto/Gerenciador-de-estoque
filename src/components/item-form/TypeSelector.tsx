@@ -24,6 +24,7 @@ export const TypeSelector: React.FC<TypeSelectorProps> = ({ currentType, onChang
                         key={key}
                         type="button"
                         onClick={() => onChange(key)}
+                        aria-pressed={currentType === key}
                         className={`
                             flex items-center gap-2 px-4 py-2 text-xs font-bold uppercase tracking-wide rounded transition-all duration-200
                             ${currentType === key

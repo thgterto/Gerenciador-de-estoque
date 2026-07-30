@@ -9,3 +9,7 @@
 ## 2025-05-25 - Explicit Labels for Touch Targets
 **Learning:** Helper components for mobile actions (like `MobileActionBtn`) often get created without `label` props, assuming icons are self-explanatory. This creates barriers for screen reader users on mobile where hover tooltips don't exist.
 **Action:** Enforce a `label` prop on all mobile-specific action button components and map it to both `title` (for long-press) and `aria-label`.
+
+## 2023-10-27 - Active State Accessibility for Radio/Toggle Buttons
+**Learning:** When using `<button>` elements to simulate radio groups or toggleable lists (like TypeSelector), `aria-pressed` must be used to indicate the active state to screen readers, especially if the visual cue is purely CSS-based (e.g., color changes).
+**Action:** Always add `aria-pressed={isActive}` to toggleable buttons or buttons acting as custom radio inputs.
