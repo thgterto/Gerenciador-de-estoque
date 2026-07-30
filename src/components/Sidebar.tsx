@@ -131,7 +131,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                             title="Sair"
                             aria-label="Sair"
                         >
-                            <LogOut size={20} />
+                            <LogOut size={20} aria-hidden="true" />
                         </button>
                     </div>
                 </div>
