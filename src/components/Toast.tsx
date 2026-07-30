@@ -14,6 +14,8 @@ export const ToastContainer: React.FC = () => {
             {toasts.map((toast) => (
                 <div
                     key={toast.id}
+                    role="alert"
+                    aria-live="assertive"
                     className={`
                         pointer-events-auto
                         flex items-start gap-3 p-4 rounded-none border shadow-2xl backdrop-blur-md
