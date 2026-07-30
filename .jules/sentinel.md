@@ -12,3 +12,7 @@
 **Vulnerability:** The Fastify server (`server/src/app.ts`) was binding to `0.0.0.0` (all interfaces) by default, exposing the local backend to the entire network. Coupled with a default JWT secret, this created a critical security risk.
 **Learning:** Development tools often prioritize convenience (`0.0.0.0`) over security (`127.0.0.1`). When distributed as part of a portable app or local tool, this exposes users to network attacks.
 **Prevention:** Always bind servers to `127.0.0.1` by default unless external access is explicitly required and secured. Use environment variables (e.g., `HOST`) to allow configuration for advanced use cases.
+## 2025-02-14 - [XSS] Stored XSS in QR Code Print Modal
+**Vulnerability:** Found a Cross-Site Scripting (XSS) vulnerability in `Modals.tsx` (in both `src` and `labcontrol-spfx`) where user-controlled inputs (`item.name`, `item.lotNumber`, `item.id`) were directly interpolated into a `document.write()` call without any sanitization.
+**Learning:** Security scanner (`scripts/security_scan.py`) flags all `document.write` instances as "XSS risk". While some are false positives or have no user input, cases where React prop data (like `item`) is placed directly into HTML strings bypass React's built-in XSS protections.
+**Prevention:** Always sanitize variables when writing HTML dynamically using `document.write()`, `innerHTML`, or similar APIs, by escaping characters like `<`, `>`, `&`, `"`, and `'`.
