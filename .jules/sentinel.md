@@ -12,3 +12,8 @@
 **Vulnerability:** The Fastify server (`server/src/app.ts`) was binding to `0.0.0.0` (all interfaces) by default, exposing the local backend to the entire network. Coupled with a default JWT secret, this created a critical security risk.
 **Learning:** Development tools often prioritize convenience (`0.0.0.0`) over security (`127.0.0.1`). When distributed as part of a portable app or local tool, this exposes users to network attacks.
 **Prevention:** Always bind servers to `127.0.0.1` by default unless external access is explicitly required and secured. Use environment variables (e.g., `HOST`) to allow configuration for advanced use cases.
+
+## 2025-05-26 - Privilege Escalation via Mass Assignment in Registration
+**Vulnerability:** The `AuthController`'s `register` method used a Zod schema (`registerSchema`) that permitted the user to define their own `role` (e.g., as `ADMIN`), which was passed straight through to the `RegisterUser` usecase.
+**Learning:** This is a classic mass assignment vulnerability. Accepting and using all properties from an input schema in an entity creation process allows malicious actors to escalate privileges or set fields they shouldn't control.
+**Prevention:** Explicitly define input schemas without sensitive properties (like `role`), or deliberately overwrite these properties with defaults or computed values (e.g., `role: 'USER'`) before passing the data to the persistence layer.
