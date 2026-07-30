@@ -13,6 +13,7 @@ import {
     RefreshCw,
     LogOut
 } from 'lucide-react';
+import { Tooltip } from './Tooltip';
 
 interface SidebarProps {
     onLogout: () => void;
@@ -125,14 +126,15 @@ export const Sidebar: React.FC<SidebarProps> = ({
                                 {user?.role === 'ADMIN' ? 'Administrator' : 'Operator'}
                             </div>
                         </div>
-                        <button
-                            onClick={onLogout}
-                            className="p-2 text-orbital-subtext hover:text-orbital-danger hover:bg-orbital-danger/10 rounded transition-colors"
-                            title="Sair"
-                            aria-label="Sair"
-                        >
-                            <LogOut size={20} />
-                        </button>
+                        <Tooltip content="Sair">
+                            <button
+                                onClick={onLogout}
+                                className="p-2 text-orbital-subtext hover:text-orbital-danger hover:bg-orbital-danger/10 rounded transition-colors"
+                                aria-label="Sair"
+                            >
+                                <LogOut size={20} />
+                            </button>
+                        </Tooltip>
                     </div>
                 </div>
             </div>
