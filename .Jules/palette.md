@@ -9,3 +9,7 @@
 ## 2025-05-25 - Explicit Labels for Touch Targets
 **Learning:** Helper components for mobile actions (like `MobileActionBtn`) often get created without `label` props, assuming icons are self-explanatory. This creates barriers for screen reader users on mobile where hover tooltips don't exist.
 **Action:** Enforce a `label` prop on all mobile-specific action button components and map it to both `title` (for long-press) and `aria-label`.
+
+## 2025-05-26 - Accessible Custom Toggles
+**Learning:** Using `div` with `onClick` for custom UI toggles (like risk selectors) completely breaks keyboard navigation and screen reader context.
+**Action:** Always use `<button type="button">` with `role="checkbox"` (or `aria-pressed`), `aria-checked`, and visible focus states (`focus-visible:ring`) for custom toggleable UI elements.
