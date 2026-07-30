@@ -80,6 +80,16 @@ const PURITY_GRADE_REGEX = /\b(P\.?A\.?|U\.?S\.?P\.?|H\.?P\.?L\.?C\.?)\b/gi;
 const PERCENT_REGEX = /\s*%\s*/g;
 const HYDRATION_REGEX = /(\d*)\s*H2O/gi; // Ex: 2 H2O -> 2H2O
 
+export const escapeHtml = (unsafe: string): string => {
+    if (!unsafe) return '';
+    return String(unsafe)
+         .replace(/&/g, "&amp;")
+         .replace(/</g, "&lt;")
+         .replace(/>/g, "&gt;")
+         .replace(/"/g, "&quot;")
+         .replace(/'/g, "&#039;");
+};
+
 export const normalizeStr = (str: string): string => {
     if (!str) return '';
     return str
