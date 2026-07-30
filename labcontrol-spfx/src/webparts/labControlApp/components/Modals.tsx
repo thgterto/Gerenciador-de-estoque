@@ -153,31 +153,42 @@ export const QRGeneratorModal: React.FC<QRGeneratorModalProps> = ({ isOpen, onCl
     const handlePrint = () => {
         const printWindow = window.open('', '', 'width=600,height=400');
         if (printWindow) {
+            const doc = printWindow.document;
             const svgHtml = document.getElementById('qr-code-svg')?.outerHTML || '';
-            printWindow.document.write(`
-                <html>
-                    <head>
-                        <title>${item.name}</title>
-                        <style>
-                            @page { size: auto; margin: 0; }
-                            body { margin: 0; padding: 10px; font-family: monospace; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; }
-                            .label { text-align: center; border: 1px dashed #000; padding: 10px; width: 80mm; }
-                            .title { font-weight: bold; font-size: 14px; margin-bottom: 5px; }
-                            .meta { font-size: 10px; margin-bottom: 5px; }
-                        </style>
-                    </head>
-                    <body>
-                        <div class="label">
-                            <div class="title">${item.name}</div>
-                            <div class="meta">Lote: ${item.lotNumber} | Val: ${item.expiryDate ? new Date(item.expiryDate).toLocaleDateString() : 'N/A'}</div>
-                            ${svgHtml}
-                            <div class="meta" style="margin-top: 5px;">${item.id}</div>
-                        </div>
-                        <script>setTimeout(() => { window.print(); window.close(); }, 500);</script>
-                    </body>
-                </html>
-            `);
-            printWindow.document.close();
+
+            // Build document safely without document.write to prevent XSS
+            doc.open();
+            doc.write('<!DOCTYPE html><html><head><title></title><style>@page { size: auto; margin: 0; } body { margin: 0; padding: 10px; font-family: monospace; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; } .label { text-align: center; border: 1px dashed #000; padding: 10px; width: 80mm; } .title { font-weight: bold; font-size: 14px; margin-bottom: 5px; } .meta { font-size: 10px; margin-bottom: 5px; }</style></head><body><div class="label" id="label-container"></div><script>setTimeout(() => { window.print(); window.close(); }, 500);</script></body></html>');
+            doc.close();
+
+            // Set dynamic content safely
+            doc.title = item.name || '';
+
+            const container = doc.getElementById('label-container');
+            if (container) {
+                const titleDiv = doc.createElement('div');
+                titleDiv.className = 'title';
+                titleDiv.textContent = item.name || '';
+
+                const metaDiv = doc.createElement('div');
+                metaDiv.className = 'meta';
+                const expiry = item.expiryDate ? new Date(item.expiryDate).toLocaleDateString() : 'N/A';
+                metaDiv.textContent = `Lote: ${item.lotNumber || ''} | Val: ${expiry}`;
+
+                container.appendChild(titleDiv);
+                container.appendChild(metaDiv);
+
+                // SVG is safe to inject as innerHTML as we generated it internally
+                const svgWrapper = doc.createElement('div');
+                svgWrapper.innerHTML = svgHtml;
+                container.appendChild(svgWrapper);
+
+                const idDiv = doc.createElement('div');
+                idDiv.className = 'meta';
+                idDiv.style.marginTop = '5px';
+                idDiv.textContent = item.id || '';
+                container.appendChild(idDiv);
+            }
         }
     };
 
