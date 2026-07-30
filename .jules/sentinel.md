@@ -12,3 +12,8 @@
 **Vulnerability:** The Fastify server (`server/src/app.ts`) was binding to `0.0.0.0` (all interfaces) by default, exposing the local backend to the entire network. Coupled with a default JWT secret, this created a critical security risk.
 **Learning:** Development tools often prioritize convenience (`0.0.0.0`) over security (`127.0.0.1`). When distributed as part of a portable app or local tool, this exposes users to network attacks.
 **Prevention:** Always bind servers to `127.0.0.1` by default unless external access is explicitly required and secured. Use environment variables (e.g., `HOST`) to allow configuration for advanced use cases.
+
+## 2025-05-26 - Information Exposure via Error Handling
+**Vulnerability:** The Fastify server (`server/src/adapters/controllers/InventoryController.ts`) was exposing full error messages in the JSON response when a 500 error occurred (`res.status(500).send({ error: error.message })`).
+**Learning:** Returning `error.message` directly in 500 responses is dangerous in production as it can leak internal file paths, function names, and logic structure.
+**Prevention:** Always sanitize error messages sent to the client. Use `req.log.error(error)` for internal logging (which goes to the platform's secure logs) and return generic or safe error messages (`Internal Server Error`) to the user.
