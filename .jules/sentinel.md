@@ -12,3 +12,7 @@
 **Vulnerability:** The Fastify server (`server/src/app.ts`) was binding to `0.0.0.0` (all interfaces) by default, exposing the local backend to the entire network. Coupled with a default JWT secret, this created a critical security risk.
 **Learning:** Development tools often prioritize convenience (`0.0.0.0`) over security (`127.0.0.1`). When distributed as part of a portable app or local tool, this exposes users to network attacks.
 **Prevention:** Always bind servers to `127.0.0.1` by default unless external access is explicitly required and secured. Use environment variables (e.g., `HOST`) to allow configuration for advanced use cases.
+## 2026-06-26 - [XSS Fix in Print Modal]
+**Vulnerability:** XSS risk via `document.write` in `src/components/Modals.tsx` and `labcontrol-spfx/src/webparts/labControlApp/components/Modals.tsx`. Unescaped dynamic properties (like `item.name`) were inserted directly into HTML.
+**Learning:** Legacy web APIs like `window.open().document.write()` are easy to implement but highly vulnerable to injection if the data rendered is user-controlled.
+**Prevention:** Sanitize or escape any dynamic variables before interpolating them into HTML templates when working with plain string templates.
