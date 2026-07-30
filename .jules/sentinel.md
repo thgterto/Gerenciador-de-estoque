@@ -12,3 +12,8 @@
 **Vulnerability:** The Fastify server (`server/src/app.ts`) was binding to `0.0.0.0` (all interfaces) by default, exposing the local backend to the entire network. Coupled with a default JWT secret, this created a critical security risk.
 **Learning:** Development tools often prioritize convenience (`0.0.0.0`) over security (`127.0.0.1`). When distributed as part of a portable app or local tool, this exposes users to network attacks.
 **Prevention:** Always bind servers to `127.0.0.1` by default unless external access is explicitly required and secured. Use environment variables (e.g., `HOST`) to allow configuration for advanced use cases.
+
+## 2025-05-26 - XSS Risk in Etiqueta Digital (Label Printing)
+**Vulnerability:** The Modals components (`src/components/Modals.tsx` and `labcontrol-spfx/src/webparts/labControlApp/components/Modals.tsx`) had an XSS vulnerability in the `handlePrint` function. It used `document.write` to generate an HTML document for printing labels, directly interpolating user inputs (`item.name`, `item.lotNumber`, `item.id`) without any sanitization.
+**Learning:** `document.write` combined with string interpolation is a classic XSS vector. Even if the data originates from an internal database, if it was user-supplied at any point without sanitization, it can execute malicious scripts in the context of the newly opened print window.
+**Prevention:** Never use direct string interpolation for user-provided data when constructing HTML strings, especially when using `document.write` or `dangerouslySetInnerHTML`. Always use an HTML escaping function (e.g., escaping `&`, `<`, `>`, `"`, `'`) before interpolating dynamic data into HTML templates.
