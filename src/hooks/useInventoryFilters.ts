@@ -68,8 +68,14 @@ export const useInventoryFilters = (items: InventoryItem[]) => {
         if (normalizedTerms.length === 0) return baseFilteredItems;
 
         return baseFilteredItems.filter(i => {
-            const itemStr = normalizeStr(`${i.name} ${i.sapCode} ${i.lotNumber} ${i.casNumber || ''}`);
-            return normalizedTerms.every(t => itemStr.includes(t));
+            // Lazy string evaluation: we cast to 'any' to dynamically assign a hidden property
+            // This prevents repeated normalizations on each key stroke for the same item.
+            let searchable = (i as any)._searchable;
+            if (!searchable) {
+                searchable = normalizeStr(`${i.name} ${i.sapCode} ${i.lotNumber} ${i.casNumber || ''}`);
+                (i as any)._searchable = searchable;
+            }
+            return normalizedTerms.every(t => searchable.includes(t));
         });
     }, [baseFilteredItems, debouncedTerm]);
 
