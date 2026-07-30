@@ -172,6 +172,15 @@ export const InventoryGroupRow = React.memo(({
                     ${isExpanded ? 'bg-orbital-accent/5' : 'bg-orbital-bg hover:bg-orbital-surface'}
                 `}
                 onClick={toggleExpand}
+                role="button"
+                tabIndex={0}
+                aria-expanded={isExpanded}
+                onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        toggleExpand();
+                    }
+                }}
             >
                 <div
                     className="grid items-center h-full px-4"
@@ -188,6 +197,7 @@ export const InventoryGroupRow = React.memo(({
                                 if (input) input.indeterminate = someSelected && !allSelected;
                             }}
                             onChange={(e) => onSelectGroup(items.map(i => i.id), e.target.checked)}
+                            aria-label={`Selecionar todos os ${items.length} itens do grupo ${primaryItem.name}`}
                         />
                     </div>
 
@@ -288,6 +298,15 @@ export const InventoryMobileGroupRow = React.memo(({
                         ? 'bg-orbital-surface border-orbital-accent shadow-glow-sm'
                         : 'bg-orbital-bg border-orbital-border shadow-sm'}
                 `}
+                role="button"
+                tabIndex={0}
+                aria-expanded={isExpanded}
+                onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        toggleExpand();
+                    }
+                }}
             >
                 <div className="p-3 flex gap-3">
                     <div className={`
