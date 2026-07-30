@@ -6,7 +6,6 @@ import { User } from '../domain/entities/User';
 export interface RegisterUserRequest {
   username: string;
   password: string;
-  role?: 'ADMIN' | 'USER';
 }
 
 export class RegisterUser {
@@ -19,7 +18,8 @@ export class RegisterUser {
     }
 
     const passwordHash = await PasswordService.hash(request.password);
-    const user = new User(request.username, passwordHash, request.role);
+    // SECURITY FIX: Enforce 'USER' role for all self-registered accounts
+    const user = new User(request.username, passwordHash, 'USER');
 
     await this.userRepository.save(user);
   }
