@@ -162,7 +162,8 @@ export const InventoryList: React.FC<InventoryListProps> = ({
                         <div className="flex justify-center">
                             <input
                                 type="checkbox"
-                                className="accent-orbital-accent w-4 h-4 cursor-pointer"
+                                aria-label="Selecionar todos os itens"
+                                className="accent-orbital-accent w-4 h-4 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-orbital-accent"
                                 checked={filteredItemsCount > 0 && selectedIds.size === filteredItemsCount}
                                 onChange={(e) => handleSelectAll(e.target.checked)}
                             />

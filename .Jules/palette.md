@@ -9,3 +9,6 @@
 ## 2025-05-25 - Explicit Labels for Touch Targets
 **Learning:** Helper components for mobile actions (like `MobileActionBtn`) often get created without `label` props, assuming icons are self-explanatory. This creates barriers for screen reader users on mobile where hover tooltips don't exist.
 **Action:** Enforce a `label` prop on all mobile-specific action button components and map it to both `title` (for long-press) and `aria-label`.
+## 2025-05-26 - Keyboard Focus and ARIA Labels
+**Learning:** Checkboxes and icon buttons need explicit focus states for keyboard users. The 'sr-only' class on custom toggle inputs hides the element, so 'focus-visible' utilities must be applied to the styled sibling using 'peer-focus-visible'.
+**Action:** Always verify keyboard accessibility using the Tab key. Apply 'focus-visible:ring-2' for visible focus, use 'peer-focus-visible' for custom toggles, and ensure all interactive elements have an 'aria-label' if text isn't explicitly visible.

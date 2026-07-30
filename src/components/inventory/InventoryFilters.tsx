@@ -129,7 +129,7 @@ export const InventoryFilters: React.FC<InventoryFiltersProps> = ({
                                 checked={hideZeroStock}
                                 onChange={(e) => setHideZeroStock(e.target.checked)}
                             />
-                            <div className="w-9 h-5 bg-orbital-bg border border-orbital-border rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-orbital-subtext after:border-gray-300 after:border after:rounded-full after:h-3.5 after:w-3.5 after:transition-all peer-checked:bg-orbital-accent peer-checked:border-orbital-accent peer-checked:after:bg-white shadow-inner"></div>
+                            <div className="w-9 h-5 bg-orbital-bg border border-orbital-border rounded-full peer peer-focus-visible:ring-2 peer-focus-visible:ring-orbital-accent peer-focus-visible:ring-offset-2 peer-focus-visible:ring-offset-orbital-bg peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-orbital-subtext after:border-gray-300 after:border after:rounded-full after:h-3.5 after:w-3.5 after:transition-all peer-checked:bg-orbital-accent peer-checked:border-orbital-accent peer-checked:after:bg-white shadow-inner"></div>
                         </div>
                         <span className="text-xs font-medium text-orbital-subtext group-hover:text-orbital-text transition-colors">
                             Ocultar sem estoque

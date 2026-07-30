@@ -182,7 +182,8 @@ export const InventoryGroupRow = React.memo(({
                     <div className="flex justify-center" onClick={(e) => e.stopPropagation()}>
                         <input
                             type="checkbox"
-                            className="accent-orbital-accent w-4 h-4 cursor-pointer"
+                            aria-label="Selecionar grupo"
+                            className="accent-orbital-accent w-4 h-4 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-orbital-accent"
                             checked={allSelected}
                             ref={input => {
                                 if (input) input.indeterminate = someSelected && !allSelected;
@@ -414,7 +415,7 @@ const ActionBtn = ({ onClick, title, icon }: any) => (
         onClick={(e) => { e.stopPropagation(); onClick(); }}
         title={title}
         aria-label={title}
-        className="p-1.5 text-orbital-subtext hover:text-orbital-accent hover:bg-orbital-accent/10 rounded transition-all duration-200"
+        className="p-1.5 text-orbital-subtext hover:text-orbital-accent hover:bg-orbital-accent/10 rounded transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-orbital-accent"
     >
         <span aria-hidden="true" className="flex items-center justify-center">
             {icon}
@@ -427,7 +428,7 @@ const MobileActionBtn = ({ onClick, icon, label }: any) => (
         onClick={onClick}
         title={label}
         aria-label={label}
-        className="flex items-center justify-center p-2 rounded text-orbital-subtext hover:text-orbital-text hover:bg-orbital-bg transition-colors"
+        className="flex items-center justify-center p-2 rounded text-orbital-subtext hover:text-orbital-text hover:bg-orbital-bg transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-orbital-accent"
     >
         <span aria-hidden="true" className="flex items-center justify-center">
             {icon}
