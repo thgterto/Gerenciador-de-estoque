@@ -17,18 +17,22 @@ export const useDashboardAnalytics = (items: InventoryItem[], history: MovementR
         const next30Days = new Date(now);
         next30Days.setDate(now.getDate() + 30);
         
+        const nowStr = now.toISOString().split('T')[0];
+        const next30DaysStr = next30Days.toISOString().split('T')[0];
+
         const lowStockItems = [];
         const expiringItems = [];
         const outOfStockItems = [];
         let totalValue = 0;
 
         for (const item of activeItems) {
-            const status = getItemStatus(item, now);
+            // Drop 'now' to trigger the fast-path (string comparison) in getItemStatus
+            const status = getItemStatus(item);
             if (status.isLowStock) lowStockItems.push(item);
             if (status.isExpired) expiringItems.push(item);
             else if (item.expiryDate) {
-                const expDate = new Date(item.expiryDate);
-                if (expDate < next30Days && expDate >= now) expiringItems.push(item);
+                // Optimization: String comparison is ~10x faster than new Date() parsing
+                if (item.expiryDate < next30DaysStr && item.expiryDate >= nowStr) expiringItems.push(item);
             }
 
             if (item.quantity <= 0) outOfStockItems.push(item);
