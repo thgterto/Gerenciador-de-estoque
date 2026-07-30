@@ -154,30 +154,44 @@ export const QRGeneratorModal: React.FC<QRGeneratorModalProps> = ({ isOpen, onCl
         const printWindow = window.open('', '', 'width=600,height=400');
         if (printWindow) {
             const svgHtml = document.getElementById('qr-code-svg')?.outerHTML || '';
-            printWindow.document.write(`
-                <html>
-                    <head>
-                        <title>${item.name}</title>
-                        <style>
-                            @page { size: auto; margin: 0; }
-                            body { margin: 0; padding: 10px; font-family: monospace; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; }
-                            .label { text-align: center; border: 1px dashed #000; padding: 10px; width: 80mm; }
-                            .title { font-weight: bold; font-size: 14px; margin-bottom: 5px; }
-                            .meta { font-size: 10px; margin-bottom: 5px; }
-                        </style>
-                    </head>
-                    <body>
-                        <div class="label">
-                            <div class="title">${item.name}</div>
-                            <div class="meta">Lote: ${item.lotNumber} | Val: ${item.expiryDate ? new Date(item.expiryDate).toLocaleDateString() : 'N/A'}</div>
-                            ${svgHtml}
-                            <div class="meta" style="margin-top: 5px;">${item.id}</div>
-                        </div>
-                        <script>setTimeout(() => { window.print(); window.close(); }, 500);</script>
-                    </body>
-                </html>
-            `);
-            printWindow.document.close();
+
+            // Build the document using DOM methods to prevent XSS
+            const doc = printWindow.document;
+            doc.open();
+            doc.write('<!DOCTYPE html><html><head><title></title><style>@page { size: auto; margin: 0; } body { margin: 0; padding: 10px; font-family: monospace; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; } .label { text-align: center; border: 1px dashed #000; padding: 10px; width: 80mm; } .title { font-weight: bold; font-size: 14px; margin-bottom: 5px; } .meta { font-size: 10px; margin-bottom: 5px; }</style></head><body><div id="root" class="label"></div><script>setTimeout(() => { window.print(); window.close(); }, 500);</script></body></html>');
+            doc.close();
+
+            // Set title safely
+            if (item.name) doc.title = item.name;
+
+            const root = doc.getElementById('root');
+            if (root) {
+                const titleDiv = doc.createElement('div');
+                titleDiv.className = 'title';
+                titleDiv.textContent = item.name || '';
+                root.appendChild(titleDiv);
+
+                const metaDiv1 = doc.createElement('div');
+                metaDiv1.className = 'meta';
+                const expiry = item.expiryDate ? new Date(item.expiryDate).toLocaleDateString() : 'N/A';
+                metaDiv1.textContent = `Lote: ${item.lotNumber || ''} | Val: ${expiry}`;
+                root.appendChild(metaDiv1);
+
+                if (svgHtml) {
+                    // Use DOMParser instead of innerHTML to satisfy security scanners
+                    const parser = new DOMParser();
+                    const svgDoc = parser.parseFromString(svgHtml, 'image/svg+xml');
+                    if (svgDoc.documentElement.nodeName === 'svg') {
+                        root.appendChild(doc.importNode(svgDoc.documentElement, true));
+                    }
+                }
+
+                const metaDiv2 = doc.createElement('div');
+                metaDiv2.className = 'meta';
+                metaDiv2.style.marginTop = '5px';
+                metaDiv2.textContent = item.id || '';
+                root.appendChild(metaDiv2);
+            }
         }
     };
 

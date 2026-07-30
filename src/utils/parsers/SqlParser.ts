@@ -36,8 +36,7 @@ export const SqlParser = {
         // 2. Valores fora de aspas (números, NULL, booleanos)
         const regex = /'([^']*)'|([^,]+)/g;
         
-        let m;
-        while ((m = regex.exec(inner)) !== null) {
+        for (const m of inner.matchAll(regex)) {
             if (m[1] !== undefined) {
                 // Grupo 1: Valor string sem aspas
                 values.push(m[1]); 
