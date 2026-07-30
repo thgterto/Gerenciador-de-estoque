@@ -12,3 +12,7 @@
 **Vulnerability:** The Fastify server (`server/src/app.ts`) was binding to `0.0.0.0` (all interfaces) by default, exposing the local backend to the entire network. Coupled with a default JWT secret, this created a critical security risk.
 **Learning:** Development tools often prioritize convenience (`0.0.0.0`) over security (`127.0.0.1`). When distributed as part of a portable app or local tool, this exposes users to network attacks.
 **Prevention:** Always bind servers to `127.0.0.1` by default unless external access is explicitly required and secured. Use environment variables (e.g., `HOST`) to allow configuration for advanced use cases.
+## 2025-03-06 - [Privilege Escalation in User Registration]
+**Vulnerability:** The `/api/auth/register` endpoint allowed the `role` parameter to be provided in the request body, leading to Mass Assignment / Privilege Escalation. Any user could register as an 'ADMIN' by simply supplying `role: 'ADMIN'`.
+**Learning:** Even if a parameter is marked as `.optional()` in a validation schema like Zod, if it is passed through directly to the use case or database, it opens the door to parameter tampering / mass assignment. User roles should never be controlled via client input during standard self-registration.
+**Prevention:** Explicitly restrict request validation schemas to only accept allowed parameters (like `username` and `password`). Use secure defaults within the entity or use case layer (e.g., defaulting to 'USER' role) and implement separate, protected mechanisms for assigning administrative privileges.
