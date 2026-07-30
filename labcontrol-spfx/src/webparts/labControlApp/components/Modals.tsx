@@ -4,6 +4,18 @@ import { InventoryItem, QRCodeDataDTO, CreateItemDTO } from '../../../types';
 import * as ReactQRCode from 'react-qr-code';
 const QRCode = (ReactQRCode as any).default || ReactQRCode;
 
+// Helper to escape HTML for XSS prevention
+const escapeHtml = (unsafe: string | null | undefined): string => {
+    if (!unsafe) return '';
+    return unsafe
+         .toString()
+         .replace(/&/g, "&amp;")
+         .replace(/</g, "&lt;")
+         .replace(/>/g, "&gt;")
+         .replace(/"/g, "&quot;")
+         .replace(/'/g, "&#039;");
+};
+
 import { ItemForm } from './ItemForm';
 import { AddItem } from './AddItem';
 import { useAlert } from '../../../context/AlertContext';
@@ -154,29 +166,36 @@ export const QRGeneratorModal: React.FC<QRGeneratorModalProps> = ({ isOpen, onCl
         const printWindow = window.open('', '', 'width=600,height=400');
         if (printWindow) {
             const svgHtml = document.getElementById('qr-code-svg')?.outerHTML || '';
-            printWindow.document.write(`
-                <html>
-                    <head>
-                        <title>${item.name}</title>
-                        <style>
-                            @page { size: auto; margin: 0; }
-                            body { margin: 0; padding: 10px; font-family: monospace; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; }
-                            .label { text-align: center; border: 1px dashed #000; padding: 10px; width: 80mm; }
-                            .title { font-weight: bold; font-size: 14px; margin-bottom: 5px; }
-                            .meta { font-size: 10px; margin-bottom: 5px; }
-                        </style>
-                    </head>
-                    <body>
-                        <div class="label">
-                            <div class="title">${item.name}</div>
-                            <div class="meta">Lote: ${item.lotNumber} | Val: ${item.expiryDate ? new Date(item.expiryDate).toLocaleDateString() : 'N/A'}</div>
-                            ${svgHtml}
-                            <div class="meta" style="margin-top: 5px;">${item.id}</div>
-                        </div>
-                        <script>setTimeout(() => { window.print(); window.close(); }, 500);</script>
-                    </body>
-                </html>
-            `);
+
+            const safeName = escapeHtml(item.name);
+            const safeLot = escapeHtml(item.lotNumber);
+            const safeVal = escapeHtml(item.expiryDate ? new Date(item.expiryDate).toLocaleDateString() : 'N/A');
+            const safeId = escapeHtml(item.id);
+
+            printWindow.document.head.innerHTML = `
+                <title>${safeName}</title>
+                <style>
+                    @page { size: auto; margin: 0; }
+                    body { margin: 0; padding: 10px; font-family: monospace; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; }
+                    .label { text-align: center; border: 1px dashed #000; padding: 10px; width: 80mm; }
+                    .title { font-weight: bold; font-size: 14px; margin-bottom: 5px; }
+                    .meta { font-size: 10px; margin-bottom: 5px; }
+                </style>
+            `;
+
+            printWindow.document.body.innerHTML = `
+                <div class="label">
+                    <div class="title">${safeName}</div>
+                    <div class="meta">Lote: ${safeLot} | Val: ${safeVal}</div>
+                    ${svgHtml}
+                    <div class="meta" style="margin-top: 5px;">${safeId}</div>
+                </div>
+            `;
+
+            const script = printWindow.document.createElement('script');
+            script.textContent = "setTimeout(() => { window.print(); window.close(); }, 500);";
+            printWindow.document.body.appendChild(script);
+
             printWindow.document.close();
         }
     };
