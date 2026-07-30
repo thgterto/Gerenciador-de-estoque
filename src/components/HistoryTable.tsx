@@ -23,7 +23,6 @@ import {
 } from 'lucide-react';
 
 interface Props {
-  history?: MovementRecord[]; 
   preselectedItemId?: string | null;
   preselectedBatchId?: string | null;
   onClearFilter?: () => void;
@@ -37,7 +36,8 @@ const getTypeBadge = (type: string) => {
     return <OrbitalBadge variant="warning" label="Ajuste" />;
 };
 
-const HistoryMobileRow = ({ item }: { item: MovementRecord }) => {
+// Memoizing list rows to prevent unnecessary re-renders of older items when 'Carregar Mais' updates visibleCount
+const HistoryMobileRow = React.memo(({ item }: { item: MovementRecord }) => {
     const amountColor = item.type === 'ENTRADA' ? 'text-orbital-success' : item.type === 'SAIDA' ? 'text-orbital-danger' : 'text-orbital-warning';
     const sign = item.type === 'ENTRADA' ? '+' : item.type === 'SAIDA' ? '-' : '';
 
@@ -73,9 +73,10 @@ const HistoryMobileRow = ({ item }: { item: MovementRecord }) => {
             )}
         </div>
     );
-};
+});
 
-const HistoryRow = ({ item }: { item: MovementRecord }) => {
+// Memoizing list rows to prevent unnecessary re-renders of older items when 'Carregar Mais' updates visibleCount
+const HistoryRow = React.memo(({ item }: { item: MovementRecord }) => {
     const amountColor = item.type === 'ENTRADA' ? 'text-orbital-success' : item.type === 'SAIDA' ? 'text-orbital-danger' : 'text-orbital-warning';
     const sign = item.type === 'ENTRADA' ? '+' : item.type === 'SAIDA' ? '-' : '';
 
@@ -125,7 +126,7 @@ const HistoryRow = ({ item }: { item: MovementRecord }) => {
           </div>
       </div>
     );
-};
+});
 
 const NativeHistoryList = ({ filtered, isMobile }: { filtered: MovementRecord[], isMobile: boolean }) => {
     const [visibleCount, setVisibleCount] = useState(50);
