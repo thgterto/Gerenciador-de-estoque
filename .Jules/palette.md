@@ -9,3 +9,7 @@
 ## 2025-05-25 - Explicit Labels for Touch Targets
 **Learning:** Helper components for mobile actions (like `MobileActionBtn`) often get created without `label` props, assuming icons are self-explanatory. This creates barriers for screen reader users on mobile where hover tooltips don't exist.
 **Action:** Enforce a `label` prop on all mobile-specific action button components and map it to both `title` (for long-press) and `aria-label`.
+
+## 2026-04-11 - Add skip to content link
+**Learning:** Keyboard users were forced to tab through the entire sidebar navigation on every page load because there was no skip link.
+**Action:** Added a visually hidden "Pular para o conteúdo principal" link at the very top of `Layout.tsx` that links to the `<main id="main-content">` area. The link becomes visible on focus, greatly improving keyboard navigation.
