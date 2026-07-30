@@ -9,3 +9,7 @@
 ## 2025-05-25 - Explicit Labels for Touch Targets
 **Learning:** Helper components for mobile actions (like `MobileActionBtn`) often get created without `label` props, assuming icons are self-explanatory. This creates barriers for screen reader users on mobile where hover tooltips don't exist.
 **Action:** Enforce a `label` prop on all mobile-specific action button components and map it to both `title` (for long-press) and `aria-label`.
+
+## 2025-05-26 - Label Association in Custom Inputs
+**Learning:** Custom input components (like `OrbitalInput`) that render both a `<label>` and an `<input>` often fail to associate them semantically. Screen readers will announce the label text as plain text and the input as an unlabeled field, making forms difficult to navigate.
+**Action:** Always generate a unique `id` (e.g., using React's `useId()`) and pass it to the `<input>` element while setting the `htmlFor` attribute on the `<label>` to semantically link them.
