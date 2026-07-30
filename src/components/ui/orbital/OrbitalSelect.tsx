@@ -1,4 +1,4 @@
-import React, { SelectHTMLAttributes } from 'react';
+import React, { SelectHTMLAttributes, useId } from 'react';
 import { ChevronDown } from 'lucide-react';
 
 interface Option {
@@ -21,17 +21,25 @@ export const OrbitalSelect: React.FC<OrbitalSelectProps> = ({
     fullWidth = false,
     className = '',
     helpText,
+    id,
     ...props
 }) => {
+    const generatedId = useId();
+    const selectId = id || generatedId;
+    const helpTextId = `${selectId}-helptext`;
+
     return (
         <div className={`flex flex-col gap-1.5 ${fullWidth ? 'w-full' : ''}`}>
             {label && (
-                <label className="text-xs font-display font-bold uppercase tracking-wider text-orbital-subtext pl-1">
+                <label htmlFor={selectId} className="text-xs font-display font-bold uppercase tracking-wider text-orbital-subtext pl-1">
                     {label}
                 </label>
             )}
             <div className="relative group">
                 <select
+                    id={selectId}
+                    aria-invalid={!!error}
+                    aria-describedby={(error || helpText) ? helpTextId : undefined}
                     className={`
                         w-full bg-orbital-bg/50 border-b border-orbital-border
                         text-orbital-text font-mono text-sm px-3 py-2.5 pr-10
@@ -56,7 +64,7 @@ export const OrbitalSelect: React.FC<OrbitalSelectProps> = ({
                  <div className="absolute bottom-0 left-0 h-[1px] bg-orbital-accent w-0 group-focus-within:w-full transition-all duration-300" />
             </div>
             {(error || helpText) && (
-                <span className={`text-xs pl-1 font-mono ${error ? 'text-orbital-danger' : 'text-orbital-subtext'}`}>
+                <span id={helpTextId} className={`text-xs pl-1 font-mono ${error ? 'text-orbital-danger' : 'text-orbital-subtext'}`}>
                     {error || helpText}
                 </span>
             )}
