@@ -12,3 +12,7 @@
 **Vulnerability:** The Fastify server (`server/src/app.ts`) was binding to `0.0.0.0` (all interfaces) by default, exposing the local backend to the entire network. Coupled with a default JWT secret, this created a critical security risk.
 **Learning:** Development tools often prioritize convenience (`0.0.0.0`) over security (`127.0.0.1`). When distributed as part of a portable app or local tool, this exposes users to network attacks.
 **Prevention:** Always bind servers to `127.0.0.1` by default unless external access is explicitly required and secured. Use environment variables (e.g., `HOST`) to allow configuration for advanced use cases.
+## 2024-05-20 - [Fix XSS in Modals.tsx Print Window]
+**Vulnerability:** XSS vulnerability where un-sanitized inventory item properties (name, lotNumber, id) were interpolated directly into a `document.write` call when generating the print QR code window.
+**Learning:** `document.write` is used to create new dynamic windows for printing (a common React printing pattern). However, since React's auto-escaping doesn't apply inside these template strings passed to browser APIs, manual sanitization is required.
+**Prevention:** Whenever rendering template literals inside native browser APIs like `document.write` or `innerHTML`, apply manual HTML entity escaping for user-controlled strings (like item names/IDs).
