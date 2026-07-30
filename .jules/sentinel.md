@@ -12,3 +12,8 @@
 **Vulnerability:** The Fastify server (`server/src/app.ts`) was binding to `0.0.0.0` (all interfaces) by default, exposing the local backend to the entire network. Coupled with a default JWT secret, this created a critical security risk.
 **Learning:** Development tools often prioritize convenience (`0.0.0.0`) over security (`127.0.0.1`). When distributed as part of a portable app or local tool, this exposes users to network attacks.
 **Prevention:** Always bind servers to `127.0.0.1` by default unless external access is explicitly required and secured. Use environment variables (e.g., `HOST`) to allow configuration for advanced use cases.
+
+## 2025-05-24 - Information Exposure via Unhandled Exception Leaks in Express/Fastify Controllers
+**Vulnerability:** Fastify/Express controllers were using `try/catch` blocks that directly returned `error.message` to the client on 500 status codes. This bypasses the centralized error handler and can leak internal SQL errors, stack traces, or file paths.
+**Learning:** Returning `error.message` directly from catch blocks is dangerous. Frameworks like Fastify automatically route thrown errors from async handlers to a centralized error handler which is usually configured to sanitize error outputs in production.
+**Prevention:** Avoid `try/catch` blocks in controllers unless handling specific expected errors. Allow unexpected exceptions to bubble up and be handled by the framework's centralized error handler (`errorHandler`).
