@@ -12,3 +12,8 @@
 **Vulnerability:** The Fastify server (`server/src/app.ts`) was binding to `0.0.0.0` (all interfaces) by default, exposing the local backend to the entire network. Coupled with a default JWT secret, this created a critical security risk.
 **Learning:** Development tools often prioritize convenience (`0.0.0.0`) over security (`127.0.0.1`). When distributed as part of a portable app or local tool, this exposes users to network attacks.
 **Prevention:** Always bind servers to `127.0.0.1` by default unless external access is explicitly required and secured. Use environment variables (e.g., `HOST`) to allow configuration for advanced use cases.
+
+## 2026-06-30 - Missing Rate Limiting on Auth Endpoints
+**Vulnerability:** The Fastify server (`server/src/app.ts`) exposed authentication endpoints (`/api/auth/register` and `/api/auth/login`) to the public without rate limiting, allowing for potential brute-force attacks and credential stuffing.
+**Learning:** Auth endpoints must always be rate limited to prevent automated attacks. In Fastify, `@fastify/rate-limit` should be registered with `global: false` to apply rate limits selectively to specific endpoints to not impact legitimate usage on other routes.
+**Prevention:** Apply rate limits to all authentication and authorization endpoints using established libraries.
