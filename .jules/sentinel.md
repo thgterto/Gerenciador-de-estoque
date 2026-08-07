@@ -12,3 +12,7 @@
 **Vulnerability:** The Fastify server (`server/src/app.ts`) was binding to `0.0.0.0` (all interfaces) by default, exposing the local backend to the entire network. Coupled with a default JWT secret, this created a critical security risk.
 **Learning:** Development tools often prioritize convenience (`0.0.0.0`) over security (`127.0.0.1`). When distributed as part of a portable app or local tool, this exposes users to network attacks.
 **Prevention:** Always bind servers to `127.0.0.1` by default unless external access is explicitly required and secured. Use environment variables (e.g., `HOST`) to allow configuration for advanced use cases.
+## $(date +%Y-%m-%d) - Fix XSS in QR Code Printer
+**Vulnerability:** XSS vulnerability through unescaped user input passed to `document.write` in `src/components/Modals.tsx` and `labcontrol-spfx/src/webparts/labControlApp/components/Modals.tsx`.
+**Learning:** `document.write` was used to inject arbitrary HTML for printing a QR Code, but variables were interpolated directly without escaping, creating a potential XSS if a user has a malicious `item.name`, `item.lotNumber`, or `item.id`. This vulnerability is not caught by `sqlite.exec` checks but flagged by `document.write` checks. When using utility functions to escape, always check for null/undefined rather than falsiness (like `!unsafe`) as numbers such as 0 could evaluate to false.
+**Prevention:** Implement HTML entity escaping on user-provided strings before concatenating into raw HTML strings. Check for `null`/`undefined` precisely (e.g. `unsafe == null`).
