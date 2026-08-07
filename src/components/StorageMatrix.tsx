@@ -631,10 +631,10 @@ export const StorageMatrix: React.FC<Props> = ({ items, onActions }) => {
 
                                     {onActions && (
                                         <div className="grid grid-cols-4 gap-2">
-                                            <OrbitalButton size="sm" variant="primary" onClick={() => onActions.move(selectedItem)} icon={<Plus size={16} />} className="col-span-1" />
-                                            <OrbitalButton size="sm" variant="danger" onClick={() => onActions.move(selectedItem)} icon={<X size={16} />} className="col-span-1" />
-                                            <OrbitalButton size="sm" variant="outline" onClick={() => onActions.move(selectedItem)} icon={<MoveLeft size={16} />} className="col-span-1" />
-                                            <OrbitalButton size="sm" variant="outline" onClick={() => onActions.edit(selectedItem)} icon={<Edit size={16} />} className="col-span-1" />
+                                            <OrbitalButton size="sm" variant="primary" onClick={() => onActions.move(selectedItem)} icon={<Plus size={16} aria-hidden="true" />} aria-label="Add" title="Add" className="col-span-1" />
+                                            <OrbitalButton size="sm" variant="danger" onClick={() => onActions.move(selectedItem)} icon={<X size={16} aria-hidden="true" />} aria-label="Remove" title="Remove" className="col-span-1" />
+                                            <OrbitalButton size="sm" variant="outline" onClick={() => onActions.move(selectedItem)} icon={<MoveLeft size={16} aria-hidden="true" />} aria-label="Move" title="Move" className="col-span-1" />
+                                            <OrbitalButton size="sm" variant="outline" onClick={() => onActions.edit(selectedItem)} icon={<Edit size={16} aria-hidden="true" />} aria-label="Edit" title="Edit" className="col-span-1" />
                                         </div>
                                     )}
                                 </div>
