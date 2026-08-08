@@ -16,3 +16,7 @@
 **Vulnerability:** The Fastify server (`server/src/config.ts`) used a hardcoded fallback for `JWT_SECRET` (`'supersecret_change_me_in_prod'`).
 **Learning:** Hardcoded default secrets allow attackers to forge authentication tokens if the secret is not overridden in production environments, presenting a critical security risk.
 **Prevention:** If an environment variable for a secret is not provided, either fail securely (throw an error and prevent startup) or automatically generate a cryptographically secure random string on startup so the secret remains unknown.
+## 2024-03-24 - Fixed XSS Vulnerabilities in Print Modal
+**Vulnerability:** Document.write usage in Modals.tsx leading to DOM XSS via unescaped item properties in SVG export print view.
+**Learning:** Found multiple instances where direct DOM injection was used for print windows without escaping variables. The fix needs to be comprehensive and cover all inserted variables like `item.name`, `item.lotNumber`, and `item.id`.
+**Prevention:** Always use proper escaping like `escapeHtml` for values written to the DOM manually (e.g. `document.write`). Ensure all dynamic variables interpolated in the HTML string are escaped.
