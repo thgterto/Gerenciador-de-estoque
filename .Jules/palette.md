@@ -9,3 +9,6 @@
 ## 2025-05-25 - Explicit Labels for Touch Targets
 **Learning:** Helper components for mobile actions (like `MobileActionBtn`) often get created without `label` props, assuming icons are self-explanatory. This creates barriers for screen reader users on mobile where hover tooltips don't exist.
 **Action:** Enforce a `label` prop on all mobile-specific action button components and map it to both `title` (for long-press) and `aria-label`.
+## 2026-08-08 - Added aria-busy to loading buttons
+**Learning:** Screen readers need explicit state to know when a button is loading, since visual spinners and text changes aren't always announced.
+**Action:** Add aria-busy={!!isLoading} to button components that have loading states to ensure assistive tech users understand the UI state.
