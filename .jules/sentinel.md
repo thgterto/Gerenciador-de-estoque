@@ -16,3 +16,8 @@
 **Vulnerability:** The Fastify server (`server/src/config.ts`) used a hardcoded fallback for `JWT_SECRET` (`'supersecret_change_me_in_prod'`).
 **Learning:** Hardcoded default secrets allow attackers to forge authentication tokens if the secret is not overridden in production environments, presenting a critical security risk.
 **Prevention:** If an environment variable for a secret is not provided, either fail securely (throw an error and prevent startup) or automatically generate a cryptographically secure random string on startup so the secret remains unknown.
+
+## 2025-05-27 - CORS Wildcard and Input Limits
+**Vulnerability:** The Fastify server (`server/src/app.ts`) was using `origin: '*'` for CORS, and the Auth endpoints (`server/src/adapters/controllers/AuthController.ts`) lacked maximum length constraints on passwords.
+**Learning:** Even if a server is safely bound to localhost (`127.0.0.1`), a wildcard CORS policy means any malicious website the user browses to can make background requests to the local server, potentially exposing user data or triggering actions. Also, missing max length constraints on passwords hashed by `bcrypt` (which has a 72-byte limit and scales in cost with input size) opens the door for a CPU exhaustion Denial of Service (DoS) attack.
+**Prevention:** Explicitly restrict CORS to trusted origins (like the local dev server or specific electron protocols) instead of wildcarding. Always enforce `.max()` lengths on user inputs, especially for computationally expensive operations like hashing passwords. The maximum length for bcrypt should not exceed 72 bytes.

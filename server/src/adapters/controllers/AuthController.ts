@@ -5,14 +5,16 @@ import { RegisterUser } from '../../use-cases/RegisterUser';
 import { LoginUser } from '../../use-cases/LoginUser';
 
 const registerSchema = z.object({
-  username: z.string().min(3),
-  password: z.string().min(6),
+  username: z.string().min(3).max(50),
+  // SECURITY: Limit password length to 72 to prevent bcrypt CPU exhaustion DoS
+  password: z.string().min(6).max(72),
   role: z.enum(['ADMIN', 'USER']).optional(),
 });
 
 const loginSchema = z.object({
-  username: z.string().min(3),
-  password: z.string().min(6),
+  username: z.string().min(3).max(50),
+  // SECURITY: Limit password length to 72 to prevent bcrypt CPU exhaustion DoS
+  password: z.string().min(6).max(72),
 });
 
 export class AuthController {
