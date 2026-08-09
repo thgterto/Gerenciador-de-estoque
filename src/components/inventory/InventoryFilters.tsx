@@ -48,23 +48,29 @@ export const InventoryFilters: React.FC<InventoryFiltersProps> = ({
 
                     {/* Status Filter */}
                     <div className="lg:col-span-4 flex flex-col gap-1.5">
-                        <label className="text-xs font-display font-bold uppercase tracking-wider text-orbital-subtext pl-1">
+                        <label id="status-filter-label" className="text-xs font-display font-bold uppercase tracking-wider text-orbital-subtext pl-1">
                             Status
                         </label>
-                        <div className="flex bg-orbital-bg/50 border border-orbital-border rounded p-1 h-[42px]">
+                        <div className="flex bg-orbital-bg/50 border border-orbital-border rounded p-1 h-[42px]" role="group" aria-labelledby="status-filter-label">
                             <button
+                                type="button"
+                                aria-pressed={statusFilter === 'ALL'}
                                 onClick={() => setStatusFilter('ALL')}
                                 className={`flex-1 text-xs font-bold uppercase tracking-wide rounded transition-all duration-200 ${statusFilter === 'ALL' ? 'bg-orbital-accent text-orbital-bg shadow-glow-sm' : 'text-orbital-subtext hover:text-orbital-text hover:bg-orbital-surface'}`}
                             >
                                 Todos
                             </button>
                             <button
+                                type="button"
+                                aria-pressed={statusFilter === 'LOW_STOCK'}
                                 onClick={() => setStatusFilter('LOW_STOCK')}
                                 className={`flex-1 text-xs font-bold uppercase tracking-wide rounded transition-all duration-200 ${statusFilter === 'LOW_STOCK' ? 'bg-orbital-warning text-orbital-bg shadow-glow-sm' : 'text-orbital-subtext hover:text-orbital-text hover:bg-orbital-surface'}`}
                             >
                                 Baixo
                             </button>
                             <button
+                                type="button"
+                                aria-pressed={statusFilter === 'EXPIRED'}
                                 onClick={() => setStatusFilter('EXPIRED')}
                                 className={`flex-1 text-xs font-bold uppercase tracking-wide rounded transition-all duration-200 ${statusFilter === 'EXPIRED' ? 'bg-orbital-danger text-orbital-bg shadow-glow-sm' : 'text-orbital-subtext hover:text-orbital-text hover:bg-orbital-surface'}`}
                             >
