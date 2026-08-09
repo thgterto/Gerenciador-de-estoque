@@ -159,14 +159,18 @@ export const QuickScanModal: React.FC<Props> = ({ isOpen, onClose }) => {
             {/* Mode Toggles */}
             <div className="absolute top-[310px] right-4 z-20 flex flex-col gap-2 items-end">
                 {continuousMode && (
-                     <div className="flex bg-black/80 backdrop-blur-md border border-orbital-border p-1 animate-in slide-in-from-right-5">
+                     <div className="flex bg-black/80 backdrop-blur-md border border-orbital-border p-1 animate-in slide-in-from-right-5" role="group" aria-label="Tipo de Modo Contínuo">
                          <button
+                            type="button"
+                            aria-pressed={continuousType === 'ENTRADA'}
                             onClick={() => setContinuousType('ENTRADA')}
                             className={`px-3 py-1 text-[10px] font-bold font-mono transition-colors ${continuousType === 'ENTRADA' ? 'bg-orbital-success text-black' : 'text-orbital-subtext hover:text-white'}`}
                          >
                              IN
                          </button>
                          <button
+                            type="button"
+                            aria-pressed={continuousType === 'SAIDA'}
                             onClick={() => setContinuousType('SAIDA')}
                             className={`px-3 py-1 text-[10px] font-bold font-mono transition-colors ${continuousType === 'SAIDA' ? 'bg-orbital-danger text-black' : 'text-orbital-subtext hover:text-white'}`}
                          >
@@ -175,6 +179,8 @@ export const QuickScanModal: React.FC<Props> = ({ isOpen, onClose }) => {
                      </div>
                 )}
                 <button 
+                    type="button"
+                    aria-pressed={continuousMode}
                     onClick={() => setContinuousMode(!continuousMode)}
                     className={`flex items-center gap-2 px-4 py-2 text-[10px] font-bold font-display uppercase tracking-wider border transition-all shadow-lg backdrop-blur-md ${
                         continuousMode 
