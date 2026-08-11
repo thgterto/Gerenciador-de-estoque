@@ -48,7 +48,9 @@ const NativeList = ({
                                 group={rowItem.data}
                                 style={style}
                                 isExpanded={rowItem.expanded}
-                                toggleExpand={() => toggleGroupExpand(rowItem.data.groupKey)}
+                                // ⚡ Bolt: Passing stable function ref directly instead of inline arrow function
+                                // to prevent breaking React.memo inside the GroupRow component
+                                toggleGroupExpand={toggleGroupExpand}
                                 selectedChildIds={selectedIds}
                                 onSelectGroup={handleSelectGroup}
                                 copyToClipboard={copyToClipboard}
@@ -61,7 +63,9 @@ const NativeList = ({
                             style={style}
                             group={rowItem.data}
                             isExpanded={rowItem.expanded}
-                            toggleExpand={() => toggleGroupExpand(rowItem.data.groupKey)}
+                            // ⚡ Bolt: Passing stable function ref directly instead of inline arrow function
+                            // to prevent breaking React.memo inside the GroupRow component
+                            toggleGroupExpand={toggleGroupExpand}
                             selectedChildIds={selectedIds}
                             onSelectGroup={handleSelectGroup}
                             copyToClipboard={copyToClipboard}
