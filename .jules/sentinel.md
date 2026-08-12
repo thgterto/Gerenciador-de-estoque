@@ -16,3 +16,7 @@
 **Vulnerability:** The Fastify server (`server/src/config.ts`) used a hardcoded fallback for `JWT_SECRET` (`'supersecret_change_me_in_prod'`).
 **Learning:** Hardcoded default secrets allow attackers to forge authentication tokens if the secret is not overridden in production environments, presenting a critical security risk.
 **Prevention:** If an environment variable for a secret is not provided, either fail securely (throw an error and prevent startup) or automatically generate a cryptographically secure random string on startup so the secret remains unknown.
+## 2023-10-25 - Fixed Authorization Bypass and Error Information Leak
+**Vulnerability:** The `/api/inventory` endpoint was missing JWT authentication, allowing unauthenticated users to access sensitive inventory data. Also, the `InventoryController` leaked `error.message` directly in 500 responses instead of using the global error handler.
+**Learning:** In fastify, defining an endpoint without an `onRequest` auth hook leaves it publicly accessible, which can easily happen if routes are manually grouped by comments. Manually sending 500 responses in catch blocks circumvents global error handling that is meant to sanitize outputs.
+**Prevention:** Always verify that sensitive endpoints have an auth hook applied. Use global error handlers instead of manual try-catch 500 responses to avoid leaking stack traces or internal messages.
