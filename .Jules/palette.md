@@ -12,3 +12,7 @@
 ## 2025-05-26 - GHS Icons Accessibility
 **Learning:** Icon-only toggles for risk options were missing explicit `aria-label`s and used a `div` element with an `onClick` handler. This meant screen readers had no way to interact with or understand these toggles. Additionally, there were no focus outlines, breaking keyboard navigation.
 **Action:** Changed the `div` to a `<button type="button">`, added `aria-pressed={isChecked}`, `aria-label={ghs.label}`, and `focus-visible` styles to ensure proper screen reader and keyboard support.
+
+## 2024-05-19 - Accessibility of Icon-Only Buttons
+**Learning:** Found an accessibility issue pattern in the `StorageMatrix.tsx` where icon-only action buttons for mobile views (e.g., Entrada, Saída, Mover, Editar) were missing `aria-label` and `title` attributes. This made them inaccessible to screen readers and lacked hover context for desktop users scaling down to mobile view sizes.
+**Action:** Always ensure that any `<OrbitalButton>` (or similar component) used without children/text includes an `aria-label` and optionally a `title` attribute to provide proper context.
