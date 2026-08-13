@@ -16,3 +16,7 @@
 **Vulnerability:** The Fastify server (`server/src/config.ts`) used a hardcoded fallback for `JWT_SECRET` (`'supersecret_change_me_in_prod'`).
 **Learning:** Hardcoded default secrets allow attackers to forge authentication tokens if the secret is not overridden in production environments, presenting a critical security risk.
 **Prevention:** If an environment variable for a secret is not provided, either fail securely (throw an error and prevent startup) or automatically generate a cryptographically secure random string on startup so the secret remains unknown.
+## 2025-02-09 - Missing Rate Limiting on Auth Endpoints
+**Vulnerability:** The application was missing rate limiting on sensitive endpoints like `/api/auth/login` and `/api/auth/register`. This allowed attackers to perform brute-force attacks against user accounts or denial of service against the application.
+**Learning:** Fastify doesn't include rate limiting by default. When building authenticated APIs, always include rate limiting, particularly for public-facing authentication routes to mitigate brute-force and credential stuffing attacks.
+**Prevention:** Use `@fastify/rate-limit` globally or specifically on sensitive routes to enforce maximum requests per minute.

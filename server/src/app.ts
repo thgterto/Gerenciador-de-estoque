@@ -1,6 +1,7 @@
 
 import Fastify from 'fastify';
 import cors from '@fastify/cors';
+import rateLimit from '@fastify/rate-limit';
 import staticFiles from '@fastify/static';
 import jwt from '@fastify/jwt';
 import path from 'path';
@@ -62,6 +63,12 @@ app.register(cors, {
   origin: '*', // Allow all origins for local tool
 });
 
+// Security: Rate limiting to prevent brute-force attacks
+app.register(rateLimit, {
+  max: 100,
+  timeWindow: '1 minute'
+});
+
 app.register(jwt, {
   secret: config.jwtSecret
 });
@@ -77,8 +84,22 @@ app.register(staticFiles, {
 
 // API Routes - Public
 app.get('/api/inventory', (req, res) => inventoryController.getInventory(req, res));
-app.post('/api/auth/register', (req, res) => authController.register(req, res));
-app.post('/api/auth/login', (req, res) => authController.login(req, res));
+app.post('/api/auth/register', {
+  config: {
+    rateLimit: {
+      max: 5,
+      timeWindow: '1 minute'
+    }
+  }
+}, (req, res) => authController.register(req, res));
+app.post('/api/auth/login', {
+  config: {
+    rateLimit: {
+      max: 10,
+      timeWindow: '1 minute'
+    }
+  }
+}, (req, res) => authController.login(req, res));
 
 // API Routes - Protected
 app.post('/api/inventory/transaction', {
