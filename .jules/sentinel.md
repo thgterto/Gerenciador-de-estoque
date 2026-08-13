@@ -16,3 +16,7 @@
 **Vulnerability:** The Fastify server (`server/src/config.ts`) used a hardcoded fallback for `JWT_SECRET` (`'supersecret_change_me_in_prod'`).
 **Learning:** Hardcoded default secrets allow attackers to forge authentication tokens if the secret is not overridden in production environments, presenting a critical security risk.
 **Prevention:** If an environment variable for a secret is not provided, either fail securely (throw an error and prevent startup) or automatically generate a cryptographically secure random string on startup so the secret remains unknown.
+## 2026-08-13 - [Fix XSS vulnerability in print modal by replacing document.write with DOM construction]
+**Vulnerability:** The QR Generator Print modal constructed a dynamic HTML document string incorporating user input (item.name, item.id) and passed it to `document.write`. This allowed malicious input within an item name to execute arbitrary scripts in the newly opened window.
+**Learning:** `document.write` with concatenated strings provides a straightforward path for XSS. Relying on HTML templates when rendering items exposes the client to risks when that data originates from an unsanitized source.
+**Prevention:** Avoid `document.write`. Prefer building the DOM directly using `document.createElement`, `textContent` (for injecting text to prevent XSS), and native DOM appending mechanisms like `appendChild`. This ensures user input is treated strictly as data and not as executable markup.
