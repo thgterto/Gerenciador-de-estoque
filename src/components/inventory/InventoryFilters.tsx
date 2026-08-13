@@ -1,8 +1,5 @@
 import React from 'react';
-import { Search, Filter } from 'lucide-react';
-import { OrbitalCard } from '../ui/orbital/OrbitalCard';
-import { OrbitalInput } from '../ui/orbital/OrbitalInput';
-import { OrbitalSelect } from '../ui/orbital/OrbitalSelect';
+import { Search, Filter, X } from 'lucide-react';
 
 interface InventoryFiltersProps {
     term: string;
@@ -30,20 +27,27 @@ export const InventoryFilters: React.FC<InventoryFiltersProps> = ({
     uniqueCategories,
 }) => {
     return (
-        <OrbitalCard className="mb-6 animate-fade-in" noPadding>
+        <div className="bg-orbital-surface border border-orbital-border rounded mb-6 shadow-sm animate-fade-in">
             <div className="p-4 space-y-4">
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-end">
 
                     {/* Search */}
-                    <div className="lg:col-span-5">
-                        <OrbitalInput
-                            label="Busca Rápida"
-                            placeholder="Nome, SKU, CAS ou lote..."
-                            value={term}
-                            onChange={e => setTerm(e.target.value)}
-                            fullWidth
-                            startAdornment={<Search size={16} />}
-                        />
+                    <div className="lg:col-span-5 relative">
+                        <label className="text-xs font-bold uppercase tracking-wider text-orbital-subtext mb-1.5 block">
+                            Busca Rápida
+                        </label>
+                        <div className="relative">
+                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-orbital-subtext">
+                                <Search size={16} />
+                            </div>
+                            <input
+                                type="text"
+                                className="w-full bg-orbital-bg border border-orbital-border text-orbital-text text-sm rounded-md focus:ring-orbital-accent focus:border-orbital-accent block pl-10 p-2.5 placeholder-orbital-subtext/50 transition-colors"
+                                placeholder="Nome, SKU, CAS ou lote..."
+                                value={term}
+                                onChange={(e) => setTerm(e.target.value)}
+                            />
+                        </div>
                     </div>
 
                     {/* Status Filter */}
@@ -75,16 +79,19 @@ export const InventoryFilters: React.FC<InventoryFiltersProps> = ({
 
                     {/* Location Filter */}
                     <div className="lg:col-span-3">
-                         <OrbitalSelect
-                            label="Localização"
+                         <label className="text-xs font-bold uppercase tracking-wider text-orbital-subtext mb-1.5 block">
+                            Localização
+                        </label>
+                        <select
+                            className="bg-orbital-bg border border-orbital-border text-orbital-text text-sm rounded-md focus:ring-orbital-accent focus:border-orbital-accent block w-full p-2.5 appearance-none"
                             value={locationFilter}
-                            onChange={e => setLocationFilter(e.target.value)}
-                            options={[
-                                { value: "", label: "Todas Localizações" },
-                                ...uniqueLocations.map(loc => ({ value: loc, label: loc }))
-                            ]}
-                            fullWidth
-                        />
+                            onChange={(e) => setLocationFilter(e.target.value)}
+                        >
+                            <option value="">Todas Localizações</option>
+                            {uniqueLocations.map(loc => (
+                                <option key={loc} value={loc}>{loc}</option>
+                            ))}
+                        </select>
                     </div>
                 </div>
 
@@ -102,9 +109,9 @@ export const InventoryFilters: React.FC<InventoryFiltersProps> = ({
                                 onClick={() => setCatFilter(cat === catFilter ? '' : cat)}
                                 className={`
                                     px-3 py-1 text-xs font-mono rounded-full border transition-all duration-200 whitespace-nowrap
-                                    ${catFilter === cat
+                                    ${cat === catFilter
                                         ? 'bg-orbital-accent/20 border-orbital-accent text-orbital-accent shadow-glow-sm'
-                                        : 'bg-orbital-surface border-orbital-border text-orbital-subtext hover:border-orbital-subtext hover:text-orbital-text'}
+                                        : 'bg-orbital-surface border-orbital-border text-orbital-subtext hover:border-orbital-subtext hover:text-orbital-text hover:bg-orbital-bg'}
                                 `}
                              >
                                 {cat || 'Outros'}
@@ -113,15 +120,15 @@ export const InventoryFilters: React.FC<InventoryFiltersProps> = ({
                          {catFilter && (
                             <button
                                 onClick={() => setCatFilter('')}
-                                className="px-2 py-1 text-xs text-orbital-subtext hover:text-orbital-danger underline"
+                                className="px-2 py-1 text-xs text-orbital-subtext hover:text-orbital-danger underline flex items-center gap-1"
                             >
-                                Limpar
+                                <X size={10} /> Limpar
                             </button>
                         )}
                     </div>
 
                     {/* Zero Stock Toggle */}
-                    <label className="flex items-center gap-2 cursor-pointer group whitespace-nowrap">
+                    <label className="flex items-center gap-2 cursor-pointer group whitespace-nowrap select-none">
                         <div className="relative">
                             <input
                                 type="checkbox"
@@ -137,6 +144,6 @@ export const InventoryFilters: React.FC<InventoryFiltersProps> = ({
                     </label>
                 </div>
             </div>
-        </OrbitalCard>
+        </div>
     );
 };
