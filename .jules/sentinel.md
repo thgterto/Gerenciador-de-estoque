@@ -16,3 +16,8 @@
 **Vulnerability:** The Fastify server (`server/src/config.ts`) used a hardcoded fallback for `JWT_SECRET` (`'supersecret_change_me_in_prod'`).
 **Learning:** Hardcoded default secrets allow attackers to forge authentication tokens if the secret is not overridden in production environments, presenting a critical security risk.
 **Prevention:** If an environment variable for a secret is not provided, either fail securely (throw an error and prevent startup) or automatically generate a cryptographically secure random string on startup so the secret remains unknown.
+
+## 2025-05-27 - IDOR / Authorization Bypass in User Registration
+**Vulnerability:** The `/api/auth/register` endpoint accepted an optional `role` parameter in the JSON payload, allowing any unauthenticated user to supply `{"role": "ADMIN"}` and create an administrator account.
+**Learning:** Mass assignment vulnerabilities occur when user input is bound to backend structures without sanitization. Insecure Direct Object Reference or authorization bypass happens when users can manipulate fields they should not control.
+**Prevention:** Never trust user input for security-critical fields. Validate and strictly filter payload schemas. Force safe default values (e.g. `USER`) at the API boundary, ignoring untrusted roles from unauthenticated requests.
