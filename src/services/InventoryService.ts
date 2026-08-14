@@ -126,7 +126,8 @@ export const InventoryService = {
       return results.sort((a, b) => {
           if (!a.expiryDate) return 1;
           if (!b.expiryDate) return -1;
-          return new Date(a.expiryDate).getTime() - new Date(b.expiryDate).getTime();
+          // Bolt: Use Date.parse() to avoid allocating Date objects during sort
+          return Date.parse(a.expiryDate) - Date.parse(b.expiryDate);
       });
   },
 
