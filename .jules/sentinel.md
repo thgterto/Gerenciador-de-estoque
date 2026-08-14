@@ -16,3 +16,7 @@
 **Vulnerability:** The Fastify server (`server/src/config.ts`) used a hardcoded fallback for `JWT_SECRET` (`'supersecret_change_me_in_prod'`).
 **Learning:** Hardcoded default secrets allow attackers to forge authentication tokens if the secret is not overridden in production environments, presenting a critical security risk.
 **Prevention:** If an environment variable for a secret is not provided, either fail securely (throw an error and prevent startup) or automatically generate a cryptographically secure random string on startup so the secret remains unknown.
+## 2025-05-27 - Cross-Site Scripting (XSS) in printWindow.document.write
+**Vulnerability:** The `Modals.tsx` component used `document.write` to generate HTML for printing, dynamically interpolating variables like `item.name` and `item.lotNumber` directly into the DOM without escaping.
+**Learning:** `document.write` combined with untrusted string interpolation is a classic DOM-based XSS vector. While this is opening a print window, executing malicious JavaScript in that context can still leak sensitive information from the application since it shares the same origin.
+**Prevention:** Avoid `document.write` when possible. If it must be used to generate dynamic HTML (like for a quick print window), always sanitize or escape variables (e.g., escaping `<` to `&lt;`) before inserting them into the template string.
