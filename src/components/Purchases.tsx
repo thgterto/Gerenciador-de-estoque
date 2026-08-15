@@ -43,12 +43,21 @@ export const Purchases: React.FC<Props> = ({
   // Filter recommendations: Low stock or Expiring
   const recommendations = useMemo(() => {
       if (!items) return [];
+
+      const now = new Date();
+      const next30Days = new Date(now);
+      next30Days.setDate(now.getDate() + 30);
+      const next30DaysStr = next30Days.toISOString().split('T')[0];
+
       return items.filter(i => {
           const isLow = i.quantity <= i.minStockLevel;
-          const daysToExpiry = i.expiryDate ? Math.ceil((new Date(i.expiryDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)) : 999;
-          const isExpiring = daysToExpiry < 30;
+          // Optimization: Use string comparison for dates
+          const isExpiring = i.expiryDate ? i.expiryDate < next30DaysStr : false;
+
+          if (!isLow && !isExpiring) return false;
+
           const alreadyInList = purchaseList.some(p => p.id === i.id);
-          return (isLow || isExpiring) && !alreadyInList;
+          return !alreadyInList;
       }).slice(0, 6);
   }, [items, purchaseList]);
 
@@ -90,18 +99,25 @@ export const Purchases: React.FC<Props> = ({
                     <h3 className="text-sm font-bold uppercase tracking-wider">Sugestões de Reposição</h3>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 overflow-x-auto pb-2">
-                    {recommendations.map(item => {
-                        const daysToExpiry = item.expiryDate ? Math.ceil((new Date(item.expiryDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)) : 999;
-                        const reason = daysToExpiry < 30 ? 'EXPIRING' : 'LOW_STOCK';
-                        return (
-                            <PurchaseAlertCard 
-                                key={item.id}
-                                item={item}
-                                onAdd={onAdd}
-                                reason={reason}
-                            />
-                        );
-                    })}
+                    {(() => {
+                        const now = new Date();
+                        const next30Days = new Date(now);
+                        next30Days.setDate(now.getDate() + 30);
+                        const next30DaysStr = next30Days.toISOString().split('T')[0];
+
+                        return recommendations.map(item => {
+                            const isExpiring = item.expiryDate ? item.expiryDate < next30DaysStr : false;
+                            const reason = isExpiring ? 'EXPIRING' : 'LOW_STOCK';
+                            return (
+                                <PurchaseAlertCard
+                                    key={item.id}
+                                    item={item}
+                                    onAdd={onAdd}
+                                    reason={reason}
+                                />
+                            );
+                        });
+                    })()}
                 </div>
             </div>
         )}
