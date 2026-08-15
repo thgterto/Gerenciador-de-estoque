@@ -54,18 +54,21 @@ export const InventoryFilters: React.FC<InventoryFiltersProps> = ({
                         <div className="flex bg-orbital-bg/50 border border-orbital-border rounded p-1 h-[42px]">
                             <button
                                 onClick={() => setStatusFilter('ALL')}
+                                aria-pressed={statusFilter === 'ALL'}
                                 className={`flex-1 text-xs font-bold uppercase tracking-wide rounded transition-all duration-200 ${statusFilter === 'ALL' ? 'bg-orbital-accent text-orbital-bg shadow-glow-sm' : 'text-orbital-subtext hover:text-orbital-text hover:bg-orbital-surface'}`}
                             >
                                 Todos
                             </button>
                             <button
                                 onClick={() => setStatusFilter('LOW_STOCK')}
+                                aria-pressed={statusFilter === 'LOW_STOCK'}
                                 className={`flex-1 text-xs font-bold uppercase tracking-wide rounded transition-all duration-200 ${statusFilter === 'LOW_STOCK' ? 'bg-orbital-warning text-orbital-bg shadow-glow-sm' : 'text-orbital-subtext hover:text-orbital-text hover:bg-orbital-surface'}`}
                             >
                                 Baixo
                             </button>
                             <button
                                 onClick={() => setStatusFilter('EXPIRED')}
+                                aria-pressed={statusFilter === 'EXPIRED'}
                                 className={`flex-1 text-xs font-bold uppercase tracking-wide rounded transition-all duration-200 ${statusFilter === 'EXPIRED' ? 'bg-orbital-danger text-orbital-bg shadow-glow-sm' : 'text-orbital-subtext hover:text-orbital-text hover:bg-orbital-surface'}`}
                             >
                                 Vencidos
@@ -99,6 +102,7 @@ export const InventoryFilters: React.FC<InventoryFiltersProps> = ({
                         {uniqueCategories.map((cat) => (
                              <button
                                 key={cat}
+                                aria-pressed={catFilter === cat}
                                 onClick={() => setCatFilter(cat === catFilter ? '' : cat)}
                                 className={`
                                     px-3 py-1 text-xs font-mono rounded-full border transition-all duration-200 whitespace-nowrap
