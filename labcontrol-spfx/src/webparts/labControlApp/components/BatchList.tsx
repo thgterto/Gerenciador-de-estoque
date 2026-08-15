@@ -1,7 +1,3 @@
-// @ts-nocheck
-
-
-
 import React, { useState, useEffect } from 'react';
 import { InventoryService } from '../../../services/InventoryService';
 import { BatchDetailView } from '../../../types';
