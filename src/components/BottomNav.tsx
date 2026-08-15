@@ -31,7 +31,9 @@ export const BottomNav: React.FC = () => {
                             : 'text-orbital-subtext hover:text-orbital-text'}
                     `}
                 >
-                    {item.icon}
+                    <span aria-hidden="true" className="flex items-center justify-center">
+                        {item.icon}
+                    </span>
                     <span className="text-[10px] font-medium mt-1 tracking-wide">{item.label}</span>
                 </NavLink>
             ))}
