@@ -18,7 +18,7 @@ export const AlertProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   }, []);
 
   const addToast = useCallback((title: string, type: AlertSeverity = 'info', message?: string, duration = 4000) => {
-    const id = Math.random().toString(36).substr(2, 9);
+    const id = crypto.randomUUID();
     setToasts((prev) => [...prev, { id, type, title, message, duration }]);
 
     if (duration > 0) {
