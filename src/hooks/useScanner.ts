@@ -10,7 +10,7 @@ interface UseScannerProps {
 
 export const useScanner = ({ onScan, onError, aspectRatio = 1.0 }: UseScannerProps) => {
     // ID único para o elemento DOM do scanner
-    const [elementId] = useState(() => `scanner-${Math.random().toString(36).substr(2, 9)}`);
+    const [elementId] = useState(() => `scanner-${crypto.randomUUID()}`);
     const [error, setError] = useState<string | null>(null);
     const [isScanning, setIsScanning] = useState(false);
     
