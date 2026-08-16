@@ -23,7 +23,9 @@ export class InventoryController {
       const inventory = await this.getInventoryUseCase.execute();
       res.send(inventory);
     } catch (error: any) {
-      res.status(500).send({ error: error.message });
+      // SECURITY: Log error locally but send generic message to avoid leaking stack traces or sensitive info
+      req.log.error(error);
+      res.status(500).send({ error: 'An internal error occurred' });
     }
   }
 
@@ -33,7 +35,9 @@ export class InventoryController {
       await this.logTransactionUseCase.execute(transaction);
       res.status(201).send({ success: true });
     } catch (error: any) {
-      res.status(500).send({ error: error.message });
+      // SECURITY: Log error locally but send generic message to avoid leaking stack traces or sensitive info
+      req.log.error(error);
+      res.status(500).send({ error: 'An internal error occurred' });
     }
   }
 
@@ -43,7 +47,9 @@ export class InventoryController {
       await this.saveProductUseCase.execute(product);
       res.status(201).send({ success: true });
     } catch (error: any) {
-      res.status(500).send({ error: error.message });
+      // SECURITY: Log error locally but send generic message to avoid leaking stack traces or sensitive info
+      req.log.error(error);
+      res.status(500).send({ error: 'An internal error occurred' });
     }
   }
 
@@ -54,7 +60,9 @@ export class InventoryController {
       const data = await this.getFullDatabaseUseCase.execute();
       res.send(data);
     } catch (error: any) {
-      res.status(500).send({ error: error.message });
+      // SECURITY: Log error locally but send generic message to avoid leaking stack traces or sensitive info
+      req.log.error(error);
+      res.status(500).send({ error: 'An internal error occurred' });
     }
   }
 
@@ -64,7 +72,9 @@ export class InventoryController {
       await this.syncDataUseCase.execute(payload);
       res.send({ success: true, syncedAt: new Date().toISOString() });
     } catch (error: any) {
-      res.status(500).send({ error: error.message });
+      // SECURITY: Log error locally but send generic message to avoid leaking stack traces or sensitive info
+      req.log.error(error);
+      res.status(500).send({ error: 'An internal error occurred' });
     }
   }
 }
