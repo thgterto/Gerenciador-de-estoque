@@ -16,3 +16,7 @@
 **Vulnerability:** The Fastify server (`server/src/config.ts`) used a hardcoded fallback for `JWT_SECRET` (`'supersecret_change_me_in_prod'`).
 **Learning:** Hardcoded default secrets allow attackers to forge authentication tokens if the secret is not overridden in production environments, presenting a critical security risk.
 **Prevention:** If an environment variable for a secret is not provided, either fail securely (throw an error and prevent startup) or automatically generate a cryptographically secure random string on startup so the secret remains unknown.
+## 2025-05-26 - Mitigate XSS in Modals.tsx `handlePrint`
+**Vulnerability:** XSS risk due to unescaped user input (e.g. `item.name`, `item.lotNumber`, `item.id`, `item.expiryDate`) in a template literal passed directly to `document.write()` for printing QR Codes.
+**Learning:** `document.write()` in print windows is a common pattern for generating dynamic content, but if it relies on object properties that originate from user input or databases, those properties must be properly HTML-escaped. Even controlled inputs like IDs or dates should be escaped.
+**Prevention:** Always use an HTML escape utility function when injecting any dynamic variables into raw HTML strings, especially before passing them to APIs like `document.write()` or `innerHTML`.
