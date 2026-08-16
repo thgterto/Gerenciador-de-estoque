@@ -18,14 +18,20 @@ const TYPE_CONFIG: Record<ItemType, { label: string, icon: React.ReactNode }> = 
 export const TypeSelector: React.FC<TypeSelectorProps> = ({ currentType, onChange }) => {
     return (
         <div className="w-full overflow-x-auto pb-2">
-            <div className="flex bg-orbital-bg/50 border border-orbital-border rounded p-1 min-w-max">
+            <div
+                className="flex bg-orbital-bg/50 border border-orbital-border rounded p-1 min-w-max"
+                role="radiogroup"
+                aria-label="Tipo de Item"
+            >
                 {(Object.entries(TYPE_CONFIG) as [ItemType, typeof TYPE_CONFIG[ItemType]][]).map(([key, config]) => (
                     <button
                         key={key}
                         type="button"
+                        role="radio"
+                        aria-checked={currentType === key}
                         onClick={() => onChange(key)}
                         className={`
-                            flex items-center gap-2 px-4 py-2 text-xs font-bold uppercase tracking-wide rounded transition-all duration-200
+                            flex items-center gap-2 px-4 py-2 text-xs font-bold uppercase tracking-wide rounded transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orbital-accent
                             ${currentType === key
                                 ? 'bg-orbital-accent text-orbital-bg shadow-glow-sm'
                                 : 'text-orbital-subtext hover:text-orbital-text hover:bg-orbital-surface'}
