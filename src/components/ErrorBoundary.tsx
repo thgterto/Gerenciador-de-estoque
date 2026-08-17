@@ -51,11 +51,6 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
             Ocorreu um erro inesperado ao processar os dados. Tente recarregar a página.
           </p>
           
-          {this.state.error && (
-            <div className="mb-6 p-3 bg-white dark:bg-black border border-gray-200 dark:border-gray-700 rounded text-xs font-mono text-left w-full max-w-lg overflow-auto max-h-32 text-red-600">
-               {this.state.error.toString()}
-            </div>
-          )}
 
           <div className="flex gap-3">
              <Button variant="white" onClick={this.handleRetry}>
