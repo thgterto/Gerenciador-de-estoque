@@ -12,3 +12,6 @@
 ## 2025-05-26 - GHS Icons Accessibility
 **Learning:** Icon-only toggles for risk options were missing explicit `aria-label`s and used a `div` element with an `onClick` handler. This meant screen readers had no way to interact with or understand these toggles. Additionally, there were no focus outlines, breaking keyboard navigation.
 **Action:** Changed the `div` to a `<button type="button">`, added `aria-pressed={isChecked}`, `aria-label={ghs.label}`, and `focus-visible` styles to ensure proper screen reader and keyboard support.
+## 2023-11-23 - Screen Reader Accessibility for File Inputs
+**Learning:** Adding `aria-label` to elements with `display: none` (like Tailwind `hidden` class) provides no accessibility benefit, as screen readers completely ignore them. However, adding it to elements with `opacity: 0` (like Tailwind `opacity-0` class) is beneficial, as they remain in the accessibility tree and can receive keyboard focus. Also, ensure consistent language usage for labels (Portuguese vs. English) within the application.
+**Action:** Always check the CSS display properties of elements before adding ARIA attributes to ensure they are actually accessible to screen readers. Maintain language consistency across the application.
