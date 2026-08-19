@@ -12,3 +12,7 @@
 ## 2025-05-26 - GHS Icons Accessibility
 **Learning:** Icon-only toggles for risk options were missing explicit `aria-label`s and used a `div` element with an `onClick` handler. This meant screen readers had no way to interact with or understand these toggles. Additionally, there were no focus outlines, breaking keyboard navigation.
 **Action:** Changed the `div` to a `<button type="button">`, added `aria-pressed={isChecked}`, `aria-label={ghs.label}`, and `focus-visible` styles to ensure proper screen reader and keyboard support.
+
+## 2026-08-19 - Skip to Main Content Link
+**Learning:** For keyboard-only users, navigating through a complex sidebar and header on every page load is tedious.
+**Action:** Always implement a "skip-to-main-content" link at the top of the app layout. Ensure it's visually hidden but becomes visible on focus (`-translate-y-full focus:translate-y-0`), and set the target main container with `tabIndex={-1}` and `focus:outline-none` so it receives focus properly without an ugly focus ring.
