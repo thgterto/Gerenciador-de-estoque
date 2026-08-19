@@ -16,3 +16,7 @@
 **Vulnerability:** The Fastify server (`server/src/config.ts`) used a hardcoded fallback for `JWT_SECRET` (`'supersecret_change_me_in_prod'`).
 **Learning:** Hardcoded default secrets allow attackers to forge authentication tokens if the secret is not overridden in production environments, presenting a critical security risk.
 **Prevention:** If an environment variable for a secret is not provided, either fail securely (throw an error and prevent startup) or automatically generate a cryptographically secure random string on startup so the secret remains unknown.
+## 2026-08-19 - [XSS Fix in Print Window]
+**Vulnerability:** XSS vulnerability in QR code printing modals where unsanitized user inputs (item name, lot number, id) were passed to `document.write`.
+**Learning:** React escapes HTML by default, but when raw DOM APIs like `document.write` are used, input must be manually sanitized.
+**Prevention:** Always escape user-controlled variables when using raw DOM APIs to output HTML.
