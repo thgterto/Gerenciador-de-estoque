@@ -4,10 +4,10 @@ import { InventoryItem, StockTransactionDTO } from '../../types';
 const sp = {
     web: {
         lists: {
-            getByTitle: (title: string) => ({
+            getByTitle: (_title: string) => ({
                 items: {
                     add: async (item: any) => ({ data: { ...item, Id: Math.floor(Math.random() * 1000) } }),
-                    getById: (id: number) => ({
+                    getById: (_id: number) => ({
                         update: async (item: any) => ({ data: item })
                     })
                 }
@@ -41,8 +41,8 @@ export class SPFxInventoryService {
             const batch = sp.web.createBatch();
 
             // 1. Determine lists
-            const historyList = sp.web.lists.getByTitle("LabControl_History");
-            const balancesList = sp.web.lists.getByTitle("LabControl_Balances");
+            const _historyList = sp.web.lists.getByTitle("LabControl_History");
+            const _balancesList = sp.web.lists.getByTitle("LabControl_Balances");
 
             // 2. Add History Record to Batch
             // Note: In real PnPjs, you would associate the `.inBatch(batch)`
@@ -54,7 +54,7 @@ export class SPFxInventoryService {
                 Quantity: payload.quantity
             };
 
-            console.log("Adding to batch (History):", historyData);
+            console.log("Adding to batch (History):", historyData, _historyList, _balancesList);
 
             // 3. Update Balance Record to Batch
             // We would need to fetch the current balance first, which complicates SPFx batches.
