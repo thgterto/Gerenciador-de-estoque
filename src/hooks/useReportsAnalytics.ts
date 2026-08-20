@@ -16,23 +16,26 @@ export const useReportsAnalytics = (items: InventoryItem[], history: MovementRec
     // 1. ABC Analysis (Based on Consumption Quantity)
     const abcAnalysis = useMemo(() => {
         const consumptionMap = new Map<string, number>();
+        let totalConsumption = 0;
         
         // Sum exits from history
         history.forEach(h => {
             if (h.type === 'SAIDA') {
                 const current = consumptionMap.get(h.itemId) || 0;
                 consumptionMap.set(h.itemId, current + h.quantity);
+                totalConsumption += h.quantity;
             }
         });
-
-        const totalConsumption = Array.from(consumptionMap.values()).reduce((a, b) => a + b, 0);
         
         if (totalConsumption === 0) return [];
 
         const rankedItems: ABCItem[] = [];
         
+        // Optimize lookup: O(n) instead of O(n^2) nested lookup
+        const itemMap = new Map(items.map(i => [i.id, i]));
+
         consumptionMap.forEach((qty, itemId) => {
-            const item = items.find(i => i.id === itemId);
+            const item = itemMap.get(itemId);
             if (item) {
                 rankedItems.push({
                     id: itemId,
