@@ -16,3 +16,8 @@
 **Vulnerability:** The Fastify server (`server/src/config.ts`) used a hardcoded fallback for `JWT_SECRET` (`'supersecret_change_me_in_prod'`).
 **Learning:** Hardcoded default secrets allow attackers to forge authentication tokens if the secret is not overridden in production environments, presenting a critical security risk.
 **Prevention:** If an environment variable for a secret is not provided, either fail securely (throw an error and prevent startup) or automatically generate a cryptographically secure random string on startup so the secret remains unknown.
+
+## 2025-05-27 - Information Exposure via JWT Error Handling
+**Vulnerability:** The Fastify server (`server/src/app.ts`) was exposing full error objects in the JSON response when JWT verification failed in protected endpoints (`catch (err) { reply.send(err); }`).
+**Learning:** This reveals internal logic structure and potentially sensitive information to potential attackers, aiding in reconnaissance or forging attacks.
+**Prevention:** Always sanitize error messages sent to the client, especially for authentication or authorization failures. Log the full error internally and return a generic error message like `401 Unauthorized`.
