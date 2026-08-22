@@ -16,3 +16,8 @@
 **Vulnerability:** The Fastify server (`server/src/config.ts`) used a hardcoded fallback for `JWT_SECRET` (`'supersecret_change_me_in_prod'`).
 **Learning:** Hardcoded default secrets allow attackers to forge authentication tokens if the secret is not overridden in production environments, presenting a critical security risk.
 **Prevention:** If an environment variable for a secret is not provided, either fail securely (throw an error and prevent startup) or automatically generate a cryptographically secure random string on startup so the secret remains unknown.
+
+## 2026-08-22 - XSS via document.write in Print Window
+**Vulnerability:** The `src/components/Modals.tsx` and `labcontrol-spfx/src/webparts/labControlApp/components/Modals.tsx` components used `printWindow.document.write(...)` to interpolate raw props like `${item.name}` directly into the HTML string, creating a Cross-Site Scripting (XSS) vulnerability.
+**Learning:** Injecting unsanitized user-controlled fields directly into new window content can execute malicious scripts. `document.write` is risky since it does not automatically sanitize strings.
+**Prevention:** Construct new windows by applying standard DOM manipulation: setting `document.title`, injecting CSS using a `<style>` element, and safely assigning text via `textContent` rather than interpolating unsanitized props directly into HTML blocks.
