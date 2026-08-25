@@ -25,3 +25,11 @@
 ## 2025-02-14 - Unmemoized Hook Functions & Virtual List Performance
 **Learning:** Functions returned from custom hooks (like `toggleGroupExpand` in `useInventoryFilters`) that are recreated on every render will invalidate `itemData` prop passed to `react-window` components, forcing the entire list to re-render even if the underlying data (`flatList`) is stable.
 **Action:** Always wrap functions returned from hooks in `useCallback` if they are passed down to memoized children or used in `useMemo` dependencies, especially when filtering/sorting logic is involved.
+
+## 2025-02-14 - Date Creation Bottleneck in Loops
+**Learning:** Instantiating `Date` objects repeatedly inside loops over large arrays (like transaction history in `useDashboardAnalytics` and `useReportsAnalytics`) causes significant CPU overhead and can lead to lag on the main thread during render.
+**Action:** Always favor string manipulation and string comparison (e.g., `dateStr.startsWith(todayIso)`, `dateStr.substring(0, 7)`) when grouping or filtering ISO 8601 date strings, completely bypassing the `new Date()` overhead.
+
+## 2025-02-14 - React.memo with Inline Functions
+**Learning:** Passing inline functions (like `() => toggleGroupExpand(rowItem.data.groupKey)`) to child components inside `React.memo` defeats the memoization entirely, causing massive O(N) re-renders for large lists during scrolling or interactions.
+**Action:** Always extract the unique identifier (e.g. `groupKey` or `id`) into the child component and let it pass the ID back to the callback (e.g., `onClick={() => toggleExpand(group.groupKey)}`). This allows the parent component to pass a stable, memoized function reference, letting `React.memo`'s default shallow compare work effectively.
