@@ -41,6 +41,10 @@ const NativeList = ({
                 const style = { width: '100%' };
 
                 if (rowItem.type === 'GROUP') {
+                    const groupItems = rowItem.data.items;
+                    const allSelected = groupItems.every((i: any) => selectedIds.has(i.id));
+                    const someSelected = groupItems.some((i: any) => selectedIds.has(i.id));
+
                     if (isMobile) {
                         return (
                             <InventoryMobileGroupRow
@@ -48,10 +52,7 @@ const NativeList = ({
                                 group={rowItem.data}
                                 style={style}
                                 isExpanded={rowItem.expanded}
-                                toggleExpand={() => toggleGroupExpand(rowItem.data.groupKey)}
-                                selectedChildIds={selectedIds}
-                                onSelectGroup={handleSelectGroup}
-                                copyToClipboard={copyToClipboard}
+                                toggleExpand={toggleGroupExpand}
                             />
                         );
                     }
@@ -61,8 +62,9 @@ const NativeList = ({
                             style={style}
                             group={rowItem.data}
                             isExpanded={rowItem.expanded}
-                            toggleExpand={() => toggleGroupExpand(rowItem.data.groupKey)}
-                            selectedChildIds={selectedIds}
+                            toggleExpand={toggleGroupExpand}
+                            allSelected={allSelected}
+                            someSelected={someSelected}
                             onSelectGroup={handleSelectGroup}
                             copyToClipboard={copyToClipboard}
                         />
