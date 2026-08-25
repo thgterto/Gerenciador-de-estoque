@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, useLayoutEffect } from 'react';
+import React, { useState, useEffect, useLayoutEffect, useCallback } from 'react';
 import { OrbitalButton } from './ui/orbital/OrbitalButton';
 import { X, ArrowRight, ArrowLeft } from 'lucide-react';
 
@@ -26,7 +26,7 @@ export const TutorialModal: React.FC<Props> = ({ isOpen, onClose, setTab }) => {
   const [isReady, setIsReady] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
-  const steps: Step[] = [
+  const steps: Step[] = React.useMemo(() => [
     {
       title: "SYSTEM INITIALIZED",
       desc: "Welcome to LabControl. This orbital interface is designed for high-efficiency inventory management.",
@@ -92,7 +92,7 @@ export const TutorialModal: React.FC<Props> = ({ isOpen, onClose, setTab }) => {
       desc: "Initialization complete. You have control.",
       position: 'center'
     }
-  ];
+  ], []);
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
@@ -100,18 +100,7 @@ export const TutorialModal: React.FC<Props> = ({ isOpen, onClose, setTab }) => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const updatePosition = () => {
-    const step = steps[currentStep];
-
-    if (step.forceTab) {
-        setTab(step.forceTab);
-        setTimeout(() => calculateLayout(step), 450); 
-    } else {
-        calculateLayout(step);
-    }
-  };
-
-  const calculateLayout = (step: Step) => {
+  const calculateLayout = useCallback((step: Step) => {
     const targetId = (isMobile && step.mobileTargetId) ? step.mobileTargetId : step.targetId;
 
     if (!targetId) {
@@ -258,11 +247,21 @@ export const TutorialModal: React.FC<Props> = ({ isOpen, onClose, setTab }) => {
         });
         setIsReady(true);
     }
-  };
+  }, [isMobile]);
+
+  const updatePosition = useCallback(() => {
+    const step = steps[currentStep];
+
+    if (step.forceTab) {
+        setTab(step.forceTab);
+        setTimeout(() => calculateLayout(step), 450);
+    } else {
+        calculateLayout(step);
+    }
+  }, [currentStep, steps, setTab, calculateLayout]);
 
   useLayoutEffect(() => {
       if (isOpen) {
-          // eslint-disable-next-line
           setIsReady(false);
           updatePosition();
           window.addEventListener('resize', updatePosition);
@@ -270,7 +269,7 @@ export const TutorialModal: React.FC<Props> = ({ isOpen, onClose, setTab }) => {
               window.removeEventListener('resize', updatePosition);
           };
       }
-  }, [currentStep, isOpen]);
+  }, [isOpen, updatePosition]);
 
   const handleNext = () => {
     if (currentStep < steps.length - 1) {
