@@ -32,6 +32,17 @@ export const useInventoryFilters = (items: InventoryItem[]) => {
     const [hideZeroStock, setHideZeroStock] = useState(false);
     const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
 
+    // --- 0. Pre-compute Search Strings (O(N) once per items array update) ---
+    // Using a WeakMap prevents mutating the original objects, avoiding potential serialization
+    // issues when sending data back to the server, and works with frozen state objects.
+    const searchStringCache = useMemo(() => {
+        const cache = new WeakMap<InventoryItem, string>();
+        for (const i of items) {
+             cache.set(i, normalizeStr(`${i.name} ${i.sapCode} ${i.lotNumber} ${i.casNumber || ''}`));
+        }
+        return cache;
+    }, [items]);
+
     // --- 1. Pré-processamento de Filtros Base (Rápido) ---
     // Filtra primeiro por categorias/status que são comparadores diretos
     const baseFilteredItems = useMemo(() => {
@@ -68,10 +79,10 @@ export const useInventoryFilters = (items: InventoryItem[]) => {
         if (normalizedTerms.length === 0) return baseFilteredItems;
 
         return baseFilteredItems.filter(i => {
-            const itemStr = normalizeStr(`${i.name} ${i.sapCode} ${i.lotNumber} ${i.casNumber || ''}`);
-            return normalizedTerms.every(t => itemStr.includes(t));
+            const cachedStr = searchStringCache.get(i) || '';
+            return normalizedTerms.every(t => cachedStr.includes(t));
         });
-    }, [baseFilteredItems, debouncedTerm]);
+    }, [baseFilteredItems, debouncedTerm, searchStringCache]);
 
     // --- 3. Agrupamento (Transformação de Dados) ---
     const groupedInventory = useMemo(() => {

@@ -25,3 +25,7 @@
 ## 2025-02-14 - Unmemoized Hook Functions & Virtual List Performance
 **Learning:** Functions returned from custom hooks (like `toggleGroupExpand` in `useInventoryFilters`) that are recreated on every render will invalidate `itemData` prop passed to `react-window` components, forcing the entire list to re-render even if the underlying data (`flatList`) is stable.
 **Action:** Always wrap functions returned from hooks in `useCallback` if they are passed down to memoized children or used in `useMemo` dependencies, especially when filtering/sorting logic is involved.
+
+## 2025-02-14 - Pre-caching Search Strings
+**Learning:** Calling functions like `normalizeStr` inside loops (e.g., `Array.prototype.filter`) over thousands of items causes massive CPU overhead because strings are repeatedly concatenated, allocated, and transformed.
+**Action:** Map over large data arrays once to pre-compute and store a combined, normalized string as an optional property (`_searchString`) when the dataset loads, rather than generating it on every keystroke/filter run.
