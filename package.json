@@ -25,6 +25,7 @@
     "@fontsource/roboto": "^5.2.9",
     "@mui/icons-material": "^7.3.7",
     "@mui/material": "^7.3.7",
+    "@types/react-virtualized-auto-sizer": "^1.0.4",
     "apexcharts": "^5.3.6",
     "better-sqlite3": "^12.6.2",
     "dexie": "^4.0.1",
@@ -38,7 +39,7 @@
     "react-dom": "^19.0.0",
     "react-qr-code": "^2.0.15",
     "react-router-dom": "^7.1.5",
-    "react-virtualized-auto-sizer": "^1.0.25",
+    "react-virtualized-auto-sizer": "^1.0.26",
     "react-window": "^1.8.11",
     "xlsx": "^0.18.5",
     "zod": "^3.22.4"

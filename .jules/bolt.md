@@ -25,3 +25,7 @@
 ## 2025-02-14 - Unmemoized Hook Functions & Virtual List Performance
 **Learning:** Functions returned from custom hooks (like `toggleGroupExpand` in `useInventoryFilters`) that are recreated on every render will invalidate `itemData` prop passed to `react-window` components, forcing the entire list to re-render even if the underlying data (`flatList`) is stable.
 **Action:** Always wrap functions returned from hooks in `useCallback` if they are passed down to memoized children or used in `useMemo` dependencies, especially when filtering/sorting logic is involved.
+
+## 2025-06-20 - History Table Pagination Bottleneck
+**Learning:** `HistoryTable` previously used a manual pagination approach with a "Load More" button and `slice()`, rendering up to N elements into the DOM. For large transaction histories, this bloated the DOM and caused slow render cycles when interacting.
+**Action:** Virtualized large, simple lists like `HistoryTable` using `react-window` with `AutoSizer` from `react-virtualized-auto-sizer`. This maintains a constant small number of DOM elements and resolves the main-thread bottleneck associated with rendering large audit logs.
