@@ -20,7 +20,9 @@ interface InventoryFiltersProps {
     getCategoryIcon: (cat: string) => string;
 }
 
-export const InventoryFilters: React.FC<InventoryFiltersProps> = ({
+// ⚡ Bolt: Wrapped InventoryFilters with React.memo() to ensure the filter UI
+// doesn't re-render needlessly when the main list is scrolling or updating.
+export const InventoryFilters: React.FC<InventoryFiltersProps> = React.memo(({
     term, setTerm,
     catFilter, setCatFilter,
     locationFilter, setLocationFilter,
@@ -139,4 +141,4 @@ export const InventoryFilters: React.FC<InventoryFiltersProps> = ({
             </div>
         </OrbitalCard>
     );
-};
+});

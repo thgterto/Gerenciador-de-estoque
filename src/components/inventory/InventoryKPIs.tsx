@@ -12,7 +12,9 @@ interface InventoryKPIsProps {
     stats: InventoryStats;
 }
 
-export const InventoryKPIs: React.FC<InventoryKPIsProps> = ({ stats }) => {
+// ⚡ Bolt: Added React.memo() to prevent unnecessary re-renders of the KPI section
+// when other parts of the dashboard (like filters or lists) change but the stats remain the same.
+export const InventoryKPIs: React.FC<InventoryKPIsProps> = React.memo(({ stats }) => {
     return (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
              <MetricCard
@@ -38,9 +40,10 @@ export const InventoryKPIs: React.FC<InventoryKPIsProps> = ({ stats }) => {
              />
         </div>
     );
-};
+});
 
-const MetricCard = ({ title, icon, value, subValue, color }: any) => (
+// ⚡ Bolt: Added React.memo() here as well to optimize the individual cards inside the KPI section.
+const MetricCard = React.memo(({ title, icon, value, subValue, color }: any) => (
     <OrbitalCard className="h-full group hover:bg-orbital-surface/80 transition-colors">
         <div className="flex items-center justify-between">
             <div>
@@ -59,4 +62,4 @@ const MetricCard = ({ title, icon, value, subValue, color }: any) => (
             </div>
         </div>
     </OrbitalCard>
-);
+));
