@@ -16,3 +16,8 @@
 **Vulnerability:** The Fastify server (`server/src/config.ts`) used a hardcoded fallback for `JWT_SECRET` (`'supersecret_change_me_in_prod'`).
 **Learning:** Hardcoded default secrets allow attackers to forge authentication tokens if the secret is not overridden in production environments, presenting a critical security risk.
 **Prevention:** If an environment variable for a secret is not provided, either fail securely (throw an error and prevent startup) or automatically generate a cryptographically secure random string on startup so the secret remains unknown.
+
+## 2026-08-10 - XSS Vulnerability in QR Code Print Function
+**Vulnerability:** In `src/components/Modals.tsx` and `labcontrol-spfx/src/webparts/labControlApp/components/Modals.tsx`, user-controlled data (`item.name`, `item.lotNumber`, `item.id`) was directly interpolated into an HTML string and injected using `document.write`. This would allow Cross-Site Scripting (XSS) if any of the fields contained malicious scripts.
+**Learning:** `document.write` execution is a well-known risk vector. Even in seemingly safe contexts like creating a new window for printing, any user-supplied content that hasn't been properly sanitized can compromise the application's integrity when the HTML is rendered.
+**Prevention:** Avoid `document.write` whenever possible. If it must be used for generating new pages (like for printing), all dynamic/user-controlled inputs injected into the markup must be explicitly sanitized (HTML-escaped) to prevent code execution.
