@@ -16,3 +16,8 @@
 **Vulnerability:** The Fastify server (`server/src/config.ts`) used a hardcoded fallback for `JWT_SECRET` (`'supersecret_change_me_in_prod'`).
 **Learning:** Hardcoded default secrets allow attackers to forge authentication tokens if the secret is not overridden in production environments, presenting a critical security risk.
 **Prevention:** If an environment variable for a secret is not provided, either fail securely (throw an error and prevent startup) or automatically generate a cryptographically secure random string on startup so the secret remains unknown.
+
+## 2025-02-28 - Removed Overly Permissive CORS Configuration
+**Vulnerability:** The Fastify server (`server/src/app.ts`) was allowing all origins (`origin: '*'`), presenting a high-priority risk (Overly permissive CORS configuration).
+**Learning:** Development tools often prioritize convenience over security. When a backend binds to a local environment, allowing all origins enables malicious sites the user visits to perform CSRF/SSRF style actions against the local service.
+**Prevention:** Always restrict CORS to explicitly known secure origins, even for local development. Here we restricted it to `['http://localhost:5173', 'http://127.0.0.1:5173']`.
