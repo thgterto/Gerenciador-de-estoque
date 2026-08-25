@@ -9,3 +9,8 @@
 **Vulnerability:** The server's error handler was returning raw exception messages to the client for 500 errors, potentially exposing database queries, file paths, or other internal implementation details.
 **Learning:** Default error handling often prioritizes developer convenience (debugging) over security. Explicit environment checks (`NODE_ENV === 'production'`) are critical for toggling between verbose and safe error messages.
 **Prevention:** Always implement a centralized error handler that sanitizes error messages in production builds, returning a generic "Internal Server Error" while logging the full details server-side.
+
+## 2025-02-21 - Hardcoded Plaintext Passwords in Mock Authentication
+**Vulnerability:** Found hardcoded plaintext passwords in `MOCK_USERS` within `src/context/AuthContext.tsx` and `labcontrol-spfx/src/context/AuthContext.tsx`.
+**Learning:** Even in mock offline authentication flows or UI templates, committing plaintext passwords poses a severe risk as code is frequently copied into production systems or exposed.
+**Prevention:** Always use hashing algorithms like `crypto.subtle.digest('SHA-256')` to obscure hardcoded mock credentials, demonstrating secure-by-default practices in client-only prototypes.
