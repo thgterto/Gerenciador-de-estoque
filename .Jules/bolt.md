@@ -1,0 +1,3 @@
+## 2026-04-12 - Date Comparison Loop Optimization
+**Learning:** Creating new `Date` objects inside array loops (like `.filter()`) causes significant overhead due to object instantiation and garbage collection. String comparison on dates can fail if the string formats differ (e.g. "YYYY-MM-DD" vs ISO strings with milliseconds), which can happen depending on how dates are stored or retrieved.
+**Action:** For robust and performant date comparison in loops, pre-calculate the target timestamp outside the loop using `.getTime()`, and inside the loop use `Date.parse(dateStr)` to extract the timestamp. `Date.parse()` is faster than `new Date()` because it returns a primitive number rather than an object.

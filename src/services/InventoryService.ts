@@ -66,7 +66,9 @@ export const InventoryService = {
     const next30Days = new Date(today);
     next30Days.setDate(today.getDate() + 30);
 
-    const expiring = items.filter(i => i.expiryDate && new Date(i.expiryDate) < next30Days).length;
+    // Optimization: Use Date.parse() instead of creating new Date objects inside the loop
+    const next30DaysTime = next30Days.getTime();
+    const expiring = items.filter(i => i.expiryDate && Date.parse(i.expiryDate) < next30DaysTime).length;
     const lowStock = items.filter(i => i.quantity <= i.minStockLevel && i.minStockLevel > 0).length;
     
     return {
