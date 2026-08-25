@@ -1,4 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { memo } from 'react';
+import { VariableSizeList as List } from 'react-window';
+import AutoSizer from 'react-virtualized-auto-sizer';
 import { OrbitalCard } from '../ui/orbital/OrbitalCard';
 import { EmptyState } from '../ui/EmptyState';
 import {
@@ -8,11 +10,84 @@ import {
     InventoryMobileChildRow
 } from '../InventoryRows';
 import { UserRole } from '../../types';
-import { OrbitalButton } from '../ui/orbital/OrbitalButton';
 
 const GRID_TEMPLATE = "40px minmax(240px, 3fr) 120px minmax(180px, 1.5fr) 100px 100px 130px 110px";
 
-// Native List Component (Handles both Desktop and Mobile via Native Scroll + Pagination)
+const VirtualizedRow = memo(({ index, style, data }: any) => {
+    const {
+        flatList,
+        onActions,
+        hasRole,
+        handleSelectRow,
+        toggleGroupExpand,
+        selectedIds,
+        handleSelectGroup,
+        copyToClipboard,
+        isMobile
+    } = data;
+
+    const rowItem = flatList[index];
+    const isSelected = rowItem.type !== 'GROUP' && selectedIds.has(rowItem.data.id);
+
+    // Padding bottom to compensate for absolute positioning in AutoSizer if it's the last item
+    const rowStyle = { ...style, paddingBottom: index === flatList.length - 1 ? '100px' : '0px' };
+
+    if (rowItem.type === 'GROUP') {
+        if (isMobile) {
+            return (
+                <InventoryMobileGroupRow
+                    group={rowItem.data}
+                    style={rowStyle}
+                    isExpanded={rowItem.expanded}
+                    toggleExpand={() => toggleGroupExpand(rowItem.data.groupKey)}
+                    selectedChildIds={selectedIds}
+                    onSelectGroup={handleSelectGroup}
+                    copyToClipboard={copyToClipboard}
+                />
+            );
+        }
+        return (
+             <InventoryGroupRow
+                style={rowStyle}
+                group={rowItem.data}
+                isExpanded={rowItem.expanded}
+                toggleExpand={() => toggleGroupExpand(rowItem.data.groupKey)}
+                selectedChildIds={selectedIds}
+                onSelectGroup={handleSelectGroup}
+                copyToClipboard={copyToClipboard}
+            />
+        );
+    } else {
+         if (isMobile) {
+            return (
+                <InventoryMobileChildRow
+                    item={rowItem.data}
+                    style={rowStyle}
+                    isSelected={isSelected}
+                    isAdmin={hasRole('ADMIN')}
+                    onSelect={handleSelectRow}
+                    onActions={onActions}
+                    copyToClipboard={copyToClipboard}
+                    isLast={rowItem.isLast}
+                />
+            );
+        }
+        return (
+            <InventoryChildRow
+                style={rowStyle}
+                item={rowItem.data}
+                isSelected={isSelected}
+                isAdmin={hasRole('ADMIN')}
+                onSelect={handleSelectRow}
+                onActions={onActions}
+                copyToClipboard={copyToClipboard}
+                isLast={rowItem.isLast}
+            />
+        );
+    }
+});
+
+// Virtualized List Component (Handles both Desktop and Mobile efficiently)
 const NativeList = ({
     flatList,
     onActions,
@@ -24,93 +99,41 @@ const NativeList = ({
     copyToClipboard,
     isMobile
 }: any) => {
-    const [visibleCount, setVisibleCount] = useState(50);
 
-    // Reset visible count when list changes significantly (e.g. filters)
-    useEffect(() => {
-        // eslint-disable-next-line
-        setVisibleCount(50);
-    }, [flatList.length]);
+    const getItemSize = (index: number) => {
+        const item = flatList[index];
+        if (item.type === 'GROUP') {
+            return isMobile ? 120 : 64; // Group Row height
+        }
+        return isMobile ? 110 : 56; // Child Row height
+    };
 
-    const visibleItems = flatList.slice(0, visibleCount);
+    const itemData = {
+        flatList,
+        onActions,
+        hasRole,
+        handleSelectRow,
+        toggleGroupExpand,
+        selectedIds,
+        handleSelectGroup,
+        copyToClipboard,
+        isMobile
+    };
 
     return (
-        <div className="pb-24">
-            {visibleItems.map((rowItem: any, index: number) => {
-                const isSelected = rowItem.type !== 'GROUP' && selectedIds.has(rowItem.data.id);
-                const style = { width: '100%' };
-
-                if (rowItem.type === 'GROUP') {
-                    if (isMobile) {
-                        return (
-                            <InventoryMobileGroupRow
-                                key={rowItem.data.groupKey || index}
-                                group={rowItem.data}
-                                style={style}
-                                isExpanded={rowItem.expanded}
-                                toggleExpand={() => toggleGroupExpand(rowItem.data.groupKey)}
-                                selectedChildIds={selectedIds}
-                                onSelectGroup={handleSelectGroup}
-                                copyToClipboard={copyToClipboard}
-                            />
-                        );
-                    }
-                    return (
-                         <InventoryGroupRow
-                            key={rowItem.data.groupKey || index}
-                            style={style}
-                            group={rowItem.data}
-                            isExpanded={rowItem.expanded}
-                            toggleExpand={() => toggleGroupExpand(rowItem.data.groupKey)}
-                            selectedChildIds={selectedIds}
-                            onSelectGroup={handleSelectGroup}
-                            copyToClipboard={copyToClipboard}
-                        />
-                    );
-                } else {
-                     if (isMobile) {
-                        return (
-                            <InventoryMobileChildRow
-                                key={rowItem.data.id || index}
-                                item={rowItem.data}
-                                style={style}
-                                isSelected={isSelected}
-                                isAdmin={hasRole('ADMIN')}
-                                onSelect={handleSelectRow}
-                                onActions={onActions}
-                                copyToClipboard={copyToClipboard}
-                                isLast={rowItem.isLast}
-                            />
-                        );
-                    }
-                    return (
-                        <InventoryChildRow
-                            key={rowItem.data.id || index}
-                            style={style}
-                            item={rowItem.data}
-                            isSelected={isSelected}
-                            isAdmin={hasRole('ADMIN')}
-                            onSelect={handleSelectRow}
-                            onActions={onActions}
-                            copyToClipboard={copyToClipboard}
-                            isLast={rowItem.isLast}
-                        />
-                    );
-                }
-            })}
-
-            {visibleCount < flatList.length && (
-                <div className="p-4 flex justify-center">
-                    <OrbitalButton
-                        variant="outline"
-                        onClick={() => setVisibleCount(prev => prev + 50)}
-                        className="w-full sm:w-auto"
-                    >
-                        Carregar Mais ({flatList.length - visibleCount} restantes)
-                    </OrbitalButton>
-                </div>
+        <AutoSizer>
+            {({ height, width }) => (
+                <List
+                    height={height}
+                    itemCount={flatList.length}
+                    itemSize={getItemSize}
+                    width={width}
+                    itemData={itemData}
+                >
+                    {VirtualizedRow}
+                </List>
             )}
-        </div>
+        </AutoSizer>
     );
 };
 
