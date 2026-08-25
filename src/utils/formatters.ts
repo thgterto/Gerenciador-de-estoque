@@ -13,3 +13,14 @@ export const formatDateTime = (dateString: string) => {
         hour: '2-digit', minute: '2-digit' 
     });
 };
+
+/**
+ * Calculates days until expiry from a given date string.
+ * Optimized to accept a pre-calculated nowTime to avoid Date instantiation in loops.
+ */
+export const calculateDaysToExpiry = (expiryDate: string, nowTime: number = Date.now()): number => {
+    if (!expiryDate) return 999;
+    const expDate = new Date(expiryDate);
+    if (isNaN(expDate.getTime())) return 999;
+    return Math.ceil((expDate.getTime() - nowTime) / (1000 * 60 * 60 * 24));
+};
