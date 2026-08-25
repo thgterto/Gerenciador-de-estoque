@@ -25,3 +25,7 @@
 ## 2025-02-14 - Unmemoized Hook Functions & Virtual List Performance
 **Learning:** Functions returned from custom hooks (like `toggleGroupExpand` in `useInventoryFilters`) that are recreated on every render will invalidate `itemData` prop passed to `react-window` components, forcing the entire list to re-render even if the underlying data (`flatList`) is stable.
 **Action:** Always wrap functions returned from hooks in `useCallback` if they are passed down to memoized children or used in `useMemo` dependencies, especially when filtering/sorting logic is involved.
+
+## 2025-02-14 - React.memo on History list rows
+**Learning:** History items row components `HistoryMobileRow` and `HistoryRow` in `HistoryTable.tsx` were missing `React.memo`, which caused unnecessary re-renders when parent component state updated (like expanding visibleCount or toggling filters) although the `item` prop didn't change.
+**Action:** Use `React.memo` on list row components when they depend only on their `item` props, especially for long lists.
