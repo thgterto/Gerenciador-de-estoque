@@ -91,6 +91,7 @@ export const Header: React.FC<HeaderProps> = ({
                             className="p-2 text-orbital-accent hover:text-white hover:bg-orbital-accent rounded transition-all duration-200 hover:shadow-glow-sm active:scale-95"
                             title="Adicionar Item"
                             aria-label="Adicionar Item"
+                            data-testid="header-add-button"
                         >
                             <Plus size={20} aria-hidden="true" />
                         </button>

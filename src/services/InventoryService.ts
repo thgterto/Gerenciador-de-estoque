@@ -497,6 +497,7 @@ export const InventoryService = {
                const balances = await db.rawDb.balances.where('batchId').equals(itemToDelete.batchId).toArray();
                const balanceIds = balances.map((b: any) => b.id);
                await db.rawDb.balances.bulkDelete(balanceIds);
+               await db.rawDb.batches.delete(itemToDelete.batchId);
             }
         });
       } catch (e) {
@@ -509,7 +510,7 @@ export const InventoryService = {
 
   async deleteBulk(ids: string[]): Promise<void> {
       try {
-        await db.transaction('rw', [db.rawDb.items, db.rawDb.balances], async () => {
+        await db.transaction('rw', [db.rawDb.items, db.rawDb.balances, db.rawDb.batches], async () => {
             const items = await db.items.bulkGet(ids);
             const batchIds = items.filter(i => i && i.batchId).map(i => i!.batchId!);
             
@@ -519,6 +520,7 @@ export const InventoryService = {
                 const balances = await db.rawDb.balances.where('batchId').anyOf(batchIds).toArray();
                 const balanceIds = balances.map((b: any) => b.id);
                 await db.rawDb.balances.bulkDelete(balanceIds);
+                await db.rawDb.batches.bulkDelete(batchIds);
             }
         });
       } catch (e) {
