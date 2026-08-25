@@ -4,15 +4,20 @@ import { getItemStatus } from '../utils/businessRules';
 
 export const useDashboardAnalytics = (items: InventoryItem[], history: MovementRecord[], selectedItemId?: string) => {
     
+    // 1. Filtragem de Contexto (Global vs Item Único) - Cached at top level to avoid redundant O(N) filters
+    const activeItems = useMemo(() => {
+        return selectedItemId ? items.filter(i => i.id === selectedItemId) : items;
+    }, [items, selectedItemId]);
+
+    // Filtrar histórico relevante apenas se um item estiver selecionado, senão usamos tudo
+    const activeHistory = useMemo(() => {
+        return selectedItemId ? history.filter(h => h.itemId === selectedItemId) : history;
+    }, [history, selectedItemId]);
+
     const analytics = useMemo(() => {
         const now = new Date();
         const todayStr = now.toDateString();
         
-        // 1. Filtragem de Contexto (Global vs Item Único)
-        const activeItems = selectedItemId ? items.filter(i => i.id === selectedItemId) : items;
-        // Filtrar histórico relevante apenas se um item estiver selecionado, senão usamos tudo
-        const activeHistory = selectedItemId ? history.filter(h => h.itemId === selectedItemId) : history;
-
         // 2. KPIs Básicos
         const next30Days = new Date(now);
         next30Days.setDate(now.getDate() + 30);
@@ -206,29 +211,28 @@ export const useDashboardAnalytics = (items: InventoryItem[], history: MovementR
             paretoData
         };
 
-    }, [items, history, selectedItemId]);
+    }, [activeItems, activeHistory]);
 
     // --- CATEGORIES STATS ---
     const categoryStats = useMemo(() => {
-        const targetList = selectedItemId ? items.filter(i => i.id === selectedItemId) : items;
         const counts: Record<string, number> = {};
-        for (const i of targetList) {
+        for (const i of activeItems) {
             if (i.category) {
                 counts[i.category] = (counts[i.category] || 0) + 1;
             }
         }
         return Object.entries(counts)
-            .map(([name, count]) => ({ name, count, percent: Math.round((count / targetList.length) * 100) }))
+            .map(([name, count]) => ({ name, count, percent: Math.round((count / activeItems.length) * 100) }))
             .sort((a, b) => b.count - a.count)
             .slice(0, 10);
-    }, [items, selectedItemId]);
+    }, [activeItems]);
 
     // --- RECENT TRANSACTIONS ---
     const recentTransactions = useMemo(() => {
-        const targetHistory = selectedItemId ? history.filter(h => h.itemId === selectedItemId) : history;
         // Optimization: Use string comparison for ISO dates to avoid expensive Date object creation
-        return targetHistory.sort((a, b) => (b.date > a.date ? 1 : -1)).slice(0, 10);
-    }, [history, selectedItemId]);
+        // Note: Creating a shallow copy to avoid mutating the cached activeHistory array
+        return [...activeHistory].sort((a, b) => (b.date > a.date ? 1 : -1)).slice(0, 10);
+    }, [activeHistory]);
 
     return {
         ...analytics.kpis,

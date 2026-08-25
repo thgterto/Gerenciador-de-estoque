@@ -25,3 +25,7 @@
 ## 2025-02-14 - Unmemoized Hook Functions & Virtual List Performance
 **Learning:** Functions returned from custom hooks (like `toggleGroupExpand` in `useInventoryFilters`) that are recreated on every render will invalidate `itemData` prop passed to `react-window` components, forcing the entire list to re-render even if the underlying data (`flatList`) is stable.
 **Action:** Always wrap functions returned from hooks in `useCallback` if they are passed down to memoized children or used in `useMemo` dependencies, especially when filtering/sorting logic is involved.
+
+## 2024-05-15 - Top-Level Memoization to Prevent Redundant Filtering
+**Learning:** Found a performance bottleneck where hooks like `useDashboardAnalytics` repeatedly performed O(N) filtering operations across multiple `useMemo` blocks (e.g., inside `categoryStats`, `recentTransactions`, and the main `analytics` calculation). This causes performance degradation, especially with large datasets, as the same data transformations are applied multiple times redundantly.
+**Action:** When working with hooks that compute derived state across multiple outputs, always extract shared base transformations (like filtering or finding active items) into their own top-level `useMemo` hooks. Then, feed these cached arrays into the downstream `useMemo` calculations. This ensures the expensive operation runs only once per dependency change.
