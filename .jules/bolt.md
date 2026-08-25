@@ -12,11 +12,7 @@
 
 ## 2025-02-14 - IndexedDB Range Queries
 **Learning:** Loading entire collections into memory then filtering with JavaScript (e.g. `collection.toArray().filter()`) is inefficient for large datasets.
-**Action:** Always prefer Dexie's `where().aboveOrEqual()` or `between()` to leverage IndexedDB indices, significantly reducing the amount of data transferred from IDB to JS memory.
-
-## 2025-02-14 - Documentation Strategy
-**Learning:** Documenting performance optimizations in a dedicated  file helps maintain awareness of high-impact patterns and prevents regressions during future refactors.
-**Action:** Maintain a living performance document alongside the codebase.
+**Action:** Always prefer Dexie's `where().aboveOrEqual()` or `between()` to leverage IndexedDB indices, significantly reducing the amount of data transferred from IDB to IDB to JS memory.
 
 ## 2025-02-14 - Documentation Strategy
 **Learning:** Documenting performance optimizations in a dedicated `docs/PERFORMANCE.md` file helps maintain awareness of high-impact patterns and prevents regressions during future refactors.
@@ -25,3 +21,7 @@
 ## 2025-02-14 - Unmemoized Hook Functions & Virtual List Performance
 **Learning:** Functions returned from custom hooks (like `toggleGroupExpand` in `useInventoryFilters`) that are recreated on every render will invalidate `itemData` prop passed to `react-window` components, forcing the entire list to re-render even if the underlying data (`flatList`) is stable.
 **Action:** Always wrap functions returned from hooks in `useCallback` if they are passed down to memoized children or used in `useMemo` dependencies, especially when filtering/sorting logic is involved.
+
+## 2025-02-14 - Array filtering inside map loops (O(N*M))
+**Learning:** In `useReportsAnalytics.ts`, using `history.filter()` inside an `items.map()` call caused an O(N*M) nested loop. For a large history array and many items, this was a significant performance bottleneck.
+**Action:** When aggregating data from a large array (like `history`) to associate with items in another array, prefer a pre-computation step that iterates the large array once to build a `Map`. Then, map over the smaller array and do O(1) lookups in the Map, reducing complexity to O(N+M).
