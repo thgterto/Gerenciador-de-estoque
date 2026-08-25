@@ -63,17 +63,26 @@ export const useReportsAnalytics = (items: InventoryItem[], history: MovementRec
 
     // 2. Controlled Products Map (Mapa de Controlados)
     const controlledReport = useMemo(() => {
+        // Optimize O(N²) nested filtering: pre-calculate entries and exits per item
+        const historyAgg = new Map<string, { entry: number, exit: number }>();
+        history.forEach(h => {
+            if (!historyAgg.has(h.itemId)) {
+                historyAgg.set(h.itemId, { entry: 0, exit: 0 });
+            }
+            const agg = historyAgg.get(h.itemId)!;
+            if (h.type === 'ENTRADA') agg.entry += h.quantity;
+            else if (h.type === 'SAIDA') agg.exit += h.quantity;
+        });
+
         return items.filter(i => i.isControlled).map(item => {
-            const itemHistory = history.filter(h => h.itemId === item.id);
-            const totalEntry = itemHistory.filter(h => h.type === 'ENTRADA').reduce((acc, h) => acc + h.quantity, 0);
-            const totalExit = itemHistory.filter(h => h.type === 'SAIDA').reduce((acc, h) => acc + h.quantity, 0);
+            const agg = historyAgg.get(item.id) || { entry: 0, exit: 0 };
             
             // Assuming initial stock is current - entries + exits is tricky without a snapshot date
             // For a simple report, we show current stock and flow in period
             return {
                 ...item,
-                totalEntry,
-                totalExit
+                totalEntry: agg.entry,
+                totalExit: agg.exit
             };
         });
     }, [items, history]);
@@ -96,17 +105,17 @@ export const useReportsAnalytics = (items: InventoryItem[], history: MovementRec
 
     // 4. Cost Analysis (Inventory Valuation)
     const costAnalysis = useMemo(() => {
+        let totalValue = 0;
         const details = items.map(item => {
             const unitCost = item.unitCost || 0;
             const total = item.quantity * unitCost;
+            totalValue += total;
             return {
                 ...item,
                 unitCost,
                 totalValue: total
             };
         });
-
-        const totalValue = details.reduce((acc, curr) => acc + curr.totalValue, 0);
 
         // Sort by value desc
         details.sort((a, b) => b.totalValue - a.totalValue);
