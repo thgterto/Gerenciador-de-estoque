@@ -42,17 +42,17 @@ class HybridTableWrapper<T, TKey> {
             this._memoryCache.push(itemOrKey as T);
         } 
         else if (action === 'UPDATE') {
-            const item = itemOrKey as any;
-            const idx = this._memoryCache.findIndex((i: any) => i[this.primaryKeyField] === item[this.primaryKeyField]);
+            const item = itemOrKey as Record<string, unknown>;
+            const idx = this._memoryCache.findIndex((i: unknown) => (i as Record<string, unknown>)[this.primaryKeyField] === item[this.primaryKeyField]);
             if (idx >= 0) {
-                this._memoryCache[idx] = item;
+                this._memoryCache[idx] = item as unknown as T;
             } else {
-                this._memoryCache.push(item);
+                this._memoryCache.push(item as unknown as T);
             }
         } 
         else if (action === 'DELETE') {
-            const key = itemOrKey as any;
-            this._memoryCache = this._memoryCache.filter((i: any) => i[this.primaryKeyField] !== key);
+            const key = itemOrKey as unknown;
+            this._memoryCache = this._memoryCache.filter((i: unknown) => (i as Record<string, unknown>)[this.primaryKeyField] !== key);
         }
         else if (action === 'BULK') {
             const items = itemOrKey as T[];
@@ -63,13 +63,13 @@ class HybridTableWrapper<T, TKey> {
                  return previousCache;
             }
             
-            const map = new Map(this._memoryCache.map((i: any) => [i[this.primaryKeyField], i]));
-            items.forEach((i: any) => map.set(i[this.primaryKeyField], i));
-            this._memoryCache = Array.from(map.values());
+            const map = new Map(this._memoryCache.map((i: unknown) => [(i as Record<string, unknown>)[this.primaryKeyField], i]));
+            items.forEach((i: unknown) => map.set((i as Record<string, unknown>)[this.primaryKeyField], i));
+            this._memoryCache = Array.from(map.values()) as T[];
         }
         else if (action === 'BULK_DELETE') {
             const keys = new Set(itemOrKey as TKey[]);
-            this._memoryCache = this._memoryCache.filter((i: any) => !keys.has(i[this.primaryKeyField]));
+            this._memoryCache = this._memoryCache.filter((i: unknown) => !keys.has((i as Record<string, unknown>)[this.primaryKeyField] as TKey));
         }
 
         this.notifyChange();
@@ -85,15 +85,15 @@ class HybridTableWrapper<T, TKey> {
 
   async get(key: TKey): Promise<T | undefined> {
     if (this._memoryCache) {
-      return this._memoryCache.find((i: any) => i[this.primaryKeyField] === key);
+      return this._memoryCache.find((i: unknown) => (i as Record<string, unknown>)[this.primaryKeyField] === key);
     }
     return await this.dexieTable.get(key);
   }
 
   async bulkGet(keys: TKey[]): Promise<(T | undefined)[]> {
     if (this._memoryCache) {
-        const map = new Map(this._memoryCache.map((i: any) => [i[this.primaryKeyField], i]));
-        return keys.map(key => map.get(key));
+        const map = new Map(this._memoryCache.map((i: unknown) => [(i as Record<string, unknown>)[this.primaryKeyField], i]));
+        return keys.map(key => map.get(key as string) as T | undefined);
     }
     return await this.dexieTable.bulkGet(keys);
   }
@@ -219,7 +219,7 @@ export class HybridStorageManager {
   public stock_movements: HybridTableWrapper<StockMovement, string>;
 
   private listeners: Listener[] = [];
-  private notifyTimeout: any = null;
+  private notifyTimeout: NodeJS.Timeout | null = null;
 
   constructor(dexieInstance: QStockDB) {
     this.db = dexieInstance;
@@ -268,7 +268,7 @@ export class HybridStorageManager {
       this.balances.invalidate();
   }
 
-  transaction(mode: TransactionMode, tables: any[], scope: () => Promise<void>) {
+  transaction(mode: TransactionMode, tables: Table[], scope: () => Promise<void>) {
       return this.db.transaction(mode, tables, scope);
   }
   
