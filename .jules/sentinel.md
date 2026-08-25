@@ -16,3 +16,7 @@
 **Vulnerability:** The Fastify server (`server/src/config.ts`) used a hardcoded fallback for `JWT_SECRET` (`'supersecret_change_me_in_prod'`).
 **Learning:** Hardcoded default secrets allow attackers to forge authentication tokens if the secret is not overridden in production environments, presenting a critical security risk.
 **Prevention:** If an environment variable for a secret is not provided, either fail securely (throw an error and prevent startup) or automatically generate a cryptographically secure random string on startup so the secret remains unknown.
+## 2024-03-20 - [XSS vulnerability in print modal]
+**Vulnerability:** Found `document.write` used to render HTML directly in `src/components/Modals.tsx` and `labcontrol-spfx/src/webparts/labControlApp/components/Modals.tsx`. This allows executing arbitrary JS since `item.name` is included unescaped in the title and could be anywhere else in the document content.
+**Learning:** React patterns often fall back to raw DOM manipulation (like `window.open` + `document.write`) for printing, bypassing React's built-in XSS protection.
+**Prevention:** Avoid `document.write`. If necessary to construct HTML strings dynamically, carefully escape any user-controlled input, and ensure values are string-coerced before using `.replace()`. But a better alternative for React is rendering content in an iframe or a new route instead of generating HTML strings.
