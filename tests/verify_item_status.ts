@@ -47,10 +47,7 @@ const runTests = () => {
     // We don't assert Today strictly because current implementation might depend on time of day vs UTC
     // But after optimization, it should be FALSE (valid until end of day).
 
-    // Test 4: Explicit 'now' argument
-    // If we pass 'now' as tomorrow, then 'yesterday' item should be expired.
-    const statusExplicit = getItemStatus(itemExpired, tomorrow);
-    if (!statusExplicit.isExpired) throw new Error("Failed: Explicit 'now' check failed");
+    // Test 4: Removed explicit 'now' test as it is no longer supported
 
     console.log("All tests passed!");
 };

@@ -6,7 +6,6 @@ export const useDashboardAnalytics = (items: InventoryItem[], history: MovementR
     
     const analytics = useMemo(() => {
         const now = new Date();
-        const todayStr = now.toDateString();
         
         // 1. Filtragem de Contexto (Global vs Item Único)
         const activeItems = selectedItemId ? items.filter(i => i.id === selectedItemId) : items;
@@ -17,18 +16,24 @@ export const useDashboardAnalytics = (items: InventoryItem[], history: MovementR
         const next30Days = new Date(now);
         next30Days.setDate(now.getDate() + 30);
         
+        // Fix local vs UTC timezone difference when converting to ISO strings.
+        // Get the local date string components directly rather than relying on standard ISO which runs UTC.
+        const pad = (n: number) => n.toString().padStart(2, '0');
+        const next30DaysISOStr = `${next30Days.getFullYear()}-${pad(next30Days.getMonth()+1)}-${pad(next30Days.getDate())}`;
+        const todayLocalISOStr = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}`;
+        const todayStr = now.toDateString(); // Keeping original variable logic for other usages
+
         const lowStockItems = [];
         const expiringItems = [];
         const outOfStockItems = [];
         let totalValue = 0;
 
         for (const item of activeItems) {
-            const status = getItemStatus(item, now);
+            const status = getItemStatus(item);
             if (status.isLowStock) lowStockItems.push(item);
             if (status.isExpired) expiringItems.push(item);
             else if (item.expiryDate) {
-                const expDate = new Date(item.expiryDate);
-                if (expDate < next30Days && expDate >= now) expiringItems.push(item);
+                if (item.expiryDate < next30DaysISOStr && item.expiryDate >= todayLocalISOStr) expiringItems.push(item);
             }
 
             if (item.quantity <= 0) outOfStockItems.push(item);
@@ -48,18 +53,20 @@ export const useDashboardAnalytics = (items: InventoryItem[], history: MovementR
         // Inicializa buckets dos últimos 6 meses
         for (let i = 5; i >= 0; i--) {
             const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-            const key = `${d.getFullYear()}-${d.getMonth()}`;
+            // key in 'YYYY-MM' format with zero padding
+            const monthPad = String(d.getMonth() + 1).padStart(2, '0');
+            const key = `${d.getFullYear()}-${monthPad}`;
             buckets.set(key, 0);
             xLabels.push(monthNames[d.getMonth()]);
         }
 
         // Processa histórico total para KPIs globais
         for (const h of activeHistory) {
-            const d = new Date(h.date);
-            if (d.toDateString() === todayStr) movementsToday++;
+            if (new Date(h.date).toDateString() === todayStr) movementsToday++;
             
             if (h.type === 'SAIDA') {
-                const key = `${d.getFullYear()}-${d.getMonth()}`;
+                const d = new Date(h.date);
+                const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
                 if (buckets.has(key)) {
                     buckets.set(key, (buckets.get(key) || 0) + h.quantity);
                 }
@@ -82,9 +89,11 @@ export const useDashboardAnalytics = (items: InventoryItem[], history: MovementR
              const startDate = new Date();
              startDate.setDate(startDate.getDate() - DAYS_WINDOW);
              startDate.setHours(0,0,0,0);
+             const startDateISO = startDate.toISOString();
 
              // 4.1. Filtrar Movimentações na Janela
-             const windowMovements = activeHistory.filter(h => new Date(h.date) >= startDate);
+             // Use ISO string comparison instead of parsing to Date
+             const windowMovements = activeHistory.filter(h => h.date >= startDateISO);
 
              // 4.2. Calcular Saldo Inicial (Retroativo)
              let netChangeInWindow = 0;
