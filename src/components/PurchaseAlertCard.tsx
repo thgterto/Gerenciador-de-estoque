@@ -25,7 +25,7 @@ export const PurchaseAlertCard: React.FC<Props> = React.memo(({ item, onAdd, rea
         
         if (reason === 'EXPIRING') {
             const days = item.expiryDate 
-                ? Math.ceil((new Date(item.expiryDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)) 
+                ? Math.ceil((new Date(item.expiryDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24))
                 : 0;
             return {
                 borderColor: 'border-orbital-warning/50',
