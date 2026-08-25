@@ -59,7 +59,15 @@ const authController = new AuthController(registerUser, loginUser);
 
 // Register plugins
 app.register(cors, {
-  origin: '*', // Allow all origins for local tool
+  // SECURITY: Restrict CORS origins instead of wildcard.
+  // Allow Vite dev server and local environments (including null for file://)
+  origin: (origin, cb) => {
+    if (!origin || origin === 'null' || origin.startsWith('http://localhost') || origin.startsWith('http://127.0.0.1')) {
+      cb(null, true);
+      return;
+    }
+    cb(new Error("Not allowed by CORS"), false);
+  }
 });
 
 app.register(jwt, {
