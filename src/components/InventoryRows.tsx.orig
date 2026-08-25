@@ -32,13 +32,12 @@ interface ChildRowProps {
         request: () => void;
         qr: (item: InventoryItem) => void;
         viewHistory: (item: InventoryItem) => void;
-        clone: (item: InventoryItem) => void; 
+        clone: (item: InventoryItem) => void;
     };
     copyToClipboard: (text: string, label: string) => void;
     isLast: boolean;
 }
 
-// ⚡ Bolt Optimization: Custom equality check to prevent re-rendering all rows when selection changes
 const areChildPropsEqual = (prev: ChildRowProps, next: ChildRowProps) => {
     return (
         prev.item === next.item &&
@@ -48,13 +47,11 @@ const areChildPropsEqual = (prev: ChildRowProps, next: ChildRowProps) => {
     );
 };
 
-// ⚡ Bolt Optimization: Deep equality check to ensure group headers only re-render if their aggregate selection state changes
 const areGroupPropsEqual = (prev: GroupRowProps, next: GroupRowProps) => {
     if (prev.group !== next.group) return false;
     if (prev.isExpanded !== next.isExpanded) return false;
 
     if (prev.selectedChildIds !== next.selectedChildIds) {
-        // Re-render only if the derived selection state (all or some) changes for THIS specific group
         const prevAllSelected = prev.group.items.every(i => prev.selectedChildIds.has(i.id));
         const nextAllSelected = next.group.items.every(i => next.selectedChildIds.has(i.id));
         if (prevAllSelected !== nextAllSelected) return false;
@@ -67,16 +64,16 @@ const areGroupPropsEqual = (prev: GroupRowProps, next: GroupRowProps) => {
     return true;
 };
 
-export const InventoryChildRow = React.memo(({ 
-    item, 
+export const InventoryChildRow = React.memo(({
+    item,
     style,
-    isSelected, 
+    isSelected,
     onActions,
     copyToClipboard,
     isLast
 }: ChildRowProps) => {
     const status = getItemStatus(item);
-    
+
     let validityContent = formatDate(item.expiryDate);
     let validityColor = status.isExpired ? 'text-orbital-danger font-bold' : 'text-orbital-subtext';
     let validityTooltip = "Validade";
@@ -108,7 +105,7 @@ export const InventoryChildRow = React.memo(({
                     className="grid items-center h-full px-4"
                     style={{ gridTemplateColumns: GRID_TEMPLATE }}
                 >
-                    
+
                     <div /> {/* Spacer for checkbox column */}
 
                     {/* Lote / SKU */}
@@ -180,11 +177,11 @@ interface GroupRowProps {
     copyToClipboard: (text: string, label: string) => void;
 }
 
-export const InventoryGroupRow = React.memo(({ 
-    group, 
+export const InventoryGroupRow = React.memo(({
+    group,
     style,
-    isExpanded, 
-    toggleExpand, 
+    isExpanded,
+    toggleExpand,
     selectedChildIds,
     onSelectGroup,
     copyToClipboard
@@ -206,7 +203,7 @@ export const InventoryGroupRow = React.memo(({
                     className="grid items-center h-full px-4"
                     style={{ gridTemplateColumns: GRID_TEMPLATE }}
                 >
-                    
+
                     {/* Checkbox */}
                     <div className="flex justify-center" onClick={(e) => e.stopPropagation()}>
                         <input
@@ -298,10 +295,10 @@ export const InventoryGroupRow = React.memo(({
     );
 }, areGroupPropsEqual);
 
-export const InventoryMobileGroupRow = React.memo(({ 
-    group, 
-    style, 
-    isExpanded, 
+export const InventoryMobileGroupRow = React.memo(({
+    group,
+    style,
+    isExpanded,
     toggleExpand,
     // getCategoryIcon removed
 }: GroupRowProps) => {
@@ -358,14 +355,14 @@ export const InventoryMobileGroupRow = React.memo(({
     );
 }, areGroupPropsEqual);
 
-export const InventoryMobileChildRow = React.memo(({ 
-    item, 
-    style, 
+export const InventoryMobileChildRow = React.memo(({
+    item,
+    style,
     onActions
 }: ChildRowProps) => {
     const status = getItemStatus(item);
     const controls = useAnimation();
-    
+
     let validityInfo = formatDate(item.expiryDate);
     if (item.itemType === 'EQUIPMENT' && item.maintenanceDate) validityInfo = `Manut: ${formatDate(item.maintenanceDate)}`;
     else if (item.itemType === 'GLASSWARE' && item.glassVolume) validityInfo = item.glassVolume;
