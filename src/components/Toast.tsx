@@ -46,7 +46,7 @@ export const ToastContainer: React.FC = () => {
                         className="shrink-0 opacity-70 hover:opacity-100 transition-opacity"
                         aria-label="Close notification"
                     >
-                        <X size={16} />
+                        <X size={16} aria-hidden="true" />
                     </button>
                 </div>
             ))}
