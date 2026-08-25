@@ -16,3 +16,7 @@
 **Vulnerability:** The Fastify server (`server/src/config.ts`) used a hardcoded fallback for `JWT_SECRET` (`'supersecret_change_me_in_prod'`).
 **Learning:** Hardcoded default secrets allow attackers to forge authentication tokens if the secret is not overridden in production environments, presenting a critical security risk.
 **Prevention:** If an environment variable for a secret is not provided, either fail securely (throw an error and prevent startup) or automatically generate a cryptographically secure random string on startup so the secret remains unknown.
+## 2026-08-25 - Information Exposure via Error Handling
+**Vulnerability:** Fastify endpoints manually returned internal error messages (e.g. `res.send(err)` in `app.ts` and `error.message` in `InventoryController.ts`).
+**Learning:** Returning unhandled exception details directly from a web server creates information exposure.
+**Prevention:** Handlers should either swallow the error with a safe fallback response or throw them so a secure central error handler can catch them, log the stack trace internally, and send a generalized response message.
