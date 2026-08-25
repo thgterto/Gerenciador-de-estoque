@@ -32,6 +32,16 @@ export const useInventoryFilters = (items: InventoryItem[]) => {
     const [hideZeroStock, setHideZeroStock] = useState(false);
     const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
 
+    // --- 0. Pre-compute Normalized Search Strings (Performance Optimization) ---
+    // Avoids running heavy NFD normalization and Regex on every search keystroke
+    const itemSearchTokens = useMemo(() => {
+        const tokenMap = new Map<string, string>();
+        for (const item of items) {
+            tokenMap.set(item.id, normalizeStr(`${item.name} ${item.sapCode} ${item.lotNumber} ${item.casNumber || ''}`));
+        }
+        return tokenMap;
+    }, [items]);
+
     // --- 1. Pré-processamento de Filtros Base (Rápido) ---
     // Filtra primeiro por categorias/status que são comparadores diretos
     const baseFilteredItems = useMemo(() => {
@@ -68,10 +78,10 @@ export const useInventoryFilters = (items: InventoryItem[]) => {
         if (normalizedTerms.length === 0) return baseFilteredItems;
 
         return baseFilteredItems.filter(i => {
-            const itemStr = normalizeStr(`${i.name} ${i.sapCode} ${i.lotNumber} ${i.casNumber || ''}`);
+            const itemStr = itemSearchTokens.get(i.id) || '';
             return normalizedTerms.every(t => itemStr.includes(t));
         });
-    }, [baseFilteredItems, debouncedTerm]);
+    }, [baseFilteredItems, debouncedTerm, itemSearchTokens]);
 
     // --- 3. Agrupamento (Transformação de Dados) ---
     const groupedInventory = useMemo(() => {
