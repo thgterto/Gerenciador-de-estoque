@@ -9,3 +9,7 @@
 **Vulnerability:** The server's error handler was returning raw exception messages to the client for 500 errors, potentially exposing database queries, file paths, or other internal implementation details.
 **Learning:** Default error handling often prioritizes developer convenience (debugging) over security. Explicit environment checks (`NODE_ENV === 'production'`) are critical for toggling between verbose and safe error messages.
 **Prevention:** Always implement a centralized error handler that sanitizes error messages in production builds, returning a generic "Internal Server Error" while logging the full details server-side.
+## 2026-06-30 - [XSS Fix] DOM-based XSS via document.write in Modals
+**Vulnerability:** User-controlled item properties (`name`, `lotNumber`, `id`) were directly interpolated into an HTML string passed to `printWindow.document.write()` in the QR Code / Label printing modal, allowing DOM-based XSS.
+**Learning:** `document.write()` is risky when constructing pages dynamically using string templates and user input. The internal vulnerability scanner flags `document.write` as a medium risk.
+**Prevention:** Always escape user data (converting `<`, `>`, `&`, `"`, `'` to their HTML entities) before injecting it into raw HTML contexts like `innerHTML` or `document.write`.
