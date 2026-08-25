@@ -33,6 +33,9 @@ export const useHistoryFilters = (
     // Referência para controlar race conditions em queries assíncronas
     const queryIdRef = useRef(0);
 
+    // Cache for normalized item strings to avoid redundant expensive recalculations
+    const searchCacheRef = useRef<WeakMap<MovementRecord, string>>(new WeakMap());
+
     useEffect(() => {
         const fetchHistory = async () => {
             const currentQueryId = ++queryIdRef.current;
@@ -94,12 +97,18 @@ export const useHistoryFilters = (
 
                     // Busca Textual (Search Term)
                     if (termLower) {
-                        const matches = 
-                            (h.productName && normalizeStr(h.productName).includes(termLower)) || 
-                            (h.sapCode && normalizeStr(h.sapCode).includes(termLower)) || 
-                            (h.lot && normalizeStr(h.lot).includes(termLower)) ||
-                            (h.observation && normalizeStr(h.observation).includes(termLower));
-                        if (!matches) return false;
+                        let recordStr = searchCacheRef.current.get(h);
+                        if (!recordStr) {
+                            // Join all searchable fields and normalize once
+                            recordStr = normalizeStr(
+                                [h.productName, h.sapCode, h.lot, h.observation]
+                                    .filter(Boolean)
+                                    .join(' ')
+                            );
+                            searchCacheRef.current.set(h, recordStr);
+                        }
+
+                        if (!recordStr.includes(termLower)) return false;
                     }
 
                     return true;
