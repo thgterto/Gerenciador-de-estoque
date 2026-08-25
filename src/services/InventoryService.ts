@@ -61,19 +61,41 @@ export const InventoryService = {
   },
 
   async getDashboardMetrics() {
-    const items = await this.getAllItems();
+    // Optimization: Stream items directly from IndexedDB instead of loading all into memory
+    // This significantly reduces memory usage and cold-start time
+
+    // 1. Total Items (Fast Count - uses cache if available)
+    const totalItems = await db.items.count();
+
+    // 2. Metrics Calculation (Streaming)
+    let expiringCount = 0;
+    let lowStockCount = 0;
+
     const today = new Date();
     const next30Days = new Date(today);
     next30Days.setDate(today.getDate() + 30);
 
-    const expiring = items.filter(i => i.expiryDate && new Date(i.expiryDate) < next30Days).length;
-    const lowStock = items.filter(i => i.quantity <= i.minStockLevel && i.minStockLevel > 0).length;
+    // Use rawDb to iterate directly over IDB cursor without materializing array
+    await db.rawDb.items.each(item => {
+        // Expiring Logic
+        if (item.expiryDate) {
+             const expDate = new Date(item.expiryDate);
+             if (!isNaN(expDate.getTime()) && expDate < next30Days) {
+                 expiringCount++;
+             }
+        }
+
+        // Low Stock Logic
+        if (item.minStockLevel > 0 && item.quantity <= item.minStockLevel) {
+            lowStockCount++;
+        }
+    });
     
     return {
-      totalItems: items.length,
-      alertsCount: expiring + lowStock,
-      expiringCount: expiring,
-      lowStockCount: lowStock
+      totalItems,
+      alertsCount: expiringCount + lowStockCount,
+      expiringCount,
+      lowStockCount
     };
   },
 
