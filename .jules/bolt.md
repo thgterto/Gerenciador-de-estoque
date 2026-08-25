@@ -25,3 +25,7 @@
 ## 2025-02-14 - Unmemoized Hook Functions & Virtual List Performance
 **Learning:** Functions returned from custom hooks (like `toggleGroupExpand` in `useInventoryFilters`) that are recreated on every render will invalidate `itemData` prop passed to `react-window` components, forcing the entire list to re-render even if the underlying data (`flatList`) is stable.
 **Action:** Always wrap functions returned from hooks in `useCallback` if they are passed down to memoized children or used in `useMemo` dependencies, especially when filtering/sorting logic is involved.
+
+## 2024-05-22 - React.memo Shallow Comparison Failure
+**Learning:** `React.memo` fails silently when components receive complex objects (like a `Set` for `selectedIds`) or inline object literals (like `style={{ width: '100%' }}`). In `InventoryList`, the inline style and the newly constructed Set of selected IDs caused massive O(N) re-renders of the entire list whenever a single item was selected.
+**Action:** Always extract static object literals (like `ROW_STYLE`) outside the render function. When passing mutable reference structures like `Set` to memoized components, implement a custom `arePropsEqual` function that deeply checks only the necessary intersection (e.g. `items.some(i => set.has(i.id))`) rather than relying on shallow identity checks.
