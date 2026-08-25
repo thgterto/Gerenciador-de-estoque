@@ -10,7 +10,9 @@ const getTodayISO = () => {
     const now = Date.now();
     // Cache for 1 minute to avoid re-calculating string on every render/loop
     if (now - _lastCacheTime > 60000 || !_cachedTodayISO) {
-        _cachedTodayISO = new Date().toISOString().split('T')[0];
+        // Fix: generate ISO string accurately considering local time by shifting timezone offset
+        const d = new Date();
+        _cachedTodayISO = new Date(d.getTime() - (d.getTimezoneOffset() * 60000)).toISOString().split('T')[0];
         _lastCacheTime = now;
     }
     return _cachedTodayISO;

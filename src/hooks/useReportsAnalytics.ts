@@ -84,8 +84,13 @@ export const useReportsAnalytics = (items: InventoryItem[], history: MovementRec
         const next90Days = new Date(today);
         next90Days.setDate(today.getDate() + 90);
 
+        // Fix: generate ISO string accurately considering local time by shifting timezone offset
+        const localToIso = (d: Date) => new Date(d.getTime() - (d.getTimezoneOffset() * 60000)).toISOString().split('T')[0];
+        const next90DaysStr = localToIso(next90Days);
+
         const result = items
-            .filter(i => i.expiryDate && new Date(i.expiryDate) <= next90Days)
+            // Optimization: use string comparison instead of `new Date` instantiation for expiration dates
+            .filter(i => i.expiryDate && i.expiryDate <= next90DaysStr)
             .sort((a, b) => (a.expiryDate > b.expiryDate ? 1 : -1));
 
         return result.map(i => ({
