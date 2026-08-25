@@ -25,3 +25,7 @@
 ## 2025-02-14 - Unmemoized Hook Functions & Virtual List Performance
 **Learning:** Functions returned from custom hooks (like `toggleGroupExpand` in `useInventoryFilters`) that are recreated on every render will invalidate `itemData` prop passed to `react-window` components, forcing the entire list to re-render even if the underlying data (`flatList`) is stable.
 **Action:** Always wrap functions returned from hooks in `useCallback` if they are passed down to memoized children or used in `useMemo` dependencies, especially when filtering/sorting logic is involved.
+
+## 2025-02-14 - O(N*M) Nested Loop Bottleneck in Reports Analytics
+**Learning:** Generating the `controlledReport` in `useReportsAnalytics.ts` iterated over the entire `history` array inside a `.map()` for every single controlled item (`O(N*M)` complexity). For 100 controlled items and 10,000 history records, this caused an ~800ms synchronous block on the main thread during render.
+**Action:** When computing aggregates over a large array (like `history` records) mapped to another list of items, pre-aggregate the data using a `Map` in a single pass (`O(M)`), then lookup the pre-aggregated values in `O(1)` time during the item iteration (`O(N)`), bringing the total complexity to `O(N+M)`. This brought execution time down to ~55ms.
