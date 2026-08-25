@@ -48,7 +48,10 @@ const NativeList = ({
                                 group={rowItem.data}
                                 style={style}
                                 isExpanded={rowItem.expanded}
-                                toggleExpand={() => toggleGroupExpand(rowItem.data.groupKey)}
+                                // Bolt Optimization: Passing the memoized callback instead of an inline
+                                // arrow function prevents all memoized group rows from pointlessly
+                                // re-rendering when the list is updated (e.g. selection changes).
+                                toggleExpand={toggleGroupExpand}
                                 selectedChildIds={selectedIds}
                                 onSelectGroup={handleSelectGroup}
                                 copyToClipboard={copyToClipboard}
@@ -61,7 +64,9 @@ const NativeList = ({
                             style={style}
                             group={rowItem.data}
                             isExpanded={rowItem.expanded}
-                            toggleExpand={() => toggleGroupExpand(rowItem.data.groupKey)}
+                            // Bolt Optimization: Passing stable reference `toggleGroupExpand` directly
+                            // to preserve React.memo bailouts.
+                            toggleExpand={toggleGroupExpand}
                             selectedChildIds={selectedIds}
                             onSelectGroup={handleSelectGroup}
                             copyToClipboard={copyToClipboard}
