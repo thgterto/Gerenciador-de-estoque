@@ -227,7 +227,8 @@ export const useDashboardAnalytics = (items: InventoryItem[], history: MovementR
     const recentTransactions = useMemo(() => {
         const targetHistory = selectedItemId ? history.filter(h => h.itemId === selectedItemId) : history;
         // Optimization: Use string comparison for ISO dates to avoid expensive Date object creation
-        return targetHistory.sort((a, b) => (b.date > a.date ? 1 : -1)).slice(0, 10);
+        // ⚡ Bolt: Fixed unstable sort returning -1 on equality which causes V8 de-optimizations
+        return targetHistory.sort((a, b) => (b.date > a.date ? 1 : (b.date < a.date ? -1 : 0))).slice(0, 10);
     }, [history, selectedItemId]);
 
     return {
