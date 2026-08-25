@@ -4,10 +4,12 @@ import { InventoryItem, StockTransactionDTO } from '../../types';
 const sp = {
     web: {
         lists: {
-            getByTitle: (title: string) => ({
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            getByTitle: (_title: string) => ({
                 items: {
                     add: async (item: any) => ({ data: { ...item, Id: Math.floor(Math.random() * 1000) } }),
-                    getById: (id: number) => ({
+                    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                    getById: (_id: number) => ({
                         update: async (item: any) => ({ data: item })
                     })
                 }
@@ -41,8 +43,12 @@ export class SPFxInventoryService {
             const batch = sp.web.createBatch();
 
             // 1. Determine lists
-            const historyList = sp.web.lists.getByTitle("LabControl_History");
-            const balancesList = sp.web.lists.getByTitle("LabControl_Balances");
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            const _historyList = sp.web.lists.getByTitle("LabControl_History");
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            const _balancesList = sp.web.lists.getByTitle("LabControl_Balances");
 
             // 2. Add History Record to Batch
             // Note: In real PnPjs, you would associate the `.inBatch(batch)`

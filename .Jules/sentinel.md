@@ -9,3 +9,8 @@
 **Vulnerability:** The server's error handler was returning raw exception messages to the client for 500 errors, potentially exposing database queries, file paths, or other internal implementation details.
 **Learning:** Default error handling often prioritizes developer convenience (debugging) over security. Explicit environment checks (`NODE_ENV === 'production'`) are critical for toggling between verbose and safe error messages.
 **Prevention:** Always implement a centralized error handler that sanitizes error messages in production builds, returning a generic "Internal Server Error" while logging the full details server-side.
+
+## 2025-02-23 - XSS in DOM Injection (`document.write`)
+**Vulnerability:** DOM-based Cross-Site Scripting (XSS) in QR code printing functionality. User-controlled inventory item names, lots, and IDs were being directly interpolated into a `printWindow.document.write()` template without escaping.
+**Learning:** While React automatically sanitizes variables rendered in JSX, rendering logic that sidesteps React entirely (like native DOM manipulation or `document.write` for printing windows) completely circumvents this protection.
+**Prevention:** Always apply an HTML escaping utility to external or user-provided data when dynamically assembling HTML strings outside of a framework's built-in rendering cycle.
