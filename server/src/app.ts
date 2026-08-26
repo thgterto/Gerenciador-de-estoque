@@ -59,7 +59,9 @@ const authController = new AuthController(registerUser, loginUser);
 
 // Register plugins
 app.register(cors, {
-  origin: '*', // Allow all origins for local tool
+  origin: process.env.NODE_ENV === 'development'
+    ? [/localhost:\d+$/, /127\.0\.0\.1:\d+$/]
+    : false, // In production, rely on strict same-origin policy since frontend and backend are served together
 });
 
 app.register(jwt, {
