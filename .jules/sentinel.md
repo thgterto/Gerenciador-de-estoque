@@ -16,3 +16,8 @@
 **Vulnerability:** The Fastify server (`server/src/config.ts`) used a hardcoded fallback for `JWT_SECRET` (`'supersecret_change_me_in_prod'`).
 **Learning:** Hardcoded default secrets allow attackers to forge authentication tokens if the secret is not overridden in production environments, presenting a critical security risk.
 **Prevention:** If an environment variable for a secret is not provided, either fail securely (throw an error and prevent startup) or automatically generate a cryptographically secure random string on startup so the secret remains unknown.
+
+## 2025-05-27 - XSS in document.write for Modals
+**Vulnerability:** A Cross-Site Scripting (XSS) vulnerability was found in the `handlePrint` function of the Modals component (`src/components/Modals.tsx` and `labcontrol-spfx/src/webparts/labControlApp/components/Modals.tsx`), where user-controlled inputs (`item.name`, `item.lotNumber`, `item.id`) were dynamically injected into a string executed by `document.write`.
+**Learning:** Even internal windows created by `window.open` and populated via `document.write` are susceptible to XSS if inputs are not sanitized. In React, while component rendering automatically sanitizes data, raw strings sent to the DOM API bypass this protection. Applying a sanitization function to React props leads to double escaping issues, so escaping should only be applied immediately before native string injection.
+**Prevention:** Avoid `document.write` if possible. If required, sanitize variables being injected with an HTML escape function (`<`, `>`, `&`, `"`, `'`) specifically and only right before they are concatenated into the string sent to the native DOM APIs.
