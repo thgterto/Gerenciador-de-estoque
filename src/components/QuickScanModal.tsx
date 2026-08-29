@@ -207,9 +207,11 @@ export const QuickScanModal: React.FC<Props> = ({ isOpen, onClose }) => {
                             <div className="flex flex-col gap-4">
                                 <div className="flex items-center gap-3">
                                     <button 
-                                        className="size-10 border border-orbital-border hover:border-orbital-accent hover:bg-orbital-accent/10 flex items-center justify-center text-xl font-bold text-orbital-text transition-colors"
+                                        className="size-10 border border-orbital-border hover:border-orbital-accent hover:bg-orbital-accent/10 flex items-center justify-center text-xl font-bold text-orbital-text transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                         onClick={() => setQuantity(String(Math.max(1, parseFloat(quantity) - 1)))}
                                         aria-label="Decrease quantity"
+                                        title="Decrease quantity"
+                                        disabled={parseFloat(quantity) <= 1}
                                     >-</button>
                                     <div className="flex-1">
                                          <input 
@@ -223,6 +225,7 @@ export const QuickScanModal: React.FC<Props> = ({ isOpen, onClose }) => {
                                         className="size-10 border border-orbital-border hover:border-orbital-accent hover:bg-orbital-accent/10 flex items-center justify-center text-xl font-bold text-orbital-text transition-colors"
                                         onClick={() => setQuantity(String(parseFloat(quantity) + 1))}
                                         aria-label="Increase quantity"
+                                        title="Increase quantity"
                                     >+</button>
                                 </div>
                                 <div className="grid grid-cols-2 gap-3">
