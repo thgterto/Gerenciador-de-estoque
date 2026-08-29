@@ -156,8 +156,11 @@ export const Purchases: React.FC<Props> = ({
                                     <OrbitalTd>
                                         <div className="flex items-center gap-2">
                                             <button 
-                                                className="w-6 h-6 flex items-center justify-center rounded border border-orbital-border hover:bg-orbital-surface hover:text-orbital-accent transition-colors"
+                                                className="w-6 h-6 flex items-center justify-center rounded border border-orbital-border hover:bg-orbital-surface hover:text-orbital-accent transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                                 onClick={() => onUpdateQuantity(item.id, Math.max(1, item.suggestedQty - 1))}
+                                                aria-label="Decrease quantity"
+                                                title="Decrease quantity"
+                                                disabled={item.suggestedQty <= 1}
                                             >
                                                 -
                                             </button>
@@ -165,6 +168,8 @@ export const Purchases: React.FC<Props> = ({
                                             <button
                                                 className="w-6 h-6 flex items-center justify-center rounded border border-orbital-border hover:bg-orbital-surface hover:text-orbital-accent transition-colors"
                                                 onClick={() => onUpdateQuantity(item.id, item.suggestedQty + 1)}
+                                                aria-label="Increase quantity"
+                                                title="Increase quantity"
                                             >
                                                 +
                                             </button>
