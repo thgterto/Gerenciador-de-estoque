@@ -12,3 +12,7 @@
 ## 2025-05-26 - GHS Icons Accessibility
 **Learning:** Icon-only toggles for risk options were missing explicit `aria-label`s and used a `div` element with an `onClick` handler. This meant screen readers had no way to interact with or understand these toggles. Additionally, there were no focus outlines, breaking keyboard navigation.
 **Action:** Changed the `div` to a `<button type="button">`, added `aria-pressed={isChecked}`, `aria-label={ghs.label}`, and `focus-visible` styles to ensure proper screen reader and keyboard support.
+
+## 2023-10-27 - Decorative Icons in Menus
+**Learning:** Decorative icons in navigation menus (like those in `Sidebar.tsx`) that are visually paired with visible text or have an explicit `aria-label` should also receive `aria-hidden="true"`. This prevents screen readers from making redundant announcements of the icon element.
+**Action:** When creating or maintaining navigation components, map through menu item icons and explicitly set `aria-hidden="true"`, and apply it to standard UI control icons (like Sync or Logout) as well.
