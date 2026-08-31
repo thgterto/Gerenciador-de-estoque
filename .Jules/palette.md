@@ -12,3 +12,6 @@
 ## 2025-05-26 - GHS Icons Accessibility
 **Learning:** Icon-only toggles for risk options were missing explicit `aria-label`s and used a `div` element with an `onClick` handler. This meant screen readers had no way to interact with or understand these toggles. Additionally, there were no focus outlines, breaking keyboard navigation.
 **Action:** Changed the `div` to a `<button type="button">`, added `aria-pressed={isChecked}`, `aria-label={ghs.label}`, and `focus-visible` styles to ensure proper screen reader and keyboard support.
+## 2026-08-31 - Icon Buttons Accessibility
+**Learning:** Found several icon-only buttons (+, -, and Copy) across different components (ExcelSetupModal, Purchases) lacking proper accessibility attributes. When buttons rely solely on visual cues, they become inaccessible to screen readers and offer poor UX without tooltips.
+**Action:** Added `aria-label` for screen reader support and `title` for native tooltips on hover to ensure these interactive elements provide clear context to all users.
