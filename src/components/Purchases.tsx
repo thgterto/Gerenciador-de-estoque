@@ -156,6 +156,8 @@ export const Purchases: React.FC<Props> = ({
                                     <OrbitalTd>
                                         <div className="flex items-center gap-2">
                                             <button 
+                                                type="button"
+                                                aria-label="Diminuir quantidade"
                                                 className="w-6 h-6 flex items-center justify-center rounded border border-orbital-border hover:bg-orbital-surface hover:text-orbital-accent transition-colors"
                                                 onClick={() => onUpdateQuantity(item.id, Math.max(1, item.suggestedQty - 1))}
                                             >

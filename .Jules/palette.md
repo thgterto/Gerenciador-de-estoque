@@ -12,3 +12,6 @@
 ## 2025-05-26 - GHS Icons Accessibility
 **Learning:** Icon-only toggles for risk options were missing explicit `aria-label`s and used a `div` element with an `onClick` handler. This meant screen readers had no way to interact with or understand these toggles. Additionally, there were no focus outlines, breaking keyboard navigation.
 **Action:** Changed the `div` to a `<button type="button">`, added `aria-pressed={isChecked}`, `aria-label={ghs.label}`, and `focus-visible` styles to ensure proper screen reader and keyboard support.
+## 2024-05-24 - Accessibility improvements on buttons
+**Learning:** React 19 apps with complex UI often lack standard button types and ARIA labels. I found a pattern where modal toggles and icon buttons do not have `type="button"` or `aria-label`s, which causes accessibility issues and potential form submission errors.
+**Action:** Added `type="button"` and context-appropriate `aria-label`s to multiple modal and UI action buttons to fix screen reader compatibility.
