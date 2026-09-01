@@ -26,6 +26,8 @@ export const DatabaseSetupModal: React.FC<Props> = ({ isOpen, onSelect }) => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-8">
             {/* Option 1: Empty */}
             <button 
+                type="button"
+                aria-label="Iniciar com banco de dados vazio"
                 onClick={() => onSelect('EMPTY')}
                 className="group relative flex flex-col items-center text-center p-8 border border-orbital-border bg-orbital-surface hover:bg-orbital-accent/5 hover:border-orbital-accent transition-all duration-300"
             >
@@ -43,6 +45,8 @@ export const DatabaseSetupModal: React.FC<Props> = ({ isOpen, onSelect }) => {
 
             {/* Option 2: Demo Data */}
             <button 
+                type="button"
+                aria-label="Iniciar com dados de demonstração"
                 onClick={() => onSelect('DEMO')}
                 className="group relative flex flex-col items-center text-center p-8 border border-orbital-accent/50 bg-orbital-accent/5 hover:bg-orbital-accent/10 hover:border-orbital-accent transition-all duration-300 shadow-[0_0_20px_rgba(0,243,255,0.05)]"
             >

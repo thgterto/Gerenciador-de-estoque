@@ -571,6 +571,8 @@ export const ImportWizard: React.FC<Props> = ({ isOpen, onClose, mode }) => {
                                 <div className="flex-1 overflow-hidden border border-orbital-border bg-orbital-bg relative flex flex-col">
                                     <div className="absolute top-2 right-2 z-20">
                                         <button 
+                                            type="button"
+                                            aria-label="Alternar exibição de apenas erros"
                                             onClick={() => setShowErrorsOnly(!showErrorsOnly)}
                                             className={`text-[10px] px-3 py-1 font-bold font-mono uppercase tracking-wider border ${showErrorsOnly ? 'bg-orbital-danger text-black border-orbital-danger' : 'bg-orbital-surface text-orbital-subtext border-orbital-border'}`}
                                         >
