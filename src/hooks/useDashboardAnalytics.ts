@@ -84,7 +84,9 @@ export const useDashboardAnalytics = (items: InventoryItem[], history: MovementR
              startDate.setHours(0,0,0,0);
 
              // 4.1. Filtrar Movimentações na Janela
-             const windowMovements = activeHistory.filter(h => new Date(h.date) >= startDate);
+             // Optimization: Date.parse is faster than new Date() for comparison and safely handles timezones/formats
+             const startMs = startDate.getTime();
+             const windowMovements = activeHistory.filter(h => Date.parse(h.date) >= startMs);
 
              // 4.2. Calcular Saldo Inicial (Retroativo)
              let netChangeInWindow = 0;
