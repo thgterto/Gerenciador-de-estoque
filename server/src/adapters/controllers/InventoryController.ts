@@ -1,6 +1,8 @@
 
 import { FastifyRequest, FastifyReply } from 'fastify';
+import { z } from 'zod';
 import { GetInventory } from '../../use-cases/GetInventory';
+import { TransactionType } from '../../domain/entities/InventoryTransaction';
 import { LogTransaction } from '../../use-cases/LogTransaction';
 import { SaveProduct } from '../../use-cases/SaveProduct';
 import { GetFullDatabase } from '../../use-cases/GetFullDatabase';
@@ -29,20 +31,38 @@ export class InventoryController {
 
   async logTransaction(req: FastifyRequest, res: FastifyReply) {
     try {
-      const transaction = req.body as any;
+      const logTransactionSchema = z.object({
+        productId: z.string().min(1),
+        type: z.nativeEnum(TransactionType),
+        qty: z.number(),
+        user: z.string().min(1)
+      });
+      const transaction = logTransactionSchema.parse(req.body);
       await this.logTransactionUseCase.execute(transaction);
       res.status(201).send({ success: true });
     } catch (error: any) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).send({ error: 'Validation Error', details: error.errors });
+      }
       res.status(500).send({ error: error.message });
     }
   }
 
   async saveProduct(req: FastifyRequest, res: FastifyReply) {
     try {
-      const product = req.body as any;
+      const saveProductSchema = z.object({
+        sku: z.string().min(1),
+        name: z.string().min(1),
+        min_stock: z.number().min(0),
+        safety_stock: z.number().min(0)
+      });
+      const product = saveProductSchema.parse(req.body);
       await this.saveProductUseCase.execute(product);
       res.status(201).send({ success: true });
     } catch (error: any) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).send({ error: 'Validation Error', details: error.errors });
+      }
       res.status(500).send({ error: error.message });
     }
   }
