@@ -167,29 +167,33 @@ export const QRGeneratorModal: React.FC<QRGeneratorModalProps> = ({ isOpen, onCl
         const printWindow = window.open('', '', 'width=600,height=400');
         if (printWindow) {
             const svgHtml = document.getElementById('qr-code-svg')?.outerHTML || '';
-            printWindow.document.write(`
-                <html>
-                    <head>
-                        <title>${escapeHtml(item.name)}</title>
-                        <style>
-                            @page { size: auto; margin: 0; }
-                            body { margin: 0; padding: 10px; font-family: monospace; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; }
-                            .label { text-align: center; border: 1px dashed #000; padding: 10px; width: 80mm; }
-                            .title { font-weight: bold; font-size: 14px; margin-bottom: 5px; }
-                            .meta { font-size: 10px; margin-bottom: 5px; }
-                        </style>
-                    </head>
-                    <body>
-                        <div class="label">
-                            <div class="title">${escapeHtml(item.name)}</div>
-                            <div class="meta">Lote: ${escapeHtml(item.lotNumber)} | Val: ${item.expiryDate ? new Date(item.expiryDate).toLocaleDateString() : 'N/A'}</div>
-                            ${svgHtml}
-                            <div class="meta" style="margin-top: 5px;">${escapeHtml(item.id)}</div>
-                        </div>
-                        <script>setTimeout(() => { window.print(); window.close(); }, 500);</script>
-                    </body>
-                </html>
-            `);
+
+            // XSS Prevention: Use safer DOM manipulation instead of document.write
+            printWindow.document.head.innerHTML = `
+                <title>${escapeHtml(item.name)}</title>
+                <style>
+                    @page { size: auto; margin: 0; }
+                    body { margin: 0; padding: 10px; font-family: monospace; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; }
+                    .label { text-align: center; border: 1px dashed #000; padding: 10px; width: 80mm; }
+                    .title { font-weight: bold; font-size: 14px; margin-bottom: 5px; }
+                    .meta { font-size: 10px; margin-bottom: 5px; }
+                </style>
+            `;
+
+            printWindow.document.body.innerHTML = `
+                <div class="label">
+                    <div class="title">${escapeHtml(item.name)}</div>
+                    <div class="meta">Lote: ${escapeHtml(item.lotNumber)} | Val: ${item.expiryDate ? new Date(item.expiryDate).toLocaleDateString() : 'N/A'}</div>
+                    ${svgHtml}
+                    <div class="meta" style="margin-top: 5px;">${escapeHtml(item.id)}</div>
+                </div>
+            `;
+
+            // Wait for resources to load if any, then print
+            const script = printWindow.document.createElement('script');
+            script.textContent = "setTimeout(() => { window.print(); window.close(); }, 500);";
+            printWindow.document.body.appendChild(script);
+
             printWindow.document.close();
         }
     };
