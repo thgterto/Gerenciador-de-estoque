@@ -23,9 +23,10 @@ export const TypeSelector: React.FC<TypeSelectorProps> = ({ currentType, onChang
                     <button
                         key={key}
                         type="button"
+                        aria-pressed={currentType === key}
                         onClick={() => onChange(key)}
                         className={`
-                            flex items-center gap-2 px-4 py-2 text-xs font-bold uppercase tracking-wide rounded transition-all duration-200
+                            flex items-center gap-2 px-4 py-2 text-xs font-bold uppercase tracking-wide rounded transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orbital-accent focus-visible:ring-offset-1 focus-visible:ring-offset-orbital-bg/50
                             ${currentType === key
                                 ? 'bg-orbital-accent text-orbital-bg shadow-glow-sm'
                                 : 'text-orbital-subtext hover:text-orbital-text hover:bg-orbital-surface'}
