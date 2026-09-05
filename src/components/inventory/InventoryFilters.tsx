@@ -53,20 +53,26 @@ export const InventoryFilters: React.FC<InventoryFiltersProps> = ({
                         </label>
                         <div className="flex bg-orbital-bg/50 border border-orbital-border rounded p-1 h-[42px]">
                             <button
+                                type="button"
+                                aria-pressed={statusFilter === 'ALL'}
                                 onClick={() => setStatusFilter('ALL')}
-                                className={`flex-1 text-xs font-bold uppercase tracking-wide rounded transition-all duration-200 ${statusFilter === 'ALL' ? 'bg-orbital-accent text-orbital-bg shadow-glow-sm' : 'text-orbital-subtext hover:text-orbital-text hover:bg-orbital-surface'}`}
+                                className={`flex-1 text-xs font-bold uppercase tracking-wide rounded transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orbital-accent focus-visible:ring-offset-1 focus-visible:ring-offset-orbital-bg/50 ${statusFilter === 'ALL' ? 'bg-orbital-accent text-orbital-bg shadow-glow-sm' : 'text-orbital-subtext hover:text-orbital-text hover:bg-orbital-surface'}`}
                             >
                                 Todos
                             </button>
                             <button
+                                type="button"
+                                aria-pressed={statusFilter === 'LOW_STOCK'}
                                 onClick={() => setStatusFilter('LOW_STOCK')}
-                                className={`flex-1 text-xs font-bold uppercase tracking-wide rounded transition-all duration-200 ${statusFilter === 'LOW_STOCK' ? 'bg-orbital-warning text-orbital-bg shadow-glow-sm' : 'text-orbital-subtext hover:text-orbital-text hover:bg-orbital-surface'}`}
+                                className={`flex-1 text-xs font-bold uppercase tracking-wide rounded transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orbital-warning focus-visible:ring-offset-1 focus-visible:ring-offset-orbital-bg/50 ${statusFilter === 'LOW_STOCK' ? 'bg-orbital-warning text-orbital-bg shadow-glow-sm' : 'text-orbital-subtext hover:text-orbital-text hover:bg-orbital-surface'}`}
                             >
                                 Baixo
                             </button>
                             <button
+                                type="button"
+                                aria-pressed={statusFilter === 'EXPIRED'}
                                 onClick={() => setStatusFilter('EXPIRED')}
-                                className={`flex-1 text-xs font-bold uppercase tracking-wide rounded transition-all duration-200 ${statusFilter === 'EXPIRED' ? 'bg-orbital-danger text-orbital-bg shadow-glow-sm' : 'text-orbital-subtext hover:text-orbital-text hover:bg-orbital-surface'}`}
+                                className={`flex-1 text-xs font-bold uppercase tracking-wide rounded transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orbital-danger focus-visible:ring-offset-1 focus-visible:ring-offset-orbital-bg/50 ${statusFilter === 'EXPIRED' ? 'bg-orbital-danger text-orbital-bg shadow-glow-sm' : 'text-orbital-subtext hover:text-orbital-text hover:bg-orbital-surface'}`}
                             >
                                 Vencidos
                             </button>
@@ -99,9 +105,11 @@ export const InventoryFilters: React.FC<InventoryFiltersProps> = ({
                         {uniqueCategories.map((cat) => (
                              <button
                                 key={cat}
+                                type="button"
+                                aria-pressed={catFilter === cat}
                                 onClick={() => setCatFilter(cat === catFilter ? '' : cat)}
                                 className={`
-                                    px-3 py-1 text-xs font-mono rounded-full border transition-all duration-200 whitespace-nowrap
+                                    px-3 py-1 text-xs font-mono rounded-full border transition-all duration-200 whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orbital-accent focus-visible:ring-offset-1 focus-visible:ring-offset-orbital-bg/50
                                     ${catFilter === cat
                                         ? 'bg-orbital-accent/20 border-orbital-accent text-orbital-accent shadow-glow-sm'
                                         : 'bg-orbital-surface border-orbital-border text-orbital-subtext hover:border-orbital-subtext hover:text-orbital-text'}
@@ -112,8 +120,9 @@ export const InventoryFilters: React.FC<InventoryFiltersProps> = ({
                         ))}
                          {catFilter && (
                             <button
+                                type="button"
                                 onClick={() => setCatFilter('')}
-                                className="px-2 py-1 text-xs text-orbital-subtext hover:text-orbital-danger underline"
+                                className="px-2 py-1 text-xs text-orbital-subtext hover:text-orbital-danger underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orbital-danger rounded"
                             >
                                 Limpar
                             </button>
@@ -121,20 +130,21 @@ export const InventoryFilters: React.FC<InventoryFiltersProps> = ({
                     </div>
 
                     {/* Zero Stock Toggle */}
-                    <label className="flex items-center gap-2 cursor-pointer group whitespace-nowrap">
-                        <div className="relative">
-                            <input
-                                type="checkbox"
-                                className="sr-only peer"
-                                checked={hideZeroStock}
-                                onChange={(e) => setHideZeroStock(e.target.checked)}
-                            />
-                            <div className="w-9 h-5 bg-orbital-bg border border-orbital-border rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-orbital-subtext after:border-gray-300 after:border after:rounded-full after:h-3.5 after:w-3.5 after:transition-all peer-checked:bg-orbital-accent peer-checked:border-orbital-accent peer-checked:after:bg-white shadow-inner"></div>
+                    <button
+                        type="button"
+                        role="switch"
+                        aria-checked={hideZeroStock}
+                        onClick={() => setHideZeroStock(!hideZeroStock)}
+                        className="flex items-center gap-2 cursor-pointer group whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orbital-accent rounded p-1"
+                    >
+                        <div className="relative pointer-events-none">
+                            <div className={`w-9 h-5 border rounded-full shadow-inner transition-all ${hideZeroStock ? 'bg-orbital-accent border-orbital-accent' : 'bg-orbital-bg border-orbital-border'}`}></div>
+                            <div className={`absolute top-[2px] left-[2px] rounded-full h-3.5 w-3.5 transition-all border ${hideZeroStock ? 'translate-x-4 border-white bg-white' : 'translate-x-0 border-gray-300 bg-orbital-subtext'}`}></div>
                         </div>
                         <span className="text-xs font-medium text-orbital-subtext group-hover:text-orbital-text transition-colors">
                             Ocultar sem estoque
                         </span>
-                    </label>
+                    </button>
                 </div>
             </div>
         </OrbitalCard>
