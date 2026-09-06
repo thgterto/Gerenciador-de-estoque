@@ -59,7 +59,23 @@ const authController = new AuthController(registerUser, loginUser);
 
 // Register plugins
 app.register(cors, {
-  origin: '*', // Allow all origins for local tool
+  // SECURITY FIX: Prevent Cross-Origin Resource Sharing (CORS) attacks by
+  // restricting allowed origins instead of using a wildcard ('*').
+  // Allows local development server and Electron file:// protocol.
+  origin: (origin, cb) => {
+    if (!origin || origin.startsWith('file://')) {
+      return cb(null, true);
+    }
+    try {
+      const hostname = new URL(origin).hostname;
+      if (hostname === 'localhost' || hostname === '127.0.0.1') {
+        return cb(null, true);
+      }
+      return cb(new Error('Not allowed by CORS'), false);
+    } catch (e) {
+      return cb(new Error('Invalid origin'), false);
+    }
+  }
 });
 
 app.register(jwt, {
