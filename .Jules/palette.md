@@ -12,3 +12,7 @@
 ## 2025-05-26 - GHS Icons Accessibility
 **Learning:** Icon-only toggles for risk options were missing explicit `aria-label`s and used a `div` element with an `onClick` handler. This meant screen readers had no way to interact with or understand these toggles. Additionally, there were no focus outlines, breaking keyboard navigation.
 **Action:** Changed the `div` to a `<button type="button">`, added `aria-pressed={isChecked}`, `aria-label={ghs.label}`, and `focus-visible` styles to ensure proper screen reader and keyboard support.
+
+## 2023-10-27 - Icon Buttons without ARIA labels
+**Learning:** Found icon buttons ("+" and "-") in `src/components/Purchases.tsx` that lacked `aria-label` attributes, making them inaccessible to screen readers.
+**Action:** Always add descriptive `aria-label`s to icon-only interactive elements like `<button>-</button>` to provide proper context to assistive technologies.
