@@ -38,6 +38,16 @@ interface ChildRowProps {
     isLast: boolean;
 }
 
+const areChildPropsEqual = (prev: ChildRowProps, next: ChildRowProps) => {
+    return (
+        prev.item === next.item &&
+        prev.isSelected === next.isSelected &&
+        prev.isLast === next.isLast &&
+        prev.isAdmin === next.isAdmin &&
+        prev.style === next.style
+    );
+};
+
 export const InventoryChildRow = React.memo(({ 
     item, 
     style,
@@ -138,7 +148,7 @@ export const InventoryChildRow = React.memo(({
             </div>
         </div>
     );
-});
+}, areChildPropsEqual);
 
 interface GroupRowProps {
     group: InventoryGroup;
@@ -150,6 +160,30 @@ interface GroupRowProps {
     // getCategoryIcon removed as it was unused/hardcoded
     copyToClipboard: (text: string, label: string) => void;
 }
+
+const areGroupPropsEqual = (prev: GroupRowProps, next: GroupRowProps) => {
+    // Check if the intersection of selected items for THIS group has changed
+    const prevSelectedCount = prev.group.items.filter(i => prev.selectedChildIds.has(i.id)).length;
+    const nextSelectedCount = next.group.items.filter(i => next.selectedChildIds.has(i.id)).length;
+
+    // Check individual items if count is same, otherwise they are not equal
+    let isSelectedSame = prevSelectedCount === nextSelectedCount;
+    if (isSelectedSame) {
+        for (const item of next.group.items) {
+            if (prev.selectedChildIds.has(item.id) !== next.selectedChildIds.has(item.id)) {
+                isSelectedSame = false;
+                break;
+            }
+        }
+    }
+
+    return (
+        prev.group === next.group &&
+        prev.isExpanded === next.isExpanded &&
+        isSelectedSame &&
+        prev.style === next.style
+    );
+};
 
 export const InventoryGroupRow = React.memo(({ 
     group, 
@@ -267,7 +301,7 @@ export const InventoryGroupRow = React.memo(({
             </div>
         </div>
     );
-});
+}, areGroupPropsEqual);
 
 export const InventoryMobileGroupRow = React.memo(({ 
     group, 
@@ -327,7 +361,7 @@ export const InventoryMobileGroupRow = React.memo(({
             </div>
         </div>
     );
-});
+}, areGroupPropsEqual);
 
 export const InventoryMobileChildRow = React.memo(({ 
     item, 
@@ -407,7 +441,7 @@ export const InventoryMobileChildRow = React.memo(({
              </motion.div>
         </div>
     );
-});
+}, areChildPropsEqual);
 
 const ActionBtn = ({ onClick, title, icon }: any) => (
     <button

@@ -25,3 +25,7 @@
 ## 2025-02-14 - Unmemoized Hook Functions & Virtual List Performance
 **Learning:** Functions returned from custom hooks (like `toggleGroupExpand` in `useInventoryFilters`) that are recreated on every render will invalidate `itemData` prop passed to `react-window` components, forcing the entire list to re-render even if the underlying data (`flatList`) is stable.
 **Action:** Always wrap functions returned from hooks in `useCallback` if they are passed down to memoized children or used in `useMemo` dependencies, especially when filtering/sorting logic is involved.
+
+## 2025-02-14 - React.memo Identity Equality vs Shallow IDs
+**Learning:** Checking equality by `id` prop when evaluating custom equality functions (like `arePropsEqual`) for components wrapped with `React.memo` (such as `InventoryChildRow`) will cause UI staleness. React requires object references to be checked `prev.item === next.item` so that underlying data mutations correctly trigger renders even when IDs match. In virtualization, ignoring `prev.style === next.style` breaks positioning on scroll.
+**Action:** In `arePropsEqual` for rows, compare item objects by reference `prev.item === next.item`, and always include `prev.style === next.style` to ensure layout styles correctly update.
