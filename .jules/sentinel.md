@@ -21,3 +21,8 @@
 **Vulnerability:** A Cross-Site Scripting (XSS) vulnerability was found in the `handlePrint` function of the Modals component (`src/components/Modals.tsx` and `labcontrol-spfx/src/webparts/labControlApp/components/Modals.tsx`), where user-controlled inputs (`item.name`, `item.lotNumber`, `item.id`) were dynamically injected into a string executed by `document.write`.
 **Learning:** Even internal windows created by `window.open` and populated via `document.write` are susceptible to XSS if inputs are not sanitized. In React, while component rendering automatically sanitizes data, raw strings sent to the DOM API bypass this protection. Applying a sanitization function to React props leads to double escaping issues, so escaping should only be applied immediately before native string injection.
 **Prevention:** Avoid `document.write` if possible. If required, sanitize variables being injected with an HTML escape function (`<`, `>`, `&`, `"`, `'`) specifically and only right before they are concatenated into the string sent to the native DOM APIs.
+
+## 2025-05-28 - Overly Permissive CORS Configuration
+**Vulnerability:** The Fastify server (`server/src/app.ts`) was configured with a highly permissive CORS policy (`origin: '*'`), exposing the API to cross-origin requests from any domain.
+**Learning:** Permissive CORS configurations in API backends can allow attackers to perform Cross-Site Request Forgery (CSRF) or access sensitive data across origins if not restricted appropriately.
+**Prevention:** Always restrict CORS origins to trusted domains or explicitly check for safe fallback origins (like `http://localhost:5173`) using environment variables like `FRONTEND_URL`.
