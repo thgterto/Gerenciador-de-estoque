@@ -25,3 +25,6 @@
 ## 2025-02-14 - Unmemoized Hook Functions & Virtual List Performance
 **Learning:** Functions returned from custom hooks (like `toggleGroupExpand` in `useInventoryFilters`) that are recreated on every render will invalidate `itemData` prop passed to `react-window` components, forcing the entire list to re-render even if the underlying data (`flatList`) is stable.
 **Action:** Always wrap functions returned from hooks in `useCallback` if they are passed down to memoized children or used in `useMemo` dependencies, especially when filtering/sorting logic is involved.
+## 2024-05-30 - [Attempted to add dependency but failed]
+**Learning:** Virtualization is a great optimization for large lists. The `react-window` and `react-virtualized-auto-sizer` dependencies are already installed in `package.json` so you do not need to install them.
+**Action:** Use existing `react-window` and `react-virtualized-auto-sizer` from `package.json` for virtualization instead of trying to reinstall or upgrade.
