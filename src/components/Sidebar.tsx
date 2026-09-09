@@ -105,8 +105,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     <button
                         onClick={onSync}
                         className="flex items-center gap-3 w-full px-3 py-2 text-orbital-subtext hover:text-orbital-accent hover:bg-orbital-bg transition-colors mb-4 group"
+                        title="Sincronizar"
                     >
-                        <RefreshCw size={18} className="group-hover:rotate-180 transition-transform duration-500" />
+                        <RefreshCw size={18} className="group-hover:rotate-180 transition-transform duration-500" aria-hidden="true" />
                         <div className="text-left">
                             <div className="text-sm font-medium">Sincronizar</div>
                             <div className="text-xs opacity-70">Backup manual</div>
