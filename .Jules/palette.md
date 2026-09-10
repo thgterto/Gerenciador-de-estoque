@@ -12,3 +12,7 @@
 ## 2025-05-26 - GHS Icons Accessibility
 **Learning:** Icon-only toggles for risk options were missing explicit `aria-label`s and used a `div` element with an `onClick` handler. This meant screen readers had no way to interact with or understand these toggles. Additionally, there were no focus outlines, breaking keyboard navigation.
 **Action:** Changed the `div` to a `<button type="button">`, added `aria-pressed={isChecked}`, `aria-label={ghs.label}`, and `focus-visible` styles to ensure proper screen reader and keyboard support.
+
+## 2023-10-27 - ARIA states for toggle buttons
+**Learning:** When using buttons as mutually exclusive toggles (e.g., filter options or type selectors) that act like radio buttons or tabs, adding `aria-pressed={isActive}` is crucial for screen readers to convey the current selection state.
+**Action:** Always ensure custom toggle groups constructed with buttons include `aria-pressed` mirroring their active visual state.
