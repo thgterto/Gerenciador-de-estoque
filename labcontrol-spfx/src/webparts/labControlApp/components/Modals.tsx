@@ -166,31 +166,52 @@ export const QRGeneratorModal: React.FC<QRGeneratorModalProps> = ({ isOpen, onCl
     const handlePrint = () => {
         const printWindow = window.open('', '', 'width=600,height=400');
         if (printWindow) {
-            const svgHtml = document.getElementById('qr-code-svg')?.outerHTML || '';
-            printWindow.document.write(`
-                <html>
-                    <head>
-                        <title>${escapeHtml(item.name)}</title>
-                        <style>
-                            @page { size: auto; margin: 0; }
-                            body { margin: 0; padding: 10px; font-family: monospace; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; }
-                            .label { text-align: center; border: 1px dashed #000; padding: 10px; width: 80mm; }
-                            .title { font-weight: bold; font-size: 14px; margin-bottom: 5px; }
-                            .meta { font-size: 10px; margin-bottom: 5px; }
-                        </style>
-                    </head>
-                    <body>
-                        <div class="label">
-                            <div class="title">${escapeHtml(item.name)}</div>
-                            <div class="meta">Lote: ${escapeHtml(item.lotNumber)} | Val: ${item.expiryDate ? new Date(item.expiryDate).toLocaleDateString() : 'N/A'}</div>
-                            ${svgHtml}
-                            <div class="meta" style="margin-top: 5px;">${escapeHtml(item.id)}</div>
-                        </div>
-                        <script>setTimeout(() => { window.print(); window.close(); }, 500);</script>
-                    </body>
-                </html>
-            `);
-            printWindow.document.close();
+            const doc = printWindow.document;
+            const title = doc.createElement('title');
+            title.textContent = item.name || '';
+            doc.head.appendChild(title);
+
+            const style = doc.createElement('style');
+            style.textContent = `
+                @page { size: auto; margin: 0; }
+                body { margin: 0; padding: 10px; font-family: monospace; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; }
+                .label { text-align: center; border: 1px dashed #000; padding: 10px; width: 80mm; }
+                .title { font-weight: bold; font-size: 14px; margin-bottom: 5px; }
+                .meta { font-size: 10px; margin-bottom: 5px; }
+            `;
+            doc.head.appendChild(style);
+
+            const labelDiv = doc.createElement('div');
+            labelDiv.className = 'label';
+
+            const titleDiv = doc.createElement('div');
+            titleDiv.className = 'title';
+            titleDiv.textContent = item.name || '';
+            labelDiv.appendChild(titleDiv);
+
+            const meta1 = doc.createElement('div');
+            meta1.className = 'meta';
+            const valDate = item.expiryDate ? new Date(item.expiryDate).toLocaleDateString() : 'N/A';
+            meta1.textContent = `Lote: ${item.lotNumber || ''} | Val: ${valDate}`;
+            labelDiv.appendChild(meta1);
+
+            const svgElement = document.getElementById('qr-code-svg');
+            if (svgElement) {
+                const clonedSvg = svgElement.cloneNode(true);
+                labelDiv.appendChild(clonedSvg);
+            }
+
+            const meta2 = doc.createElement('div');
+            meta2.className = 'meta';
+            meta2.style.marginTop = '5px';
+            meta2.textContent = item.id || '';
+            labelDiv.appendChild(meta2);
+
+            doc.body.appendChild(labelDiv);
+
+            const script = doc.createElement('script');
+            script.textContent = 'setTimeout(() => { window.print(); window.close(); }, 500);';
+            doc.body.appendChild(script);
         }
     };
 
