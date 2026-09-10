@@ -1,5 +1,4 @@
 import { escapeHtml } from '../utils/escape';
-import { escapeHtml } from '../utils/escape';
 import React, { useState, useEffect, useMemo } from 'react';
 import { InventoryItem, QRCodeDataDTO, CreateItemDTO } from '../types';
 import * as ReactQRCode from 'react-qr-code';
