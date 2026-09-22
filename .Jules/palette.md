@@ -12,3 +12,6 @@
 ## 2025-05-26 - GHS Icons Accessibility
 **Learning:** Icon-only toggles for risk options were missing explicit `aria-label`s and used a `div` element with an `onClick` handler. This meant screen readers had no way to interact with or understand these toggles. Additionally, there were no focus outlines, breaking keyboard navigation.
 **Action:** Changed the `div` to a `<button type="button">`, added `aria-pressed={isChecked}`, `aria-label={ghs.label}`, and `focus-visible` styles to ensure proper screen reader and keyboard support.
+## 2026-08-23 - Adding focus-visible states to global buttons
+**Learning:** Found that the primary button component `OrbitalButton` lacks a `focus-visible` style, meaning keyboard navigation does not clearly highlight the focused button. Keyboard users rely on clear focus indicators.
+**Action:** Adding `focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orbital-accent focus-visible:ring-offset-2 focus-visible:ring-offset-orbital-bg` to the baseStyles of the `OrbitalButton` component to improve accessibility globally.
