@@ -144,7 +144,7 @@ interface GroupRowProps {
     group: InventoryGroup;
     style: React.CSSProperties;
     isExpanded: boolean;
-    toggleExpand: () => void;
+    toggleGroupExpand: (key: string) => void;
     selectedChildIds: Set<string>;
     onSelectGroup: (groupIds: string[], checked: boolean) => void;
     // getCategoryIcon removed as it was unused/hardcoded
@@ -155,7 +155,7 @@ export const InventoryGroupRow = React.memo(({
     group, 
     style,
     isExpanded, 
-    toggleExpand, 
+    toggleGroupExpand,
     selectedChildIds,
     onSelectGroup,
     copyToClipboard
@@ -171,7 +171,8 @@ export const InventoryGroupRow = React.memo(({
                     h-full border-b border-orbital-border cursor-pointer transition-colors duration-200 group
                     ${isExpanded ? 'bg-orbital-accent/5' : 'bg-orbital-bg hover:bg-orbital-surface'}
                 `}
-                onClick={toggleExpand}
+                // ⚡ Bolt: Pass raw value instead of inline function from parent to preserve React.memo
+                onClick={() => toggleGroupExpand(group.groupKey)}
             >
                 <div
                     className="grid items-center h-full px-4"
@@ -273,7 +274,7 @@ export const InventoryMobileGroupRow = React.memo(({
     group, 
     style, 
     isExpanded, 
-    toggleExpand,
+    toggleGroupExpand,
     // getCategoryIcon removed
 }: GroupRowProps) => {
     const { primaryItem, totalQuantity, aggregatedStatus, items } = group;
@@ -281,7 +282,8 @@ export const InventoryMobileGroupRow = React.memo(({
     return (
         <div style={style} className="px-3 pt-3 pb-1">
             <div
-                onClick={toggleExpand}
+                // ⚡ Bolt: Pass raw value instead of inline function from parent to preserve React.memo
+                onClick={() => toggleGroupExpand(group.groupKey)}
                 className={`
                     rounded border transition-all duration-200 overflow-hidden active:scale-[0.99]
                     ${isExpanded
