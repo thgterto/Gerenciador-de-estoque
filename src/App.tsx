@@ -272,7 +272,7 @@ const LabControlContent = () => {
          setTab={(t) => navigate(`/${t}`)}
        />
        
-       <input type="file" ref={fileInputRef} onChange={handleImport} className="hidden" accept=".xlsx" />
+       <input aria-label="Importar Planilha do Excel" type="file" ref={fileInputRef} onChange={handleImport} className="hidden" accept=".xlsx" />
     </>
   );
 };

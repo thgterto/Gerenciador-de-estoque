@@ -339,7 +339,7 @@ export const ImportWizard: React.FC<Props> = ({ isOpen, onClose, mode }) => {
                     <div className="h-full flex flex-col items-center justify-center overflow-y-auto">
                         {isUpload ? (
                             <div className="w-full max-w-2xl h-64 flex flex-col items-center justify-center border border-dashed border-orbital-border bg-orbital-surface hover:bg-orbital-accent/5 transition-colors relative group cursor-pointer">
-                                <input type="file" onChange={handleFileUpload} className="absolute inset-0 opacity-0 cursor-pointer z-10" accept=".xlsx,.xls,.csv,.xlsm" />
+                                <input aria-label="Upload Spreadsheet File" type="file" onChange={handleFileUpload} className="absolute inset-0 opacity-0 cursor-pointer z-10" accept=".xlsx,.xls,.csv,.xlsm" />
                                 <div className="text-orbital-accent mb-4 group-hover:scale-110 transition-transform">
                                     <Upload size={48} strokeWidth={1} />
                                 </div>
