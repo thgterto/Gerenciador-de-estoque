@@ -124,7 +124,7 @@ export const QuickScanModal: React.FC<Props> = ({ isOpen, onClose }) => {
                     </p>
                 </div>
                 <button onClick={onClose} className="pointer-events-auto text-orbital-text hover:text-orbital-accent bg-black/50 p-2 border border-orbital-border hover:border-orbital-accent transition-all" aria-label="Close modal">
-                    <X size={20} />
+                    <X size={20} aria-hidden="true" />
                 </button>
             </div>
 

@@ -193,7 +193,7 @@ export const InventoryTable: React.FC<Props> = ({ items, onActions, onAddNew }) 
                             className="p-2 text-orbital-subtext hover:text-orbital-text transition-colors rounded-full hover:bg-orbital-bg"
                             aria-label="Cancelar seleção"
                         >
-                            <X size={18} />
+                            <X size={18} aria-hidden="true" />
                         </button>
                     </div>
                 </div>
