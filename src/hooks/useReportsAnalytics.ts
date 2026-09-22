@@ -83,9 +83,10 @@ export const useReportsAnalytics = (items: InventoryItem[], history: MovementRec
         const today = new Date();
         const next90Days = new Date(today);
         next90Days.setDate(today.getDate() + 90);
+        const next90DaysStr = next90Days.toISOString().split('T')[0];
 
         const result = items
-            .filter(i => i.expiryDate && new Date(i.expiryDate) <= next90Days)
+            .filter(i => i.expiryDate && i.expiryDate <= next90DaysStr)
             .sort((a, b) => (a.expiryDate > b.expiryDate ? 1 : -1));
 
         return result.map(i => ({
