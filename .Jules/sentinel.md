@@ -9,3 +9,8 @@
 **Vulnerability:** The server's error handler was returning raw exception messages to the client for 500 errors, potentially exposing database queries, file paths, or other internal implementation details.
 **Learning:** Default error handling often prioritizes developer convenience (debugging) over security. Explicit environment checks (`NODE_ENV === 'production'`) are critical for toggling between verbose and safe error messages.
 **Prevention:** Always implement a centralized error handler that sanitizes error messages in production builds, returning a generic "Internal Server Error" while logging the full details server-side.
+
+## 2025-02-23 - Privilege Escalation via Mass Assignment in User Registration
+**Vulnerability:** The user registration endpoint (`POST /api/auth/register`) allowed clients to specify their own `role` during account creation because the Zod schema explicitly accepted `role: z.enum(['ADMIN', 'USER']).optional()`.
+**Learning:** Destructuring or blindly passing validated body objects directly into domain logic (use cases/services) can inadvertently expose internal or administrative fields to end users.
+**Prevention:** Never trust user input for authorization fields like roles or permissions. Always assign default least-privilege roles (e.g., 'USER') explicitly in the controller or use-case, completely ignoring such fields from the client payload.
