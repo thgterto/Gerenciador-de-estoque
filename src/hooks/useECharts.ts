@@ -1,18 +1,23 @@
 
 import { useState, useEffect, MutableRefObject } from 'react';
+import type { ECharts } from 'echarts';
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type EChartsGlobal = any; // Quick escape for window.echarts since its full type isn't necessarily available globally
 
 export const useECharts = (chartRef: MutableRefObject<HTMLDivElement | null>) => {
-    const [chartInstance, setChartInstance] = useState<any>(null);
+    const [chartInstance, setChartInstance] = useState<ECharts | null>(null);
 
     useEffect(() => {
-        let instance: any = null;
+        let instance: ECharts | null = null;
         let resizeObserver: ResizeObserver | null = null;
 
         const initChart = () => {
-            if (chartRef.current && (window as any).echarts) {
-                instance = (window as any).echarts.getInstanceByDom(chartRef.current);
+            const globalEcharts = (window as unknown as { echarts: EChartsGlobal }).echarts;
+            if (chartRef.current && globalEcharts) {
+                instance = globalEcharts.getInstanceByDom(chartRef.current);
                 if (!instance) {
-                    instance = (window as any).echarts.init(chartRef.current);
+                    instance = globalEcharts.init(chartRef.current);
                 }
                 setChartInstance(instance);
                 
