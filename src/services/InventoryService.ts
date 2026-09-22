@@ -65,8 +65,11 @@ export const InventoryService = {
     const today = new Date();
     const next30Days = new Date(today);
     next30Days.setDate(today.getDate() + 30);
+    const next30DaysISO = next30Days.toISOString();
 
-    const expiring = items.filter(i => i.expiryDate && new Date(i.expiryDate) < next30Days).length;
+    // Optimization: Replaced new Date() parsing with string comparison for ISO 8601 strings.
+    // This avoids expensive allocations in the filter loop, improving dashboard load times.
+    const expiring = items.filter(i => i.expiryDate && i.expiryDate < next30DaysISO).length;
     const lowStock = items.filter(i => i.quantity <= i.minStockLevel && i.minStockLevel > 0).length;
     
     return {
@@ -126,7 +129,9 @@ export const InventoryService = {
       return results.sort((a, b) => {
           if (!a.expiryDate) return 1;
           if (!b.expiryDate) return -1;
-          return new Date(a.expiryDate).getTime() - new Date(b.expiryDate).getTime();
+          // Optimization: Replaced new Date() parsing with lexicographical string comparison for ISO 8601 strings.
+          // This removes expensive Date allocations during array sort.
+          return a.expiryDate > b.expiryDate ? 1 : a.expiryDate < b.expiryDate ? -1 : 0;
       });
   },
 
