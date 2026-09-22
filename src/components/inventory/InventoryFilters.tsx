@@ -121,20 +121,35 @@ export const InventoryFilters: React.FC<InventoryFiltersProps> = ({
                     </div>
 
                     {/* Zero Stock Toggle */}
-                    <label className="flex items-center gap-2 cursor-pointer group whitespace-nowrap">
-                        <div className="relative">
-                            <input
-                                type="checkbox"
-                                className="sr-only peer"
-                                checked={hideZeroStock}
-                                onChange={(e) => setHideZeroStock(e.target.checked)}
+                    <div className="flex items-center gap-2 whitespace-nowrap">
+                        <button
+                            type="button"
+                            role="switch"
+                            aria-checked={hideZeroStock}
+                            onClick={() => setHideZeroStock(!hideZeroStock)}
+                            id="hide-zero-stock-toggle"
+                            aria-labelledby="hide-zero-stock-label"
+                            className={`
+                                relative w-9 h-5 rounded-full border shadow-inner transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orbital-accent focus-visible:ring-offset-2 focus-visible:ring-offset-orbital-surface
+                                ${hideZeroStock ? 'bg-orbital-accent border-orbital-accent' : 'bg-orbital-bg border-orbital-border'}
+                            `}
+                        >
+                            <span
+                                className={`
+                                    absolute top-[2px] left-[2px] h-3.5 w-3.5 rounded-full border transition-transform
+                                    ${hideZeroStock ? 'translate-x-full bg-white border-white' : 'bg-orbital-subtext border-gray-300'}
+                                `}
                             />
-                            <div className="w-9 h-5 bg-orbital-bg border border-orbital-border rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-orbital-subtext after:border-gray-300 after:border after:rounded-full after:h-3.5 after:w-3.5 after:transition-all peer-checked:bg-orbital-accent peer-checked:border-orbital-accent peer-checked:after:bg-white shadow-inner"></div>
-                        </div>
-                        <span className="text-xs font-medium text-orbital-subtext group-hover:text-orbital-text transition-colors">
+                        </button>
+                        <label
+                            id="hide-zero-stock-label"
+                            htmlFor="hide-zero-stock-toggle"
+                            className="text-xs font-medium text-orbital-subtext cursor-pointer hover:text-orbital-text transition-colors"
+                            onClick={() => setHideZeroStock(!hideZeroStock)}
+                        >
                             Ocultar sem estoque
-                        </span>
-                    </label>
+                        </label>
+                    </div>
                 </div>
             </div>
         </OrbitalCard>

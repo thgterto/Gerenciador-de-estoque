@@ -12,3 +12,7 @@
 ## 2025-05-26 - GHS Icons Accessibility
 **Learning:** Icon-only toggles for risk options were missing explicit `aria-label`s and used a `div` element with an `onClick` handler. This meant screen readers had no way to interact with or understand these toggles. Additionally, there were no focus outlines, breaking keyboard navigation.
 **Action:** Changed the `div` to a `<button type="button">`, added `aria-pressed={isChecked}`, `aria-label={ghs.label}`, and `focus-visible` styles to ensure proper screen reader and keyboard support.
+
+## 2024-02-15 - Accessible Toggle Switches
+**Learning:** Visually hidden checkboxes paired with CSS-styled labels can lack proper keyboard focus indicators and standard screen reader support.
+**Action:** Always prefer a semantic `<button type="button" role="switch" aria-checked="...">` for custom UI toggles instead of the checkbox hack, as it maps perfectly to accessibility trees and provides predictable keyboard interaction.
