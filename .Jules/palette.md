@@ -12,3 +12,6 @@
 ## 2025-05-26 - GHS Icons Accessibility
 **Learning:** Icon-only toggles for risk options were missing explicit `aria-label`s and used a `div` element with an `onClick` handler. This meant screen readers had no way to interact with or understand these toggles. Additionally, there were no focus outlines, breaking keyboard navigation.
 **Action:** Changed the `div` to a `<button type="button">`, added `aria-pressed={isChecked}`, `aria-label={ghs.label}`, and `focus-visible` styles to ensure proper screen reader and keyboard support.
+## 2025-02-09 - Accessible Quantities in Data Tables
+**Learning:** Icon-only buttons used for numeric increment/decrement inside table cells (- and +) are functionally invisible to screen readers and difficult to interpret without context for some users. The same issue applied to the `Trash2` button inside the Purchases table.
+**Action:** Consistently apply both `aria-label` and `title` attributes on increment/decrement and destructive action buttons, especially within compact table rows, to ensure full accessibility and helpful tooltips.
