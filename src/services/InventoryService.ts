@@ -126,7 +126,8 @@ export const InventoryService = {
       return results.sort((a, b) => {
           if (!a.expiryDate) return 1;
           if (!b.expiryDate) return -1;
-          return new Date(a.expiryDate).getTime() - new Date(b.expiryDate).getTime();
+          // Performance optimization: String comparison is significantly faster than new Date() parsing
+          return a.expiryDate > b.expiryDate ? 1 : a.expiryDate < b.expiryDate ? -1 : 0;
       });
   },
 
