@@ -162,12 +162,14 @@ export const QuickScanModal: React.FC<Props> = ({ isOpen, onClose }) => {
                      <div className="flex bg-black/80 backdrop-blur-md border border-orbital-border p-1 animate-in slide-in-from-right-5">
                          <button
                             onClick={() => setContinuousType('ENTRADA')}
+                            aria-pressed={continuousType === 'ENTRADA'}
                             className={`px-3 py-1 text-[10px] font-bold font-mono transition-colors ${continuousType === 'ENTRADA' ? 'bg-orbital-success text-black' : 'text-orbital-subtext hover:text-white'}`}
                          >
                              IN
                          </button>
                          <button
                             onClick={() => setContinuousType('SAIDA')}
+                            aria-pressed={continuousType === 'SAIDA'}
                             className={`px-3 py-1 text-[10px] font-bold font-mono transition-colors ${continuousType === 'SAIDA' ? 'bg-orbital-danger text-black' : 'text-orbital-subtext hover:text-white'}`}
                          >
                              OUT
@@ -176,6 +178,7 @@ export const QuickScanModal: React.FC<Props> = ({ isOpen, onClose }) => {
                 )}
                 <button 
                     onClick={() => setContinuousMode(!continuousMode)}
+                    aria-pressed={continuousMode}
                     className={`flex items-center gap-2 px-4 py-2 text-[10px] font-bold font-display uppercase tracking-wider border transition-all shadow-lg backdrop-blur-md ${
                         continuousMode 
                         ? 'bg-orbital-warning/10 border-orbital-warning text-orbital-warning shadow-[0_0_15px_rgba(255,165,0,0.3)]'
