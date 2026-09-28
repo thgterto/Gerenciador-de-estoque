@@ -59,7 +59,8 @@ const authController = new AuthController(registerUser, loginUser);
 
 // Register plugins
 app.register(cors, {
-  origin: '*', // Allow all origins for local tool
+  // SECURITY ENHANCEMENT: Restrict CORS origin in production to prevent overly permissive cross-origin requests
+  origin: process.env.NODE_ENV === 'production' ? (process.env.CORS_ORIGIN || 'http://localhost:5173') : '*',
 });
 
 app.register(jwt, {
