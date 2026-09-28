@@ -12,3 +12,4 @@
 ## 2025-05-26 - GHS Icons Accessibility
 **Learning:** Icon-only toggles for risk options were missing explicit `aria-label`s and used a `div` element with an `onClick` handler. This meant screen readers had no way to interact with or understand these toggles. Additionally, there were no focus outlines, breaking keyboard navigation.
 **Action:** Changed the `div` to a `<button type="button">`, added `aria-pressed={isChecked}`, `aria-label={ghs.label}`, and `focus-visible` styles to ensure proper screen reader and keyboard support.
+## 2026-09-28 - Added aria-label to standalone checkbox\n**Learning:** Standalone checkboxes inside tables often lack visible text and need an `aria-label` for screen readers. Using `aria-label` provides an accessible name without disrupting the UI layout.\n**Action:** Look for input elements like `<input type="checkbox">` that don't have associated labels and add an appropriate `aria-label` attribute.
