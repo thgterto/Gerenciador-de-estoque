@@ -37,7 +37,9 @@ const getTypeBadge = (type: string) => {
     return <OrbitalBadge variant="warning" label="Ajuste" />;
 };
 
-const HistoryMobileRow = ({ item }: { item: MovementRecord }) => {
+// ⚡ Bolt Optimization: Memoize list row component to prevent O(N) re-renders
+// when the parent NativeHistoryList updates visibleCount state
+const HistoryMobileRow = React.memo(({ item }: { item: MovementRecord }) => {
     const amountColor = item.type === 'ENTRADA' ? 'text-orbital-success' : item.type === 'SAIDA' ? 'text-orbital-danger' : 'text-orbital-warning';
     const sign = item.type === 'ENTRADA' ? '+' : item.type === 'SAIDA' ? '-' : '';
 
@@ -73,9 +75,11 @@ const HistoryMobileRow = ({ item }: { item: MovementRecord }) => {
             )}
         </div>
     );
-};
+});
 
-const HistoryRow = ({ item }: { item: MovementRecord }) => {
+// ⚡ Bolt Optimization: Memoize list row component to prevent O(N) re-renders
+// when the parent NativeHistoryList updates visibleCount state
+const HistoryRow = React.memo(({ item }: { item: MovementRecord }) => {
     const amountColor = item.type === 'ENTRADA' ? 'text-orbital-success' : item.type === 'SAIDA' ? 'text-orbital-danger' : 'text-orbital-warning';
     const sign = item.type === 'ENTRADA' ? '+' : item.type === 'SAIDA' ? '-' : '';
 
@@ -125,7 +129,7 @@ const HistoryRow = ({ item }: { item: MovementRecord }) => {
           </div>
       </div>
     );
-};
+});
 
 const NativeHistoryList = ({ filtered, isMobile }: { filtered: MovementRecord[], isMobile: boolean }) => {
     const [visibleCount, setVisibleCount] = useState(50);
