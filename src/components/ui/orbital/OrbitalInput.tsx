@@ -1,4 +1,4 @@
-import React, { InputHTMLAttributes, forwardRef } from 'react';
+import React, { InputHTMLAttributes, forwardRef, useId } from 'react';
 
 interface OrbitalInputProps extends InputHTMLAttributes<HTMLInputElement> {
     label?: string;
@@ -21,10 +21,15 @@ export const OrbitalInput = forwardRef<HTMLInputElement, OrbitalInputProps>(({
     leftIcon,
     ...props
 }, ref) => {
+    const defaultId = useId();
+    const inputId = props.id || defaultId;
+    const descriptionId = `${inputId}-description`;
+    const hasDescription = !!(error || helpText);
+
     return (
         <div className={`flex flex-col gap-1.5 ${fullWidth ? 'w-full' : ''}`}>
             {label && (
-                <label className="text-xs font-display font-bold uppercase tracking-wider text-orbital-subtext pl-1">
+                <label htmlFor={inputId} className="text-xs font-display font-bold uppercase tracking-wider text-orbital-subtext pl-1">
                     {label}
                 </label>
             )}
@@ -36,6 +41,9 @@ export const OrbitalInput = forwardRef<HTMLInputElement, OrbitalInputProps>(({
                 )}
                 <input
                     ref={ref}
+                    id={inputId}
+                    aria-invalid={!!error}
+                    aria-describedby={hasDescription ? descriptionId : undefined}
                     className={`
                         w-full bg-orbital-bg/50 border-b border-orbital-border
                         text-orbital-text font-mono text-sm px-3 py-2.5
@@ -60,8 +68,8 @@ export const OrbitalInput = forwardRef<HTMLInputElement, OrbitalInputProps>(({
                 {/* Active Indicator Line */}
                 <div className="absolute bottom-0 left-0 h-[1px] bg-orbital-accent w-0 group-focus-within:w-full transition-all duration-300" />
             </div>
-            {(error || helpText) && (
-                <span className={`text-xs pl-1 font-mono ${error ? 'text-orbital-danger' : 'text-orbital-subtext'}`}>
+            {hasDescription && (
+                <span id={descriptionId} className={`text-xs pl-1 font-mono ${error ? 'text-orbital-danger' : 'text-orbital-subtext'}`}>
                     {error || helpText}
                 </span>
             )}
