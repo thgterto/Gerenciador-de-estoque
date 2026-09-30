@@ -12,3 +12,7 @@
 ## 2025-05-26 - GHS Icons Accessibility
 **Learning:** Icon-only toggles for risk options were missing explicit `aria-label`s and used a `div` element with an `onClick` handler. This meant screen readers had no way to interact with or understand these toggles. Additionally, there were no focus outlines, breaking keyboard navigation.
 **Action:** Changed the `div` to a `<button type="button">`, added `aria-pressed={isChecked}`, `aria-label={ghs.label}`, and `focus-visible` styles to ensure proper screen reader and keyboard support.
+
+## 2023-10-27 - Icon Buttons require `aria-label` and `aria-hidden` on SVG
+**Learning:** Found an icon-only "copy script" button that had no `aria-label`. Moreover, the SVG icons themselves didn't have `aria-hidden="true"`, meaning some screen readers might try to read generic "svg" text or similar rather than just reading the button's `aria-label`.
+**Action:** Always provide contextual `aria-label`s on pure icon buttons (e.g. changing from "Copiar" to "Copiado") and always apply `aria-hidden="true"` to the inner decorative icons when the button itself has an `aria-label`.
