@@ -21,3 +21,8 @@
 **Vulnerability:** A Cross-Site Scripting (XSS) vulnerability was found in the `handlePrint` function of the Modals component (`src/components/Modals.tsx` and `labcontrol-spfx/src/webparts/labControlApp/components/Modals.tsx`), where user-controlled inputs (`item.name`, `item.lotNumber`, `item.id`) were dynamically injected into a string executed by `document.write`.
 **Learning:** Even internal windows created by `window.open` and populated via `document.write` are susceptible to XSS if inputs are not sanitized. In React, while component rendering automatically sanitizes data, raw strings sent to the DOM API bypass this protection. Applying a sanitization function to React props leads to double escaping issues, so escaping should only be applied immediately before native string injection.
 **Prevention:** Avoid `document.write` if possible. If required, sanitize variables being injected with an HTML escape function (`<`, `>`, `&`, `"`, `'`) specifically and only right before they are concatenated into the string sent to the native DOM APIs.
+
+## 2025-10-24 - Information Exposure in Legacy/Archived Scripts
+**Vulnerability:** The `_archive/backend/GoogleAppsScript.js` endpoint returned `error.toString()` to clients on exceptions.
+**Learning:** Even though the script was archived and purportedly had 'stack trace removed for security' (as per intent in related comments or thoughts), returning the stringified error can still leak internal logic, object structures, or custom error messages from deeper inside the system.
+**Prevention:** Fail securely. Always return a generic, static string for user-facing errors (e.g., 'An internal server error occurred') and log the detailed error internally.
