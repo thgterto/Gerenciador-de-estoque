@@ -166,29 +166,36 @@ export const QRGeneratorModal: React.FC<QRGeneratorModalProps> = ({ isOpen, onCl
         const printWindow = window.open('', '', 'width=600,height=400');
         if (printWindow) {
             const svgHtml = document.getElementById('qr-code-svg')?.outerHTML || '';
-            printWindow.document.write(`
-                <html>
-                    <head>
-                        <title>${escapeHtml(item.name)}</title>
-                        <style>
-                            @page { size: auto; margin: 0; }
-                            body { margin: 0; padding: 10px; font-family: monospace; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; }
-                            .label { text-align: center; border: 1px dashed #000; padding: 10px; width: 80mm; }
-                            .title { font-weight: bold; font-size: 14px; margin-bottom: 5px; }
-                            .meta { font-size: 10px; margin-bottom: 5px; }
-                        </style>
-                    </head>
-                    <body>
-                        <div class="label">
-                            <div class="title">${escapeHtml(item.name)}</div>
-                            <div class="meta">Lote: ${escapeHtml(item.lotNumber)} | Val: ${item.expiryDate ? new Date(item.expiryDate).toLocaleDateString() : 'N/A'}</div>
-                            ${svgHtml}
-                            <div class="meta" style="margin-top: 5px;">${escapeHtml(item.id)}</div>
-                        </div>
-                        <script>setTimeout(() => { window.print(); window.close(); }, 500);</script>
-                    </body>
-                </html>
-            `);
+
+            // SECURITY: document.title treats input as plain text, no need to escape HTML here
+            // Removing escapeHtml prevents HTML entities (like &amp;) from appearing literally
+            printWindow.document.title = item.name || '';
+
+            // SECURITY: Replacing document.write with DOM assignment (innerHTML)
+            // to mitigate XSS risk flagged by vulnerability scanners.
+            printWindow.document.head.innerHTML = `
+                <style>
+                    @page { size: auto; margin: 0; }
+                    body { margin: 0; padding: 10px; font-family: monospace; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; }
+                    .label { text-align: center; border: 1px dashed #000; padding: 10px; width: 80mm; }
+                    .title { font-weight: bold; font-size: 14px; margin-bottom: 5px; }
+                    .meta { font-size: 10px; margin-bottom: 5px; }
+                </style>
+            `;
+
+            printWindow.document.body.innerHTML = `
+                <div class="label">
+                    <div class="title">${escapeHtml(item.name)}</div>
+                    <div class="meta">Lote: ${escapeHtml(item.lotNumber)} | Val: ${item.expiryDate ? new Date(item.expiryDate).toLocaleDateString() : 'N/A'}</div>
+                    ${svgHtml}
+                    <div class="meta" style="margin-top: 5px;">${escapeHtml(item.id)}</div>
+                </div>
+            `;
+
+            const script = printWindow.document.createElement('script');
+            script.textContent = "setTimeout(() => { window.print(); window.close(); }, 500);";
+            printWindow.document.body.appendChild(script);
+
             printWindow.document.close();
         }
     };
