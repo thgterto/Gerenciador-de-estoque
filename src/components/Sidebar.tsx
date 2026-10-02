@@ -103,8 +103,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 {/* Footer Actions */}
                 <div className="p-4 bg-orbital-surface border-t border-orbital-border">
                     <button
+                        type="button"
                         onClick={onSync}
                         className="flex items-center gap-3 w-full px-3 py-2 text-orbital-subtext hover:text-orbital-accent hover:bg-orbital-bg transition-colors mb-4 group"
+                        aria-label="Sincronizar backup manual"
                     >
                         <RefreshCw size={18} className="group-hover:rotate-180 transition-transform duration-500" />
                         <div className="text-left">
@@ -126,6 +128,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                             </div>
                         </div>
                         <button
+                            type="button"
                             onClick={onLogout}
                             className="p-2 text-orbital-subtext hover:text-orbital-danger hover:bg-orbital-danger/10 rounded transition-colors"
                             title="Sair"
