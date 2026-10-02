@@ -90,7 +90,7 @@ export const useReportsAnalytics = (items: InventoryItem[], history: MovementRec
 
         return result.map(i => ({
             ...i,
-            daysRemaining: Math.ceil((new Date(i.expiryDate).getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
+            daysRemaining: Math.ceil((Date.parse(i.expiryDate) - today.getTime()) / (1000 * 60 * 60 * 24))
         }));
     }, [items]);
 
