@@ -45,7 +45,7 @@ export const Purchases: React.FC<Props> = ({
       if (!items) return [];
       return items.filter(i => {
           const isLow = i.quantity <= i.minStockLevel;
-          const daysToExpiry = i.expiryDate ? Math.ceil((new Date(i.expiryDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)) : 999;
+          const daysToExpiry = i.expiryDate ? Math.ceil((Date.parse(i.expiryDate) - Date.now()) / (1000 * 60 * 60 * 24)) : 999;
           const isExpiring = daysToExpiry < 30;
           const alreadyInList = purchaseList.some(p => p.id === i.id);
           return (isLow || isExpiring) && !alreadyInList;
@@ -91,7 +91,8 @@ export const Purchases: React.FC<Props> = ({
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 overflow-x-auto pb-2">
                     {recommendations.map(item => {
-                        const daysToExpiry = item.expiryDate ? Math.ceil((new Date(item.expiryDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)) : 999;
+                        // OPTIMIZATION: Use Date.parse and Date.now instead of allocating new Date() objects for math
+                        const daysToExpiry = item.expiryDate ? Math.ceil((Date.parse(item.expiryDate) - Date.now()) / (1000 * 60 * 60 * 24)) : 999;
                         const reason = daysToExpiry < 30 ? 'EXPIRING' : 'LOW_STOCK';
                         return (
                             <PurchaseAlertCard 
