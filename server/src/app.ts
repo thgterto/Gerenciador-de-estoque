@@ -59,7 +59,16 @@ const authController = new AuthController(registerUser, loginUser);
 
 // Register plugins
 app.register(cors, {
-  origin: '*', // Allow all origins for local tool
+  origin: ['http://localhost:5173', 'http://127.0.0.1:5173', 'http://localhost:3000', 'http://127.0.0.1:3000', 'app://.'],
+  credentials: true,
+});
+
+app.addHook('onRequest', (request, reply, done) => {
+  reply.header('X-Frame-Options', 'DENY');
+  reply.header('X-Content-Type-Options', 'nosniff');
+  reply.header('Content-Security-Policy', "default-src 'self' 'unsafe-inline' 'unsafe-eval' data:; connect-src 'self' http://localhost:* http://127.0.0.1:* ws://localhost:* ws://127.0.0.1:*");
+  reply.header('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+  done();
 });
 
 app.register(jwt, {
