@@ -15,7 +15,7 @@ import { RiskSelector } from './item-form/RiskSelector';
 import { BatchInfo } from './item-form/BatchInfo';
 import { StorageInfo } from './item-form/StorageInfo';
 import { CasApiService } from '../services/CasApiService';
-import { Package, FlaskConical, Search, ScanLine, Save, X, History, QrCode } from 'lucide-react';
+import { Package, FlaskConical, Search, ScanLine, Save, X, History, QrCode, RefreshCw } from 'lucide-react';
 
 interface ItemFormProps {
     initialData?: Partial<InventoryItem>;
@@ -236,8 +236,8 @@ export const ItemForm: React.FC<ItemFormProps> = ({
                                         placeholder="Ex: 67-64-1"
                                         disabled={isCasLoading}
                                         startAdornment={
-                                            <button type="button" onClick={onCasSearch} disabled={isCasLoading} aria-label="Buscar CAS" className="hover:text-orbital-accent p-1">
-                                                <Search size={16} />
+                                            <button type="button" onClick={onCasSearch} disabled={isCasLoading} aria-label={isCasLoading ? "Buscando CAS..." : "Buscar CAS"} className="hover:text-orbital-accent p-1 disabled:opacity-50 disabled:cursor-not-allowed">
+                                                {isCasLoading ? <RefreshCw size={16} className="animate-spin" aria-hidden="true" /> : <Search size={16} aria-hidden="true" />}
                                             </button>
                                         }
                                     />
