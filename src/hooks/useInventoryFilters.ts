@@ -1,6 +1,6 @@
 
 
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useRef } from 'react';
 import { InventoryItem } from '../types';
 import { getItemStatus, ItemStatusResult } from '../utils/businessRules';
 import { normalizeStr, defaultCollator } from '../utils/stringUtils';
@@ -57,6 +57,9 @@ export const useInventoryFilters = (items: InventoryItem[]) => {
         });
     }, [items, catFilter, locationFilter, statusFilter, hideZeroStock]);
 
+    // Cache to prevent re-normalizing strings on every keystroke
+    const searchCache = useRef<WeakMap<InventoryItem, string>>(new WeakMap());
+
     // --- 2. Busca Textual (Pesado - Debounced) ---
     // Separamos isso para que mudanças de filtro não esperem o debounce, e busca não trave a UI
     const finalFilteredItems = useMemo(() => {
@@ -67,8 +70,14 @@ export const useInventoryFilters = (items: InventoryItem[]) => {
 
         if (normalizedTerms.length === 0) return baseFilteredItems;
 
+        const cache = searchCache.current;
+
         return baseFilteredItems.filter(i => {
-            const itemStr = normalizeStr(`${i.name} ${i.sapCode} ${i.lotNumber} ${i.casNumber || ''}`);
+            let itemStr = cache.get(i);
+            if (itemStr === undefined) {
+                itemStr = normalizeStr(`${i.name} ${i.sapCode} ${i.lotNumber} ${i.casNumber || ''}`);
+                cache.set(i, itemStr);
+            }
             return normalizedTerms.every(t => itemStr.includes(t));
         });
     }, [baseFilteredItems, debouncedTerm]);
