@@ -9,3 +9,7 @@
 **Vulnerability:** The server's error handler was returning raw exception messages to the client for 500 errors, potentially exposing database queries, file paths, or other internal implementation details.
 **Learning:** Default error handling often prioritizes developer convenience (debugging) over security. Explicit environment checks (`NODE_ENV === 'production'`) are critical for toggling between verbose and safe error messages.
 **Prevention:** Always implement a centralized error handler that sanitizes error messages in production builds, returning a generic "Internal Server Error" while logging the full details server-side.
+## 2023-10-25 - Content Security Policy added
+**Vulnerability:** Missing security headers configuration (CSP) in Electron Main Process.
+**Learning:** Adding CSP headers using `session.defaultSession.webRequest.onHeadersReceived` provides a strong defense-in-depth layer for Electron apps, preventing loading of unapproved external scripts and resources.
+**Prevention:** Ensure new Electron configurations or new windows always implement `Content-Security-Policy` via headers or meta tags.
