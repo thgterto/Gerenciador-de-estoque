@@ -25,6 +25,14 @@ This document tracks significant performance improvements implemented in the cod
 - Fetches only relevant records from disk.
 - drastically reduces memory usage and load time for filtered views, especially as history grows over time.
 
+
+### 4. History List Re-renders Optimization (`HistoryTable.tsx`)
+**Problem:** Changing the `visibleCount` by clicking "Carregar Mais" caused all previously rendered `HistoryRow` and `HistoryMobileRow` components to re-render, blocking the main thread.
+**Solution:** Wrapped `HistoryRow`, `HistoryMobileRow`, and `NativeHistoryList` in `React.memo()` to prevent unnecessary re-renders of list items whose props haven't changed.
+**Impact:**
+- Clicking "Carregar Mais" is now instant, regardless of how many items are already visible.
+- Reduces CPU spikes when paginating through large history lists.
+
 ---
 
 ## 🏗 Architectural Patterns for Performance
