@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, shell, dialog } = require('electron');
+const { app, BrowserWindow, ipcMain, shell, dialog, session } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const db = require('./db.cjs');
@@ -68,7 +68,18 @@ function createWindow() {
 }
 
 app.whenReady().then(() => {
+
   createWindow();
+
+  session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
+    callback({
+      responseHeaders: {
+        ...details.responseHeaders,
+        'Content-Security-Policy': ["default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https: ws:"]
+      }
+    });
+  });
+
 
   // Register IPC Handlers
   registerIpcHandlers(ipcMain, db, { InventoryController, ImportController }, {
