@@ -21,3 +21,8 @@
 **Vulnerability:** A Cross-Site Scripting (XSS) vulnerability was found in the `handlePrint` function of the Modals component (`src/components/Modals.tsx` and `labcontrol-spfx/src/webparts/labControlApp/components/Modals.tsx`), where user-controlled inputs (`item.name`, `item.lotNumber`, `item.id`) were dynamically injected into a string executed by `document.write`.
 **Learning:** Even internal windows created by `window.open` and populated via `document.write` are susceptible to XSS if inputs are not sanitized. In React, while component rendering automatically sanitizes data, raw strings sent to the DOM API bypass this protection. Applying a sanitization function to React props leads to double escaping issues, so escaping should only be applied immediately before native string injection.
 **Prevention:** Avoid `document.write` if possible. If required, sanitize variables being injected with an HTML escape function (`<`, `>`, `&`, `"`, `'`) specifically and only right before they are concatenated into the string sent to the native DOM APIs.
+
+## 2026-10-08 - Add Security Headers to Vercel config
+**Vulnerability:** Missing security headers (OWASP A02: Security Misconfiguration)
+**Learning:** In a frontend application hosted on Vercel, security headers can be added directly via the `vercel.json` configuration. The `headers` block allows adding policies like HSTS, X-Frame-Options, X-Content-Type-Options, etc.
+**Prevention:** Always ensure security headers are configured globally at the hosting provider level (e.g., `vercel.json`) to establish defense-in-depth against clickjacking, XSS, and MIME-sniffing.
