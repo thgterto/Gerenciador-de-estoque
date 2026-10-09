@@ -1,6 +1,8 @@
 
 import Fastify from 'fastify';
 import cors from '@fastify/cors';
+import helmet from '@fastify/helmet';
+import rateLimit from '@fastify/rate-limit';
 import staticFiles from '@fastify/static';
 import jwt from '@fastify/jwt';
 import path from 'path';
@@ -58,6 +60,16 @@ const inventoryController = new InventoryController(
 const authController = new AuthController(registerUser, loginUser);
 
 // Register plugins
+app.register(helmet, {
+  // Configured for SPA and local desktop tool
+  contentSecurityPolicy: false,
+});
+
+app.register(rateLimit, {
+  max: 1000,
+  timeWindow: '1 minute'
+});
+
 app.register(cors, {
   origin: '*', // Allow all origins for local tool
 });
