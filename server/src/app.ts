@@ -76,11 +76,20 @@ app.register(staticFiles, {
 });
 
 // API Routes - Public
-app.get('/api/inventory', (req, res) => inventoryController.getInventory(req, res));
 app.post('/api/auth/register', (req, res) => authController.register(req, res));
 app.post('/api/auth/login', (req, res) => authController.login(req, res));
 
 // API Routes - Protected
+app.get('/api/inventory', {
+  onRequest: [async (request, reply) => {
+    try {
+      await request.jwtVerify();
+    } catch (err) {
+      reply.send(err);
+    }
+  }]
+}, (req, res) => inventoryController.getInventory(req, res));
+
 app.post('/api/inventory/transaction', {
   onRequest: [async (request, reply) => {
     try {
