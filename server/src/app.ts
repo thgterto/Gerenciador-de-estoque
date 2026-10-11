@@ -57,6 +57,16 @@ const inventoryController = new InventoryController(
 );
 const authController = new AuthController(registerUser, loginUser);
 
+// Add Global Security Headers
+app.addHook('onRequest', (request, reply, done) => {
+  reply.header('X-Content-Type-Options', 'nosniff');
+  reply.header('X-Frame-Options', 'DENY');
+  reply.header('X-XSS-Protection', '1; mode=block');
+  reply.header('Content-Security-Policy', "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:;");
+  reply.header('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+  done();
+});
+
 // Register plugins
 app.register(cors, {
   origin: '*', // Allow all origins for local tool
@@ -86,7 +96,7 @@ app.post('/api/inventory/transaction', {
     try {
       await request.jwtVerify();
     } catch (err) {
-      reply.send(err);
+      return reply.send(err);
     }
   }]
 }, (req, res) => inventoryController.logTransaction(req, res));
@@ -96,7 +106,7 @@ app.post('/api/inventory/product', {
     try {
       await request.jwtVerify();
     } catch (err) {
-      reply.send(err);
+      return reply.send(err);
     }
   }]
 }, (req, res) => inventoryController.saveProduct(req, res));
@@ -108,7 +118,7 @@ app.get('/api/inventory/full', {
     try {
       await request.jwtVerify();
     } catch (err) {
-      reply.send(err);
+      return reply.send(err);
     }
   }]
 }, (req, res) => inventoryController.getFullDatabase(req, res));
@@ -118,7 +128,7 @@ app.post('/api/inventory/sync', {
     try {
       await request.jwtVerify();
     } catch (err) {
-      reply.send(err);
+      return reply.send(err);
     }
   }]
 }, (req, res) => inventoryController.syncData(req, res));
