@@ -41,3 +41,8 @@ This document tracks significant performance improvements implemented in the cod
 ### Computation
 - **String vs Object:** Prefer primitive comparison (string ISO dates) over Object comparison (Date objects) in hot loops/sorts.
 - **Collators:** Use shared `Intl.Collator` instances for localized string sorting instead of `localeCompare` inside loops.
+
+### 4. Component Rendering (`Reports.tsx`, `Purchases.tsx`)
+**Problem:** Multiple `new Date().getTime()` calculations inside mapping loops used for UI rendering, blocking the main thread needlessly.
+**Solution:** Cached the `today.getTime()` and derived variables prior to loop executions in `Purchases.tsx` and `PurchaseAlertCard.tsx`. Modified `Reports.tsx` to pull `daysRemaining` directly from hook instead of recalculating.
+**Impact:** Reduces rendering duration and CPU overhead.

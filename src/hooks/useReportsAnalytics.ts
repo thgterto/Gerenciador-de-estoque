@@ -81,16 +81,20 @@ export const useReportsAnalytics = (items: InventoryItem[], history: MovementRec
     // 3. Expiry Forecast
     const expiryRisk = useMemo(() => {
         const today = new Date();
+        const todayTime = today.getTime();
         const next90Days = new Date(today);
         next90Days.setDate(today.getDate() + 90);
+        // Optimization: Use ISO string comparison for date filtering
+        const next90DaysISO = next90Days.toISOString().split('T')[0];
 
         const result = items
-            .filter(i => i.expiryDate && new Date(i.expiryDate) <= next90Days)
+            .filter(i => i.expiryDate && i.expiryDate <= next90DaysISO)
             .sort((a, b) => (a.expiryDate > b.expiryDate ? 1 : -1));
 
         return result.map(i => ({
             ...i,
-            daysRemaining: Math.ceil((new Date(i.expiryDate).getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
+            // Optimization: avoid multiple Date instantiations for today
+            daysRemaining: Math.ceil((new Date(i.expiryDate).getTime() - todayTime) / (1000 * 60 * 60 * 24))
         }));
     }, [items]);
 
