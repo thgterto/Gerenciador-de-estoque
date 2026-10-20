@@ -151,6 +151,25 @@ interface GroupRowProps {
     copyToClipboard: (text: string, label: string) => void;
 }
 
+
+const areGroupPropsEqual = (prevProps: GroupRowProps, nextProps: GroupRowProps) => {
+    // Note: We intentionally omit callback props (toggleExpand, etc.) from this check.
+    // Since this is a virtualized list, callbacks are often recreated by the parent.
+    // If we checked them, the memoization would fail and cause massive O(N) re-renders.
+    if (prevProps.group !== nextProps.group) return false;
+    if (prevProps.isExpanded !== nextProps.isExpanded) return false;
+    if (prevProps.style !== nextProps.style) return false;
+
+    // Check if the selection state of any child in this group has changed
+    for (const item of prevProps.group.items) {
+        if (prevProps.selectedChildIds.has(item.id) !== nextProps.selectedChildIds.has(item.id)) {
+            return false;
+        }
+    }
+
+    return true;
+};
+
 export const InventoryGroupRow = React.memo(({ 
     group, 
     style,
@@ -267,7 +286,7 @@ export const InventoryGroupRow = React.memo(({
             </div>
         </div>
     );
-});
+}, areGroupPropsEqual);
 
 export const InventoryMobileGroupRow = React.memo(({ 
     group, 
@@ -327,7 +346,7 @@ export const InventoryMobileGroupRow = React.memo(({
             </div>
         </div>
     );
-});
+}, areGroupPropsEqual);
 
 export const InventoryMobileChildRow = React.memo(({ 
     item, 
