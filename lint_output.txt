@@ -3,14 +3,262 @@
 > eslint . --max-warnings 0
 
 
+/app/labcontrol-spfx/src/context/AlertContext.tsx
+  38:14  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+/app/labcontrol-spfx/src/context/AuthContext.tsx
+  27:18  warning  'e' is defined but never used                                                                                                   @typescript-eslint/no-unused-vars
+  78:14  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+/app/labcontrol-spfx/src/context/ThemeContext.tsx
+  44:14  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+/app/labcontrol-spfx/src/db.ts
+   43:21  warning  Unexpected any. Specify a different type                                                                             @typescript-eslint/no-explicit-any
+   44:25  warning  Unexpected any. Specify a different type                                                                             @typescript-eslint/no-explicit-any
+   53:14  warning  Unexpected any. Specify a different type                                                                             @typescript-eslint/no-explicit-any
+   66:14  warning  Unexpected any. Specify a different type                                                                             @typescript-eslint/no-explicit-any
+   87:14  warning  Unexpected any. Specify a different type                                                                             @typescript-eslint/no-explicit-any
+   92:14  warning  Unexpected any. Specify a different type                                                                             @typescript-eslint/no-explicit-any
+   98:14  warning  Unexpected any. Specify a different type                                                                             @typescript-eslint/no-explicit-any
+  101:14  warning  Unexpected any. Specify a different type                                                                             @typescript-eslint/no-explicit-any
+  115:5   error    Use "@ts-expect-error" instead of "@ts-ignore", as "@ts-ignore" will do nothing if the following line is error-free  @typescript-eslint/ban-ts-comment
+  126:5   error    Use "@ts-expect-error" instead of "@ts-ignore", as "@ts-ignore" will do nothing if the following line is error-free  @typescript-eslint/ban-ts-comment
+
+/app/labcontrol-spfx/src/hooks/useCasSearch.ts
+  35:18  warning  'e' is defined but never used  @typescript-eslint/no-unused-vars
+
+/app/labcontrol-spfx/src/hooks/useDashboardAnalytics.ts
+   73:22  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  113:32  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  183:27  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/app/labcontrol-spfx/src/hooks/useECharts.ts
+   5:56  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   8:23  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  12:48  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  13:39  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  15:43  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/app/labcontrol-spfx/src/hooks/useInventoryData.ts
+  1:1  error  Do not use "@ts-nocheck" because it alters compilation errors  @typescript-eslint/ban-ts-comment
+
+/app/labcontrol-spfx/src/hooks/useItemForm.ts
+  10:22  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  42:49  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  48:75  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/app/labcontrol-spfx/src/hooks/useReportsAnalytics.ts
+  148:24  warning  '_' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/app/labcontrol-spfx/src/hooks/useStockOperations.ts
+  1:1  error  Do not use "@ts-nocheck" because it alters compilation errors  @typescript-eslint/ban-ts-comment
+
+/app/labcontrol-spfx/src/services/ApiClient.ts
+   6:12  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  17:29  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  26:44  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  30:51  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  35:29  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  44:30  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/app/labcontrol-spfx/src/services/CasApiService.ts
+    5:20  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  129:22  warning  'e' is defined but never used             @typescript-eslint/no-unused-vars
+
+/app/labcontrol-spfx/src/services/DatabaseSeeder.ts
+    8:33  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   10:51  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   18:85  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   19:83  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   20:98  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   21:87  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   70:85  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  135:73  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  142:23  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/app/labcontrol-spfx/src/services/ExcelIntegrationService.ts
+   6:12  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  43:44  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  63:25  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  74:18  warning  'e' is defined but never used             @typescript-eslint/no-unused-vars
+
+/app/labcontrol-spfx/src/services/ImportService.ts
+  213:36  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/app/labcontrol-spfx/src/services/InventorySyncManager.ts
+  65:49  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  75:34  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/app/labcontrol-spfx/src/services/LogService.ts
+  13:99  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/app/labcontrol-spfx/src/services/RestApiService.ts
+    6:12  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   14:60  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   32:27  warning  'e' is defined but never used             @typescript-eslint/no-unused-vars
+   39:25  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   55:56  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   87:39  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  100:32  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/app/labcontrol-spfx/src/services/SyncQueueService.ts
+   8:44  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  28:24  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  29:20  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  81:24  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  86:24  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  86:65  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  87:20  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  94:25  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  95:24  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  99:58  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/app/labcontrol-spfx/src/spcontext.ts
+  7:25  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  9:33  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/app/labcontrol-spfx/src/types.ts
+    7:18   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   11:43   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   11:59   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  355:14   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  363:232  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  364:45   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  364:59   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  364:81   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  365:52   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  365:180  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  365:220  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  370:56   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/app/labcontrol-spfx/src/utils/ExportEngine.ts
+    7:30  warning  Unexpected any. Specify a different type                  @typescript-eslint/no-explicit-any
+    7:36  warning  Unexpected any. Specify a different type                  @typescript-eslint/no-explicit-any
+   21:51  warning  Unexpected any. Specify a different type                  @typescript-eslint/no-explicit-any
+   82:27  warning  '_' is defined but never used                             @typescript-eslint/no-unused-vars
+  110:25  warning  Unexpected any. Specify a different type                  @typescript-eslint/no-explicit-any
+  110:56  warning  Unexpected any. Specify a different type                  @typescript-eslint/no-explicit-any
+  137:25  warning  Unexpected any. Specify a different type                  @typescript-eslint/no-explicit-any
+  137:56  warning  Unexpected any. Specify a different type                  @typescript-eslint/no-explicit-any
+  169:13  warning  'totalInventoryValue' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/app/labcontrol-spfx/src/utils/HybridStorage.ts
+   45:39  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   46:57  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   54:38  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   55:62  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   66:59  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   67:31  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   72:62  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   88:41  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   95:55  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  222:26  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  271:46  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/app/labcontrol-spfx/src/utils/ImportEngine.ts
+   14:23  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   28:32  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   67:34  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   87:30  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  140:54  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  181:47  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  233:49  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  308:19  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  308:84  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  310:19  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/app/labcontrol-spfx/src/utils/parsers/DataMapper.ts
+  132:31  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  138:41  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  143:29  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  144:25  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  145:30  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  149:51  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  165:44  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  242:55  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/app/labcontrol-spfx/src/utils/parsers/SqlParser.ts
+  18:37  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  32:23  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/app/labcontrol-spfx/src/webparts/labControlApp/components/AddItem.tsx
+  1:1  error  Do not use "@ts-nocheck" because it alters compilation errors  @typescript-eslint/ban-ts-comment
+
+/app/labcontrol-spfx/src/webparts/labControlApp/components/BatchList.tsx
+  1:1  error  Do not use "@ts-nocheck" because it alters compilation errors  @typescript-eslint/ban-ts-comment
+
+/app/labcontrol-spfx/src/webparts/labControlApp/components/ExcelIntegrationForm.tsx
+  34:25  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/app/labcontrol-spfx/src/webparts/labControlApp/components/ItemForm.tsx
+    1:1   error    Do not use "@ts-nocheck" because it alters compilation errors  @typescript-eslint/ban-ts-comment
+  252:62  warning  Unexpected any. Specify a different type                       @typescript-eslint/no-explicit-any
+
+/app/labcontrol-spfx/src/webparts/labControlApp/components/LabControlApp.tsx
+  19:42  error  A `require()` style import is forbidden  @typescript-eslint/no-require-imports
+  19:82  error  A `require()` style import is forbidden  @typescript-eslint/no-require-imports
+
+/app/labcontrol-spfx/src/webparts/labControlApp/components/LinkAdapter.tsx
+  7:72  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/app/labcontrol-spfx/src/webparts/labControlApp/components/Login.tsx
+  29:18  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
+
+/app/labcontrol-spfx/src/webparts/labControlApp/components/QuickScanModal.tsx
+  1:1  error  Do not use "@ts-nocheck" because it alters compilation errors  @typescript-eslint/ban-ts-comment
+
+/app/labcontrol-spfx/src/webparts/labControlApp/components/Reports.tsx
+  144:67  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/app/labcontrol-spfx/src/webparts/labControlApp/components/Settings.tsx
+  1:1  error  Do not use "@ts-nocheck" because it alters compilation errors  @typescript-eslint/ban-ts-comment
+
+/app/labcontrol-spfx/src/webparts/labControlApp/components/StorageMatrix.tsx
+  1:1  error  Do not use "@ts-nocheck" because it alters compilation errors  @typescript-eslint/ban-ts-comment
+
+/app/labcontrol-spfx/src/webparts/labControlApp/components/inventory/InventoryFilters.tsx
+  15:26  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/app/labcontrol-spfx/src/webparts/labControlApp/components/inventory/InventoryList.tsx
+   26:4   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   39:41  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  118:15  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  123:16  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/app/labcontrol-spfx/src/webparts/labControlApp/components/item-form/BatchInfo.tsx
+  9:38  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/app/labcontrol-spfx/src/webparts/labControlApp/components/ui/Card.tsx
+  29:5   warning  'colorScheme' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  32:5   warning  'noBorder' is assigned a value but never used     @typescript-eslint/no-unused-vars
+  33:29  warning  'delay' is defined but never used                 @typescript-eslint/no-unused-vars
+  78:89  warning  Unexpected any. Specify a different type          @typescript-eslint/no-explicit-any
+
+/app/labcontrol-spfx/src/webparts/labControlApp/components/ui/Input.tsx
+  26:5  warning  'fullWidth' is defined but never used  @typescript-eslint/no-unused-vars
+
+/app/labcontrol-spfx/src/webparts/labControlApp/components/ui/MetricCard.tsx
+  30:27  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  34:35  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/app/server/src/adapters/ErrorHandler.ts
+  10:37  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
 /app/server/src/adapters/controllers/InventoryController.ts
-   4:26  warning  'LogTransactionRequest' is defined but never used  @typescript-eslint/no-unused-vars
-   5:23  warning  'SaveProductRequest' is defined but never used     @typescript-eslint/no-unused-vars
-  46:35  warning  Unexpected any. Specify a different type           @typescript-eslint/no-explicit-any
+  25:21  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  32:39  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  35:21  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  42:35  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  45:21  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  56:21  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  63:35  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  66:21  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
 
 /app/server/src/infrastructure/database/SQLiteInventoryRepository.ts
-  83:19  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-  99:19  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   88:19  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  104:19  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  159:29  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
 
 /app/server/src/infrastructure/logging/FileLogger.ts
   3:8  warning  'path' is defined but never used  @typescript-eslint/no-unused-vars
@@ -25,10 +273,13 @@
 /app/src/components/ExcelIntegrationForm.tsx
   34:25  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
 
+/app/src/components/ExcelSetupModal.tsx
+  55:18  warning  'e' is defined but never used  @typescript-eslint/no-unused-vars
+
 /app/src/components/HistoryTable.tsx
-  260:78  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-  275:78  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-  331:60  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  261:78  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  276:78  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  332:60  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
 
 /app/src/components/ImportWizard.tsx
    33:42  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
@@ -41,7 +292,7 @@
   403:55  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
   404:55  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
   412:46  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-  422:45  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  425:52  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
 
 /app/src/components/ItemForm.tsx
   251:62  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
@@ -63,7 +314,7 @@
   144:67  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
 
 /app/src/components/Settings.tsx
-  210:18  warning  'e' is defined but never used  @typescript-eslint/no-unused-vars
+  215:18  warning  'e' is defined but never used  @typescript-eslint/no-unused-vars
 
 /app/src/components/StorageMatrix.tsx
   467:72  warning  '_id' is defined but never used  @typescript-eslint/no-unused-vars
@@ -184,13 +435,11 @@
   135:73  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
   142:23  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
 
-/app/src/services/GoogleSheetsService.ts
+/app/src/services/ExcelIntegrationService.ts
    6:12  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-  49:44  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-  55:29  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-  83:22  warning  'e' is defined but never used             @typescript-eslint/no-unused-vars
-  86:25  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-  98:18  warning  'e' is defined but never used             @typescript-eslint/no-unused-vars
+  43:44  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  63:25  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  74:18  warning  'e' is defined but never used             @typescript-eslint/no-unused-vars
 
 /app/src/services/ImportService.ts
   213:36  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
@@ -201,8 +450,8 @@
   539:39  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
 
 /app/src/services/InventorySyncManager.ts
-  50:49  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-  59:34  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  65:49  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  75:34  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
 
 /app/src/services/LogService.ts
   13:99  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
@@ -217,16 +466,24 @@
   100:32  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
 
 /app/src/services/SyncQueueService.ts
-   11:44  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-   32:24  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-   33:20  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-  104:24  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-  110:24  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-  110:65  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-  111:20  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-  122:25  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-  123:24  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-  127:58  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   8:44  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  28:24  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  29:20  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  81:24  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  86:24  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  86:65  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  87:20  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  94:25  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  95:24  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  99:58  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/app/src/spfx/services/InventoryService.ts
+   7:26  warning  'title' is defined but never used                  @typescript-eslint/no-unused-vars
+   9:39  warning  Unexpected any. Specify a different type           @typescript-eslint/no-explicit-any
+  10:31  warning  'id' is defined but never used                     @typescript-eslint/no-unused-vars
+  11:46  warning  Unexpected any. Specify a different type           @typescript-eslint/no-explicit-any
+  44:19  warning  'historyList' is assigned a value but never used   @typescript-eslint/no-unused-vars
+  45:19  warning  'balancesList' is assigned a value but never used  @typescript-eslint/no-unused-vars
 
 /app/src/types.ts
     7:18   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
@@ -332,4 +589,4 @@
 /app/tests/verify_item_status.ts
   14:6  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
 
-✖ 215 problems (2 errors, 213 warnings)
+✖ 378 problems (14 errors, 364 warnings)
