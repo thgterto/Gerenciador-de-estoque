@@ -4,7 +4,7 @@ import { InventoryItem, MovementRecord } from '../types';
 import { db } from '../db';
 
 // SECURITY: Sanitize cells to prevent CSV Injection (Formula Injection)
-const sanitizeCell = (value: any): any => {
+const sanitizeCell = (value: unknown): unknown => {
     if (typeof value === 'string') {
         // If the cell starts with a formula trigger character, prepend a quote to force text mode
         if (/^[=+\-@]/.test(value)) {
@@ -18,7 +18,7 @@ export const ExportEngine = {
     /**
      * Gera e baixa um arquivo Excel com múltiplas abas.
      */
-    generateExcel: (sheets: { name: string, data: any[] }[], fileName: string) => {
+    generateExcel: (sheets: { name: string, data: Record<string, unknown>[] }[], fileName: string) => {
         const wb = XLSX.utils.book_new();
         
         sheets.forEach(sheet => {
@@ -59,7 +59,7 @@ export const ExportEngine = {
 // ARQUIVO GERADO AUTOMATICAMENTE PELO LABCONTROL
 // Substitua o conteúdo de 'limsData.ts' por este arquivo para tornar os dados permanentes.
 
-export const LIMS_DATA: any = ${JSON.stringify(exportData, null, 2)};
+export const LIMS_DATA: unknown = ${JSON.stringify(exportData, null, 2)};
 `;
 
         const blob = new Blob([fileContent], { type: 'text/typescript' });
@@ -107,7 +107,7 @@ export const LIMS_DATA: any = ${JSON.stringify(exportData, null, 2)};
 
             // Apply Security Sanitization
             Object.keys(row).forEach(k => {
-                (row as any)[k] = sanitizeCell((row as any)[k]);
+                (row as Record<string, unknown>)[k] = sanitizeCell((row as Record<string, unknown>)[k]);
             });
 
             return row;
@@ -134,7 +134,7 @@ export const LIMS_DATA: any = ${JSON.stringify(exportData, null, 2)};
 
             // Apply Security Sanitization
             Object.keys(row).forEach(k => {
-                (row as any)[k] = sanitizeCell((row as any)[k]);
+                (row as Record<string, unknown>)[k] = sanitizeCell((row as Record<string, unknown>)[k]);
             });
 
             return row;

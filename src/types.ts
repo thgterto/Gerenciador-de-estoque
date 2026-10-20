@@ -4,11 +4,11 @@
 // ============================================================================
 
 declare global {
-  const echarts: any;
+  const echarts: unknown;
   interface Window {
     electronAPI?: {
       getAppVersion: () => Promise<string>;
-      request: (action: string, payload?: any) => Promise<any>;
+      request: (action: string, payload?: unknown) => Promise<unknown>;
     };
   }
 
@@ -352,7 +352,7 @@ export interface SyncQueueItem {
     id?: number;
     timestamp: number;
     action: string;
-    payload: any;
+    payload: unknown;
     retryCount: number;
     error?: string;
 }
@@ -360,14 +360,14 @@ export interface SyncQueueItem {
 // Legacy/Export Types (Keep for compatibility)
 export interface LocationDTO { id: number; storageLocation: string; cabinet: string; floor: string; position: string; fullLocationCode: string; }
 export interface SupplierDTO { id: number; name: string; }
-export interface ProductBatchDTO { id: number; productName: string; sapCode: string; batch: string; expirationDate: string | null; supplierId: number; locationId: number; unitOfMeasure: string; costPerUnit?: number; [key: string]: any; }
-export interface LegacyLimsData { produtos: any[]; lotes: any[]; movimentacoes: any[]; }
-export interface FullRelationalDumpDTO { metadata: any; relationalData?: { locations: LocationDTO[]; suppliers: SupplierDTO[]; productBatches: ProductBatchDTO[]; movementHistory: any[]; }; dados?: LegacyLimsData; dml?: any; }
+export interface ProductBatchDTO { id: number; productName: string; sapCode: string; batch: string; expirationDate: string | null; supplierId: number; locationId: number; unitOfMeasure: string; costPerUnit?: number; [key: string]: unknown; }
+export interface LegacyLimsData { produtos: unknown[]; lotes: unknown[]; movimentacoes: unknown[]; }
+export interface FullRelationalDumpDTO { metadata: Record<string, unknown>; relationalData?: { locations: LocationDTO[]; suppliers: SupplierDTO[]; productBatches: ProductBatchDTO[]; movementHistory: unknown[]; }; dados?: LegacyLimsData; dml?: unknown; }
 export interface ExportOptions { includeHistory: boolean; format: 'xlsx' | 'csv'; }
 
 export type UserRole = 'ADMIN' | 'OPERATOR' | 'VIEWER';
 export interface User { readonly id: string; readonly name: string; readonly username: string; readonly role: UserRole; readonly avatar?: string; readonly active: boolean; }
-export interface SystemConfigDTO { key: string; value: any; category: string; }
+export interface SystemConfigDTO { key: string; value: unknown; category: string; }
 export interface SystemLogDTO { id?: number; timestamp: DateISOString; action: string; module: string; details: string; level: 'INFO' | 'WARN' | 'ERROR'; }
 export type AlertSeverity = 'success' | 'error' | 'warning' | 'info';
 export interface AppNotification { id: string; type: AlertSeverity; title: string; message?: string; duration?: number; }
