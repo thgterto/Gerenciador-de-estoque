@@ -12,6 +12,9 @@ import { OrbitalButton } from '../ui/orbital/OrbitalButton';
 
 const GRID_TEMPLATE = "40px minmax(240px, 3fr) 120px minmax(180px, 1.5fr) 100px 100px 130px 110px";
 
+// ⚡ Bolt Optimization: Extracted inline style to stable reference to prevent invalidating React.memo
+const ROW_STYLE = { width: '100%' };
+
 // Native List Component (Handles both Desktop and Mobile via Native Scroll + Pagination)
 const NativeList = ({
     flatList,
@@ -38,7 +41,6 @@ const NativeList = ({
         <div className="pb-24">
             {visibleItems.map((rowItem: any, index: number) => {
                 const isSelected = rowItem.type !== 'GROUP' && selectedIds.has(rowItem.data.id);
-                const style = { width: '100%' };
 
                 if (rowItem.type === 'GROUP') {
                     if (isMobile) {
@@ -46,7 +48,7 @@ const NativeList = ({
                             <InventoryMobileGroupRow
                                 key={rowItem.data.groupKey || index}
                                 group={rowItem.data}
-                                style={style}
+                                style={ROW_STYLE}
                                 isExpanded={rowItem.expanded}
                                 toggleExpand={() => toggleGroupExpand(rowItem.data.groupKey)}
                                 selectedChildIds={selectedIds}
@@ -58,7 +60,7 @@ const NativeList = ({
                     return (
                          <InventoryGroupRow
                             key={rowItem.data.groupKey || index}
-                            style={style}
+                            style={ROW_STYLE}
                             group={rowItem.data}
                             isExpanded={rowItem.expanded}
                             toggleExpand={() => toggleGroupExpand(rowItem.data.groupKey)}
@@ -73,7 +75,7 @@ const NativeList = ({
                             <InventoryMobileChildRow
                                 key={rowItem.data.id || index}
                                 item={rowItem.data}
-                                style={style}
+                                style={ROW_STYLE}
                                 isSelected={isSelected}
                                 isAdmin={hasRole('ADMIN')}
                                 onSelect={handleSelectRow}
@@ -86,7 +88,7 @@ const NativeList = ({
                     return (
                         <InventoryChildRow
                             key={rowItem.data.id || index}
-                            style={style}
+                            style={ROW_STYLE}
                             item={rowItem.data}
                             isSelected={isSelected}
                             isAdmin={hasRole('ADMIN')}
