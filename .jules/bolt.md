@@ -25,3 +25,7 @@
 ## 2025-02-14 - Unmemoized Hook Functions & Virtual List Performance
 **Learning:** Functions returned from custom hooks (like `toggleGroupExpand` in `useInventoryFilters`) that are recreated on every render will invalidate `itemData` prop passed to `react-window` components, forcing the entire list to re-render even if the underlying data (`flatList`) is stable.
 **Action:** Always wrap functions returned from hooks in `useCallback` if they are passed down to memoized children or used in `useMemo` dependencies, especially when filtering/sorting logic is involved.
+
+## 2024-05-24 - [Remove de-optimizing 'now' argument in getItemStatus]
+**Learning:** The `getItemStatus` function was designed with a highly optimized fast-path using cached string comparison (`getTodayISO()`) when a `now` Date is not provided. However, `useInventoryFilters` hoisted a `const now = new Date()` outside its loops and passed it in. This caused `getItemStatus` to fall back to the slower `new Date()` parsing and `<` comparison path for every single item, completely bypassing the intended ~10x optimization.
+**Action:** When a utility function offers a cached/optimized fast-path, check its call sites to ensure callers aren't unintentionally forcing it into a slower legacy path by passing explicit arguments.
