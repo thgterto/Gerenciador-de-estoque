@@ -43,9 +43,10 @@ export const Purchases: React.FC<Props> = ({
   // Filter recommendations: Low stock or Expiring
   const recommendations = useMemo(() => {
       if (!items) return [];
+      const now = Date.now();
       return items.filter(i => {
           const isLow = i.quantity <= i.minStockLevel;
-          const daysToExpiry = i.expiryDate ? Math.ceil((new Date(i.expiryDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)) : 999;
+          const daysToExpiry = i.expiryDate ? Math.ceil((new Date(i.expiryDate).getTime() - now) / (1000 * 60 * 60 * 24)) : 999;
           const isExpiring = daysToExpiry < 30;
           const alreadyInList = purchaseList.some(p => p.id === i.id);
           return (isLow || isExpiring) && !alreadyInList;
@@ -83,7 +84,9 @@ export const Purchases: React.FC<Props> = ({
         </PageHeader>
 
         {/* Recommendations Row */}
-        {recommendations.length > 0 && (
+        {recommendations.length > 0 && (() => {
+            const now = Date.now();
+            return (
             <div className="mb-8 animate-fade-in">
                 <div className="flex items-center gap-2 mb-4 text-orbital-warning">
                     <AlertTriangle size={18} />
@@ -91,7 +94,7 @@ export const Purchases: React.FC<Props> = ({
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 overflow-x-auto pb-2">
                     {recommendations.map(item => {
-                        const daysToExpiry = item.expiryDate ? Math.ceil((new Date(item.expiryDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)) : 999;
+                        const daysToExpiry = item.expiryDate ? Math.ceil((new Date(item.expiryDate).getTime() - now) / (1000 * 60 * 60 * 24)) : 999;
                         const reason = daysToExpiry < 30 ? 'EXPIRING' : 'LOW_STOCK';
                         return (
                             <PurchaseAlertCard 
@@ -104,7 +107,8 @@ export const Purchases: React.FC<Props> = ({
                     })}
                 </div>
             </div>
-        )}
+            );
+        })()}
 
         {/* Purchase List */}
         <OrbitalCard className="min-h-[400px]">
