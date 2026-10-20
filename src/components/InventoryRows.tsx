@@ -144,8 +144,9 @@ interface GroupRowProps {
     group: InventoryGroup;
     style: React.CSSProperties;
     isExpanded: boolean;
-    toggleExpand: () => void;
-    selectedChildIds: Set<string>;
+    toggleExpand: (groupKey: string) => void;
+    allSelected: boolean;
+    someSelected: boolean;
     onSelectGroup: (groupIds: string[], checked: boolean) => void;
     // getCategoryIcon removed as it was unused/hardcoded
     copyToClipboard: (text: string, label: string) => void;
@@ -156,13 +157,12 @@ export const InventoryGroupRow = React.memo(({
     style,
     isExpanded, 
     toggleExpand, 
-    selectedChildIds,
+    allSelected,
+    someSelected,
     onSelectGroup,
     copyToClipboard
 }: GroupRowProps) => {
     const { primaryItem, totalQuantity, aggregatedStatus, items } = group;
-    const allSelected = items.every(i => selectedChildIds.has(i.id));
-    const someSelected = items.some(i => selectedChildIds.has(i.id));
 
     return (
         <div style={style}>
@@ -171,7 +171,7 @@ export const InventoryGroupRow = React.memo(({
                     h-full border-b border-orbital-border cursor-pointer transition-colors duration-200 group
                     ${isExpanded ? 'bg-orbital-accent/5' : 'bg-orbital-bg hover:bg-orbital-surface'}
                 `}
-                onClick={toggleExpand}
+                onClick={() => toggleExpand(group.groupKey)}
             >
                 <div
                     className="grid items-center h-full px-4"
@@ -274,6 +274,9 @@ export const InventoryMobileGroupRow = React.memo(({
     style, 
     isExpanded, 
     toggleExpand,
+    allSelected,
+    someSelected,
+    onSelectGroup,
     // getCategoryIcon removed
 }: GroupRowProps) => {
     const { primaryItem, totalQuantity, aggregatedStatus, items } = group;
@@ -281,7 +284,7 @@ export const InventoryMobileGroupRow = React.memo(({
     return (
         <div style={style} className="px-3 pt-3 pb-1">
             <div
-                onClick={toggleExpand}
+                onClick={() => toggleExpand(group.groupKey)}
                 className={`
                     rounded border transition-all duration-200 overflow-hidden active:scale-[0.99]
                     ${isExpanded
