@@ -82,44 +82,28 @@ app.post('/api/auth/login', (req, res) => authController.login(req, res));
 
 // API Routes - Protected
 app.post('/api/inventory/transaction', {
-  onRequest: [async (request, reply) => {
-    try {
-      await request.jwtVerify();
-    } catch (err) {
-      reply.send(err);
-    }
+  onRequest: [async (request) => {
+    await request.jwtVerify();
   }]
 }, (req, res) => inventoryController.logTransaction(req, res));
 
 app.post('/api/inventory/product', {
-  onRequest: [async (request, reply) => {
-    try {
-      await request.jwtVerify();
-    } catch (err) {
-      reply.send(err);
-    }
+  onRequest: [async (request) => {
+    await request.jwtVerify();
   }]
 }, (req, res) => inventoryController.saveProduct(req, res));
 
 // V2 Endpoints - Protected? Or Public?
 // Sync endpoints usually require auth.
 app.get('/api/inventory/full', {
-  onRequest: [async (request, reply) => {
-    try {
-      await request.jwtVerify();
-    } catch (err) {
-      reply.send(err);
-    }
+  onRequest: [async (request) => {
+    await request.jwtVerify();
   }]
 }, (req, res) => inventoryController.getFullDatabase(req, res));
 
 app.post('/api/inventory/sync', {
-  onRequest: [async (request, reply) => {
-    try {
-      await request.jwtVerify();
-    } catch (err) {
-      reply.send(err);
-    }
+  onRequest: [async (request) => {
+    await request.jwtVerify();
   }]
 }, (req, res) => inventoryController.syncData(req, res));
 

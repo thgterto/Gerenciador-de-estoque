@@ -9,3 +9,8 @@
 **Vulnerability:** The server's error handler was returning raw exception messages to the client for 500 errors, potentially exposing database queries, file paths, or other internal implementation details.
 **Learning:** Default error handling often prioritizes developer convenience (debugging) over security. Explicit environment checks (`NODE_ENV === 'production'`) are critical for toggling between verbose and safe error messages.
 **Prevention:** Always implement a centralized error handler that sanitizes error messages in production builds, returning a generic "Internal Server Error" while logging the full details server-side.
+
+## 2026-07-12 - Information Leakage and Authentication Bypass in Fastify Try/Catch Blocks
+**Vulnerability:** Fastify `onRequest` hooks and `async` route handlers wrapped their logic in `try-catch` blocks that handled errors manually. In `app.ts`, `catch (err) { reply.send(err); }` allowed the asynchronous function to resolve successfully instead of throwing, which tricked Fastify into proceeding to the route handler even after authentication failed. In `InventoryController.ts`, `catch (error) { res.status(500).send({ error: error.message }); }` bypassed the secure global error handler and leaked raw internal error messages to the client.
+**Learning:** Fastify natively handles unhandled promise rejections in `async` routes and hooks. Catching them manually without explicitly re-throwing or halting the lifecycle leads to silent authentication bypasses and information leakage.
+**Prevention:** Avoid wrapping Fastify `async` routes and hooks in `try-catch` blocks unless you are executing custom recovery logic. Allow errors to bubble up naturally to the `errorHandler` for secure processing.
