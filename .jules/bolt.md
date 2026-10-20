@@ -25,3 +25,6 @@
 ## 2025-02-14 - Unmemoized Hook Functions & Virtual List Performance
 **Learning:** Functions returned from custom hooks (like `toggleGroupExpand` in `useInventoryFilters`) that are recreated on every render will invalidate `itemData` prop passed to `react-window` components, forcing the entire list to re-render even if the underlying data (`flatList`) is stable.
 **Action:** Always wrap functions returned from hooks in `useCallback` if they are passed down to memoized children or used in `useMemo` dependencies, especially when filtering/sorting logic is involved.
+## 2025-02-14 - String Normalization in Loops
+**Learning:** Re-normalizing identical strings inside a filter loop (like `normalizeStr` inside `useInventoryFilters`'s `finalFilteredItems`) causes excessive repeated processing. Caching the normalized string with a `WeakMap` prevents this O(N) overhead during repeated filtering.
+**Action:** Cache expensive derived string properties on objects using a `WeakMap` when they are frequently accessed during sorting/filtering.

@@ -8,6 +8,9 @@ import { useDebounce } from './useDebounce';
 
 export type StatusFilterType = 'ALL' | 'EXPIRED' | 'LOW_STOCK' | 'OK';
 
+// Cache for search string to avoid re-normalizing on every keystroke
+const searchStringCache = new WeakMap<InventoryItem, string>();
+
 export interface InventoryGroup {
     id: string;
     groupKey: string; 
@@ -68,8 +71,12 @@ export const useInventoryFilters = (items: InventoryItem[]) => {
         if (normalizedTerms.length === 0) return baseFilteredItems;
 
         return baseFilteredItems.filter(i => {
-            const itemStr = normalizeStr(`${i.name} ${i.sapCode} ${i.lotNumber} ${i.casNumber || ''}`);
-            return normalizedTerms.every(t => itemStr.includes(t));
+            let itemStr = searchStringCache.get(i);
+            if (itemStr === undefined) {
+                itemStr = normalizeStr(`${i.name} ${i.sapCode} ${i.lotNumber} ${i.casNumber || ''}`);
+                searchStringCache.set(i, itemStr);
+            }
+            return normalizedTerms.every(t => itemStr!.includes(t));
         });
     }, [baseFilteredItems, debouncedTerm]);
 
