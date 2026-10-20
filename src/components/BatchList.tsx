@@ -62,6 +62,8 @@ export const BatchList: React.FC<BatchListProps> = ({ itemId, onViewHistory }) =
         );
     }
 
+    const now = Date.now();
+
     return (
         <div className="w-full overflow-hidden border border-orbital-border bg-orbital-surface">
             <table className="w-full text-left text-xs border-collapse">
@@ -78,7 +80,7 @@ export const BatchList: React.FC<BatchListProps> = ({ itemId, onViewHistory }) =
                 <tbody className="divide-y divide-orbital-border/50">
                     {batches.map((batch) => {
                         const daysToExpiry = batch.expiryDate 
-                            ? Math.ceil((new Date(batch.expiryDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))
+                            ? Math.ceil((new Date(batch.expiryDate).getTime() - now) / (1000 * 60 * 60 * 24))
                             : 999;
                         
                         const isExpired = daysToExpiry < 0;

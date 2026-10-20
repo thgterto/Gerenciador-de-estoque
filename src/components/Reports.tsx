@@ -116,6 +116,8 @@ export const Reports: React.FC<Props> = ({ items, history }) => {
     const [activeTab, setActiveTab] = useState<'ABC' | 'COST' | 'CONTROLLED' | 'EXPIRY' | 'FLOW'>('ABC');
     const { abcAnalysis, controlledReport, expiryRisk, costAnalysis, monthlyFlow } = useReportsAnalytics(items, history);
     
+    const now = Date.now();
+
     const chartData = useMemo(() => {
         if (activeTab !== 'ABC') return { A: 0, B: 0, C: 0 };
         return {
@@ -376,7 +378,7 @@ export const Reports: React.FC<Props> = ({ items, history }) => {
                             </OrbitalHead>
                             <OrbitalBody>
                                 {expiryRisk.map(item => {
-                                    const days = Math.ceil((new Date(item.expiryDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
+                                    const days = Math.ceil((new Date(item.expiryDate).getTime() - now) / (1000 * 60 * 60 * 24));
                                     return (
                                         <OrbitalRow key={item.id}>
                                             <OrbitalTd><span className="font-bold text-orbital-text">{item.name}</span></OrbitalTd>
