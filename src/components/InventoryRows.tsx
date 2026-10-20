@@ -38,6 +38,33 @@ interface ChildRowProps {
     isLast: boolean;
 }
 
+const areChildPropsEqual = (prev: ChildRowProps, next: ChildRowProps) => {
+    return (
+        prev.isSelected === next.isSelected &&
+        prev.isLast === next.isLast &&
+        prev.isAdmin === next.isAdmin &&
+        prev.item === next.item &&
+        prev.style === next.style
+    );
+};
+
+const areGroupPropsEqual = (prev: GroupRowProps, next: GroupRowProps) => {
+    if (prev.isExpanded !== next.isExpanded) return false;
+    if (prev.group !== next.group) return false;
+    if (prev.style !== next.style) return false;
+
+    // Check if selection state of any child in this group changed
+    const prevAll = prev.group.items.every(i => prev.selectedChildIds?.has(i.id));
+    const nextAll = next.group.items.every(i => next.selectedChildIds?.has(i.id));
+    if (prevAll !== nextAll) return false;
+
+    const prevSome = prev.group.items.some(i => prev.selectedChildIds?.has(i.id));
+    const nextSome = next.group.items.some(i => next.selectedChildIds?.has(i.id));
+    if (prevSome !== nextSome) return false;
+
+    return true;
+};
+
 export const InventoryChildRow = React.memo(({ 
     item, 
     style,
@@ -138,7 +165,7 @@ export const InventoryChildRow = React.memo(({
             </div>
         </div>
     );
-});
+}, areChildPropsEqual);
 
 interface GroupRowProps {
     group: InventoryGroup;
@@ -267,7 +294,7 @@ export const InventoryGroupRow = React.memo(({
             </div>
         </div>
     );
-});
+}, areGroupPropsEqual);
 
 export const InventoryMobileGroupRow = React.memo(({ 
     group, 
@@ -327,7 +354,7 @@ export const InventoryMobileGroupRow = React.memo(({
             </div>
         </div>
     );
-});
+}, areGroupPropsEqual);
 
 export const InventoryMobileChildRow = React.memo(({ 
     item, 
@@ -407,7 +434,7 @@ export const InventoryMobileChildRow = React.memo(({
              </motion.div>
         </div>
     );
-});
+}, areChildPropsEqual);
 
 const ActionBtn = ({ onClick, title, icon }: any) => (
     <button
