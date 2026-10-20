@@ -43,13 +43,25 @@ export const Purchases: React.FC<Props> = ({
   // Filter recommendations: Low stock or Expiring
   const recommendations = useMemo(() => {
       if (!items) return [];
-      return items.filter(i => {
-          const isLow = i.quantity <= i.minStockLevel;
-          const daysToExpiry = i.expiryDate ? Math.ceil((new Date(i.expiryDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)) : 999;
+
+      const purchaseItemIds = new Set(purchaseList.map(p => p.id));
+      const now = Date.now();
+      const recs = [];
+
+      for (let i = 0; i < items.length; i++) {
+          if (recs.length >= 6) break;
+          const item = items[i];
+
+          if (purchaseItemIds.has(item.id)) continue;
+
+          const isLow = item.quantity <= item.minStockLevel;
+          const daysToExpiry = item.expiryDate ? Math.ceil((new Date(item.expiryDate).getTime() - now) / 86400000) : 999;
           const isExpiring = daysToExpiry < 30;
-          const alreadyInList = purchaseList.some(p => p.id === i.id);
-          return (isLow || isExpiring) && !alreadyInList;
-      }).slice(0, 6);
+
+          if (isLow || isExpiring) recs.push(item);
+      }
+
+      return recs;
   }, [items, purchaseList]);
 
   // Filtered List
@@ -91,7 +103,7 @@ export const Purchases: React.FC<Props> = ({
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 overflow-x-auto pb-2">
                     {recommendations.map(item => {
-                        const daysToExpiry = item.expiryDate ? Math.ceil((new Date(item.expiryDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)) : 999;
+                        const daysToExpiry = item.expiryDate ? Math.ceil((new Date(item.expiryDate).getTime() - Date.now()) / 86400000) : 999;
                         const reason = daysToExpiry < 30 ? 'EXPIRING' : 'LOW_STOCK';
                         return (
                             <PurchaseAlertCard 
