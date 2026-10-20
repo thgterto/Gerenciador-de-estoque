@@ -1,8 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { MovementRecord } from '../types';
 import { useHistoryFilters } from '../hooks/useHistoryFilters';
 import { ExportEngine } from '../utils/ExportEngine';
 import { formatDateTime } from '../utils/formatters';
+import { VariableSizeList as List, areEqual } from 'react-window';
+import AutoSizer from 'react-virtualized-auto-sizer';
 import { PageContainer } from './ui/PageContainer';
 import { PageHeader } from './ui/PageHeader';
 import { OrbitalCard } from './ui/orbital/OrbitalCard';
@@ -37,52 +39,56 @@ const getTypeBadge = (type: string) => {
     return <OrbitalBadge variant="warning" label="Ajuste" />;
 };
 
-const HistoryMobileRow = ({ item }: { item: MovementRecord }) => {
+const HistoryMobileRow = React.memo(({ data, index, style }: any) => {
+    const item: MovementRecord = data.filtered[index];
     const amountColor = item.type === 'ENTRADA' ? 'text-orbital-success' : item.type === 'SAIDA' ? 'text-orbital-danger' : 'text-orbital-warning';
     const sign = item.type === 'ENTRADA' ? '+' : item.type === 'SAIDA' ? '-' : '';
 
     return (
-        <div className="p-3 border-b border-orbital-border bg-orbital-surface/50 hover:bg-orbital-surface transition-colors">
-            <div className="flex justify-between items-center mb-1">
-                <div className="flex items-center gap-2">
-                    {getTypeBadge(item.type)}
-                    <span className="text-xs text-orbital-subtext">{formatDateTime(item.date)}</span>
+        <div style={style}>
+            <div className="p-3 border-b border-orbital-border bg-orbital-surface/50 hover:bg-orbital-surface transition-colors h-full">
+                <div className="flex justify-between items-center mb-1">
+                    <div className="flex items-center gap-2">
+                        {getTypeBadge(item.type)}
+                        <span className="text-xs text-orbital-subtext">{formatDateTime(item.date)}</span>
+                    </div>
+                    <div className={`text-sm font-mono font-bold ${amountColor}`}>
+                        {sign}{item.quantity} {item.unit}
+                    </div>
                 </div>
-                <div className={`text-sm font-mono font-bold ${amountColor}`}>
-                    {sign}{item.quantity} {item.unit}
+
+                <div className="font-bold text-sm text-orbital-text truncate mb-1">
+                    {item.productName || <span className="italic opacity-70">Item Arquivado</span>}
                 </div>
-            </div>
 
-            <div className="font-bold text-sm text-orbital-text truncate mb-1">
-                {item.productName || <span className="italic opacity-70">Item Arquivado</span>}
-            </div>
+                <div className="flex gap-2 items-center mb-1">
+                    {item.batchId && (
+                        <span className="px-1.5 py-0.5 text-[9px] border border-orbital-accent rounded text-orbital-accent font-mono">
+                            {item.batchId.split('-').pop()}
+                        </span>
+                    )}
+                    <span className="text-xs text-orbital-subtext font-mono">Lote: {item.lot || 'GEN'}</span>
+                </div>
 
-            <div className="flex gap-2 items-center mb-1">
-                {item.batchId && (
-                    <span className="px-1.5 py-0.5 text-[9px] border border-orbital-accent rounded text-orbital-accent font-mono">
-                        {item.batchId.split('-').pop()}
-                    </span>
+                {item.observation && (
+                    <div className="text-xs text-orbital-subtext italic bg-orbital-bg/50 p-1.5 rounded border border-orbital-border/50">
+                        Obs: {item.observation}
+                    </div>
                 )}
-                <span className="text-xs text-orbital-subtext font-mono">Lote: {item.lot || 'GEN'}</span>
             </div>
-
-            {item.observation && (
-                <div className="text-xs text-orbital-subtext italic bg-orbital-bg/50 p-1.5 rounded border border-orbital-border/50">
-                    Obs: {item.observation}
-                </div>
-            )}
         </div>
     );
-};
+}, areEqual);
 
-const HistoryRow = ({ item }: { item: MovementRecord }) => {
+const HistoryRow = React.memo(({ data, index, style }: any) => {
+    const item: MovementRecord = data.filtered[index];
     const amountColor = item.type === 'ENTRADA' ? 'text-orbital-success' : item.type === 'SAIDA' ? 'text-orbital-danger' : 'text-orbital-warning';
     const sign = item.type === 'ENTRADA' ? '+' : item.type === 'SAIDA' ? '-' : '';
 
     return (
-      <div className="w-full">
+      <div style={style} className="w-full">
           <div
-            className="h-[56px] border-b border-orbital-border bg-orbital-bg hover:bg-orbital-surface/50 transition-colors grid items-center px-4"
+            className="h-full border-b border-orbital-border bg-orbital-bg hover:bg-orbital-surface/50 transition-colors grid items-center px-4"
             style={{ gridTemplateColumns: GRID_TEMPLATE }}
           >
               <div>{getTypeBadge(item.type)}</div>
@@ -125,38 +131,35 @@ const HistoryRow = ({ item }: { item: MovementRecord }) => {
           </div>
       </div>
     );
-};
+}, areEqual);
 
 const NativeHistoryList = ({ filtered, isMobile }: { filtered: MovementRecord[], isMobile: boolean }) => {
-    const [visibleCount, setVisibleCount] = useState(50);
-
-    useEffect(() => {
-        // eslint-disable-next-line
-        setVisibleCount(50);
-    }, [filtered.length]);
-
-    const visibleItems = filtered.slice(0, visibleCount);
+    // Determine row height. Desktop is fixed 56px.
+    // For mobile, we use a larger estimated height since we have VariableSizeList
+    // (though in this case a fixed height for mobile could also work, VariableSizeList is safer for variable text lengths)
+    const getItemSize = (index: number) => {
+        if (!isMobile) return 56;
+        const item = filtered[index];
+        // Estimate height: base height + extra for observation
+        return item.observation ? 150 : 120;
+    };
 
     return (
-        <div className="pb-8">
-            {visibleItems.map((item) => (
-                isMobile ? (
-                    <HistoryMobileRow key={item.id} item={item} />
-                ) : (
-                    <HistoryRow key={item.id} item={item} />
-                )
-            ))}
-
-            {visibleCount < filtered.length && (
-                <div className="p-4 flex justify-center">
-                    <OrbitalButton
-                        variant="outline"
-                        onClick={() => setVisibleCount(prev => prev + 50)}
+        <div className="w-full h-full pb-8">
+            <AutoSizer>
+                {({ height, width }: { height: number, width: number }) => (
+                    <List
+                        height={height - 32} // Account for padding
+                        itemCount={filtered.length}
+                        itemSize={getItemSize}
+                        width={width}
+                        itemData={{ filtered }}
+                        overscanCount={5}
                     >
-                        Carregar Mais ({filtered.length - visibleCount} restantes)
-                    </OrbitalButton>
-                </div>
-            )}
+                        {isMobile ? HistoryMobileRow : HistoryRow}
+                    </List>
+                )}
+            </AutoSizer>
         </div>
     );
 };
