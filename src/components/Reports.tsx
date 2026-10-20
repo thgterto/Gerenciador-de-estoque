@@ -8,7 +8,7 @@ import { OrbitalTable, OrbitalHead, OrbitalBody, OrbitalRow, OrbitalTh, OrbitalT
 import { OrbitalBadge } from './ui/orbital/OrbitalBadge';
 import { useReportsAnalytics } from '../hooks/useReportsAnalytics';
 import { useECharts } from '../hooks/useECharts';
-import { formatDate } from '../utils/formatters';
+import { formatDate, calculateDaysToExpiry } from '../utils/formatters';
 import {
     BarChart3,
     DollarSign,
@@ -376,7 +376,7 @@ export const Reports: React.FC<Props> = ({ items, history }) => {
                             </OrbitalHead>
                             <OrbitalBody>
                                 {expiryRisk.map(item => {
-                                    const days = Math.ceil((new Date(item.expiryDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
+                                    const days = calculateDaysToExpiry(item.expiryDate);
                                     return (
                                         <OrbitalRow key={item.id}>
                                             <OrbitalTd><span className="font-bold text-orbital-text">{item.name}</span></OrbitalTd>

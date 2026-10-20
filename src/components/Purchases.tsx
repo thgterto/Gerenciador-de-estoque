@@ -19,6 +19,7 @@ import {
     Search
 } from 'lucide-react';
 import { RequestModal } from './Modals';
+import { calculateDaysToExpiry } from '../utils/formatters';
 
 interface Props {
   items: InventoryItem[];
@@ -43,9 +44,10 @@ export const Purchases: React.FC<Props> = ({
   // Filter recommendations: Low stock or Expiring
   const recommendations = useMemo(() => {
       if (!items) return [];
+      const nowTime = Date.now();
       return items.filter(i => {
           const isLow = i.quantity <= i.minStockLevel;
-          const daysToExpiry = i.expiryDate ? Math.ceil((new Date(i.expiryDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)) : 999;
+          const daysToExpiry = calculateDaysToExpiry(i.expiryDate || "", nowTime);
           const isExpiring = daysToExpiry < 30;
           const alreadyInList = purchaseList.some(p => p.id === i.id);
           return (isLow || isExpiring) && !alreadyInList;
@@ -91,7 +93,7 @@ export const Purchases: React.FC<Props> = ({
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 overflow-x-auto pb-2">
                     {recommendations.map(item => {
-                        const daysToExpiry = item.expiryDate ? Math.ceil((new Date(item.expiryDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)) : 999;
+                        const daysToExpiry = calculateDaysToExpiry(item.expiryDate || "");
                         const reason = daysToExpiry < 30 ? 'EXPIRING' : 'LOW_STOCK';
                         return (
                             <PurchaseAlertCard 
