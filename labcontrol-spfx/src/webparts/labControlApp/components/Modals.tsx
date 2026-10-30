@@ -164,33 +164,41 @@ export const QRGeneratorModal: React.FC<QRGeneratorModalProps> = ({ isOpen, onCl
     };
 
     const handlePrint = () => {
-        const printWindow = window.open('', '', 'width=600,height=400');
+        const svgHtml = document.getElementById('qr-code-svg')?.outerHTML || '';
+        const htmlContent = `
+            <html>
+                <head>
+                    <title>${escapeHtml(item.name)}</title>
+                    <style>
+                        @page { size: auto; margin: 0; }
+                        body { margin: 0; padding: 10px; font-family: monospace; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; }
+                        .label { text-align: center; border: 1px dashed #000; padding: 10px; width: 80mm; }
+                        .title { font-weight: bold; font-size: 14px; margin-bottom: 5px; }
+                        .meta { font-size: 10px; margin-bottom: 5px; }
+                    </style>
+                </head>
+                <body>
+                    <div class="label">
+                        <div class="title">${escapeHtml(item.name)}</div>
+                        <div class="meta">Lote: ${escapeHtml(item.lotNumber)} | Val: ${item.expiryDate ? new Date(item.expiryDate).toLocaleDateString() : 'N/A'}</div>
+                        ${svgHtml}
+                        <div class="meta" style="margin-top: 5px;">${escapeHtml(item.id)}</div>
+                    </div>
+                    <script>setTimeout(() => { window.print(); window.close(); }, 500);</script>
+                </body>
+            </html>
+        `;
+        const blob = new Blob([htmlContent], { type: 'text/html' });
+        const url = URL.createObjectURL(blob);
+        const printWindow = window.open(url, '', 'width=600,height=400');
         if (printWindow) {
-            const svgHtml = document.getElementById('qr-code-svg')?.outerHTML || '';
-            printWindow.document.write(`
-                <html>
-                    <head>
-                        <title>${escapeHtml(item.name)}</title>
-                        <style>
-                            @page { size: auto; margin: 0; }
-                            body { margin: 0; padding: 10px; font-family: monospace; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; }
-                            .label { text-align: center; border: 1px dashed #000; padding: 10px; width: 80mm; }
-                            .title { font-weight: bold; font-size: 14px; margin-bottom: 5px; }
-                            .meta { font-size: 10px; margin-bottom: 5px; }
-                        </style>
-                    </head>
-                    <body>
-                        <div class="label">
-                            <div class="title">${escapeHtml(item.name)}</div>
-                            <div class="meta">Lote: ${escapeHtml(item.lotNumber)} | Val: ${item.expiryDate ? new Date(item.expiryDate).toLocaleDateString() : 'N/A'}</div>
-                            ${svgHtml}
-                            <div class="meta" style="margin-top: 5px;">${escapeHtml(item.id)}</div>
-                        </div>
-                        <script>setTimeout(() => { window.print(); window.close(); }, 500);</script>
-                    </body>
-                </html>
-            `);
-            printWindow.document.close();
+            // Clean up the URL object when the window closes
+            printWindow.addEventListener('unload', () => {
+                URL.revokeObjectURL(url);
+            });
+        } else {
+            // If the popup was blocked, clean up the URL object immediately
+            URL.revokeObjectURL(url);
         }
     };
 
