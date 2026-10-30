@@ -1,5 +1,5 @@
 
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useCallback } from 'react';
 import { User, UserRole } from '../types';
 
 interface AuthContextType {
@@ -62,11 +62,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       localStorage.removeItem('LC_SESSION_TAB');
   };
 
-  const hasRole = (role: UserRole) => {
+  const hasRole = useCallback((role: UserRole) => {
       if (!user) return false;
       if (user.role === 'ADMIN') return true; // Admin pode tudo
       return user.role === role;
-  };
+  }, [user]);
 
   return (
     <AuthContext.Provider value={{ user, login, logout, isLoading, hasRole }}>

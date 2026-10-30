@@ -25,3 +25,6 @@
 ## 2025-02-14 - Unmemoized Hook Functions & Virtual List Performance
 **Learning:** Functions returned from custom hooks (like `toggleGroupExpand` in `useInventoryFilters`) that are recreated on every render will invalidate `itemData` prop passed to `react-window` components, forcing the entire list to re-render even if the underlying data (`flatList`) is stable.
 **Action:** Always wrap functions returned from hooks in `useCallback` if they are passed down to memoized children or used in `useMemo` dependencies, especially when filtering/sorting logic is involved.
+## 2025-10-23 - Memoizing large child components mapped from props
+**Learning:** In React, mapping a list into a custom sub-component (like `NativeList` iterating over `flatList`) without `React.memo` causes the sub-component to re-render whenever the parent's state changes. By applying `React.memo` to `NativeList` and ensuring props are stable (`useCallback` for `hasRole` from `useAuth` hook and others), we prevent expensive list re-renders. This is particularly important for large DOM trees like an `InventoryList` mapping over inventory items.
+**Action:** When a parent component holds rapidly changing state, wrap child list components in `React.memo` and ensure the passed callbacks are stable using `useCallback`.
