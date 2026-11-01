@@ -12,3 +12,7 @@
 ## 2025-05-26 - GHS Icons Accessibility
 **Learning:** Icon-only toggles for risk options were missing explicit `aria-label`s and used a `div` element with an `onClick` handler. This meant screen readers had no way to interact with or understand these toggles. Additionally, there were no focus outlines, breaking keyboard navigation.
 **Action:** Changed the `div` to a `<button type="button">`, added `aria-pressed={isChecked}`, `aria-label={ghs.label}`, and `focus-visible` styles to ensure proper screen reader and keyboard support.
+
+## 2026-11-01 - Context for Short-Text Buttons
+**Learning:** Buttons with very short text like 'IN' or 'OUT' can be visually clear due to their placement (e.g., in a scanner toggle), but are ambiguous for screen reader users who lack visual context.
+**Action:** Always add descriptive `aria-label` and `title` attributes to buttons that rely heavily on visual layout for meaning, ensuring the action is clear in isolation.
