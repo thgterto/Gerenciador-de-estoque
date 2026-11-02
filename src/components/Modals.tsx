@@ -1,5 +1,4 @@
 import { escapeHtml } from '../utils/escape';
-import { escapeHtml } from '../utils/escape';
 import React, { useState, useEffect, useMemo } from 'react';
 import { InventoryItem, QRCodeDataDTO, CreateItemDTO } from '../types';
 import * as ReactQRCode from 'react-qr-code';
@@ -151,16 +150,6 @@ export const QRGeneratorModal: React.FC<QRGeneratorModalProps> = ({ isOpen, onCl
         }
     };
 
-
-    const escapeHtml = (unsafe: string | null | undefined) => {
-        if (unsafe === null || unsafe === undefined) return '';
-        return String(unsafe)
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;")
-            .replace(/"/g, "&quot;")
-            .replace(/'/g, "&#039;");
-    };
 
     const handlePrint = () => {
         const printWindow = window.open('', '', 'width=600,height=400');
