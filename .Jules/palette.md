@@ -9,6 +9,11 @@
 ## 2025-05-25 - Explicit Labels for Touch Targets
 **Learning:** Helper components for mobile actions (like `MobileActionBtn`) often get created without `label` props, assuming icons are self-explanatory. This creates barriers for screen reader users on mobile where hover tooltips don't exist.
 **Action:** Enforce a `label` prop on all mobile-specific action button components and map it to both `title` (for long-press) and `aria-label`.
+
 ## 2025-05-26 - GHS Icons Accessibility
 **Learning:** Icon-only toggles for risk options were missing explicit `aria-label`s and used a `div` element with an `onClick` handler. This meant screen readers had no way to interact with or understand these toggles. Additionally, there were no focus outlines, breaking keyboard navigation.
 **Action:** Changed the `div` to a `<button type="button">`, added `aria-pressed={isChecked}`, `aria-label={ghs.label}`, and `focus-visible` styles to ensure proper screen reader and keyboard support.
+
+## 2025-05-27 - [Added ID and htmlFor to Form Inputs and Selects]
+**Learning:** Form components like `OrbitalInput` and `OrbitalSelect` in custom design systems often use `label` elements but forget to link them properly using `htmlFor` and an `id`. This makes the inputs less accessible to screen readers and also prevents clicking the label from focusing the input.
+**Action:** When working on custom UI components for forms, ensure `useId` is used to generate unique IDs if one isn't provided, and link the label with the input element. Also checked `RiskSelector` grouping and added `role="group"` and `aria-labelledby`.
