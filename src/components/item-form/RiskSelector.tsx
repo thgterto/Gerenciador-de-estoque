@@ -16,10 +16,10 @@ export const RiskSelector: React.FC<RiskSelectorProps> = ({ risks, onChange }) =
 
     return (
         <div>
-            <span className="block text-xs font-bold text-orbital-subtext uppercase tracking-wider mb-2">
+            <span id="ghs-group-label" className="block text-xs font-bold text-orbital-subtext uppercase tracking-wider mb-2">
                 Associated Risks (GHS)
             </span>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-2" role="group" aria-labelledby="ghs-group-label">
                 {GHS_OPTIONS.map((ghs) => {
                     const isChecked = risks?.[ghs.key] || false;
                     return (
