@@ -126,7 +126,9 @@ export const InventoryService = {
       return results.sort((a, b) => {
           if (!a.expiryDate) return 1;
           if (!b.expiryDate) return -1;
-          return new Date(a.expiryDate).getTime() - new Date(b.expiryDate).getTime();
+          // Performance optimization: Lexicographical string comparison for ISO dates
+          // avoids expensive Date object creation as noted in .jules/bolt.md
+          return a.expiryDate < b.expiryDate ? -1 : (a.expiryDate > b.expiryDate ? 1 : 0);
       });
   },
 
