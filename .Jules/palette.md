@@ -12,3 +12,6 @@
 ## 2025-05-26 - GHS Icons Accessibility
 **Learning:** Icon-only toggles for risk options were missing explicit `aria-label`s and used a `div` element with an `onClick` handler. This meant screen readers had no way to interact with or understand these toggles. Additionally, there were no focus outlines, breaking keyboard navigation.
 **Action:** Changed the `div` to a `<button type="button">`, added `aria-pressed={isChecked}`, `aria-label={ghs.label}`, and `focus-visible` styles to ensure proper screen reader and keyboard support.
+## 2025-05-27 - Icon Buttons and Incrementors Accessibility
+**Learning:** When building increment/decrement buttons (like `+` and `-`) or concise status buttons (like `IN` and `OUT`), the visible text is often not descriptive enough or reads poorly with screen readers.
+**Action:** Always wrap visual symbols like `+` and `-` in a `<span aria-hidden="true">` and provide a descriptive `aria-label` (e.g., "Aumentar quantidade", "Diminuir quantidade") on the parent button. Similarly, provide explicit context for abbreviated labels.

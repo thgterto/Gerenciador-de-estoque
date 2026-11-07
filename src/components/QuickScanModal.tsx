@@ -163,12 +163,14 @@ export const QuickScanModal: React.FC<Props> = ({ isOpen, onClose }) => {
                          <button
                             onClick={() => setContinuousType('ENTRADA')}
                             className={`px-3 py-1 text-[10px] font-bold font-mono transition-colors ${continuousType === 'ENTRADA' ? 'bg-orbital-success text-black' : 'text-orbital-subtext hover:text-white'}`}
+                            aria-label="Set continuous mode to Entrada (IN)"
                          >
                              IN
                          </button>
                          <button
                             onClick={() => setContinuousType('SAIDA')}
                             className={`px-3 py-1 text-[10px] font-bold font-mono transition-colors ${continuousType === 'SAIDA' ? 'bg-orbital-danger text-black' : 'text-orbital-subtext hover:text-white'}`}
+                            aria-label="Set continuous mode to Saida (OUT)"
                          >
                              OUT
                          </button>
@@ -181,6 +183,7 @@ export const QuickScanModal: React.FC<Props> = ({ isOpen, onClose }) => {
                         ? 'bg-orbital-warning/10 border-orbital-warning text-orbital-warning shadow-[0_0_15px_rgba(255,165,0,0.3)]'
                         : 'bg-black/50 border-orbital-border text-orbital-subtext hover:border-orbital-accent hover:text-orbital-accent'
                     }`}
+                    aria-label="Toggle continuous mode"
                 >
                     {continuousMode ? <Zap size={14} fill="currentColor" /> : <Activity size={14} />}
                     {continuousMode ? 'AUTO-SCAN' : 'MANUAL'}
