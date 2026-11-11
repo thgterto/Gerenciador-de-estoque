@@ -94,12 +94,10 @@ export const useHistoryFilters = (
 
                     // Busca Textual (Search Term)
                     if (termLower) {
-                        const matches = 
-                            (h.productName && normalizeStr(h.productName).includes(termLower)) || 
-                            (h.sapCode && normalizeStr(h.sapCode).includes(termLower)) || 
-                            (h.lot && normalizeStr(h.lot).includes(termLower)) ||
-                            (h.observation && normalizeStr(h.observation).includes(termLower));
-                        if (!matches) return false;
+                        // ⚡ Bolt Performance Optimization: Combine properties into a single string
+                        // before normalizing to reduce expensive .normalize("NFD") calls by up to 75%
+                        const searchStr = `${h.productName || ''} ${h.sapCode || ''} ${h.lot || ''} ${h.observation || ''}`;
+                        if (!normalizeStr(searchStr).includes(termLower)) return false;
                     }
 
                     return true;

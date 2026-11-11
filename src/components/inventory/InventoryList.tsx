@@ -41,6 +41,13 @@ const NativeList = ({
                 const style = { width: '100%' };
 
                 if (rowItem.type === 'GROUP') {
+                    const groupItems = rowItem.data.items;
+                    // ⚡ Bolt Performance Optimization:
+                    // Pre-calculate booleans here to pass primitives instead of the entire `selectedIds` Set.
+                    // This allows `React.memo` to work properly on row components and prevents O(N) re-renders.
+                    const allSelected = groupItems.length > 0 && groupItems.every((i: any) => selectedIds.has(i.id));
+                    const someSelected = groupItems.some((i: any) => selectedIds.has(i.id));
+
                     if (isMobile) {
                         return (
                             <InventoryMobileGroupRow
@@ -48,8 +55,9 @@ const NativeList = ({
                                 group={rowItem.data}
                                 style={style}
                                 isExpanded={rowItem.expanded}
-                                toggleExpand={() => toggleGroupExpand(rowItem.data.groupKey)}
-                                selectedChildIds={selectedIds}
+                                toggleExpand={toggleGroupExpand} // ⚡ Pass stable function to avoid breaking memo
+                                allSelected={allSelected}
+                                someSelected={someSelected}
                                 onSelectGroup={handleSelectGroup}
                                 copyToClipboard={copyToClipboard}
                             />
@@ -61,8 +69,9 @@ const NativeList = ({
                             style={style}
                             group={rowItem.data}
                             isExpanded={rowItem.expanded}
-                            toggleExpand={() => toggleGroupExpand(rowItem.data.groupKey)}
-                            selectedChildIds={selectedIds}
+                            toggleExpand={toggleGroupExpand} // ⚡ Pass stable function to avoid breaking memo
+                            allSelected={allSelected}
+                            someSelected={someSelected}
                             onSelectGroup={handleSelectGroup}
                             copyToClipboard={copyToClipboard}
                         />

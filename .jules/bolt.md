@@ -15,13 +15,17 @@
 **Action:** Always prefer Dexie's `where().aboveOrEqual()` or `between()` to leverage IndexedDB indices, significantly reducing the amount of data transferred from IDB to JS memory.
 
 ## 2025-02-14 - Documentation Strategy
-**Learning:** Documenting performance optimizations in a dedicated  file helps maintain awareness of high-impact patterns and prevents regressions during future refactors.
-**Action:** Maintain a living performance document alongside the codebase.
-
-## 2025-02-14 - Documentation Strategy
 **Learning:** Documenting performance optimizations in a dedicated `docs/PERFORMANCE.md` file helps maintain awareness of high-impact patterns and prevents regressions during future refactors.
 **Action:** Maintain a living performance document alongside the codebase.
 
 ## 2025-02-14 - Unmemoized Hook Functions & Virtual List Performance
 **Learning:** Functions returned from custom hooks (like `toggleGroupExpand` in `useInventoryFilters`) that are recreated on every render will invalidate `itemData` prop passed to `react-window` components, forcing the entire list to re-render even if the underlying data (`flatList`) is stable.
 **Action:** Always wrap functions returned from hooks in `useCallback` if they are passed down to memoized children or used in `useMemo` dependencies, especially when filtering/sorting logic is involved.
+
+## 2025-02-23 - Memoizing Mapped Components
+**Learning:** In lists of React components, mapping over arrays inside a render method without `React.memo` on the child component triggers unneccesary renders. In combination with a state variable (e.g. `visibleCount`) updating on infinite scroll, this triggers O(N) re-renders, causing noticeable lag on "Load More".
+**Action:** Always wrap child components in `React.memo` when rendering them inside mapped arrays in a list view.
+
+## 2025-02-23 - Single String vs Property Lookups in Array Iteration
+**Learning:** In string matching algorithms traversing over lists of objects where all matches need `.includes`, consolidating properties into a single string via string literal (e.g. `` `${obj.a} ${obj.b} ${obj.c}` ``) and normalizing it once is significantly faster than normalizing and checking each property individually via `||`.
+**Action:** Combine text fields into a single search string before applying normalization/search logic to minimize function calls.
