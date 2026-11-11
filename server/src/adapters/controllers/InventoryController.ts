@@ -23,7 +23,9 @@ export class InventoryController {
       const inventory = await this.getInventoryUseCase.execute();
       res.send(inventory);
     } catch (error: any) {
-      res.status(500).send({ error: error.message });
+      // SECURITY FIX: Prevent information leakage in error messages by not sending error.message directly.
+      req.log.error(error);
+      res.status(500).send({ error: 'An error occurred while fetching inventory' });
     }
   }
 
@@ -33,7 +35,9 @@ export class InventoryController {
       await this.logTransactionUseCase.execute(transaction);
       res.status(201).send({ success: true });
     } catch (error: any) {
-      res.status(500).send({ error: error.message });
+      // SECURITY FIX: Prevent information leakage in error messages by not sending error.message directly.
+      req.log.error(error);
+      res.status(500).send({ error: 'An error occurred while logging transaction' });
     }
   }
 
@@ -43,7 +47,9 @@ export class InventoryController {
       await this.saveProductUseCase.execute(product);
       res.status(201).send({ success: true });
     } catch (error: any) {
-      res.status(500).send({ error: error.message });
+      // SECURITY FIX: Prevent information leakage in error messages by not sending error.message directly.
+      req.log.error(error);
+      res.status(500).send({ error: 'An error occurred while saving product' });
     }
   }
 
@@ -54,7 +60,9 @@ export class InventoryController {
       const data = await this.getFullDatabaseUseCase.execute();
       res.send(data);
     } catch (error: any) {
-      res.status(500).send({ error: error.message });
+      // SECURITY FIX: Prevent information leakage in error messages by not sending error.message directly.
+      req.log.error(error);
+      res.status(500).send({ error: 'An error occurred while fetching full database' });
     }
   }
 
@@ -64,7 +72,9 @@ export class InventoryController {
       await this.syncDataUseCase.execute(payload);
       res.send({ success: true, syncedAt: new Date().toISOString() });
     } catch (error: any) {
-      res.status(500).send({ error: error.message });
+      // SECURITY FIX: Prevent information leakage in error messages by not sending error.message directly.
+      req.log.error(error);
+      res.status(500).send({ error: 'An error occurred while syncing data' });
     }
   }
 }

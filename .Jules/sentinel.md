@@ -9,3 +9,8 @@
 **Vulnerability:** The server's error handler was returning raw exception messages to the client for 500 errors, potentially exposing database queries, file paths, or other internal implementation details.
 **Learning:** Default error handling often prioritizes developer convenience (debugging) over security. Explicit environment checks (`NODE_ENV === 'production'`) are critical for toggling between verbose and safe error messages.
 **Prevention:** Always implement a centralized error handler that sanitizes error messages in production builds, returning a generic "Internal Server Error" while logging the full details server-side.
+
+## 2025-02-23 - Information Leakage in Inventory Controller
+**Vulnerability:** The application was catching exceptions in `InventoryController` and returning `error.message` directly in 500 status code responses, leaking internal information.
+**Learning:** Returning unhandled exception messages to the client exposes potentially sensitive data such as paths or SQL queries.
+**Prevention:** Catch the exceptions, log them securely on the server-side, and return a sanitized, generic error message to the client.
